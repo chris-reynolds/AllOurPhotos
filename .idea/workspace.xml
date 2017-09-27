@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="2e413bc1-e4ef-443f-94c5-6633750ec397" name="Default" comment="" />
+    <ignored path="$PROJECT_DIR$/.tmp/" />
+    <ignored path="$PROJECT_DIR$/temp/" />
+    <ignored path="$PROJECT_DIR$/tmp/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+        <option value="Vue Page" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>../testdata</find>
+      <find>gondo</find>
+      <find>ata</find>
+      <find>style=&quot;width:100%&quot; onclick=&quot;onClick(this)&quot;</find>
+      <find>w3_</find>
+      <find>myOv</find>
+      <find>Page not found</find>
+      <find>photogrid</find>
+      <find>PhotoGr</find>
+      <find>\</find>
+      <find>all</find>
+      <find>closemenu</find>
+      <find>selectpho</find>
+      <find>Hello world!</find>
+      <find>photos-</find>
+      <find>g',</find>
+      <find>looking at</find>
+      <find>','2010</find>
+      <find>2010-08</find>
+      <find>event</find>
+      <find>currentYear+'-</find>
+      <find>fileName</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>images</replace>
+      <replace>filename</replace>
+      <replace>/</replace>
+      <replace>g','caption':'a fixture'},</replace>
+      <replace>':'2010</replace>
+      <replace>'</replace>
+      <replace>photos/2010-08</replace>
+    </replaceStrings>
+    <dirStrings>
+      <dir>C:\projects\OurPhotos\nev</dir>
+      <dir>C:\projects\OurPhotos\nev\client2</dir>
+      <dir>C:\projects\OurPhotos\nev\client2\src</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/AllOurPhotos" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/nevServer/nevServerMain.js" />
+        <option value="$PROJECT_DIR$/server/lib/fs_utils.js" />
+        <option value="$PROJECT_DIR$/client/w3s.html" />
+        <option value="$PROJECT_DIR$/client/ourPhotos.css" />
+        <option value="$PROJECT_DIR$/client/next.html" />
+        <option value="$PROJECT_DIR$/client/ourPhotos.html" />
+        <option value="$PROJECT_DIR$/client/ourPhotos.js" />
+        <option value="$PROJECT_DIR$/client2/src/pages/aAlbums.vue" />
+        <option value="$PROJECT_DIR$/client2/node_modules/webpack/bin/config-yargs.js" />
+        <option value="$PROJECT_DIR$/client2/src/components/Footer.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/Paginator.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/empty.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/Header.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/MyFooter.vue" />
+        <option value="$PROJECT_DIR$/client2/src/pages/About.vue" />
+        <option value="$PROJECT_DIR$/client2/404.html" />
+        <option value="$PROJECT_DIR$/client2/src/components/Menu.vue" />
+        <option value="$PROJECT_DIR$/client2/src/classes.js" />
+        <option value="$PROJECT_DIR$/client2/src/components/MyOverlay.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/MyHeader.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/VLink.vue" />
+        <option value="$PROJECT_DIR$/client2/src/pages/fixtures].js" />
+        <option value="$PROJECT_DIR$/client2/src/pages/fixtures.js" />
+        <option value="$PROJECT_DIR$/client2/src/components/PhotoGridxxx.vue" />
+        <option value="$PROJECT_DIR$/client2/src/pages/Home.vue" />
+        <option value="$PROJECT_DIR$/client2/src/pages/Picture.vue" />
+        <option value="$PROJECT_DIR$/server/apiServer.js" />
+        <option value="$PROJECT_DIR$/client2/src/components/Service.vue" />
+        <option value="$PROJECT_DIR$/client2/src/routes.js" />
+        <option value="$PROJECT_DIR$/client2/src/components/MyMenu.vue" />
+        <option value="$PROJECT_DIR$/client2/package.json" />
+        <option value="$PROJECT_DIR$/client2/webpack.config.js" />
+        <option value="$PROJECT_DIR$/client2/src/layouts/Main.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/ModalPicture.vue" />
+        <option value="$PROJECT_DIR$/client2/src/fixtures.js" />
+        <option value="$PROJECT_DIR$/client2/src/components/DataService.vue" />
+        <option value="$PROJECT_DIR$/client2/src/pages/Albums.vue" />
+        <option value="$PROJECT_DIR$/client2/src/pages/Calendar.vue" />
+        <option value="webpack-internal:///103" />
+        <option value="webpack-internal:///105" />
+        <option value="$PROJECT_DIR$/client2/src/components/PhotoCell.vue" />
+        <option value="$PROJECT_DIR$/client2/src/main.js" />
+        <option value="$PROJECT_DIR$/client2/index.html" />
+        <option value="webpack-internal:///95" />
+        <option value="$PROJECT_DIR$/client2/src/components/PhotoGrid.vue" />
+        <option value="$PROJECT_DIR$/client2/src/components/MyEditor.vue" />
+        <option value="$PROJECT_DIR$/deploy/server/nevServerMain.js" />
+        <option value="$PROJECT_DIR$/server/nevServerMain.js" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsFlowSettings">
+    <service-enabled>true</service-enabled>
+    <exe-path />
+    <annotation-enable>false</annotation-enable>
+    <other-services-enabled>true</other-services-enabled>
+    <auto-save>true</auto-save>
+  </component>
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="NodeModulesDirectoryManager">
+    <handled-path value="$PROJECT_DIR$/client/node_modules" />
+    <handled-path value="$PROJECT_DIR$/server/node_modules" />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="3" />
+    <option name="y" value="1" />
+    <option name="width" value="1278" />
+    <option name="height" value="768" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>HTML</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>CheckEmptyScriptTag</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
+              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="nodejs_interpreter_path" value="C:/Program Files/nodejs/node" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="HbShouldOpenHtmlAsHb" value="" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="JavaScriptPreferStrict" value="true" />
+    <property name="JavaScriptWeakerCompletionTypeGuess" value="true" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\projects\OurPhotos\nev\client2" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\projects\OurPhotos\nev\testdata\2017-08" />
+      <recent name="C:\projects\OurPhotos\nev\client2\src" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="JavaScript Debug.Unnamed">
+    <configuration name="Unnamed" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="http://localhost:8080" />
+    <configuration name="dev" type="js.build_tools.npm" factoryName="npm" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/client2/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+    </configuration>
+    <configuration name="nevServer JavaScript" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="http://localhost:8080/client2/index.html" />
+    <configuration name="nevServer" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" node-parameters="nevServerMain.js" working-dir="$PROJECT_DIR$/server">
+      <browser start="true" with-js-debugger="true" url="http://localhost:8080/client2/index.html" />
+      <EXTENSION ID="com.jetbrains.nodejs.remote.docker.NodeJSDockerRunConfigurationExtension">
+        <option name="envVars">
+          <list />
+        </option>
+        <option name="extraHosts">
+          <list />
+        </option>
+        <option name="links">
+          <list />
+        </option>
+        <option name="networkDisabled" value="false" />
+        <option name="networkMode" value="bridge" />
+        <option name="portBindings">
+          <list />
+        </option>
+        <option name="publishAllPorts" value="false" />
+        <option name="version" value="1" />
+        <option name="volumeBindings">
+          <list />
+        </option>
+      </EXTENSION>
+      <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
+        <browser start="true" with-js-debugger="true" url="http://localhost:8080/client2/index.html" />
+      </EXTENSION>
+    </configuration>
+    <list size="4">
+      <item index="0" class="java.lang.String" itemvalue="JavaScript Debug.nevServer JavaScript" />
+      <item index="1" class="java.lang.String" itemvalue="JavaScript Debug.Unnamed" />
+      <item index="2" class="java.lang.String" itemvalue="Node.js.nevServer" />
+      <item index="3" class="java.lang.String" itemvalue="npm.dev" />
+    </list>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2e413bc1-e4ef-443f-94c5-6633750ec397" name="Default" comment="" />
+      <created>1505343629238</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1505343629238</updated>
+      <workItem from="1505343631717" duration="2324000" />
+      <workItem from="1505346117914" duration="21096000" />
+      <workItem from="1505448904312" duration="21941000" />
+      <workItem from="1505704104880" duration="44512000" />
+      <workItem from="1506117611817" duration="13945000" />
+      <workItem from="1506473495761" duration="79000" />
+      <workItem from="1506473603817" duration="309000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="104206000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="3" y="1" width="1278" height="768" extended-state="0" />
+    <layout>
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2766129" sideWeight="0.48243558" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19968553" sideWeight="0.5032258" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19968553" sideWeight="0.4967742" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32704404" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32861635" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3288835" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2766129" sideWeight="0.5175644" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32861635" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19968553" sideWeight="0.5032258" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3288835" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2766129" sideWeight="0.5175644" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19968553" sideWeight="0.4967742" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32704404" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2766129" sideWeight="0.48243558" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32882273" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32861635" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/AllOurPhotos" />
+    </ignored-roots>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/nevServer/nevServerMain.js</url>
+          <line>8</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/server/nevServerMain.js</url>
+          <line>99</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/server/nevServerMain.js</url>
+          <line>72</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>mock://webpack-internal:///103</url>
+          <line>79</line>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>mock://webpack-internal:///95</url>
+          <line>26</line>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>mock://webpack-internal:///95</url>
+          <line>24</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>mock://webpack-internal:///95</url>
+          <line>19</line>
+          <option name="timeStamp" value="30" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>mock://webpack-internal:///95</url>
+          <line>20</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="32" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyMenu.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/VLink.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/layouts/Main.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyHeader.vue" />
+    <entry file="file://$PROJECT_DIR$/nevServer/nevServerMain.js" />
+    <entry file="file://$PROJECT_DIR$/nevServer/package.json" />
+    <entry file="file://$PROJECT_DIR$/nevServer/nevServerMain.js" />
+    <entry file="file://$PROJECT_DIR$/server/lib/fs_utils.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/lib/tblImages.js" />
+    <entry file="file://$PROJECT_DIR$/client/w3s.html" />
+    <entry file="file://$PROJECT_DIR$/client/ourPhotos.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="18" lean-forward="false" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/ourPhotos.js" />
+    <entry file="file://$PROJECT_DIR$/client2/node_modules/webpack/bin/config-yargs.js" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/Paginator.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyFooter.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/404.html" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/empty.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyOverlay.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/pages/About.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/ourPhotos.css" />
+    <entry file="file://$PROJECT_DIR$/client/ourPhotos.html" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/VLink.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/pages/Picture.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/pages/404.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyHeader.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/pages/Home.vue" />
+    <entry file="file://$PROJECT_DIR$/server/config.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client2/src/classes.js" />
+    <entry file="file://$PROJECT_DIR$/client2/src/routes.js" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyMenu.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/webpack.config.js" />
+    <entry file="file://$PROJECT_DIR$/client2/src/layouts/Main.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/ModalPicture.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/PhotoGridxxx.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/fixtures.js" />
+    <entry file="file://$PROJECT_DIR$/client2/src/pages/Albums.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/DataService.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyRank.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyOrientation.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/pages/Calendar.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/package.json" />
+    <entry file="file://$PROJECT_DIR$/client2/src/main.js" />
+    <entry file="file://$PROJECT_DIR$/client2/index.html" />
+    <entry file="file://$PROJECT_DIR$/server/apiServer.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="6" lean-forward="false" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/next.html" />
+    <entry file="file://$PROJECT_DIR$/client/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="33" column="0" lean-forward="false" selection-start-line="33" selection-start-column="0" selection-end-line="48" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/deploy/server/nevServerMain.js" />
+    <entry file="file://$PROJECT_DIR$/server/nevServerMain.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="82">
+          <caret line="11" column="23" lean-forward="true" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client2/src/components/MyEditor.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/PhotoCell.vue" />
+    <entry file="file://$PROJECT_DIR$/client2/src/components/PhotoGrid.vue" />
+  </component>
+</project>
