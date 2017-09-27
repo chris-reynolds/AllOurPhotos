@@ -7,3 +7,4 @@ all out photos from different devices, caption, rank and orient them.
 
 Then potentially create albums that can be printed or uploaded to FB.
 
+#DEVELOPMENT STILL VERY MUCH - IN PROGRESS
