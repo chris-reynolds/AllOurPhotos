@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --hot",
+    "dev2": "start webpack-dev-server --inline --hot",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
     "predeploy": "npm run build",
     "deploy": "surge --project . --domain vue-2.0-all-our-photos.sh"
