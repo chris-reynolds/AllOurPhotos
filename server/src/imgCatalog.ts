@@ -1,5 +1,20 @@
 import * as fs from 'fs'
+import * as _  from 'lodash'
 import {FsFile,FsDirectory} from './fs_utils'
+
+class FilenameHelper {
+    static root : string
+    static sep : string
+    static get separator() {
+        if (process.cwd().indexOf('\\')>=0)
+            return '\\'
+        else
+            return '/'
+    } // of separator
+    static calcFilename(path:string,name:string):string {
+        return FilenameHelper.root + FilenameHelper.separator + path + FilenameHelper.separator + name
+    }
+}
 
 class YearProfile {
     year :string
@@ -8,18 +23,21 @@ class YearProfile {
 
 export default class ImgCatalog {
     private _rootDir : FsDirectory
-    private directories : ImgDirectory[];
+    private directories : ImgDirectory[] = [];
     constructor(rootDir:FsDirectory) {
         this._rootDir = rootDir
+        FilenameHelper.root = rootDir.fullPath
+        rootDir.directories.forEach(thisDirectory => this.directories.push(new ImgDirectory(thisDirectory)))
     }
-    getDirectory(dirName) {
+    getDirectory(dirName):ImgDirectory {
         let idx = _.findIndex(this.directories,['directoryName',dirName])
-        return idx>-1 ? this.directories[idx] : {}
+        return idx>-1 ? this.directories[idx] : null
     } // of getDirectory
 
     getYear(selectedYear) :YearProfile {
         let result = new YearProfile()
         result.year = selectedYear
+        result.months = []
         this.directories.forEach(function (directory) {
             let thisYear = directory.directoryName.substr(0,4)
             let thisMonth = directory.directoryName.substr(5,2);
@@ -39,8 +57,8 @@ export default class ImgCatalog {
         }) // of foreach
 
         result = result.sort()
-        for (let i=0;i<result.length;i++)
-            result[i] = this.getYear(result[i]);
+  //      for (let i=0;i<result.length;i++)
+  //          result[i] = this.getYear(result[i]);
         return result;
     }  // of years
 
@@ -51,27 +69,61 @@ export default class ImgCatalog {
 }  // of ImgCatalog
 
 export class ImgDirectory {
-    private static INDEXNAME : string = 'index.json'
-    private _isLoaded : boolean = false
-    private _isIndexDirty : boolean = false
+  private static INDEXNAME : string = 'index.json'
+  private _isLoaded : boolean = false
+  private _isIndexDirty : boolean = false
+  private _files : ImgFile[] = []
+  private _indexMaintTime : Date
+  private _directoryMaintTime : Date
+  public directoryName:string
 
     public get files() : ImgFile[] {
-        return null
+      //throw new Error('TODO: ImgDirectory : get files()')
+      return this._files
     }
-    constructor(public directoryName:string) {
 
+    constructor(public directory:FsDirectory) {
+      this.directoryName = directory.path
+      let dirPath = FilenameHelper.calcFilename(this.directoryName,'.')
+      let stats = fs.statSync(dirPath)
+      this._directoryMaintTime = stats.mtime
+       this.loadIndex()   // side effect loads the indexMaintTime
+      if (this._indexMaintTime<this._directoryMaintTime)
+        this.scanDirectory()
     } // of constructor
 
     loadIndex() {
-
+      let indexPath = FilenameHelper.calcFilename(this.directoryName,ImgDirectory.INDEXNAME)
+      if (!fs.existsSync(indexPath)) {
+        this._indexMaintTime = new Date(1970,1,1)
+        return
+      }
+      let indexFile = fs.readFileSync(indexPath,'utf8')
+      let loadedObj = JSON.parse(indexFile)
+      if (!Array.isArray(loadedObj))
+          throw new Error('Invalid format for index of '+this.directoryName)
+      loadedObj.forEach( img => this._files.push(img))
+      let stats = fs.statSync(indexPath)
+      this._indexMaintTime = stats.mtime
     } // of loadIndex
 
     saveIndex() {
-
+      let indexPath = FilenameHelper.calcFilename(this.directoryName,ImgDirectory.INDEXNAME)
+      fs.writeFileSync(indexPath,JSON.stringify(this._files))
     } // of saveIndex
 
     scanDirectory() {
-
+    let isIndexDirty = false
+      let self = this
+      this.directory.files.forEach(function(thisFile:FsFile) {
+        let idx = _.findIndex(self._files,['fileName',thisFile.fileName])
+        if (idx==-1) {   // not already in index
+          self._files.push(new ImgFile(thisFile.fileName))
+          isIndexDirty = true
+        }
+      })
+      if (isIndexDirty)
+        this.saveIndex()
     } // scanDirectory
 
     getFile(fileName) {

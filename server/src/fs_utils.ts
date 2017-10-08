@@ -16,9 +16,12 @@ export class FsDirectory {
     private _directories : Array<FsDirectory> = [];
     private _files : Array<FsFile> = [];
     private _fullpath = '';
-    constructor (public path: string,public parent: FsDirectory = null, public OS_Separator:string = '\\') {
+    public static OS_Separator : string = '\\'
+    constructor (public path: string,public parent: FsDirectory = null) {
+        if (path.indexOf('/')>=0)
+            FsDirectory.OS_Separator = '/';
         if (parent)
-          this._fullpath = parent._fullpath+OS_Separator+this.path;
+          this._fullpath = parent._fullpath+FsDirectory.OS_Separator+this.path;
         else
             this._fullpath = this.path;
         if (fs.existsSync(this._fullpath)) {
@@ -39,7 +42,7 @@ export class FsDirectory {
         this._files.length = 0;
         let fileNames = fs.readdirSync(this._fullpath);
         for (let fileIx = 0; fileIx < fileNames.length; fileIx++) {
-          let fullName = this._fullpath + this.OS_Separator + fileNames[fileIx];
+          let fullName = this._fullpath + FsDirectory.OS_Separator + fileNames[fileIx];
           let stats = fs.lstatSync(fullName);
           if (stats.isDirectory())
             this._directories.push(new FsDirectory(fileNames[fileIx], this));
