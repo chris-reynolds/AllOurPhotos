@@ -66,9 +66,9 @@ export class AopWebServer {
     let monthKey = selfWS.compoundMonthKey(year,month)
     let thisMonth : ImgDirectory = selfWS.imgCatalog.getDirectory(monthKey)
     if (thisMonth) {
-      return thisMonth.files
+      return {directory:thisMonth.directoryName,files:thisMonth.files}
     } else
-      return []
+      return {directory:'??'+year+'/'+month+'????',files:[]}
   }  // of monthIndex
 
   executeApiRequest(res,segments) {
@@ -76,17 +76,17 @@ export class AopWebServer {
       let apiRequestType = segments[0].toLowerCase()
       if (apiRequestType=='month') {
         if (segments.length!=3) throw new Error('month url requires 2 parameters')
-        res.writeHead(200,'application/json')
+        res.writeHead(200,{'Content-Type': 'application/json'})
         let contents = JSON.stringify(selfWS.monthIndex(segments[1],segments[2]))
         res.end(contents)
       } else if (apiRequestType=='year') {
         if (segments.length!=2) throw new Error('year url requires 1 parameters')
-        res.writeHead(200,'application/json')
+        res.writeHead(200,{'Content-Type': 'application/json'})
         let contents = JSON.stringify(selfWS.imgCatalog.getYear(segments[1]))
         res.end(contents)
       } else if (apiRequestType=='years') {
         if (segments.length!=1) throw new Error('years url requires 0 parameters')
-        res.writeHead(200,'application/json')
+        res.writeHead(200,{'Content-Type': 'application/json'})
         let contents = JSON.stringify(selfWS.imgCatalog.getYears())
         res.end(contents)
 

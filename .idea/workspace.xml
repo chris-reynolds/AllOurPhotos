@@ -2,31 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e413bc1-e4ef-443f-94c5-6633750ec397" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170802_142832.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170803_164920.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170803_164931.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_073440.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_073657.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_074131.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_074135.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_074726.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_074727.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_075020.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_075028.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_075031.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_075325.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_075328.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_083700.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_083703.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_083717.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_084420.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170807_084806.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170808_085239.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/testdata/2017-08/thumbnail/20170808_085252.jpg" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/package.json" afterPath="$PROJECT_DIR$/client/package.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" afterPath="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/client/src/pages/Calendar.vue" afterPath="$PROJECT_DIR$/client/src/pages/Calendar.vue" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/aopServerMain.tests.ts" afterPath="$PROJECT_DIR$/server/src/aopServerMain.tests.ts" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/aopWebServer.ts" afterPath="$PROJECT_DIR$/server/src/aopWebServer.ts" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/src/imgCatalog.ts" afterPath="$PROJECT_DIR$/server/src/imgCatalog.ts" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -45,8 +22,8 @@
       <file leaf-file-name="imgCatalog.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/src/imgCatalog.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="12" column="21" lean-forward="true" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+            <state relative-caret-position="238">
+              <caret line="14" column="8" lean-forward="false" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="8" />
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
               </folding>
@@ -54,18 +31,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="101" pinned="false" current-in-tab="true">
-        <entry file="mock://webpack-internal:///101">
-          <provider selected="true" editor-type-id="vmFileEditor">
-            <state />
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="aopWebServer.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/src/aopWebServer.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-368">
-              <caret line="18" column="2" lean-forward="false" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
+            <state relative-caret-position="358">
+              <caret line="70" column="36" lean-forward="false" selection-start-line="70" selection-start-column="36" selection-end-line="70" selection-end-column="36" />
               <folding>
                 <element signature="e#14#38#0" expanded="true" />
               </folding>
@@ -73,22 +43,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PhotoGrid.vue" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/src/components/PhotoGrid.vue">
+      <file leaf-file-name="aopServerMain.tests.ts" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/src/aopServerMain.tests.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="75" lean-forward="false" selection-start-line="5" selection-start-column="75" selection-end-line="5" selection-end-column="75" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Calendar.vue" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/src/pages/Calendar.vue">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="73" column="19" lean-forward="true" selection-start-line="73" selection-start-column="19" selection-end-line="73" selection-end-column="19" />
-              <folding />
+            <state relative-caret-position="298">
+              <caret line="50" column="23" lean-forward="false" selection-start-line="50" selection-start-column="23" selection-end-line="50" selection-end-column="23" />
+              <folding>
+                <element signature="e#0#30#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -200,14 +162,14 @@
         <option value="$PROJECT_DIR$/server/src/apiServer.ts" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/server/src/fs_utils.ts" />
-        <option value="$PROJECT_DIR$/server/src/aopServerMain.tests.ts" />
         <option value="$PROJECT_DIR$/server/src/aopServerMain.ts" />
-        <option value="$PROJECT_DIR$/server/src/aopWebServer.ts" />
         <option value="$PROJECT_DIR$/client/package.json" />
         <option value="$PROJECT_DIR$/client/src/pages/Calendar.vue" />
         <option value="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" />
         <option value="$PROJECT_DIR$/server/src/imgCatalog.ts" />
         <option value="webpack-internal:///101" />
+        <option value="$PROJECT_DIR$/server/src/aopWebServer.ts" />
+        <option value="$PROJECT_DIR$/server/src/aopServerMain.tests.ts" />
       </list>
     </option>
   </component>
@@ -282,31 +244,6 @@
             <path>
               <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
               <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="components" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="pages" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
               <item name="server" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -357,7 +294,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Node.js.aopServer">
+  <component name="RunManager" selected="Node.js.aopServer-build">
     <configuration name="Client8080 after npm run dev" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="http://localhost:8080">
       <method>
         <option name="NpmBeforeRunTask" enabled="true">
@@ -371,7 +308,30 @@
         </option>
       </method>
     </configuration>
-    <configuration name="aopServer" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" node-parameters="aopServerMain.js" working-dir="$PROJECT_DIR$/server/build">
+    <configuration name="aopServer-build" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" node-parameters="aopServerMain.js" working-dir="$PROJECT_DIR$/server/build">
+      <EXTENSION ID="com.jetbrains.nodejs.remote.docker.NodeJSDockerRunConfigurationExtension">
+        <option name="envVars">
+          <list />
+        </option>
+        <option name="extraHosts">
+          <list />
+        </option>
+        <option name="links">
+          <list />
+        </option>
+        <option name="networkDisabled" value="false" />
+        <option name="networkMode" value="bridge" />
+        <option name="portBindings">
+          <list />
+        </option>
+        <option name="publishAllPorts" value="false" />
+        <option name="version" value="1" />
+        <option name="volumeBindings">
+          <list />
+        </option>
+      </EXTENSION>
+    </configuration>
+    <configuration name="aopServer-dev" type="NodeJSConfigurationType" factoryName="Node.js" singleton="false" path-to-node="project" node-parameters="aopServerMain.js" working-dir="$PROJECT_DIR$/server/src">
       <EXTENSION ID="com.jetbrains.nodejs.remote.docker.NodeJSDockerRunConfigurationExtension">
         <option name="envVars">
           <list />
@@ -404,38 +364,11 @@
       <envs />
     </configuration>
     <configuration name="nevServer JavaScript" type="JavascriptDebugType" factoryName="JavaScript Debug" uri="http://localhost:8080/client2/index.html" />
-    <configuration name="nevServer" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" node-parameters="nevServerMain.js" working-dir="$PROJECT_DIR$/server">
-      <browser start="true" with-js-debugger="true" url="http://localhost:8080/client2/index.html" />
-      <EXTENSION ID="com.jetbrains.nodejs.remote.docker.NodeJSDockerRunConfigurationExtension">
-        <option name="envVars">
-          <list />
-        </option>
-        <option name="extraHosts">
-          <list />
-        </option>
-        <option name="links">
-          <list />
-        </option>
-        <option name="networkDisabled" value="false" />
-        <option name="networkMode" value="bridge" />
-        <option name="portBindings">
-          <list />
-        </option>
-        <option name="publishAllPorts" value="false" />
-        <option name="version" value="1" />
-        <option name="volumeBindings">
-          <list />
-        </option>
-      </EXTENSION>
-      <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
-        <browser start="true" with-js-debugger="true" url="http://localhost:8080/client2/index.html" />
-      </EXTENSION>
-    </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="JavaScript Debug.nevServer JavaScript" />
       <item index="1" class="java.lang.String" itemvalue="JavaScript Debug.Client8080 after npm run dev" />
-      <item index="2" class="java.lang.String" itemvalue="Node.js.aopServer" />
-      <item index="3" class="java.lang.String" itemvalue="Node.js.nevServer" />
+      <item index="2" class="java.lang.String" itemvalue="Node.js.aopServer-build" />
+      <item index="3" class="java.lang.String" itemvalue="Node.js.aopServer-dev" />
       <item index="4" class="java.lang.String" itemvalue="npm.dev" />
     </list>
   </component>
@@ -462,15 +395,16 @@
       <workItem from="1506474041398" duration="17706000" />
       <workItem from="1506915844851" duration="27484000" />
       <workItem from="1509611828654" duration="37000" />
-      <workItem from="1509656157274" duration="5202000" />
+      <workItem from="1509656157274" duration="8083000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="154757000" />
+    <option name="totallyTimeSpent" value="157638000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="3" y="1" width="1606" height="928" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="TypeScript" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21875" sideWeight="0.48243558" order="0" side_tool="false" content_ui="tabs" />
@@ -482,7 +416,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32704404" sideWeight="0.49435484" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2625628" sideWeight="0.4951613" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2625628" sideWeight="0.4951613" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -585,12 +519,6 @@
           <properties />
           <option name="timeStamp" value="54" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/server/src/imgCatalog.ts</url>
-          <line>14</line>
-          <properties />
-          <option name="timeStamp" value="55" />
-        </line-breakpoint>
       </breakpoints>
       <option name="time" value="56" />
     </breakpoint-manager>
@@ -631,14 +559,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/deploy/server/nevServerMain.js" />
-    <entry file="file://$PROJECT_DIR$/server/nevServerMain.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="82">
-          <caret line="11" column="23" lean-forward="true" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client2/src/components/MyEditor.vue" />
     <entry file="file://$PROJECT_DIR$/client2/src/components/PhotoCell.vue" />
     <entry file="file://$PROJECT_DIR$/client2/src/components/PhotoGrid.vue" />
@@ -688,16 +608,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aopServerMain.tests.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="25" column="30" lean-forward="false" selection-start-line="25" selection-start-column="30" selection-end-line="25" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#30#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/src/fs_utils.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1156">
@@ -737,16 +647,6 @@
         <state relative-caret-position="391">
           <caret line="26" column="16" lean-forward="false" selection-start-line="26" selection-start-column="16" selection-end-line="26" selection-end-column="16" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aopWebServer.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-368">
-          <caret line="18" column="2" lean-forward="false" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
-          <folding>
-            <element signature="e#14#38#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -802,7 +702,35 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="73" column="19" lean-forward="true" selection-start-line="73" selection-start-column="19" selection-end-line="73" selection-end-column="19" />
-          <folding />
+          <folding>
+            <marker date="1509669903220" expanded="true" signature="1005:3962" ph="..." />
+            <marker date="1509669903220" expanded="false" signature="1018:1199" ph="..." />
+            <marker date="1509669903220" expanded="true" signature="1218:3953" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="1251:1657" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="1390:1651" ph="{&quot;yeargrid&quot;: yearList...}" />
+            <marker date="1509669903220" expanded="true" signature="1709:1823" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="1838:3759" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="1868:2158" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="2204:2305" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="2352:2865" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="2539:2713" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="2749:2855" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="2901:2969" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="3019:3753" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="3206:3261" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="3455:3542" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="3787:3883" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="3820:3877" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="3901:3949" ph="{&quot;MainLayout&quot;: MainLayout...}" />
+            <marker date="1509669903220" expanded="true" signature="3978:5161" ph="..." />
+            <marker date="1509669903220" expanded="true" signature="3994:4167" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="4187:4266" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="4378:4478" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="4547:4734" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="4820:4859" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="4941:4980" ph="{...}" />
+            <marker date="1509669903220" expanded="true" signature="5038:5153" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -810,16 +738,58 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
           <caret line="5" column="75" lean-forward="false" selection-start-line="5" selection-start-column="75" selection-end-line="5" selection-end-column="75" />
+          <folding>
+            <marker date="1509669914983" expanded="true" signature="883:2015" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="883:2024" ph="..." />
+            <marker date="1509669914983" expanded="true" signature="919:1024" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="934:1017" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1040:1645" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1073:1621" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1129:1587" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1399:1548" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1660:1947" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1685:1767" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1796:1941" ph="{...}" />
+            <marker date="1509669914983" expanded="true" signature="1965:2011" ph="{&quot;PhotoCell&quot;: PhotoCell...}" />
+            <marker date="1509669914983" expanded="true" signature="2040:2050" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/nevServerMain.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="82">
+          <caret line="11" column="23" lean-forward="true" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/src/imgCatalog.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="21" lean-forward="true" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+        <state relative-caret-position="238">
+          <caret line="14" column="8" lean-forward="false" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="8" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/aopWebServer.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="358">
+          <caret line="70" column="36" lean-forward="false" selection-start-line="70" selection-start-column="36" selection-end-line="70" selection-end-column="36" />
+          <folding>
+            <element signature="e#14#38#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/aopServerMain.tests.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="50" column="23" lean-forward="false" selection-start-line="50" selection-start-column="23" selection-end-line="50" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
           </folding>
         </state>
       </provider>
