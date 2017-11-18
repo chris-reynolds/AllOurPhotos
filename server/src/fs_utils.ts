@@ -79,3 +79,13 @@ export class FsDirectory {
 
 }  // of FSDirectory
 
+export class FsHelper {
+  static deleteFile(fileName:string):void {
+    try {
+      fs.unlinkSync(fileName)
+    } catch(e) {
+      // swallow
+    }
+  } // of deleteFile
+
+} // of FsHelper

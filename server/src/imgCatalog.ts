@@ -117,8 +117,8 @@ export class ImgDirectory {
       let self = this
       this.directory.files.forEach(function(thisFile:FsFile) {
         let idx = _.findIndex(self._files,['fileName',thisFile.fileName])
-        if (idx==-1) {   // not already in index
-          self._files.push(new ImgFile(thisFile.fileName,FilenameHelper.calcFilename(this.directory.fullPath,thisFile.fileName)))
+        if (idx==-1  && /\.jpg/.test(thisFile.fileName.toLowerCase())  ) {   // not already in index
+          self._files.push(new ImgFile(thisFile.fileName,self.directory.path+'/'+thisFile.fileName))
           isIndexDirty = true
         }
       })
@@ -134,7 +134,7 @@ export class ImgDirectory {
 } // of ImgDirectory
 
 export class ImgFile {
-  constructor (public fileName:string,public fullPath:string) {
-     console.log('ImgFile:'+this.fullPath)
+  constructor (public fileName:string,public url:string) {
+     console.log('ImgFile:'+this.url)
   } // of constructor
 } // of ImgFile

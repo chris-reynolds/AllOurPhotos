@@ -4,6 +4,7 @@ import ImgCatalog, {ImgDirectory} from './imgCatalog'
 import {FsDirectory} from "./fs_utils";
 import * as http from 'http'
 import {Server} from "http";
+import {ImageUploader} from "./ImageUploader";
 
 let  selfWS :AopWebServer  // record singleton for callback
 
@@ -35,11 +36,22 @@ export class AopWebServer {
       case 'images':
         selfWS.serveStaticFile(res, selfWS.config.imagesDir + shortPath, 'image/jpeg');
         break;
-      case 'photos':
-        selfWS.serveStaticFile(res, selfWS.config.realDir + shortPath, 'image/jpeg')
+      case 'new_image':
+        ImageUploader.newImageHandler(req,res)
         break
       case 'api':
         selfWS.executeApiRequest(res,segments)
+        break
+      case 'testform':
+        res.writeHead(200, {"Content-Type": "text/html"});
+        res.write(
+          '<form action="/new_image/blah" method="post" enctype="multipart/form-data">'+
+          '<input type="file" name="upload-file">'+
+          '<input type="file" name="upload-file2">'+
+          '<input type="submit" value="Upload">'+
+          '</form>'
+        );
+        res.end();
         break
       default:
         let possFilename = selfWS.config.clientDir+thisReq.path;
@@ -66,6 +78,7 @@ export class AopWebServer {
     let monthKey = selfWS.compoundMonthKey(year,month)
     let thisMonth : ImgDirectory = selfWS.imgCatalog.getDirectory(monthKey)
     if (thisMonth) {
+      thisMonth.files.forEach(thisFile => thisFile['url'] = thisMonth.directoryName+'/'+thisFile.fileName)
       return {directory:thisMonth.directoryName,files:thisMonth.files}
     } else
       return {directory:'??'+year+'/'+month+'????',files:[]}
@@ -115,8 +128,8 @@ export class AopWebServer {
 
     fs.readFile(path, function(err,data) {
       if(err) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('500 - Internal Error '+err.message+' '+path);
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('404 - '+err.message);
       } else {
         res.writeHead(responseCode,
           { 'Content-Type': contentType });
