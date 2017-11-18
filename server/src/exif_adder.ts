@@ -24,7 +24,7 @@ export class JpegHelper {
   }  // of loadExif
 
   static prettify(exifObj,filterMap) {
-    result = {};
+    let result = {};
     for (let ifd in exifObj) {
       if (ifd === "thumbnail") continue;
       for (let tag in exifObj[ifd]) {
@@ -34,7 +34,7 @@ export class JpegHelper {
       }
     }
     if (exifObj.thumbnail)
-      result.thumbnail = exifObj.thumbnail;
+      result['thumbnail'] = exifObj.thumbnail;
     return result;
   } // of prettify
 
