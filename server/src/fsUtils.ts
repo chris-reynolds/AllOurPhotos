@@ -5,7 +5,7 @@ import * as fs from 'fs'
 
 
 export class FsFile {
-  constructor (public fileName:string, public directoryPath:string,
+  constructor (public filename:string, public directoryPath:string,
                public createdOn : Date, public modifiedOn : Date) {
   } // of constructor
 } // of FsClass
@@ -50,7 +50,7 @@ export class FsDirectory {
               let createdOn :Date = stats.birthtime
               let modifiedOn :Date = stats.mtime
               createdOn = (createdOn>modifiedOn) ? modifiedOn : createdOn
-              this._files.push({'fileName': fileNames[fileIx], 'directoryPath': this.fullPath,
+              this._files.push({'filename': fileNames[fileIx], 'directoryPath': this.fullPath,
                 'createdOn': createdOn, 'modifiedOn':modifiedOn });
           }
         } // of file loop

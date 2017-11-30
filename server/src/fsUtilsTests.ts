@@ -2,7 +2,7 @@
 //
 
 import { assert } from 'chai';
-import { FsDirectory } from './fs_utils';
+import { FsDirectory } from './fsUtils';
 
 const TEST_DIR = 'c:\\projects\\AllOurPhotos';
 const TEST_BADDIR = 'c:\\projects\\AllOurPhotosxxx';
