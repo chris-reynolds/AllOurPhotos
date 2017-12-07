@@ -9,19 +9,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^8.0.31",
-    "@types/supertest": "^2.0.3",
+    "@types/node": "^8.0.53",
+    "@types/supertest": "^2.0.4",
     "formidable": "^1.1.1",
     "lodash": "^4.17.4",
     "piexifjs": "^1.0.3"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.4",
-    "@types/mocha": "^2.2.43",
+    "@types/chai": "^4.0.6",
+    "@types/mocha": "^2.2.44",
     "chai": "^4.1.2",
     "mocha": "^3.5.3",
     "supertest": "^3.0.0",
     "ts-node": "^3.3.0",
-    "typescript": "^2.5.3"
+    "typescript": "^2.6.2"
   }
 }

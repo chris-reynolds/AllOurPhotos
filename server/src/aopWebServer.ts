@@ -1,10 +1,10 @@
 "use strict";
 import * as fs from 'fs'
 import ImgCatalog, {ImgDirectory} from './imgCatalog'
-import {FsDirectory} from "./fs_utils";
+import {FsDirectory} from "./fsUtils";
 import * as http from 'http'
 import {Server} from "http";
-import {ImageUploader} from "./ImageUploader";
+import {ImageUploader} from "./imageUploader";
 
 let  selfWS :AopWebServer  // record singleton for callback
 
@@ -78,7 +78,7 @@ export class AopWebServer {
     let monthKey = selfWS.compoundMonthKey(year,month)
     let thisMonth : ImgDirectory = selfWS.imgCatalog.getDirectory(monthKey)
     if (thisMonth) {
-      thisMonth.files.forEach(thisFile => thisFile['url'] = thisMonth.directoryName+'/'+thisFile.fileName)
+      thisMonth.files.forEach(thisFile => thisFile['url'] = thisMonth.directoryName+'/'+thisFile.filename)
       return {directory:thisMonth.directoryName,files:thisMonth.files}
     } else
       return {directory:'??'+year+'/'+month+'????',files:[]}

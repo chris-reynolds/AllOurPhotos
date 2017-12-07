@@ -47,6 +47,6 @@ function display_form(req, res) {
  */
 function show_404(req, res) {
   res.writeHead(404, {"Content-Type": "text/plain"});
-  res.write("You r doing it rong!");
+  res.write("404 - You are doing it wrong!");
   res.end();
 }
