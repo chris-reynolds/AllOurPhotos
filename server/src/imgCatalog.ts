@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import * as _  from 'lodash'
-import {FsFile,FsDirectory} from './fs_utils'
+import {FsFile,FsDirectory} from './fsUtils'
+import {JpegHelper} from './jpegHelper'
 
 class FilenameHelper {
     static root : string
@@ -11,10 +12,19 @@ class FilenameHelper {
         else
             return '/'
     } // of separator
-    static calcFilename(path:string,name:string):string {
+    static calcFilename(path:string,name?:string):string {
+      if (name)
         return FilenameHelper.root + FilenameHelper.separator + path + FilenameHelper.separator + name
+      else
+        return FilenameHelper.root + FilenameHelper.separator + path
+    } // of calcFilename
+    
+    static directoryForDate(aDate:Date) {
+      let yy = aDate.getFullYear()
+      let mm = aDate.getMonth()+1
+      return ''+yy+'-'+(mm>9?'':'0')+mm
     }
-}
+}  // of FilenameHelper
 
 class YearProfile {
     year :string
@@ -23,14 +33,30 @@ class YearProfile {
 
 export default class ImgCatalog {
     private _rootDir : FsDirectory
-    private directories : ImgDirectory[] = [];
+    static  _singleton :ImgCatalog
+  private directories : ImgDirectory[] = [];
+
+    static catalogSingleton() : ImgCatalog {
+      if (ImgCatalog._singleton)
+        return ImgCatalog._singleton
+      else
+        throw new Error('Catalog not yet initialised')
+    }
     constructor(rootDir:FsDirectory) {
         this._rootDir = rootDir
         FilenameHelper.root = rootDir.fullPath
+        ImgCatalog._singleton = this
         rootDir.directories.forEach(thisDirectory => this.directories.push(new ImgDirectory(thisDirectory)))
     }
-    getDirectory(dirName):ImgDirectory {
+    getDirectory(dirName:string,force?:Boolean):ImgDirectory {
         let idx = _.findIndex(this.directories,['directoryName',dirName])
+        if (idx==-1 && force)  {
+          let fullDirectoryName = FilenameHelper.calcFilename(dirName)
+          // now move file to correct directory. create it is it doesn't exist
+          if (!fs.existsSync(fullDirectoryName))
+            fs.mkdirSync(fullDirectoryName)
+          let fsDirectory = new FsDirectory(fullDirectoryName,)
+        }
         return idx>-1 ? this.directories[idx] : null
     } // of getDirectory
 
@@ -62,9 +88,44 @@ export default class ImgCatalog {
         return result;
     }  // of years
 
-    addImage(stuff:string) {
 
-    } // add Image
+
+    static importTempFile(filename:string,tempPath:string,updateIndex:boolean=true) {
+      let errMessage = ''
+      console.log('import temp file '+filename)
+
+      try {
+        if (filename.substr(-4).toLowerCase()!='.jpg')
+          throw new Error('Only *.jpg supported ')
+        let jpegFile = new ImgJpeg(tempPath,'NO-URL-YET')
+        if (!jpegFile.dateTaken)
+          throw new Error('filename does not have a date taken:'+filename)
+        let newDirectoryName = FilenameHelper.directoryForDate(jpegFile.dateTaken)
+        let fullDirectory = FilenameHelper.calcFilename(newDirectoryName)
+        // now move file to correct directory. create it is it doesn't exist
+        if (!fs.existsSync(fullDirectory))
+          fs.mkdirSync(fullDirectory)
+        fs.renameSync(tempPath,FilenameHelper.calcFilename(newDirectoryName,filename))
+        jpegFile.url = newDirectoryName + '/'+jpegFile.filename  // update new location
+        if (updateIndex) {
+          // first makesure we have a directory
+          let imgDirectory = ImgCatalog.catalogSingleton().getDirectory(newDirectoryName)
+          imgDirectory.addFile(jpegFile)
+          imgDirectory.scanDirectory()
+        }
+      } catch(err){
+        errMessage = err.message+  ': Error on '+filename
+      }
+      return errMessage;
+
+    }
+
+    registerJpg(filename:string,path:string) {
+      // insert into or update catalog
+      // update thumbnail if required
+      // push updatedcatalog event to client
+
+    } // registerJpg
 
 }  // of ImgCatalog
 
@@ -116,9 +177,9 @@ export class ImgDirectory {
     let isIndexDirty = false
       let self = this
       this.directory.files.forEach(function(thisFile:FsFile) {
-        let idx = _.findIndex(self._files,['fileName',thisFile.fileName])
-        if (idx==-1  && /\.jpg/.test(thisFile.fileName.toLowerCase())  ) {   // not already in index
-          self._files.push(new ImgFile(thisFile.fileName,self.directory.path+'/'+thisFile.fileName))
+        let idx = _.findIndex(self._files,['filename',thisFile.filename])
+        if (idx==-1  && /\.jpg/.test(thisFile.filename.toLowerCase())  ) {   // not already in index
+          self._files.push(new ImgFile(thisFile.filename,self.directory.path+'/'+thisFile.filename))
           isIndexDirty = true
         }
       })
@@ -126,15 +187,30 @@ export class ImgDirectory {
         this.saveIndex()
     } // scanDirectory
 
-    getFile(fileName) {
-        let idx = _.findIndex(this.files,['fileName',fileName])
+    getFile(filename) {
+        let idx = _.findIndex(this.files,['filename',filename])
         return idx>-1 ? this.files[idx] : {}
+    }
+
+    addFile(thisFile:ImgFile) {
+
     }
 
 } // of ImgDirectory
 
 export class ImgFile {
-  constructor (public fileName:string,public url:string) {
+  constructor (public filename:string,public url:string) {
      console.log('ImgFile:'+this.url)
   } // of constructor
 } // of ImgFile
+
+export class ImgJpeg  extends ImgFile {
+  private _exif = null
+  constructor (public filename:string,public url:string) {
+    super(filename,url)
+  }
+
+  get dateTaken() : Date {
+    return new Date('1951-04-18')
+  }
+} // ImgJpeg

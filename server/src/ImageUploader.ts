@@ -1,9 +1,10 @@
 "use strict";
-import * as fs from 'fs'
-import ImgCatalog, {ImgDirectory} from './imgCatalog'
-import {FsDirectory} from "./fs_utils";
-import * as http from 'http'
+//import * as fs from 'fs'
+import ImgCatalog from './imgCatalog'
+//import {FsDirectory} from "./fsUtils";
+//import * as http from 'http'
 import * as Formidable from 'formidable'
+
 
 export class ImageUploader {
   static newImageHandler(req,res) {
@@ -12,8 +13,14 @@ export class ImageUploader {
     console.log('new Image URL is '+imageName)
     let form = new Formidable.IncomingForm()
     form.parse(req,function(err, fields, files) {
-      for (let fileName in files) {
-        console.log('Ive got a file3 ' + files[fileName].name + ' in ' + files[fileName].path);
+      for (let filename in files) {
+        let thisFile = files[filename]
+        console.log('Ive got a file3 ' + thisFile.name + ' in ' + thisFile.path);
+        if (thisFile.name.toLowerCase().match(/.*jpg/)) {
+         // let catalog = ImgCatalog.catalogSingleton
+          ImgCatalog.importTempFile(thisFile.name,thisFile.path)
+        }
+
       }
       })
     form.on('end',function() {
@@ -21,7 +28,8 @@ export class ImageUploader {
       res.end('new image handler - still todooooooooooooo');
 
     })
-  }
+  } // of newImageHandler
+
 
 
 }
