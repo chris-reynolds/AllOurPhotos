@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Upload</title>
+</head>
+<body>
+<form action="/new_image/blah" method="post" enctype="multipart/form-data">
+  <input type="file" multiple id="fileUpload" name="fileUpload">
+  <input type="hidden" id="fileDates" name="fileDates">
+  <input type="submit" value="Upload">
+</form>
+</body>
+<script lang="javascript">
+  let fileInput = document.getElementById("fileUpload");
+  let fileDates = document.getElementById("fileDates");
+  fileInput.addEventListener("change", function(event) {
+    let files = event.target.files
+    let result = {}
+    for (let i = 0; i < files.length; i++) {
+      const date = new Date(files[i].lastModified)
+      result[files[i].name]= date
+    }
+    fileDates.value = JSON.stringify(result)
+  })
+</script>
+</html>
