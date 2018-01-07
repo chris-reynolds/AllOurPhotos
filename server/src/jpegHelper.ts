@@ -1,10 +1,16 @@
 import * as fs from 'fs'
 import * as piexif from 'piexifjs'
 
+
 export class PartialExif {
   lastModifiedDate : Date
+  dateTaken : Date
   latitude : Number
   longitude : Number
+  camera : string
+  orientation :number
+  width : Number
+  height : Number
 }
 
 export class JpegHelper {
@@ -18,10 +24,36 @@ export class JpegHelper {
       return result;
     } // of dmsToDeg
 
+
+  static DateParse(s:string) :Date {
+    if (s && s.length && s.length==19) {
+      s = s.substr(0,4)+'-'+s.substr(5,2)+'-'+s.substr(8)
+      return new Date(s)
+    } else
+      return null
+  }
+
+  static TrimNullChars(s:string):string {
+      if (s)
+        return s.replace(/\0/g, '')
+    else
+      return ''  // safely handle undefined
+  } // of TrimNullChars
+
   static partialExtract(exifObj:any):PartialExif {
       let result = new PartialExif()
     result.lastModifiedDate = exifObj.Exif[piexif.ExifIFD.DateTimeOriginal]
-    if (exifObj.GPS) {
+    result.dateTaken = JpegHelper.DateParse(exifObj.Exif[piexif.ExifIFD.DateTimeOriginal])
+    let cameraMake = JpegHelper.TrimNullChars(exifObj['0th'][piexif.ImageIFD.Make])
+    let cameraModel = JpegHelper.TrimNullChars(exifObj['0th'][piexif.ImageIFD.Model])
+    if (cameraModel.indexOf(cameraMake)<0)   // no duplication
+      result.camera = cameraMake+' '+cameraModel
+    else
+      result.camera = cameraModel
+    result.orientation = exifObj['0th'][piexif.ImageIFD.Orientation]||0
+    result.width = exifObj.Exif[piexif.ExifIFD.PixelXDimension]||0
+    result.height = exifObj.Exif[piexif.ExifIFD.PixelYDimension]||0
+    if (exifObj.GPS && exifObj.GPS.length) {
       result.latitude = JpegHelper.dmsToDeg(exifObj.GPS[2], exifObj.GPS[1]);
       result.longitude = JpegHelper.dmsToDeg(exifObj.GPS[4], exifObj.GPS[3]);
     }
