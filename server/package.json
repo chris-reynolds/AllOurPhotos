@@ -9,12 +9,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^8.0.53",
+    "@types/node": "^8.5.8",
     "@types/supertest": "^2.0.4",
     "formidable": "^1.1.1",
     "imageinfo": "^1.0.4",
     "lodash": "^4.17.4",
-    "piexifjs": "^1.0.3"
+    "mysql": "^2.15.0",
+    "piexifjs": "^1.0.3",
+    "reflect-metadata": "^0.1.10",
+    "typeorm": "^0.1.11"
   },
   "devDependencies": {
     "@types/chai": "^4.0.6",
