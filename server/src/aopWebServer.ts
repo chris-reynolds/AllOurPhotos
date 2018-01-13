@@ -37,19 +37,35 @@ export class AopWebServer {
         selfWS.serveStaticFile(res, selfWS.config.imagesDir + shortPath, 'image/jpeg');
         break;
       case 'new_image':
-        ImageUploader.newImageHandler(req,res)
+        (new ImageUploader()).newImageHandler(req,res)
         break
+      case 'test':
+        selfWS.serveStaticFile(res, selfWS.config.testDir + shortPath, 'text/html');
       case 'api':
         selfWS.executeApiRequest(res,segments)
         break
       case 'testform':
         res.writeHead(200, {"Content-Type": "text/html"});
         res.write(
-          '<form action="/new_image/blah" method="post" enctype="multipart/form-data">'+
-          '<input type="file" name="upload-file">'+
-          '<input type="file" name="upload-file2">'+
-          '<input type="submit" value="Upload">'+
-          '</form>'
+          `<form action="/new_image/blah" method="post" enctype="multipart/form-data">
+          <input type="file" multiple id="fileUpload">
+          <input type="hidden" id="fileDates">
+          <input type="submit" value="Upload">
+          </form>
+          <script>
+/*        let fileInput = document.getElementById("fileUpload");
+        let fileDates = document.getElementById("fileDates");
+        fileInput.addEventListener("change", function(event) { 
+          let files = event.target.files;
+          let result = ''
+          for (let i = 0; i < files.length; i++) {
+            const date = new Date(files[i].lastModified);
+            result += (files[i].name + " has a last modified date of " + date);
+          }
+          fileDates.value = result
+        }); */
+        </script>
+`
         );
         res.end();
         break

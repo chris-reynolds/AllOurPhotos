@@ -12,8 +12,9 @@ function loadConfig() {
     imagesDir : 'C:\\projects\\AllOurPhotos\\testdata',
 
   }
-  if (fs.existsSync('config.json')) {
-    let contents= fs.readFileSync('config.json','utf8')
+  let configFileName = __dirname + '\\config.json'
+  if (fs.existsSync(configFileName )) {
+    let contents= fs.readFileSync(configFileName,'utf8')
     result = _.merge(result,JSON.parse(contents));
   }
   return result;

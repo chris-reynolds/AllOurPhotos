@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import * as _  from 'lodash'
-import {FsFile,FsDirectory} from './fsUtils'
-import {JpegHelper} from './jpegHelper'
+import {FsFile, FsDirectory, FsHelper} from './fsUtils'
+import {JpegHelper, PartialExif} from './jpegHelper'
+import * as imageInfo from 'imageinfo'
 
 class FilenameHelper {
     static root : string
@@ -97,26 +98,32 @@ export default class ImgCatalog {
       try {
         if (filename.substr(-4).toLowerCase()!='.jpg')
           throw new Error('Only *.jpg supported ')
-        let jpegFile = new ImgJpeg(tempPath,'NO-URL-YET')
-        if (!jpegFile.dateTaken)
-          throw new Error('filename does not have a date taken:'+filename)
-        let newDirectoryName = FilenameHelper.directoryForDate(jpegFile.dateTaken)
+        let pictureBuffer = fs.readFileSync(tempPath)
+        let pictureBasicInfo = imageInfo(pictureBuffer)
+        let exifData = JpegHelper.loadExif(tempPath)
+        let jpegDetails = JpegHelper.partialExtract(exifData)
+        _.assign(jpegDetails,pictureBasicInfo)
+        if (!jpegDetails.dateTaken)
+          throw new Error('File does not have a date taken:'+filename)
+        let newDirectoryName = FilenameHelper.directoryForDate(jpegDetails.dateTaken)
+        console.log('Date taken:'+newDirectoryName)
         let fullDirectory = FilenameHelper.calcFilename(newDirectoryName)
         // now move file to correct directory. create it is it doesn't exist
         if (!fs.existsSync(fullDirectory))
           fs.mkdirSync(fullDirectory)
         fs.renameSync(tempPath,FilenameHelper.calcFilename(newDirectoryName,filename))
-        jpegFile.url = newDirectoryName + '/'+jpegFile.filename  // update new location
+//        jpegFile.url = newDirectoryName + '/'+jpegFile.filename  // update new location
         if (updateIndex) {
           // first makesure we have a directory
           let imgDirectory = ImgCatalog.catalogSingleton().getDirectory(newDirectoryName)
-          imgDirectory.addFile(jpegFile)
+          imgDirectory.addFile(new ImgFile(newDirectoryName,filename))
           imgDirectory.scanDirectory()
         }
       } catch(err){
-        errMessage = err.message+  ': Error on '+filename
+        err.message +=  ': Error on importing '+filename
+        throw err
       }
-      return errMessage;
+ //     return errMessage;
 
     }
 
@@ -179,7 +186,9 @@ export class ImgDirectory {
       this.directory.files.forEach(function(thisFile:FsFile) {
         let idx = _.findIndex(self._files,['filename',thisFile.filename])
         if (idx==-1  && /\.jpg/.test(thisFile.filename.toLowerCase())  ) {   // not already in index
-          self._files.push(new ImgFile(thisFile.filename,self.directory.path+'/'+thisFile.filename))
+          let thisImgFile = new ImgFile(self.directoryName,thisFile.filename)
+          thisImgFile.loadProperties()
+          self._files.push(thisImgFile)
           isIndexDirty = true
         }
       })
@@ -193,24 +202,41 @@ export class ImgDirectory {
     }
 
     addFile(thisFile:ImgFile) {
-
+      this._files.push(thisFile)
     }
 
 } // of ImgDirectory
 
 export class ImgFile {
-  constructor (public filename:string,public url:string) {
-     console.log('ImgFile:'+this.url)
+  private _dirname : string
+  public caption = '-'
+  public dateTaken : Date
+  public width : Number
+  public height : Number
+  public lastModifiedDate : string
+  public rank = '3'
+  public latitude = -1
+  public longitude = -1
+  public camera = 'unknown'
+  public orientation = -1
+  public owner = 'all'
+//  private _isJpeg : boolean = false
+  constructor (dirname:string,public filename:string) {
+     console.log('ImgFile:'+this.filename)
+    this._dirname = dirname
+//    this._isJpeg = (this.filename.toLowerCase().substr(-4)=='.jpg')
+ //   this._properties = properties
   } // of constructor
+
+  get fullFilename():string {
+    return FilenameHelper.calcFilename(this._dirname,this.filename)
+  }
+
+  loadProperties() {  // allow outside force and inside just intime
+      let fullExif = JpegHelper.loadExif(this.fullFilename)
+      let exifProperties = JpegHelper.partialExtract(fullExif)
+      _.merge(this,exifProperties)
+  } // of loadProperties
+
+
 } // of ImgFile
-
-export class ImgJpeg  extends ImgFile {
-  private _exif = null
-  constructor (public filename:string,public url:string) {
-    super(filename,url)
-  }
-
-  get dateTaken() : Date {
-    return new Date('1951-04-18')
-  }
-} // ImgJpeg

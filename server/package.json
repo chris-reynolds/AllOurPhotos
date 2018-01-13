@@ -12,6 +12,7 @@
     "@types/node": "^8.0.53",
     "@types/supertest": "^2.0.4",
     "formidable": "^1.1.1",
+    "imageinfo": "^1.0.4",
     "lodash": "^4.17.4",
     "piexifjs": "^1.0.3"
   },
