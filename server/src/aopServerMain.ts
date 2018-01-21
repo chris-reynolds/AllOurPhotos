@@ -2,6 +2,7 @@
 import * as fs from 'fs'
 import * as _  from 'lodash'
 import {AopWebServer} from './aopWebServer'
+import {DbPhotos} from "./dbPhotos";
 
 function loadConfig() {
   let result = {
@@ -12,7 +13,7 @@ function loadConfig() {
     imagesDir : 'C:\\projects\\AllOurPhotos\\testdata',
 
   }
-  let configFileName = __dirname + '\\config.json'
+  let configFileName = __dirname + '\\aopConfig.json'
   if (fs.existsSync(configFileName )) {
     let contents= fs.readFileSync(configFileName,'utf8')
     result = _.merge(result,JSON.parse(contents));
@@ -20,11 +21,13 @@ function loadConfig() {
   return result;
 } // of loadConfig
 
-// start up
-
 try {
-  new AopWebServer(loadConfig());
+  let config = loadConfig();
+  DbPhotos.connect(config)
+    .then(()=>{new AopWebServer(config)})
+    .catch(err => {throw new Error(err)})
+ // new AopWebServer(config);
 } catch (e) {
-  console.error('Top level error :'+e.message+'\n'+e.stackTrace)
+  console.error('TOP LEVEL ERROR :'+e.message+'\n'+e.stackTrace)
 }
 
