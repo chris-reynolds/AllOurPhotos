@@ -20,8 +20,8 @@
     "typeorm": "^0.1.11"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.6",
-    "@types/mocha": "^2.2.44",
+    "@types/chai": "^4.1.0",
+    "@types/mocha": "^2.2.46",
     "chai": "^4.1.2",
     "mocha": "^3.5.3",
     "supertest": "^3.0.0",
