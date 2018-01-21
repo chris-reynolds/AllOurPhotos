@@ -22,7 +22,7 @@ export class ImageUploader {
         try {
           ImgCatalog.importTempFile(thisFile.name, thisFile.path)
         } catch(ex) {
-          this.myErrorMessage = 'Failed to upload '+thisFile.Name+"\n" + ex.stack
+          this.myErrorMessage = 'Failed to upload '+thisFile.name+"\n" + ex.stack
         }
       }
     })
@@ -56,8 +56,11 @@ export class ImageUploader {
 
   handleFormParser(outerForm):{(err,fields,files):void} {
     return function (err,fields,files){
-      for (let filename in files) {
-        let thisFile = files[filename]
+      let uploadList =  files.fileUpload || []
+      if (!Array.isArray(uploadList))
+        uploadList = [uploadList]
+      for (let filename in uploadList) {
+        let thisFile = uploadList[filename]
         console.log('Ive got a file ' + thisFile.name + ' in ' + thisFile.path);
         if (thisFile.name.toLowerCase().match(/.*jpg/)) {
           // let catalog = ImgCatalog.catalogSingleton

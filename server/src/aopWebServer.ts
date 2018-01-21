@@ -5,16 +5,20 @@ import {FsDirectory} from "./fsUtils";
 import * as http from 'http'
 import {Server} from "http";
 import {ImageUploader} from "./imageUploader";
+import {DbPhotos} from './dbPhotos'
 
 let  selfWS :AopWebServer  // record singleton for callback
 
 export class AopWebServer {
   public imgCatalog : ImgCatalog
   public httpServer : Server
+  public dbPhotos : DbPhotos
   constructor (public config:any){
     this.imgCatalog = new ImgCatalog(new FsDirectory(config.imagesDir))
     this.httpServer = http.createServer(this.responder)
     this.httpServer.listen(config.port);
+    console.log('Connecting to database');
+    this.dbPhotos = new DbPhotos()
     console.log('Server started on localhost:'+config.port+'; press Ctrl-C to terminate....');
     selfWS = this
   } // of constructor
@@ -47,9 +51,11 @@ export class AopWebServer {
       case 'testform':
         res.writeHead(200, {"Content-Type": "text/html"});
         res.write(
-          `<form action="/new_image/blah" method="post" enctype="multipart/form-data">
-          <input type="file" multiple id="fileUpload">
-          <input type="hidden" id="fileDates">
+          `<html><body><form action="/new_image/blah" method="post" enctype="multipart/form-data">
+<h1>Try Upload</h1>
+          <input 
+          <input type="file" multiple name="fileUpload" id="fileUpload[]" accept="image/*">
+          <input type="hidden" name="fileDates" id="fileDates">
           <input type="submit" value="Upload">
           </form>
           <script>
@@ -64,7 +70,7 @@ export class AopWebServer {
           }
           fileDates.value = result
         }); */
-        </script>
+        </script></body></html>
 `
         );
         res.end();
