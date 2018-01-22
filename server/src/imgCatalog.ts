@@ -104,14 +104,14 @@ export default class ImgCatalog {
         let jpegDetails = JpegHelper.partialExtract(exifData)
         _.assign(jpegDetails,pictureBasicInfo)
         if (!jpegDetails.dateTaken)
-          throw new Error('File does not have a date taken:'+filename)
+          jpegDetails.dateTaken = new Date('1970-01-01')
         let newDirectoryName = FilenameHelper.directoryForDate(jpegDetails.dateTaken)
         console.log('Date taken:'+newDirectoryName)
         let fullDirectory = FilenameHelper.calcFilename(newDirectoryName)
         // now move file to correct directory. create it is it doesn't exist
         if (!fs.existsSync(fullDirectory))
           fs.mkdirSync(fullDirectory)
-        fs.renameSync(tempPath,FilenameHelper.calcFilename(newDirectoryName,filename))
+        fs.copyFileSync(tempPath,FilenameHelper.calcFilename(newDirectoryName,filename))
 //        jpegFile.url = newDirectoryName + '/'+jpegFile.filename  // update new location
         if (updateIndex) {
           // first makesure we have a directory
