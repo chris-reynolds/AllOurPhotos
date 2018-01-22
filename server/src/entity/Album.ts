@@ -6,8 +6,8 @@ import {User} from "./User";
 export class Album {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()   name: string;
-  @Column()   description: string;
+  @Column({type:'varchar',length:50,unique:true})   name: string;
+  @Column({type:'varchar'})   description?: string;
   @ManyToMany(type => Image, image => image.albums)
   images:Image[]
   @ManyToOne(type=>User , user => user.albums)

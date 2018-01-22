@@ -7,7 +7,7 @@ export class User {
 
     @PrimaryGeneratedColumn()
                 id: number
-    @Column()   name: string
+    @Column({type:'varchar',length:50})   name: string
 
 //    @OneToMany(type => Album, album => album.owner)
     albums : Album[]
