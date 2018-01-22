@@ -1,8 +1,7 @@
 {
     "port":"3333",
     "clientDir": "..\\client",
-    "imagesDir" : "p:\\photos\\2017-08\\",
-    "testDir" : "..\\test",
-    "realDir" : "p:\\photos\\"
+    "imagesDir" : "C:\\projects\\AllOurPhotos\\testdata"
+
 
 }

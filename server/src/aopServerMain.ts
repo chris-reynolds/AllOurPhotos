@@ -5,14 +5,7 @@ import {AopWebServer} from './aopWebServer'
 import {DbPhotos} from "./dbPhotos";
 
 function loadConfig() {
-  let result = {
-    started:Date.now(),
-    port:3333,
-    serverDir : __dirname,
-    clientDir : 'C:\\projects\\AllOurPhotos\\client',
-    imagesDir : 'C:\\projects\\AllOurPhotos\\testdata',
-
-  }
+  let result:any = {}
   let configFileName = __dirname + '\\aopConfig.json'
   if (fs.existsSync(configFileName )) {
     let contents= fs.readFileSync(configFileName,'utf8')
@@ -23,8 +16,8 @@ function loadConfig() {
 
 try {
   let config = loadConfig();
-  DbPhotos.connect(config)
-    .then(()=>{new AopWebServer(config)})
+  DbPhotos.connect(config.database)
+    .then(()=>{new AopWebServer(config.webserver)})
     .catch(err => {throw new Error(err)})
  // new AopWebServer(config);
 } catch (e) {
