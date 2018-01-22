@@ -17,10 +17,10 @@ export class ImageUploader {
     form.multiples = true
     form.res = res
     form['myErrorMessage'] = ''
-    form.on('file',function(fieldname:string,thisFile){
+    form.on('file',async function(fieldname:string,thisFile){
       if (thisFile && thisFile.name && thisFile.name.toLowerCase().match(/.*jpg/)) {
         try {
-          ImgCatalog.importTempFile(thisFile.name, thisFile.path)
+          await ImgCatalog.importTempFile(thisFile.name, thisFile.path)
         } catch(ex) {
           this.myErrorMessage = 'Failed to upload '+thisFile.name+"\n" + ex.stack
         }
@@ -56,7 +56,7 @@ export class ImageUploader {
 
   handleFormParser(outerForm):{(err,fields,files):void} {
     return function (err,fields,files){
-      let uploadList =  files.fileUpload || []
+/*      let uploadList =  files.fileUpload || []
       if (!Array.isArray(uploadList))
         uploadList = [uploadList]
       for (let filename in uploadList) {
@@ -71,7 +71,8 @@ export class ImageUploader {
           } // of try/catch
         } // of
       } // file loop
-      if (outerForm.myErrorMessage=='') {
+*/
+  if (outerForm.myErrorMessage=='') {
         outerForm.res.writeHead(404, {'Content-Type': 'text/plain'});
         outerForm.res.end('new image handler - still todooooooooooooo');
       } else {

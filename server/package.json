@@ -2,7 +2,7 @@
   "name": "allOurPhotosServer",
   "version": "1.0.0",
   "description": "",
-  "main": "nevServerMain.js",
+  "main": "aopServerMain.js",
   "scripts": {
     "test": "mocha -r ts-node/register src/**/*Tests.ts"
   },

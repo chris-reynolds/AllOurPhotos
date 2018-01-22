@@ -1,6 +1,7 @@
 import * as fs from 'fs'
+import * as _  from 'lodash'
 import * as piexif from 'piexifjs'
-
+import * as imageInfo from 'imageinfo'
 
 export class PartialExif {
   lastModifiedDate : Date
@@ -32,6 +33,23 @@ export class JpegHelper {
     } else
       return null
   }
+
+
+  static extractMetaData(fullName: string) {
+      try {
+        // temp path of an uplad might not end in jpg
+//        if (fullName.substr(-4).toLowerCase() != '.jpg')
+//          throw new Error('Only *.jpg supported ')
+        let pictureBuffer = fs.readFileSync(fullName)
+        let pictureBasicInfo = imageInfo(pictureBuffer)
+        let exifData = JpegHelper.loadExif(fullName)
+        let jpegDetails = JpegHelper.partialExtract(exifData)
+        _.assign(jpegDetails, pictureBasicInfo)
+        return jpegDetails;
+      } catch (ex){
+        throw new Error(ex.message+' while extracting metadata from '+fullName)
+      }
+  } // extractMetaData
 
   static TrimNullChars(s:string):string {
       if (s)
@@ -172,8 +190,5 @@ function extractExif(fileName) {
   return result
 } // of extractExif
 
-Meteor.startup(()=> {
-  extractExif('P:\\Photos\\2017-07\\DSCN4621.JPG');
-  CopyishJpeg('P:\\Photos\\1980-01\\IMG_0643.JPG','p:\\Photos\\fred2.jpg')
-});
+
 */

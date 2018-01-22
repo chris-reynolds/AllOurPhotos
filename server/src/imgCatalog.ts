@@ -2,8 +2,15 @@ import * as fs from 'fs'
 import * as _  from 'lodash'
 import {FsFile, FsDirectory, FsHelper} from './fsUtils'
 import {JpegHelper, PartialExif} from './jpegHelper'
-import * as imageInfo from 'imageinfo'
+import {Image} from "./entity/Image";
+import {DbPhotos} from "./dbPhotos";
 
+const DEFAULT_TAKEN_DATE  = new Date('1900-01-01')
+
+interface fileHandle {
+  filename:string
+  path:string
+}
 class FilenameHelper {
     static root : string
     static sep : string
@@ -25,6 +32,14 @@ class FilenameHelper {
       let mm = aDate.getMonth()+1
       return ''+yy+'-'+(mm>9?'':'0')+mm
     }
+    static filename(fullName:string):string {
+      let tokens =  fullName.split(FilenameHelper.separator)
+      return tokens[tokens.length-1]
+    }
+    static path(fullName:string):string {
+      let filename =  FilenameHelper.filename(fullName)
+      return fullName.substr(0,-filename.length)
+    }
 }  // of FilenameHelper
 
 class YearProfile {
@@ -34,6 +49,7 @@ class YearProfile {
 
 export default class ImgCatalog {
     private _rootDir : FsDirectory
+    private _dbPhotos:DbPhotos
     static  _singleton :ImgCatalog
   private directories : ImgDirectory[] = [];
 
@@ -43,8 +59,9 @@ export default class ImgCatalog {
       else
         throw new Error('Catalog not yet initialised')
     }
-    constructor(rootDir:FsDirectory) {
+    constructor(rootDir:FsDirectory,public dbPhotos:DbPhotos) {
         this._rootDir = rootDir
+      this._dbPhotos = dbPhotos
         FilenameHelper.root = rootDir.fullPath
         ImgCatalog._singleton = this
         rootDir.directories.forEach(thisDirectory => this.directories.push(new ImgDirectory(thisDirectory)))
@@ -91,28 +108,28 @@ export default class ImgCatalog {
 
 
 
-    static importTempFile(filename:string,tempPath:string,updateIndex:boolean=true) {
+    static async importTempFile(filename:string,tempPath:string,updateIndex:boolean=true) {
       let errMessage = ''
       console.log('import temp file '+filename)
-
       try {
-        if (filename.substr(-4).toLowerCase()!='.jpg')
-          throw new Error('Only *.jpg supported ')
-        let pictureBuffer = fs.readFileSync(tempPath)
-        let pictureBasicInfo = imageInfo(pictureBuffer)
-        let exifData = JpegHelper.loadExif(tempPath)
-        let jpegDetails = JpegHelper.partialExtract(exifData)
-        _.assign(jpegDetails,pictureBasicInfo)
+        let jpegDetails = JpegHelper.extractMetaData(tempPath);
         if (!jpegDetails.dateTaken)
-          jpegDetails.dateTaken = new Date('1970-01-01')
+          jpegDetails.dateTaken = DEFAULT_TAKEN_DATE
         let newDirectoryName = FilenameHelper.directoryForDate(jpegDetails.dateTaken)
-        console.log('Date taken:'+newDirectoryName)
+        console.log('Import into directory :'+newDirectoryName)
         let fullDirectory = FilenameHelper.calcFilename(newDirectoryName)
         // now move file to correct directory. create it is it doesn't exist
         if (!fs.existsSync(fullDirectory))
           fs.mkdirSync(fullDirectory)
-        fs.copyFileSync(tempPath,FilenameHelper.calcFilename(newDirectoryName,filename))
-//        jpegFile.url = newDirectoryName + '/'+jpegFile.filename  // update new location
+        let newImage = new Image()
+        newImage.loadMetadataFromJpeg(jpegDetails)
+        newImage.directory = newDirectoryName
+        newImage.filename = filename
+        let alreadyStored = await ImgCatalog._singleton._dbPhotos.hasDuplicate(newImage)
+        if (!alreadyStored) {
+          fs.copyFileSync(tempPath, FilenameHelper.calcFilename(newDirectoryName, filename))
+          await ImgCatalog._singleton._dbPhotos.imageRep.save(newImage)
+        }
         if (updateIndex) {
           // first makesure we have a directory
           let imgDirectory = ImgCatalog.catalogSingleton().getDirectory(newDirectoryName)
@@ -127,12 +144,18 @@ export default class ImgCatalog {
 
     }
 
-    registerJpg(filename:string,path:string) {
+
+
+  registerJpg(filename:string,path:string) {
       // insert into or update catalog
       // update thumbnail if required
       // push updatedcatalog event to client
 
     } // registerJpg
+
+    updateThumbnail() {
+
+    }
 
 }  // of ImgCatalog
 

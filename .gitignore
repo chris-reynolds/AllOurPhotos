@@ -3,6 +3,10 @@ node_modules/
 dist/
 build/
 npm-debug.log
-.idea/work*
 testdata/
 server/src/sample_upload.ts
+.idea/
+.vscode/
+tmp/
+temp/
+.idea/workspace.xml
