@@ -1,4 +1,4 @@
-"use strict";
+
 import * as fs from 'fs'
 import ImgCatalog, {ImgDirectory} from './imgCatalog'
 import {FsDirectory} from "./fsUtils";
@@ -14,11 +14,11 @@ export class AopWebServer {
   public httpServer : Server
   public dbPhotos : DbPhotos
   constructor (public config:any){
-    this.imgCatalog = new ImgCatalog(new FsDirectory(config.imagesDir))
-    this.httpServer = http.createServer(this.responder)
-    this.httpServer.listen(config.port);
     console.log('Connecting to database');
     this.dbPhotos = new DbPhotos()
+    this.imgCatalog = new ImgCatalog(new FsDirectory(config.imagesDir),new DbPhotos())
+    this.httpServer = http.createServer(this.responder)
+    this.httpServer.listen(config.port);
     console.log('Server started on localhost:'+config.port+'; press Ctrl-C to terminate....');
     selfWS = this
   } // of constructor
@@ -81,7 +81,7 @@ export class AopWebServer {
           selfWS.serveStaticFile(res, possFilename);
         } else {
           res.writeHead(404, {'Content-Type': 'text/plain'});
-          res.end(possFilename+ ' not found' + selfWS.config.started.toString());
+          res.end(possFilename+ ' not found' );
         }
     } // of switch
   } // of responder
