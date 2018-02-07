@@ -1,4 +1,7 @@
-import {Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+  Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from "typeorm";
 import {Album} from "./Album"
 import {User} from "./User"
 import {PartialExif} from "../jpegHelper";
@@ -14,6 +17,12 @@ export enum RotationType {
 export class Image {
   @PrimaryGeneratedColumn()
   id: number
+  @Column({type:"timestamp"})
+  updatedDate: Date;
+  @Column({type:"timestamp"})
+  createdDate: Date;
+
+
   @Column({type:'varchar'})   filename: string
   @Column({type:'varchar',length:7})   directory: string
 
