@@ -16,6 +16,7 @@ export class AopWebServer {
   constructor (public config:any){
     console.log('Connecting to database');
     this.dbPhotos = new DbPhotos()
+    console.log('Connected to database');
     this.imgCatalog = new ImgCatalog(new FsDirectory(config.imagesDir),new DbPhotos())
     this.httpServer = http.createServer(this.responder)
     this.httpServer.listen(config.port);

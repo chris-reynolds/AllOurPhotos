@@ -33,8 +33,8 @@ export class DbPhotos extends DbSimple {
     this.userRep = gConnection.getRepository(User)
     this.imageRep = gConnection.getRepository(Image)
     this.albumRep = gConnection.getRepository(Album)
-    this.addDefaultUser()
-      .catch(error => console.log(error));
+//    this.addDefaultUser()
+//      .catch(error => console.log(error));
   } // of constructor
 
   async addDefaultUser() {
@@ -72,12 +72,16 @@ export class DbPhotos extends DbSimple {
       throw new Error('todo check existing dups')
     else {
       let fixeddate = this.fixDateUTC(anImage.takenDate)
-      let similarImages:Image[] = await this.imageRep.find({directory:anImage.directory,filename:anImage.filename,
-        height:anImage.height,width:anImage.width, takenDate:fixeddate})
-      if (similarImages.length>0)
-        return true
-      else
-      return false
+      try {
+        let similarImages:Image[] = await this.imageRep.find({directory:anImage.directory,filename:anImage.filename,
+          height:anImage.height,width:anImage.width, takenDate:fixeddate})
+        if (similarImages.length>0)
+          return true
+        else
+          return false
+      } catch(err) {
+        throw err
+      }
     }
   }
 }
