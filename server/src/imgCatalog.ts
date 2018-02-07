@@ -5,7 +5,7 @@ import {JpegHelper, PartialExif} from './jpegHelper'
 import {Image} from "./entity/Image";
 import {DbPhotos} from "./dbPhotos";
 
-const DEFAULT_TAKEN_DATE  = new Date('1900-01-01')
+
 
 interface fileHandle {
   filename:string
@@ -38,7 +38,10 @@ class FilenameHelper {
     }
     static path(fullName:string):string {
       let filename =  FilenameHelper.filename(fullName)
-      return fullName.substr(0,-filename.length)
+      let fullPath = fullName.substr(0,fullName.length-filename.length-this.separator.length)
+      if (this.root == fullPath.substr(0,this.root.length))
+        fullPath = fullPath.substr(this.root.length+this.separator.length)
+      return fullPath
     }
 }  // of FilenameHelper
 
@@ -47,10 +50,16 @@ class YearProfile {
     months : string[]
 } // of yearProfile
 
+type loggerFunc = (s:string) => void
 export default class ImgCatalog {
     private _rootDir : FsDirectory
     private _dbPhotos:DbPhotos
     static  _singleton :ImgCatalog
+  public static logger = undefined
+  private static userMessage(s:string) {
+      if (this.logger)
+        this.logger(s)
+  } // user message
   private directories : ImgDirectory[] = [];
 
     static catalogSingleton() : ImgCatalog {
@@ -109,12 +118,10 @@ export default class ImgCatalog {
 
 
     static async importTempFile(filename:string,tempPath:string,updateIndex:boolean=true) {
-      let errMessage = ''
+//      let errMessage = ''
       console.log('import temp file '+filename)
       try {
         let jpegDetails = JpegHelper.extractMetaData(tempPath);
-        if (!jpegDetails.dateTaken)
-          jpegDetails.dateTaken = DEFAULT_TAKEN_DATE
         let newDirectoryName = FilenameHelper.directoryForDate(jpegDetails.dateTaken)
         console.log('Import into directory :'+newDirectoryName)
         let fullDirectory = FilenameHelper.calcFilename(newDirectoryName)
@@ -144,14 +151,45 @@ export default class ImgCatalog {
 
     }
 
+  public static async registerDirectory(directory?:FsDirectory) {
+      if (!directory)  // by default scan the whole tree
+        directory = ImgCatalog._singleton._rootDir
+    this.userMessage('Entering directory '+directory.fullPath)
+    for  (let directoryIx in directory.directories)
+      await this.registerDirectory(directory.directories[directoryIx])
+    for  (let fileIx in directory.files) {
+        let thisFile = directory.files[fileIx];
+      if (thisFile.filename.toLowerCase().match(/.*jpg/) && !thisFile.directoryPath.toLowerCase().match(/.*thumbnail.*/)) {
+        let newImage = await this.registerInternalJpg(thisFile.directoryPath + FilenameHelper.separator + thisFile.filename)
+      }
+    }
+    this.userMessage('Leaving directory '+directory.fullPath)
+  }
 
-
-  registerJpg(filename:string,path:string) {
-      // insert into or update catalog
-      // update thumbnail if required
-      // push updatedcatalog event to client
-
-    } // registerJpg
+  static async registerInternalJpg(fullName:string):Promise<Image> {
+    this.userMessage('import internal file '+fullName)
+    try {
+      let jpegDetails = JpegHelper.extractMetaData(fullName);
+      let newImage = new Image()
+      newImage.loadMetadataFromJpeg(jpegDetails)
+      newImage.directory = FilenameHelper.path(fullName)
+      newImage.filename = FilenameHelper.filename(fullName)
+      let alreadyStored = await ImgCatalog._singleton._dbPhotos.hasDuplicate(newImage)
+      if (!alreadyStored) {
+        this.userMessage('saving '+fullName)
+        try {
+          await ImgCatalog._singleton._dbPhotos.imageRep.save(newImage)
+        } catch(err){
+          this.userMessage('FAILED:' + fullName+ ':' + err.message)
+        }
+      } else
+        this.userMessage('skipping' + fullName)
+      return newImage
+    } catch(err){
+      err.message +=  ': Error on importing '+fullName
+      throw err
+    }
+    } // registerInternalJpg
 
     updateThumbnail() {
 

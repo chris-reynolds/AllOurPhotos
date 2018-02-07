@@ -1,78 +1,103 @@
-import { assert } from 'chai';
+//import { assert } from 'chai';
 import * as request from 'supertest'
-import { FsDirectory,FsHelper } from './fsUtils';
+import * as _  from 'lodash'
+import { FsHelper } from './fsUtils';
 import { AopWebServer} from "./aopWebServer";
+import * as fs from "fs";
+import {DbPhotos} from "./dbPhotos";
 //import * as main from 'aopServerMain'
 const TESTDATA_DIR = 'c:\\projects\\AllOurPhotos\\testdata\\';
-
-let config = {
-  started:Date.now(),
-  port:4444,
-  serverDir : __dirname,
-  clientDir : 'C:\\projects\\AllOurPhotos\\client',
-  imagesDir : 'C:\\projects\\AllOurPhotos\\testdata\\picture-catalog',
-
+let ws:AopWebServer = null
+let config:any = {}
+function loadConfig() {
+  let result:any = {}
+  let configFileName = '..\\test' + '\\aopConfig.json'
+  if (fs.existsSync(configFileName )) {
+    let contents= fs.readFileSync(configFileName,'utf8')
+    result = _.merge(result,JSON.parse(contents));
+  }
+  return result;
+} // of loadConfig
+/*
+try {
+  config = loadConfig();
+  DbPhotos.connect(config.database)
+    .then(()=>{
+      ws = new AopWebServer(config.webserver)
+    })
+    .catch(err => {throw new Error(err)})
+} catch (e) {
+  console.error('TOP LEVEL ERROR :'+e.message+'\n'+e.stackTrace)
 }
- let ws = new AopWebServer(config)
+*/
 
-describe('api catalog methods methods', function () {
+
+describe('api catalog methods', function () {
+  before(async function () {
+    config = loadConfig();
+    console.log(config.database)
+    let db = await DbPhotos.connect(config.database);
+    console.log('11111')
+    ws = await new AopWebServer(config.webserver)
+    console.log('2222')
+  });
   beforeEach(function () {
     //Links.remove({});
   });
 
-  it('can see years ',function(done){
+  it('can see years ', function (done) {
     request(ws.httpServer).get('/api/years')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(/2017/)
       .expect(200, done);
   })
-  it('can see months of valid year',function(done){
+  it('can see months of valid year', function (done) {
     request(ws.httpServer).get('/api/year/2017')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(/08/)
       .expect(200, done);
   })
-  it('can return no months of invalid year',function(done){
+  it('can return no months of invalid year', function (done) {
     request(ws.httpServer).get('/api/year/2016')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(/\[\]/)
+      .expect(/\[]/)
       .expect(200, done);
   })
-  it('can see a month ',function(done){
+  it('can see a month ', function (done) {
     request(ws.httpServer).get('/api/month/2017/08')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(/fileName/)
       .expect(200, done);
   })
-  it('can return no pictures for invalid month',function(done){
+  it('can return no pictures for invalid month', function (done) {
     request(ws.httpServer).get('/api/month/2016/08')
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
-      .expect(/\[\]/)
+      .expect(/\[]/)
       .expect(200, done);
   })
-  it('can see retrieve valid image',function(done){
+  it('can see retrieve valid image', function (done) {
     request(ws.httpServer).get('/images/2017-08/20170807_084420.jpg')
       .set('Accept', 'image/jpeg')
       .expect('Content-Type', /image/)
       .expect(200, done);
   })
-  it('can see report invalid image request',function(done){
+  it('can see report invalid image request', function (done) {
     request(ws.httpServer).get('/images/2017-08/20170807_084420xxxxx.jpg')
       .set('Accept', 'image/jpeg')
       .expect('Content-Type', /text/)
       .expect(404, done);
   })
-  it('can save image to existing year/month',function(done) {
+  it('can save image to existing year/month', function (done) {
     let testFilename = '20170807_083703_copy.jpg'
-    FsHelper.deleteFile(config.imagesDir+'\\2017-08\\'+testFilename)
-    request(ws.httpServer).post('/new_image/'+testFilename)
+    FsHelper.deleteFile(config.imagesDir + '\\2017-08\\' + testFilename)
+    request(ws.httpServer).post('/new_image/' + testFilename)
       .set('Accept', 'application/json')
-      .attach(testFilename,TESTDATA_DIR+testFilename)
+      .attach(testFilename, TESTDATA_DIR + testFilename)
       .expect('Content-Type', /json/)
       .expect(200, done);
   })
@@ -94,3 +119,4 @@ describe('api catalog methods methods', function () {
 
 
 }) // of describe
+

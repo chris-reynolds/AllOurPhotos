@@ -3,6 +3,8 @@ import * as _  from 'lodash'
 import * as piexif from 'piexifjs'
 import * as imageInfo from 'imageinfo'
 
+const DEFAULT_TAKEN_DATE  = new Date('1900-01-01')
+
 export class PartialExif {
   lastModifiedDate : Date
   dateTaken : Date
@@ -45,6 +47,8 @@ export class JpegHelper {
         let exifData = JpegHelper.loadExif(fullName)
         let jpegDetails = JpegHelper.partialExtract(exifData)
         _.assign(jpegDetails, pictureBasicInfo)
+        if (!jpegDetails.dateTaken)
+          jpegDetails.dateTaken = DEFAULT_TAKEN_DATE
         return jpegDetails;
       } catch (ex){
         throw new Error(ex.message+' while extracting metadata from '+fullName)

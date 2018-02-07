@@ -8,7 +8,9 @@ import * as Formidable from 'formidable'
 
 export class ImageUploader {
 //  errorMessage:string = ''
-  public newImageHandler(req,res) {
+  public async newImageHandler(req,res) {
+    ImgCatalog.logger = (s) => console.log('zzzzzzzzzzzzzzzz: '+s)
+    await ImgCatalog.registerDirectory()
     let self = this
     let segments : string[] = req.url.split('/')
     let imageName = segments[segments.length-1]  // pick the right hand bit
