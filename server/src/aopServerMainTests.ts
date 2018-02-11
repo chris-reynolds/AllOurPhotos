@@ -6,7 +6,7 @@ import { AopWebServer} from "./aopWebServer";
 import * as fs from "fs";
 import {DbPhotos} from "./dbPhotos";
 //import * as main from 'aopServerMain'
-const TESTDATA_DIR = 'c:\\projects\\AllOurPhotos\\testdata\\';
+//const TESTDATA_DIR = 'c:\\projects\\AllOurPhotos\\testdata\\';
 let ws:AopWebServer = null
 let config:any = {}
 function loadConfig() {
@@ -97,7 +97,7 @@ describe('api catalog methods', function () {
     FsHelper.deleteFile(config.imagesDir + '\\2017-08\\' + testFilename)
     request(ws.httpServer).post('/new_image/' + testFilename)
       .set('Accept', 'application/json')
-      .attach(testFilename, TESTDATA_DIR + testFilename)
+      .attach(testFilename, config.webserver.imagesDir + testFilename)
       .expect('Content-Type', /json/)
       .expect(200, done);
   })
