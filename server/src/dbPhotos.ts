@@ -17,7 +17,13 @@ class DbSimple {
     const connection = await createConnection(config);
     gConnection = connection
     gEM = gConnection.manager
-//    const users = await connection.getRepository(User).createQueryBuilder("user").getMany();
+    console.log('its a gem')
+    console.log(config)
+    console.log('connected '+gConnection.entityMetadatas.length)
+    if (gConnection.entityMetadatas.length>0)
+      console.log('first is '+gConnection.entityMetadatas[0].name)
+    const users = await connection.getRepository(Image).createQueryBuilder("image").getMany();
+    console.log('static connect with user query')
   } // of connect
 
 
@@ -67,6 +73,7 @@ export class DbPhotos extends DbSimple {
       d1.getUTCSeconds(),
       d1.getUTCMilliseconds())
   } // of fixDateUTC
+
   async hasDuplicate(anImage:Image) {
     if (anImage.id)
       throw new Error('todo check existing dups')
