@@ -17,6 +17,7 @@ function loadConfig() {
 try {
   let config = loadConfig();
   DbPhotos.connect(config.database)
+    .then(new DbPhotos().addDefaultUser)
     .then(()=>{new AopWebServer(config.webserver)})
     .catch(err => {throw new Error(err)})
  // new AopWebServer(config);
