@@ -1,7 +1,4 @@
-import {
-  Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn,
-  UpdateDateColumn
-} from "typeorm";
+
 import {Album} from "./Album"
 import {User} from "./User"
 import {PartialExif} from "../jpegHelper";
@@ -13,39 +10,33 @@ export enum RotationType {
   RotateRight = 270
 }
 
-@Entity()
+
 export class Image {
-  @PrimaryGeneratedColumn()
   id: number
-  @Column({type:"timestamp"})
-  updatedDate: Date;
-  @Column({type:"timestamp"})
-  createdDate: Date;
+  updated_on?: Date
+  created_on?: Date
+  updated_user? : string
 
 
-  @Column({type:'varchar'})   filename: string
-  @Column({type:'varchar',length:7})   directory: string
+  filename: string
+  directory: string
 
-  @Column({type:'datetime'}) takenDate : Date
-  @Column({type:'datetime',nullable:true}) modifiedDate? : Date
-  @Column({type:'varchar',length:100,nullable:true}) deviceName? : string
-  @Column({type:'varchar',length:100,nullable:true}) caption? : string
-  @Column({type:'varchar',length:100,nullable:true}) importSource? : string
-  @Column({type:'int'}) ranking : Number = 0
-  @Column({type:'int'}) height : Number
-  @Column({type:'int'}) width : Number
-  @Column({type:'float',nullable:true}) longitude? : Number
-  @Column({type:'float',nullable:true}) latitude? : Number
-  @Column({type:'int',default:0}) hasThumbnail : boolean
-  @Column({type:'int',default:0}) rotation : RotationType
-  @Column({type:'varchar'}) contentHash : string = 'todo'
-  @ManyToOne(type=>User , user => user.albums)
-  owner : User
-  @ManyToMany(type => Album, album => album.images)
-  albums : Album[]
-  @ManyToOne(type=>Image, image => image.sourceImage)
-  derived :Image[]
-  @OneToMany(type=>Image, image => image.derived)
+  takenDate : Date
+  modifiedDate? : Date
+  deviceName? : string
+  caption? : string
+  importSource? : string
+  ranking : Number = 0
+  height : Number
+  width : Number
+  longitude? : Number
+  latitude? : Number
+  hasThumbnail : boolean
+  rotation : RotationType
+  contentHash : string = 'todo'
+  owner? : User
+  albums? : Album[]
+  derived? :Image[]
   sourceImage? : Image
 
   loadMetadataFromJpeg(exif:PartialExif) {

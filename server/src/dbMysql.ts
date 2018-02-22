@@ -1,49 +1,22 @@
-import mysql from 'async-mysql'
+import {AsyncConnection,AmySql} from 'async-mysql'
 
-let main;
-
-// async/await can be used only within an async function.
-main = async () => {
-  let mysql = require('async-mysql'),
-    connection,
-    rows;
-
-  connection = await mysql.connect({
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: "Instant00",
-    database: "photo_dev",
-  });
-
-  rows = await connection.query('SELECT * from aopuser')
-  console.log(JSON.stringify(rows))
-
-  try {
-    await connection.query('INVALID_QUERY');
-    console.log('Never here')
-  } catch (e) {
-    console.log(e.message)
-    throw e;
-    // [Error: ER_PARSE_ERROR: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INVALID_QUERY' at line 1]
-  }
-};
 
 /*
 * Database functions
 */
 
-let _connections = new Object();
+let _connections = new Map<string,AsyncConnection>();
 let _defaultConnection = '';
 let TIMEOUT = 60;
-let DB_LOGGING = false;
+let DB_LOGGING = true;
 
-export class DB {
-  
-  public static async addDatabase(dbName, connectionParams) {
-    _connections[dbName.toLowerCase()] = await mysql.connect(connectionParams);
+export class DBMysql {
+
+  public static async addDatabase(dbName, connectionParams):Promise<AsyncConnection> {
+    _connections[dbName.toLowerCase()] = await AmySql.connect(connectionParams);
     if (!_defaultConnection)
       _defaultConnection = dbName.toLowerCase()
+    return _connections[dbName.toLowerCase()]
   } // of addDatabase
   
 
@@ -57,7 +30,7 @@ export class DB {
  
 // this works out the connection string
 
-  private static getConnection(conAbbrev):any {
+  private static getConnection(conAbbrev):AsyncConnection {
     let result = '';
     if (conAbbrev == undefined) {
       result = _connections[_defaultConnection];
@@ -71,7 +44,12 @@ export class DB {
       return result;
   } // of getConnection
 
-
+  public static get isConnected() :boolean {
+    if (_connections=={})
+      return false  // none setup yet
+    else
+      return _connections[_defaultConnection].connected
+  }
 // gets the first column of a query and returns it as an array
 
   public static async getIds(sqlText:string, conAbbrev?:string):Promise<string[]> {
@@ -95,26 +73,6 @@ export class DB {
     }
       let rows2 = await aConnection.query(sqlText)
       let result = rows2
-/*      if (!rows.EOF)
-        rows.MoveFirst();
-      let fieldCount = rows.Fields.count;
-      while (!rows.EOF) {
-        let aRow = new Object();
-        let fldIx;
-        for (fldIx = 0; fldIx < fieldCount; fldIx++) {
-          let thisField = rows(fldIx);
-          try {
-            // force all object properties to be uppercase
-            aRow[thisField.Name.toUpperCase()] = thisField.Value;
-          } catch (err) {
-            console.log('bad field ' + thisField.Value);
-
-          }
-        } // of field loop
-        result.push(aRow);
-        rows.MoveNext;
-      }  // of row loop
-*/
       if (DB_LOGGING)
         console.log('Row Count = ' + result.length);
       return result;
@@ -200,24 +158,6 @@ export class DB {
 
 /************************ TEST ROUTINES ***********************************/
 
-
-async function XTest_getID() {
-  DB.addDatabase('Bridge', 'Provider=SQLOLEDB.1;Data Source=sql02dev;User ID=sa;Password=Passw0rd;Initial Catalog=Fidelity_BridgePCMS;APP=TestComplete-PBA');
-  DB.addDatabase('Jupiter', 'Provider=SQLOLEDB.1;Data Source=sql02dev;User ID=sa;Password=Passw0rd;Initial Catalog=JupiterPCMS;APP=TestComplete-PBA');
-  DB.setDefaultDatabase('Bridge');
-  let fred = await DB.getIds('select top 10 polno from policy where type_ in (70,71,72,73,74,75,76) and stat<>1');
-  console.log(fred.length);
-} // of getID_Test
-
-
-async function XTest_getRows() {
-  DB.addDatabase('Bridge', 'Provider=SQLOLEDB.1;Data Source=sql02dev;User ID=sa;Password=Passw0rd;Initial Catalog=Fidelity_BridgePCMS;APP=TestComplete-PBA');
-  DB.addDatabase('Jupiter', 'Provider=SQLOLEDB.1;Data Source=sql02dev;User ID=sa;Password=Passw0rd;Initial Catalog=JupiterPCMS;APP=TestComplete-PBA');
-  DB.setDefaultDatabase('Jupiter');
-  let fred = await DB.getRows('select top 3 * from policy where type_ in (70,71,72,73,74,75,76) and stat<>1', 'Bridge');
-  console.log(fred.length);
-} // of getRows_Test
-
 /*
 function XTest_getLinkedRows() {
   let fred = getLinkedRows('Benefits',123456);
@@ -227,7 +167,36 @@ function XTest_getLinkedRows() {
 } // of getLinkedRows_Test
 */
 
+/*
+// async/await can be used only within an async function.
+let main = async () => {
+  let mysql = require('async-mysql'),
+    connection,
+    rows;
+
+  connection = await mysql.connect({
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "Instant00",
+    database: "photo_dev",
+  });
+
+  rows = await connection.query('SELECT * from aopuser')
+  console.log(JSON.stringify(rows))
+
+  try {
+    await connection.query('INVALID_QUERY');
+    console.log('Never here')
+  } catch (e) {
+    console.log(e.message)
+    throw e;
+    // [Error: ER_PARSE_ERROR: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'INVALID_QUERY' at line 1]
+  }
+};
+
 main()
   .then(()=>{console.log('ok');process.exit()})
   .catch((e)=>{console.log('exception '+e.message);process.exit(16)})
 
+*/
