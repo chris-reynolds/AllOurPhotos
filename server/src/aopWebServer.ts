@@ -5,19 +5,15 @@ import {FsDirectory} from "./fsUtils";
 import * as http from 'http'
 import {Server} from "http";
 import {ImageUploader} from "./imageUploader";
-import {DbPhotos} from './dbPhotos'
 
 let  selfWS :AopWebServer  // record singleton for callback
 
 export class AopWebServer {
   public imgCatalog : ImgCatalog
   public httpServer : Server
-  public dbPhotos : DbPhotos
   constructor (public config:any){
-    console.log('Connecting to database');
-    this.dbPhotos = new DbPhotos()
-    console.log('Connected to database');
-    this.imgCatalog = new ImgCatalog(new FsDirectory(config.imagesDir),new DbPhotos())
+
+    this.imgCatalog = new ImgCatalog(new FsDirectory(config.imagesDir))
     this.httpServer = http.createServer(this.responder)
     this.httpServer.listen(config.port);
     console.log('Server started on localhost:'+config.port+'; press Ctrl-C to terminate....');

@@ -4,9 +4,8 @@ import * as _  from 'lodash'
 import { FsHelper } from './fsUtils';
 import { AopWebServer} from "./aopWebServer";
 import * as fs from "fs";
-import {DbPhotos} from "./dbPhotos";
-//import * as main from 'aopServerMain'
-//const TESTDATA_DIR = 'c:\\projects\\AllOurPhotos\\testdata\\';
+
+
 let ws:AopWebServer = null
 let config:any = {}
 function loadConfig() {
@@ -18,26 +17,20 @@ function loadConfig() {
   }
   return result;
 } // of loadConfig
-/*
+
 try {
   config = loadConfig();
-  DbPhotos.connect(config.database)
-    .then(()=>{
-      ws = new AopWebServer(config.webserver)
-    })
-    .catch(err => {throw new Error(err)})
+  ws = new AopWebServer(config.webserver)
 } catch (e) {
   console.error('TOP LEVEL ERROR :'+e.message+'\n'+e.stackTrace)
 }
-*/
+
 
 
 describe('api catalog methods', function () {
   before(async function () {
     config = loadConfig();
     console.log(config.database)
-    let db = await DbPhotos.connect(config.database);
-    console.log('11111')
     ws = await new AopWebServer(config.webserver)
     console.log('2222')
   });

@@ -1,16 +1,12 @@
 import * as fs from 'fs'
 import * as _  from 'lodash'
-import {FsFile, FsDirectory, FsHelper} from './fsUtils'
-import {JpegHelper, PartialExif} from './jpegHelper'
-import {Image} from "./entity/Image";
-import {DbPhotos} from "./dbPhotos";
+import {FsFile, FsDirectory} from './fsUtils'
+import {JpegHelper} from './jpegHelper'
 
 
 
-interface fileHandle {
-  filename:string
-  path:string
-}
+
+
 class FilenameHelper {
     static root : string
     static sep : string
@@ -53,10 +49,9 @@ class YearProfile {
 type loggerFunc = (s:string) => void
 export default class ImgCatalog {
     private _rootDir : FsDirectory
-    private _dbPhotos:DbPhotos
     static  _singleton :ImgCatalog
-  public static logger = undefined
-  private static userMessage(s:string) {
+  public static logger:loggerFunc = undefined
+  public static userMessage(s:string) {
       if (this.logger)
         this.logger(s)
   } // user message
@@ -68,23 +63,29 @@ export default class ImgCatalog {
       else
         throw new Error('Catalog not yet initialised')
     }
-    constructor(rootDir:FsDirectory,public dbPhotos:DbPhotos) {
+    constructor(rootDir:FsDirectory) {
         this._rootDir = rootDir
-      this._dbPhotos = dbPhotos
         FilenameHelper.root = rootDir.fullPath
         ImgCatalog._singleton = this
         rootDir.directories.forEach(thisDirectory => this.directories.push(new ImgDirectory(thisDirectory)))
     }
-    getDirectory(dirName:string,force?:Boolean):ImgDirectory {
+
+    getDirectory(dirName:string):ImgDirectory {
         let idx = _.findIndex(this.directories,['directoryName',dirName])
-        if (idx==-1 && force)  {
+        if (idx>=0)
+          return this.directories[idx]
+        else {
+          if (dirName.length!=7 || dirName.substr(4,4)!='-')
+            throw new Error('Directory ('+dirName+') should be in the form yyyy-mm')
           let fullDirectoryName = FilenameHelper.calcFilename(dirName)
-          // now move file to correct directory. create it is it doesn't exist
+          // create it is it doesn't exist
           if (!fs.existsSync(fullDirectoryName))
             fs.mkdirSync(fullDirectoryName)
-          let fsDirectory = new FsDirectory(fullDirectoryName,)
+          let fsDirectory = new FsDirectory(fullDirectoryName)
+          let imgDirectory = new ImgDirectory(fsDirectory)
+          this.directories.push(imgDirectory)
+          return imgDirectory
         }
-        return idx>-1 ? this.directories[idx] : null
     } // of getDirectory
 
     getYear(selectedYear) :YearProfile {
@@ -110,104 +111,51 @@ export default class ImgCatalog {
         }) // of foreach
 
         result = result.sort()
-  //      for (let i=0;i<result.length;i++)
-  //          result[i] = this.getYear(result[i]);
         return result;
     }  // of years
 
-
-
-    static async importTempFile(filename:string,tempPath:string,updateIndex:boolean=true) {
-//      let errMessage = ''
-      console.log('import temp file '+filename)
+  static importTempFile(originalFilename:string,tempPath:string) {
+      ImgCatalog.userMessage('import temp file '+originalFilename)
       try {
-        let jpegDetails = JpegHelper.extractMetaData(tempPath);
-        let newDirectoryName = FilenameHelper.directoryForDate(jpegDetails.dateTaken)
-        console.log('Import into directory :'+newDirectoryName)
-        let fullDirectory = FilenameHelper.calcFilename(newDirectoryName)
-        // now move file to correct directory. create it is it doesn't exist
-        if (!fs.existsSync(fullDirectory))
-          fs.mkdirSync(fullDirectory)
-        let newImage = new Image()
-        newImage.loadMetadataFromJpeg(jpegDetails)
-        newImage.directory = newDirectoryName
-        newImage.filename = filename
-        let alreadyStored = await ImgCatalog._singleton._dbPhotos.hasDuplicate(newImage)
-        if (!alreadyStored) {
-          fs.copyFileSync(tempPath, FilenameHelper.calcFilename(newDirectoryName, filename))
-          await ImgCatalog._singleton._dbPhotos.imageRep.save(newImage)
-        }
-        if (updateIndex) {
-          // first makesure we have a directory
-          let imgDirectory = ImgCatalog.catalogSingleton().getDirectory(newDirectoryName)
-          imgDirectory.addFile(new ImgFile(newDirectoryName,filename))
-          imgDirectory.scanDirectory()
-        }
+        let newImage = new ImgFile(tempPath,originalFilename)
+        newImage.loadProperties()
+        let newDirectoryName = FilenameHelper.directoryForDate(newImage.dateTaken)
+        ImgCatalog.userMessage('Import into directory :'+newDirectoryName)
+       // let fullDirectoryName = FilenameHelper.calcFilename(newDirectoryName)
+        let imgDirectory = ImgCatalog.catalogSingleton().getDirectory(newDirectoryName)
+        // now move file to correct directory
+        let targetName = originalFilename
+        let tries = 0
+        while (tries<10) {
+          let previousFile = imgDirectory.getFile(originalFilename)
+          if (previousFile=={}) {// not found
+            fs.copyFileSync(tempPath, FilenameHelper.calcFilename(newDirectoryName, targetName))
+            imgDirectory.addFile(new ImgFile(newDirectoryName,targetName))
+          } else if (previousFile.contentHash!=newImage.contentHash) {
+            targetName = originalFilename + '_c'+ (++tries) // try a new target name
+          } else
+            ImgCatalog.userMessage('skipped importing as a duplicate of '+targetName)
+        } // of while loop
       } catch(err){
-        err.message +=  ': Error on importing '+filename
+        err.message +=  ': Error on importing '+originalFilename
         throw err
-      }
- //     return errMessage;
+      }  // of try/catch
+    } // of importTempFile
 
-    }
-
-  public static async registerDirectory(directory?:FsDirectory) {
-      if (!directory)  // by default scan the whole tree
-        directory = ImgCatalog._singleton._rootDir
-    this.userMessage('Entering directory '+directory.fullPath)
-    for  (let directoryIx in directory.directories)
-      await this.registerDirectory(directory.directories[directoryIx])
-    for  (let fileIx in directory.files) {
-        let thisFile = directory.files[fileIx];
-      if (thisFile.filename.toLowerCase().match(/.*jpg/) && !thisFile.directoryPath.toLowerCase().match(/.*thumbnail.*/)) {
-        let newImage = await this.registerInternalJpg(thisFile.directoryPath + FilenameHelper.separator + thisFile.filename)
-      }
-    }
-    this.userMessage('Leaving directory '+directory.fullPath)
-  }
-
-  static async registerInternalJpg(fullName:string):Promise<Image> {
-    this.userMessage('import internal file '+fullName)
-    try {
-      let jpegDetails = JpegHelper.extractMetaData(fullName);
-      let newImage = new Image()
-      newImage.loadMetadataFromJpeg(jpegDetails)
-      newImage.directory = FilenameHelper.path(fullName)
-      newImage.filename = FilenameHelper.filename(fullName)
-      let alreadyStored = await ImgCatalog._singleton._dbPhotos.hasDuplicate(newImage)
-      if (!alreadyStored) {
-        this.userMessage('saving '+fullName)
-        try {
-          await ImgCatalog._singleton._dbPhotos.imageRep.save(newImage)
-        } catch(err){
-          this.userMessage('FAILED:' + fullName+ ':' + err.message)
-        }
-      } else
-        this.userMessage('skipping' + fullName)
-      return newImage
-    } catch(err){
-      err.message +=  ': Error on importing '+fullName
-      throw err
-    }
-    } // registerInternalJpg
-
-    updateThumbnail() {
-
-    }
+  scanAllDirectories() {
+      this.directories.forEach((eachDirectory):void => eachDirectory.scanDirectory())
+  } // of scanAllDirectories
 
 }  // of ImgCatalog
 
 export class ImgDirectory {
   private static INDEXNAME : string = 'index.json'
-  private _isLoaded : boolean = false
-  private _isIndexDirty : boolean = false
   private _files : ImgFile[] = []
   private _indexMaintTime : Date
   private _directoryMaintTime : Date
   public directoryName:string
 
     public get files() : ImgFile[] {
-      //throw new Error('TODO: ImgDirectory : get files()')
       return this._files
     }
 
@@ -221,32 +169,43 @@ export class ImgDirectory {
         this.scanDirectory()
     } // of constructor
 
+    addFile(thisFile:ImgFile) {
+      this._files.push(thisFile)
+    }
+
+    getFile(filename):ImgFile {
+      let idx = _.findIndex(this.files,['filename',filename])
+      return idx>-1 ? this.files[idx] : null
+    }
+
+    get indexPath() {
+      return FilenameHelper.calcFilename(this.directoryName,ImgDirectory.INDEXNAME)
+    } // of get indexpath
+
     loadIndex() {
-      let indexPath = FilenameHelper.calcFilename(this.directoryName,ImgDirectory.INDEXNAME)
-      if (!fs.existsSync(indexPath)) {
+      if (!fs.existsSync(this.indexPath)) {
         this._indexMaintTime = new Date(1970,1,1)
         return
       }
-      let indexFile = fs.readFileSync(indexPath,'utf8')
+      let indexFile = fs.readFileSync(this.indexPath,'utf8')
       let loadedObj = JSON.parse(indexFile)
       if (!Array.isArray(loadedObj))
           throw new Error('Invalid format for index of '+this.directoryName)
       loadedObj.forEach( img => this._files.push(img))
-      let stats = fs.statSync(indexPath)
+      let stats = fs.statSync(this.indexPath)
       this._indexMaintTime = stats.mtime
     } // of loadIndex
 
     saveIndex() {
-      let indexPath = FilenameHelper.calcFilename(this.directoryName,ImgDirectory.INDEXNAME)
-      fs.writeFileSync(indexPath,JSON.stringify(this._files))
+      fs.writeFileSync(this.indexPath,JSON.stringify(this._files))
     } // of saveIndex
 
     scanDirectory() {
     let isIndexDirty = false
       let self = this
       this.directory.files.forEach(function(thisFile:FsFile) {
-        let idx = _.findIndex(self._files,['filename',thisFile.filename])
-        if (idx==-1  && /\.jpg/.test(thisFile.filename.toLowerCase())  ) {   // not already in index
+        let thisImgFile = this.getFile(thisFile.filename)
+        if (!thisImgFile  && /\.jpg/.test(thisFile.filename.toLowerCase())  ) {   // not already in index but ends with jpg
           let thisImgFile = new ImgFile(self.directoryName,thisFile.filename)
           thisImgFile.loadProperties()
           self._files.push(thisImgFile)
@@ -256,15 +215,6 @@ export class ImgDirectory {
       if (isIndexDirty)
         this.saveIndex()
     } // scanDirectory
-
-    getFile(filename) {
-        let idx = _.findIndex(this.files,['filename',filename])
-        return idx>-1 ? this.files[idx] : {}
-    }
-
-    addFile(thisFile:ImgFile) {
-      this._files.push(thisFile)
-    }
 
 } // of ImgDirectory
 
@@ -281,13 +231,30 @@ export class ImgFile {
   public camera = 'unknown'
   public orientation = -1
   public owner = 'all'
+  public imageType : string = 'jpg'
+  public misplaced : boolean  = false    // if registered in wrong directory
+  public hasThumbnail : boolean
+//  rotation : RotationType
+  public contentHash : string = ''
+
+
 //  private _isJpeg : boolean = false
   constructor (dirname:string,public filename:string) {
-     console.log('ImgFile:'+this.filename)
+    ImgCatalog.userMessage('create ImgFile:'+this.filename)
     this._dirname = dirname
 //    this._isJpeg = (this.filename.toLowerCase().substr(-4)=='.jpg')
  //   this._properties = properties
   } // of constructor
+
+  calcContentHash() : string {
+    let result = '1' + this.width +':'+this.height+':'
+    let mmss = this.dateTaken.getMinutes()*100+this.dateTaken.getSeconds()
+    if (mmss==0)
+      mmss = 9000 + Number((Math.random()*999).toFixed(0))
+    result += mmss.toPrecision(4)
+    // todo get some pixels rather than random numbers to breakup scanned images if the same
+    return result
+  } // of calcContentHash
 
   get fullFilename():string {
     return FilenameHelper.calcFilename(this._dirname,this.filename)
@@ -297,6 +264,7 @@ export class ImgFile {
       let fullExif = JpegHelper.loadExif(this.fullFilename)
       let exifProperties = JpegHelper.partialExtract(fullExif)
       _.merge(this,exifProperties)
+    this.contentHash = this.calcContentHash()  // todo with git readonly property
   } // of loadProperties
 
 
