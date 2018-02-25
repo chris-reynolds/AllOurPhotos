@@ -1,7 +1,7 @@
 {
   "name": "allOurPhotosServer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Just a little Node/typescript to act as a bit of a photo filestore",
   "main": "aopServerMain.js",
   "scripts": {
     "test": "mocha -r ts-node/register src/*Tests.ts",
@@ -9,16 +9,16 @@
   },
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chris-reynolds/AllOurPhotos"
+  },
   "dependencies": {
-    "@types/mysql": "^2.15.2",
     "@types/node": "^8.5.8",
     "@types/supertest": "^2.0.4",
-    "async-mysql": "^1.0.1",
     "formidable": "^1.1.1",
     "imageinfo": "^1.0.4",
     "lodash": "^4.17.4",
-    "moment": "^2.20.1",
-    "mysql": "^2.15.0",
     "piexifjs": "^1.0.3",
     "reflect-metadata": "^0.1.10"
   },
