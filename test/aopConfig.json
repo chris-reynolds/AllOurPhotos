@@ -3,18 +3,6 @@
     "port": "3333",
     "clientDir": "..\\..\\client",
     "imagesDir": "C:\\projects\\AllOurPhotos\\testdata"
-  },
-  "database" : {
-    "type": "mysql",
-    "host": "localhost",
-    "port": 3306,
-    "username": "root",
-    "password": "Instant00",
-    "database": "photo_dev",
-    "entities": [ "entity/*.js" ],
-    "entityPrefix": "aop",
-    "synchronize": true,
-    "logging": ["query", "error"]
   }
 
 }
