@@ -10,7 +10,6 @@ export class ImageUploader {
 //  errorMessage:string = ''
   public async newImageHandler(req,res) {
     ImgCatalog.logger = (s) => console.log('zzzzzzzzzzzzzzzz: '+s)
-    await ImgCatalog.registerDirectory()
     let self = this
     let segments : string[] = req.url.split('/')
     let imageName = segments[segments.length-1]  // pick the right hand bit
@@ -19,10 +18,10 @@ export class ImageUploader {
     form.multiples = true
     form.res = res
     form['myErrorMessage'] = ''
-    form.on('file',async function(fieldname:string,thisFile){
+    form.on('file',function(fieldname:string,thisFile){
       if (thisFile && thisFile.name && thisFile.name.toLowerCase().match(/.*jpg/)) {
         try {
-          await ImgCatalog.importTempFile(thisFile.name, thisFile.path)
+          ImgCatalog.importTempFile(thisFile.name, thisFile.path)
         } catch(ex) {
           this.myErrorMessage = 'Failed to upload '+thisFile.name+"\n" + ex.stack
         }
