@@ -63,7 +63,9 @@ export class JpegHelper {
   } // of TrimNullChars
 
   static partialExtract(exifObj:any):PartialExif {
-      let result = new PartialExif()
+    let result = new PartialExif()
+    if (_.isEmpty(exifObj))
+       return result; // nothing to extract
     result.lastModifiedDate = exifObj.Exif[piexif.ExifIFD.DateTimeOriginal]
     result.dateTaken = JpegHelper.DateParse(exifObj.Exif[piexif.ExifIFD.DateTimeOriginal])
     let cameraMake = JpegHelper.TrimNullChars(exifObj['0th'][piexif.ImageIFD.Make])
@@ -75,7 +77,7 @@ export class JpegHelper {
     result.orientation = exifObj['0th'][piexif.ImageIFD.Orientation]||0
     result.width = exifObj.Exif[piexif.ExifIFD.PixelXDimension]||0
     result.height = exifObj.Exif[piexif.ExifIFD.PixelYDimension]||0
-    if (exifObj.GPS && exifObj.GPS.length) {
+    if (exifObj.GPS && exifObj.GPS[0] ) {
       result.latitude = JpegHelper.dmsToDeg(exifObj.GPS[2], exifObj.GPS[1]);
       result.longitude = JpegHelper.dmsToDeg(exifObj.GPS[4], exifObj.GPS[3]);
     }
@@ -85,7 +87,12 @@ export class JpegHelper {
   static loadExif(fileName) {
     const jpeg = fs.readFileSync(fileName);
     const data = jpeg.toString("binary");
-    return piexif.load(data);
+    try {
+      return piexif.load(data);
+    } catch (ex) {
+      console.log('unpacking problem in file '+fileName)
+      return {}
+    }
   }  // of loadExif
 
   static prettify(exifObj,filterMap) {

@@ -64,10 +64,20 @@ export default class ImgCatalog {
         throw new Error('Catalog not yet initialised')
     }
     constructor(rootDir:FsDirectory) {
+      let thisDirectory : FsDirectory
+      try {
         this._rootDir = rootDir
         FilenameHelper.root = rootDir.fullPath
         ImgCatalog._singleton = this
-        rootDir.directories.forEach(thisDirectory => this.directories.push(new ImgDirectory(thisDirectory)))
+        for (let dirIx in rootDir.directories) {
+          thisDirectory = rootDir.directories[dirIx]
+          this.directories.push(new ImgDirectory(thisDirectory))
+        }
+      } catch(ex) {
+        if (thisDirectory)
+          ex.message+=' while scanning '+thisDirectory.path
+        throw ex  // rethrow now we have added directory path
+      }
     }
 
     getDirectory(dirName:string):ImgDirectory {
@@ -201,21 +211,32 @@ export class ImgDirectory {
     } // of saveIndex
 
     scanDirectory() {
-    let isIndexDirty = false
+      let isIndexDirty = false
+      let thisFile: FsFile
       let self = this
-      this.directory.files.forEach(function(thisFile:FsFile) {
-        let thisImgFile = this.getFile(thisFile.filename)
-        if (!thisImgFile  && /\.jpg/.test(thisFile.filename.toLowerCase())  ) {   // not already in index but ends with jpg
-          let thisImgFile = new ImgFile(self.directoryName,thisFile.filename)
-          thisImgFile.loadProperties()
-          self._files.push(thisImgFile)
-          isIndexDirty = true
+      try {
+        console.log('scanning directory ' + this.directoryName)
+        for (let fileIx in this.directory.files) {
+          thisFile = this.directory.files[fileIx]
+          if (thisFile.filename=='100_0100.JPG') {
+            console.log('stopping')
+          }
+          let thisImgFile = self.getFile(thisFile.filename)
+          if (!thisImgFile && /\.jpg/.test(thisFile.filename.toLowerCase())) {   // not already in index but ends with jpg
+            let thisImgFile = new ImgFile(self.directoryName, thisFile.filename)
+            thisImgFile.loadProperties()
+            self._files.push(thisImgFile)
+            isIndexDirty = true
+          }
         }
-      })
-      if (isIndexDirty)
-        this.saveIndex()
+        thisFile = null
+        if (isIndexDirty)
+          this.saveIndex()
+      } catch(ex) {
+        if (thisFile)
+          ex.message += ' while scanning file '+thisFile.filename
+      }
     } // scanDirectory
-
 } // of ImgDirectory
 
 export class ImgFile {
@@ -248,7 +269,9 @@ export class ImgFile {
 
   calcContentHash() : string {
     let result = '1' + this.width +':'+this.height+':'
-    let mmss = this.dateTaken.getMinutes()*100+this.dateTaken.getSeconds()
+    let mmss = 0
+    if (this.dateTaken)
+      mmss = this.dateTaken.getMinutes()*100+this.dateTaken.getSeconds()
     if (mmss==0)
       mmss = 9000 + Number((Math.random()*999).toFixed(0))
     result += mmss.toPrecision(4)
