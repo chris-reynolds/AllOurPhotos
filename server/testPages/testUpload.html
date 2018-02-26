@@ -2,13 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Test Upload</title>
+  <title>AOP Test Page</title>
 </head>
 <body>
+<h1>Upload</h1>
 <form action="/new_image/blah" method="post" enctype="multipart/form-data">
   <input type="file" multiple id="fileUpload" name="fileUpload">
   <input type="hidden" id="fileDates" name="fileDates">
   <input type="submit" value="Upload">
+</form>
+<h2>Scan</h2>
+<form action="/api/fullscan" method="post" >
+<input type="submit" value="FullScan">
 </form>
 </body>
 <script lang="javascript">

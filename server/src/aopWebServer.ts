@@ -122,7 +122,21 @@ export class AopWebServer {
         let contents = JSON.stringify(selfWS.imgCatalog.getYears())
         res.end(contents)
 
-      }
+      } else if (apiRequestType=='fullscan') {
+        let cat = selfWS.imgCatalog
+        let logText = "Starting scan\n"
+        try {
+          cat.scanAllDirectories()
+          logText += "Finishing scan\n"
+          res.writeHead(200,{'Content-Type': 'application/json'})
+          let contents = JSON.stringify({"err":'',"message":logText})
+          res.end(contents)
+        } catch(ex) {
+          res.writeHead(500,{'Content-Type': 'application/json'})
+          let contents = JSON.stringify({"err":ex.message,"message":ex.stackTrace})
+          res.end(contents)
+        }
+      } // of fullscan
 
     } catch (ex) {
       let exmessage = ex.message
