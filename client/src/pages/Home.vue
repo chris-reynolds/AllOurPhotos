@@ -1,18 +1,16 @@
 <template>
   <main-layout>
-    <p>Welcome home</p>
-    <photo-gridxxx></photo-gridxxx>
+    <p>Welcome home2</p>
 
   </main-layout>
 </template>
 
 <script>
   import MainLayout from '../layouts/Main.vue'
-  import PhotoGridxxx from '../components/PhotoGridxxx.vue';
 
   export default {
     components: {
-      MainLayout, PhotoGridxxx
+      MainLayout
     }
   }
 </script>

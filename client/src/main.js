@@ -3,7 +3,7 @@ import routes from './routes'
 import axios from 'axios'
 import Icon from 'vue-awesome/icons'
 
-
+Vue.config.devtools = true
 Vue.prototype.$http = axios;
 Vue.component('icon',Icon)
 

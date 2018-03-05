@@ -1,6 +1,6 @@
 {
   "name": "vue-2.0-all-our-photos",
-  "description": "A Vue.js project to collection all our photos together",
+  "description": "A Vue.js project to collect all our photos together",
   "author": "Chris Reynolds <chris.reynolds.nz@gmail.com>",
   "private": true,
   "scripts": {

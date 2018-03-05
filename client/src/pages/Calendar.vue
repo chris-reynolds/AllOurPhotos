@@ -3,23 +3,23 @@
 */
 <template>
     <main-layout>
-        <data-service aurl="years" :params="trigger" @response="gotYears" @error="alert('error')" />
-    <div v-if="currentYear==0" class="w3-row w3-grayscale-min" v-for="yearRow in yeargrid">
+        <data-service aurl="years" :params="trigger" @response="gotYears" @error="showAlert" />
+    <div v-if="currentYear.year==0" class="w3-row w3-grayscale-min" v-for="yearRow in yeargrid">
         <div class="w3-quarter" v-for="yearno in yearRow">
             <div class="yearcell" @click="selectYear(yearno)">
                 <span>{{yearno}}</span>
             </div>
         </div>
     </div>
-        <div v-if="currentYear" >
-            <h1 @click="currentYear=0">{{currentYear}}</h1>
+        <div v-if="currentYear.year>0" >
+            <h1 @click="currentYear.year=0">{{currentYear}}</h1>
             <div class="monthtab">
-                <button :class="isActive(idx)" @click="selectMonth(idx)" v-for="(month,idx) in months">
+                <button :class="isActive(idx+1)" v-if="existingMonth(idx+1)"  @click="selectMonth(idx+1)" v-for="(month,idx) in months">
                   {{month}}</button>
             </div>
 
             <div class="tabcontent">
-                <p>Photos for {{currentYear}}-{{currentMonth}}.</p>
+                <p>Photos for {{months[currentMonth-1]}} {{currentYear.year}}</p>
                 <photo-grid :photo-list="photoList"></photo-grid>
             </div>
 
@@ -44,10 +44,12 @@
         yeargrid2 : [],
         trigger : 0,
         yearsURL : '',
-        currentYear : 0,
+        remoteYears:[],
+        currentYear : {year:0,months:[]},
         currentMonth : '',
+        currentDirectory : 'zzzz',
         photoList : [],
-        months : 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(','),
+        months : 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',')
       }
     }, // data
     computed: {},
@@ -57,24 +59,40 @@
       this.yearsURL = 'xyears'
     },
     methods: {
-      gotYears(remoteYears) {
+      existingMonth(monthNo) {
+        if (monthNo<10)
+          monthNo = '0'+monthNo
+        console.log('monthno'+monthNo)
+        if (this.currentYear.months.indexOf(monthNo)<0)
+          return false
+        else
+          return true
+      },
+      gotYears(theseRemoteYears) {
+        this.remoteYears = theseRemoteYears.data.reverse();
          this.yeargrid = [[],[],[],[],[],[],[]];
-        remoteYears = remoteYears.data.reverse();
-        for (let i=0;i<remoteYears.length; i++)
-          this.yeargrid[Math.floor((i) /4) ].push(remoteYears[i].year);
-        console.log('year grid '+JSON.stringify(remoteYears))
+        for (let i=0;i<this.remoteYears.length; i++)
+          this.yeargrid[Math.floor((i) /4) ].push(this.remoteYears[i].year);
+        console.log('year grid '+JSON.stringify(this.remoteYears))
       },
       selectYear : function(selectedYearNo) {
-        console.log(selectedYearNo+' selected');
-        this.currentYear = selectedYearNo;
+        console.log(selectedYearNo+' selected.');
+        console.log('remote years '+JSON.stringify(this.remoteYears))
+  //      this.currentYear = selectedYearNo;
+        for (let yearIx in this.remoteYears) {
+          let remoteYear = this.remoteYears[yearIx]
+          if (selectedYearNo == remoteYear.year)
+            this.currentYear = remoteYear
+            }
       },
       selectMonth: function(selectedMonthNo) {
         let self = this;
         this.currentMonth = selectedMonthNo
-        this.$http.get('api/month/'+this.currentYear+'/'+(this.currentMonth+1))
+        this.$http.get('http://localhost:3333/api/month/'+this.currentYear.year+'/'+(this.currentMonth))
           .then(function (response) {
             console.log('responding to month fetch')
-            self.photoList = response.data
+            self.currentDirectory = response.data.directory
+            self.photoList = response.data.files
             console.log('photo count is '+self.photoList.length)
           })
           .catch(function (error) {
@@ -85,24 +103,9 @@
       isActive :function(monthNo) {
         return (monthNo==this.currentMonth)?'active' : '';
       },
-      openMonth : function (evt, directoryName) {
-
-      // Get all elements with class="tabcontent" and hide them
-      let tabcontent = document.getElementsByClassName("tabcontent");
-      for (let i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
+      showAlert(message) {
+        alert(message)
       }
-
-      // Get all elements with class="tablinks" and remove the class "active"
-      let tablinks = document.getElementsByClassName("tablinks");
-      for (let i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-      }
-
-      // Show the current tab, and add an "active" class to the button that opened the tab
-      document.getElementById(cityName).style.display = "block";
-      evt.currentTarget.className += " active";
-    }
     },  // of methods
     watch: {
       yearsURL : function(val) {
