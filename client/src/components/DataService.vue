@@ -14,7 +14,7 @@
     computed: {
         datafetch : function(){
           console.log('data-service:datafetch');
-          this.$http.get('/api/'+this.aurl,{params:this.params})
+          this.$http.get('http://localhost:3335/api/'+this.aurl,{params:this.params})
           .then(function (response) {
             this.$emit('response',response);
           })
@@ -29,7 +29,7 @@
       'loadData' : function(val) {
         console.log('data-service:loadData='+val);
         let self = this;
-        this.$http.get('/api/'+this.aurl)
+        this.$http.get('http://localhost:3333/api/'+this.aurl)
           .then(function (response) {
             self.$emit('response',response);
           })
