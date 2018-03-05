@@ -77,7 +77,7 @@ export class JpegHelper {
     result.orientation = exifObj['0th'][piexif.ImageIFD.Orientation]||0
     result.width = exifObj.Exif[piexif.ExifIFD.PixelXDimension]||0
     result.height = exifObj.Exif[piexif.ExifIFD.PixelYDimension]||0
-    if (exifObj.GPS && exifObj.GPS[0] ) {
+    if (exifObj.GPS && exifObj.GPS[0] && exifObj.GPS[4] ) {
       result.latitude = JpegHelper.dmsToDeg(exifObj.GPS[2], exifObj.GPS[1]);
       result.longitude = JpegHelper.dmsToDeg(exifObj.GPS[4], exifObj.GPS[3]);
     }

@@ -112,16 +112,19 @@ export default class ImgCatalog {
         return result
     } // of getYear
 
-    getYears() : string[] {
-        let result = []
+    getYears() : YearProfile[] {
+        let years = []
+      let self = this
         this.directories.forEach(function (directory) {
             let thisYear = directory.directoryName.substr(0,4)
-            if (result.indexOf(thisYear)==-1)
-                result.push(thisYear)
+            if (years.indexOf(thisYear)==-1)
+                years.push(thisYear)
         }) // of foreach
 
-        result = result.sort()
-        return result;
+        years = years.sort()
+      let result =[]
+      years.forEach(thisYear => result.push(this.getYear(thisYear)))
+      return result;
     }  // of years
 
   static importTempFile(originalFilename:string,tempPath:string) {
@@ -198,12 +201,14 @@ export class ImgDirectory {
         return
       }
       let indexFile = fs.readFileSync(this.indexPath,'utf8')
-      let loadedObj = JSON.parse(indexFile)
-      if (!Array.isArray(loadedObj))
-          throw new Error('Invalid format for index of '+this.directoryName)
-      loadedObj.forEach( img => this._files.push(img))
-      let stats = fs.statSync(this.indexPath)
-      this._indexMaintTime = stats.mtime
+      if (indexFile) {
+        let loadedObj = JSON.parse(indexFile)
+        if (!Array.isArray(loadedObj))
+          throw new Error('Invalid format for index of ' + this.directoryName)
+        loadedObj.forEach(img => this._files.push(img))
+        let stats = fs.statSync(this.indexPath)
+        this._indexMaintTime = stats.mtime
+      }
     } // of loadIndex
 
     saveIndex() {
@@ -214,11 +219,12 @@ export class ImgDirectory {
       let isIndexDirty = false
       let thisFile: FsFile
       let self = this
+      let addCount = 0
       try {
         console.log('scanning directory ' + this.directoryName)
         for (let fileIx in this.directory.files) {
           thisFile = this.directory.files[fileIx]
-          if (thisFile.filename=='100_0100.JPG') {
+          if (thisFile.filename=='DSCN2769.JPG') {
             console.log('stopping')
           }
           let thisImgFile = self.getFile(thisFile.filename)
@@ -227,6 +233,10 @@ export class ImgDirectory {
             thisImgFile.loadProperties()
             self._files.push(thisImgFile)
             isIndexDirty = true
+            if (++addCount % 20 == 0) {
+              this.saveIndex()
+              isIndexDirty = false
+            }
           }
         }
         thisFile = null
@@ -235,6 +245,7 @@ export class ImgDirectory {
       } catch(ex) {
         if (thisFile)
           ex.message += ' while scanning file '+thisFile.filename
+        throw ex
       }
     } // scanDirectory
 } // of ImgDirectory
@@ -284,10 +295,14 @@ export class ImgFile {
   }
 
   loadProperties() {  // allow outside force and inside just intime
+    try {
       let fullExif = JpegHelper.loadExif(this.fullFilename)
       let exifProperties = JpegHelper.partialExtract(fullExif)
       _.merge(this,exifProperties)
-    this.contentHash = this.calcContentHash()  // todo with git readonly property
+      this.contentHash = this.calcContentHash()  // todo with git readonly property
+    } catch(ex) {
+      console.log('Failed to load metadata for '+this.fullFilename)
+    }
   } // of loadProperties
 
 
