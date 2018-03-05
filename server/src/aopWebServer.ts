@@ -105,6 +105,9 @@ export class AopWebServer {
 
   executeApiRequest(res,segments) {
     try {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+      res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
       let apiRequestType = segments[0].toLowerCase()
       if (apiRequestType=='month') {
         if (segments.length!=3) throw new Error('month url requires 2 parameters')
