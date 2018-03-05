@@ -1,5 +1,5 @@
 <template>
-
+<p>MyFooter component is here</p>
 
 </template>
 

@@ -33,7 +33,7 @@
       w3_close : function() {
         console.log('myheader.w3close1');
         this.menuIsOpen = false;
-        this.$emit('close_menu');
+        this.$emit('close-menu');
       },
       w3_open : function() {
         console.log('myheader.w3open1');

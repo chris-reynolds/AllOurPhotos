@@ -19,7 +19,7 @@
     methods: {
       w3_close :function() {
         console.log('MyMenu.w3close');
-        this.$emit('closemenu');
+        this.$emit('close-menu');
       }
 
     },
