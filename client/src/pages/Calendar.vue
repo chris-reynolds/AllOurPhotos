@@ -12,15 +12,15 @@
         </div>
     </div>
         <div v-if="currentYear.year>0" >
-            <h1 @click="currentYear.year=0">{{currentYear}}</h1>
             <div class="monthtab">
+              <div @click="currentYear.year=0">{{currentYear.year}}</div>
                 <button :class="isActive(idx+1)" v-if="existingMonth(idx+1)"  @click="selectMonth(idx+1)" v-for="(month,idx) in months">
                   {{month}}</button>
             </div>
 
             <div class="tabcontent">
                 <p>Photos for {{months[currentMonth-1]}} {{currentYear.year}}</p>
-                <photo-grid :photo-list="photoList"></photo-grid>
+                <photo-grid :photo-list="photoList" :prefix="urlPrefix"></photo-grid>
             </div>
 
         </div>
@@ -49,6 +49,7 @@
         currentMonth : '',
         currentDirectory : 'zzzz',
         photoList : [],
+        urlPrefix:'',
         months : 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec'.split(',')
       }
     }, // data
@@ -62,11 +63,9 @@
       existingMonth(monthNo) {
         if (monthNo<10)
           monthNo = '0'+monthNo
-        console.log('monthno'+monthNo)
-        if (this.currentYear.months.indexOf(monthNo)<0)
-          return false
         else
-          return true
+          monthNo = ''+monthNo
+        return (this.currentYear.months.indexOf(monthNo)>=0)
       },
       gotYears(theseRemoteYears) {
         this.remoteYears = theseRemoteYears.data.reverse();
@@ -77,8 +76,9 @@
       },
       selectYear : function(selectedYearNo) {
         console.log(selectedYearNo+' selected.');
-        console.log('remote years '+JSON.stringify(this.remoteYears))
   //      this.currentYear = selectedYearNo;
+        this.photoList =[]
+        this.currentMonth = ''
         for (let yearIx in this.remoteYears) {
           let remoteYear = this.remoteYears[yearIx]
           if (selectedYearNo == remoteYear.year)
@@ -92,6 +92,7 @@
           .then(function (response) {
             console.log('responding to month fetch')
             self.currentDirectory = response.data.directory
+            self.urlPrefix = 'http://localhost:3333/images/'+self.currentDirectory
             self.photoList = response.data.files
             console.log('photo count is '+self.photoList.length)
           })

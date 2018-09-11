@@ -1,7 +1,8 @@
 <template>
     <div class="photocell autoexpand">
-    <img class="rotateimg270x" :src="thumbnailURL()" style="width:100%" @click="photoClick(this)" :alt="caption"/>
-        <my-editor :filename="filename" :caption="caption" />
+    <img :class="orientationClass(picture.orientation)" :src="thumbnailURL()" style="width:100%" @click="photoClick(this)" :alt="picture.caption"/>
+        <my-editor :picture="picture" />
+      <div style="top: 8px; right: 16px;">a-{{picture.filename}}</div>
     </div>
 </template>
 
@@ -10,21 +11,29 @@
 
   export default {
     props: [
-      'filename','caption'
+      'picture','prefix'
     ],
     computed: {
 
     },
     methods: {
       photoClick : function(event) {
-        console.log('emits '+this.filename)
+        console.log('emits '+this.picture.filename)
         this.$emit('selectphoto');
-        console.log('emitted2 '+this.filename)
+        console.log('emitted2 '+this.picture.filename)
       }, // of event
       thumbnailURL : function() {
-        let segments = this.filename.split('/')
+        console.log('prefix is '+this.prefix)
+        let segments = this.picture.filename.split('/')
         segments.splice(segments.length-1,0,'thumbnails')
-        return segments.join('/');
+        return this.prefix+'/'+segments.join('/');
+      },
+      orientationClass: function(orientn) {
+        switch(orientn) {
+          case 6 : return 'rotateimg90'
+          case 8 : return 'rotateimg270'
+          default:   return 'rotateimg0'
+        }
       }
     },
     components : {MyEditor}
@@ -60,4 +69,7 @@
     -o-transform: rotate(270deg);
     transform: rotate(270deg);
 }
+  .rotateimg0 {
+
+  }
 </style>

@@ -10,25 +10,16 @@
 
 //    var aupServer = new axios({baseURL:'/api/'})
   export default {
-    props: ['aurl','params'],
-    computed: {
-        datafetch : function(){
-          console.log('data-service:datafetch');
-          this.$http.get('http://localhost:3335/api/'+this.aurl,{params:this.params})
-          .then(function (response) {
-            this.$emit('response',response);
-          })
-          .catch(function (error) {
-            this.$emit('error',error);
-          });
-
-
-        }
-    }, // of computed
+    props: {
+      'aurl': {type:String, required:true},
+      'params': '',
+      'ondemand': {type:Boolean,default: false}
+    },
     methods: {
-      'loadData' : function(val) {
-        console.log('data-service:loadData='+val);
+      'loadData' : function() {
+        console.log('data-service:loadData='+this.ondemand);
         let self = this;
+        if (!this.ondemand)
         this.$http.get('http://localhost:3333/api/'+this.aurl)
           .then(function (response) {
             self.$emit('response',response);
@@ -36,14 +27,28 @@
           .catch(function (error) {
             self.$emit('error',error);
           });
+      },  // loadData
+      'postData' : function(item) {
+        console.log('data-service:postData='+this.ondemand);
+        console.log(JSON.stringify(item))
+        let self = this;
+        if (!this.ondemand)
+          this.$http.post('http://localhost:3333/api/'+this.aurl,item)
+            .then(function (response) {
+              self.$emit('response',response);
+            })
+            .catch(function (error) {
+              self.$emit('error',error);
+            });
+
       }
     },
     watch: {
       aurl: function (val) {
-        this.loadData(val)
+        this.loadData()
       },
       params: function (val) {
-        this.loadData(val)
+        this.loadData()
       }
     },
 

@@ -3,12 +3,14 @@
     <div  v-if="this.isGridShowing">
         <div class="w3-row w3-grayscale-min"v-for="pictureRow in pictureRows" >
             <div class="w3-half" v-for="picture in pictureRow" :key="picture.filename">
-            <photo-cell @selectphoto="selectPhoto(picture)" :filename="picture.filename"  :caption="picture.caption"  />
+            <photo-cell @selectphoto="selectPhoto(picture)" :picture="picture" :prefix="prefix" />
             </div>
         </div>
-        <div @click="resetSelection()" vf-if="!this.isGridShowing">Back</div>
+        <div @click="resetSelection()" v-if="!this.isGridShowing">Back</div>
+      <div style="border: red 5px solid">
         <modal-picture :picture="this.selectedPicture"
-                       vf-if="this.selectedPicture && this.selectedPicture.filename" @close="resetSelection()" />
+                       v-if="this.selectedPicture.filename" @close="resetSelection()" />
+      </div>
         <paginator ></paginator>
     </div>
 
@@ -21,7 +23,7 @@
     import ModalPicture from './ModalPicture.vue';
 
   export default {
-    props: ['photoList'],
+    props: ['photoList','prefix'],
     data : function() {
       return {
         isGridShowing : true,
@@ -46,7 +48,7 @@
     methods: {
       resetSelection() {
         this.isGridShowing = true;
-        this.selectedPicture = null;
+        this.selectedPicture = {filename:'',caption:''}
 
       },
       selectPhoto(picture) {
@@ -57,6 +59,12 @@
     },
     components: {
       PhotoCell,Paginator,ModalPicture
+    },
+    watch: {
+      photoList : function() {
+        this.resetSelection()
+        console.log('reset selection based on watching photolist')
+      }
     }
   }
 </script>
