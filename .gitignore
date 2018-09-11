@@ -11,3 +11,5 @@ server/src/sample_upload.ts
 tmp/
 temp/
 .idea/workspace.xml
+.idea/workspace.xml
+*.ldb
