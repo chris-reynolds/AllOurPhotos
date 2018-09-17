@@ -9,6 +9,10 @@ environment:
 
 dependencies:
   exif:
+  http_server:
+  path:
+
 
 dev_dependencies:
   test: ^1.0.0
+  http:
