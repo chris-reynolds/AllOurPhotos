@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert' show jsonDecode,utf8;
 import 'package:http_server/http_server.dart';
+import 'package:path/path.dart' as Path;
 
 HttpServer mainServer;
 VirtualDirectory _staticFileRoot;
@@ -24,13 +25,15 @@ Future main(List<String> arguments) async {
 } // of main
 
   Future<HttpServer> loadServer(int port, String rootPath) async {
+    // TODO: check rootpath file existance
     _staticFileRoot = new VirtualDirectory(rootPath)
       ..allowDirectoryListing = true;
-    _staticFileRoot.directoryHandler = (dir, request) {
-      var indexUri = Uri.file(dir.path).resolve('index.json');
-      _staticFileRoot.serveFile(File(indexUri.toFilePath()), request);
-    };
-    return await HttpServer.bind('localhost',port);
+    _staticFileRoot.directoryHandler = serveDirectory;
+//    (dir, request) {
+//      var indexUri = Uri.file(dir.path).resolve('index.json');
+//      _staticFileRoot.serveFile(File(indexUri.toFilePath()), request);
+//    };
+    return await HttpServer.bind(InternetAddress.anyIPv4,port);
   }  // of loadServer
 
   Future processRequest(HttpRequest request) async {
@@ -43,11 +46,10 @@ Future main(List<String> arguments) async {
         ..write(text);
       response.close();
     } // of plainResponse
-    Cookie aopCookie;
     String cookieValue = response.cookies.length==0 ? 'NONE' : response.cookies[0].value;
     bool permissionDenied = securityCheck(cookieValue);
     if (request.method == 'GET') {
-      if (request.uri.path.substring(0, 8) == '/located') {
+      if (request.uri.path.length>8 && request.uri.path.substring(0, 8) == '/located') {
         List<String> bits = request.uri.path.split('/');
         String newToken = bits.length == 4
             ? securityToken(bits[2], bits[3])
@@ -95,6 +97,61 @@ Future main(List<String> arguments) async {
       plainResponse(HttpStatus.methodNotAllowed, 'Invalid method ${request.method}');
   } // of process request
 
+void serveDirectory(Directory dir, HttpRequest request) async {
+  HttpResponse response = request.response;
+  var dirStats = dir.statSync();
+  String rootPath = config['fileserver_root'];
+  String currentURL = '';
+  // local function to get from file back to url
+  String pathToURL(String path) {
+    if (path.length>=rootPath.length  && path.substring(0,rootPath.length)==rootPath) {
+      String result = path.substring(rootPath.length).replaceAll('\\', '/');
+      if (result.length >2 && result.substring(0,3) == '/./')  // noise from virtualDirecotry ??
+        result = result.substring(2);
+      return result;
+    } else
+      return 'BADPATH='+path;
+  } // of pathToURL
+//    if (request.headers.ifModifiedSince != null &&
+//        !dirStats.modified.isAfter(request.headers.ifModifiedSince)) {
+//      response.statusCode = HttpStatus.notModified;
+//      response.close();
+//      return;
+//    }
+    response.headers.contentType = new ContentType('text', 'tab-separated-values');
+    response.headers.set(HttpHeaders.lastModifiedHeader, dirStats.modified);
+//    var path = Uri.decodeComponent(request.uri.path);
+    response.writeln('name\tmodified:d\tsize:i\tfolder:b');
+
+    void addLine(String name, String modified, var size, bool folder) {
+      size ??= "-";
+      modified ??= "";
+      String entry = '${name}\t${modified}\t${size}\t${folder}';
+      print(entry);
+      response.writeln(entry);
+    }
+    void addFileSystemEntity(FileSystemEntity entity) {
+      var stat = entity.statSync();
+      String newURL = pathToURL(Path.dirname(entity.path));
+      String fileName = Path.basename(entity.path);
+      if (newURL == '/.') return; // skip pointer to current directory
+      if (newURL != currentURL) {  // insert directory lines on change of directory
+        currentURL = newURL;
+        response.writeln(); // add blankline as visual separator
+        addLine(currentURL,stat.modified.toString(),-1,true);
+      }
+      if (entity is File)
+        addLine(fileName, stat.modified.toString(), stat.size, false);
+       else if (entity is Directory)
+        addLine(fileName, stat.modified.toString(), null, true);
+    } // of addFileSystemEntity
+    var dirList = await dir.list(recursive: true, followLinks: true).toList();
+    for (FileSystemEntity fse in dirList) {addFileSystemEntity(fse);}
+
+    response.close();
+    print('close');
+}
+
   Future<Map> loadConfig(String filename) async {
     if (!FileSystemEntity.isFileSync(filename))
       throw 'Invalid configuration filename';
@@ -108,7 +165,7 @@ Future main(List<String> arguments) async {
     }
   }
   bool securityCheck(String token) {
-     return token.contains('F71');  // TODO: security check
+     return token.contains('F71');  // TODO: proper security check
   } // of security check
 
   String securityToken(String username,String password) {
