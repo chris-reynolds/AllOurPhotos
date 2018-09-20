@@ -1,0 +1,1 @@
+pub run test -r json C:/projects/AllOurPhotos/DartWebServer/test/aopMain_test.dart -N all
