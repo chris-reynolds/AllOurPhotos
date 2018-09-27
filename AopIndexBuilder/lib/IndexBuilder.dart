@@ -2,17 +2,21 @@
  * Created by Chris on 25/09/2018.
  */
 import 'dart:io';
-import 'dart:async';
 import 'package:path/path.dart' as path;
 import './Logger.dart' as log;
 import './ImgFile.dart';
 import './StringUtils.dart';
 import './JpegLoader.dart';
 
+
+String rootDir;
+
+String absPath(String dirName,String filename) => path.join(rootDir,dirName,filename);
+
 class IndexBuilder {
-  String rootDir;
-  IndexBuilder(String this.rootDir) {
-     log.message('Registered root '+rootDir);
+  IndexBuilder(String thisRootDir) {
+    rootDir = thisRootDir;
+    log.message('Registered root '+rootDir);
   } // of constructor
 
   buildAll() async {
@@ -91,3 +95,88 @@ class IndexBuilder {
 
 
 } // of IndexBuilder
+
+
+
+void addFile(String originalFilename,List<int> imageBuffer) {
+  log.message('import new file ' + originalFilename);
+  try {
+    ImgFile newImage = new ImgFile('xxxx', originalFilename);
+    JpegLoader()
+      ..loadBuffer(imageBuffer)
+      ..saveToImgFile(newImage);
+    String newDirectoryName = ImgDirectory.directoryNameForDate(
+        newImage.takenDate);
+    newImage.dirname = newDirectoryName;
+    String tempFilename = path.join(newDirectoryName, originalFilename);
+    log.message('Import into directory :' + newDirectoryName);
+    if (saveFileAs(newImage, imageBuffer: imageBuffer) > '') {
+      ImgDirectory imgDirectory = ImgCatalog.getDirectory(newDirectoryName);
+    }
+  } catch (ex) {
+
+  }
+} // of addFile
+
+    bool saveFileAs(ImgFile newImage, {List<int> imageBuffer, File fromFile}) {
+      bool result = true;
+      String targetName = newImage.filename;
+      int tries = 0;
+      while (tries < 10) {
+        tries += 1;
+        ImgDirectory imgDirectory = ImgCatalog.getDirectory(newImage.dirname);
+        ImgFile previousFile = imgDirectory.getFile(targetName);
+        String absFilename = absPath(newImage.dirname,newImage.filename);
+        if (previousFile == null) { // not found
+          if (fromFile != null)
+            fromFile.renameSync(absFilename);
+          else
+            File(absFilename).writeAsBytesSync(imageBuffer, flush: true);
+        } else if (previousFile.contentHash != newImage.contentHash) {
+          targetName = newImage.filename + '_c$tries'; // try a new target name
+        } else {
+          log.message('skipped importing as a duplicate of $targetName');
+          result = false;
+          break;
+        }
+      } // of while loop
+      if (result)
+        newImage.filename = targetName;
+      return result;
+    } // of saveNewFile
+
+    void importTempFile (String originalFilename, String tempPath) {
+      log.message('import temp file ' + originalFilename);
+      try {
+        ImgFile newImage = new ImgFile(tempPath, originalFilename);
+        String tempFilename = path.join(tempPath, originalFilename);
+        File newFile = File(tempFilename);
+        JpegLoader()
+          ..loadBuffer(newFile.readAsBytesSync())
+          ..saveToImgFile(newImage);
+        String newDirectoryName = ImgDirectory.directoryNameForDate(newImage.takenDate);
+        log.message('Import into directory :' + newDirectoryName);
+        // let fullDirectoryName = FilenameHelper.calcFilename(newDirectoryName)
+        ImgDirectory imgDirectory = ImgCatalog.getDirectory(newDirectoryName);
+// now move file to correct directory
+        String targetName = path.join(newDirectoryName,originalFilename);
+        int tries = 0;
+        while (tries < 10) {
+          tries += 1;
+          ImgFile previousFile = imgDirectory.getFile(originalFilename);
+          if (previousFile == null) { // not found
+            newFile.renameSync(targetName);
+            imgDirectory.files.add(newImage);
+          } else if (previousFile.contentHash != newImage.contentHash) {
+            targetName = originalFilename + '_c$tries'; // try a new target name
+          } else {
+            log.message('skipped importing as a duplicate of ' + targetName);
+            break;
+          }
+        } // of while loop
+      } catch (err) {
+        err.message += ': Error on importing ' + originalFilename;
+        throw err;
+/**/
+      } // of try/catch
+    } // of importTempFile
