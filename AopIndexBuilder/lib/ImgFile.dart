@@ -41,11 +41,17 @@ class ImgDirectory {
         return file;
      return null;
   } // of getFile
+
+  static String directoryNameForDate(DateTime aDate) {
+    int yy = aDate.year;
+    int mm = aDate.month;
+    return '$yy-${(mm <= 9) ? "0" : ""}$mm';
+  }
 }  // of ImgDirectory
 
 
 class ImgFile {
-
+  static const UNKNOWN_LONGLAT = 999.0;
   ImgFile (String this.dirname, String this.filename) {
     log.message('create ImgFile:'+fullFilename);
   } // of constructor
@@ -53,14 +59,16 @@ class ImgFile {
   String dirname;
   String filename;
   String caption = '-';
-  DateTime dateTaken;
+  DateTime takenDate;
   int byteCount;
   int width;
   int height;
   DateTime lastModifiedDate;
   int rank = 3;
-  double latitude = -1.0;
-  double longitude = -1.0;
+  double latitude = UNKNOWN_LONGLAT;
+  double longitude = UNKNOWN_LONGLAT;
+  String location = '';
+  String tags = '';
   String camera = 'unknown';
   int rotation = 0;
   String owner = 'all';
@@ -69,15 +77,15 @@ class ImgFile {
   bool hasThumbnail = false;
 //  rotation : RotationType
   String contentHash  = '';
-
+  DateTime deletedDate;
 
 //  private _isJpeg : boolean = false
 
   String calcContentHash()  {
-    String result = '1$width:$height:';
+    String result = '1$byteCount:';
     int mmss = 0;
-    if (dateTaken != null)
-      mmss = dateTaken.minute*100+dateTaken.second;
+    if (takenDate != null)
+      mmss = takenDate.minute*100+takenDate.second;
     if (mmss==0)
       mmss = 9000 + Math.Random().nextInt(999);
     result += '$mmss';
@@ -100,7 +108,7 @@ class ImgFile {
       dirname = fields[0];
       filename = fields[1];
       caption = fields[2];
-      dateTaken = DateTime.parse(fields[3]);
+      takenDate = DateTime.parse(fields[3]);
       byteCount = int.parse(fields[4]);
       width = int.parse(fields[5]);
       height = int.parse(fields[6]);
@@ -108,25 +116,30 @@ class ImgFile {
       rank = int.parse(fields[8]);
       latitude = double.tryParse(fields[9])??-1.0;
       longitude = double.tryParse(fields[10])??-1.0;
-      camera = fields[11];
-      rotation = int.parse(fields[12]);
-      owner = fields[13];
-      imageType = fields[14];
-      hasThumbnail = (fields[15]=='y');
-      contentHash = fields[16];
+      location = fields[11];
+      tags = fields[12];
+      camera = fields[13];
+      rotation = int.parse(fields[14]);
+      owner = fields[15];
+      imageType = fields[16];
+      hasThumbnail = (fields[17]=='y');
+      contentHash = fields[18];
+      deletedDate = DateTime.parse(fields[19]);
     }
   } // of fromTabDelimited
 
   String toTabDelimited() {
     String t='\t';
-    return '$dirname$t$filename$t$caption$t$dateTaken$t$byteCount$t$width$t'+
+    return '$dirname$t$filename$t$caption$t$takenDate$t$byteCount$t$width$t'+
        '$height$t$lastModifiedDate$t$rank$t$latitude$t$longitude$t'+
-    '$camera$t$rotation$t$owner$t$imageType$t${hasThumbnail?"y":"n"}$t$contentHash';
+        '$location$t$tags$t'+
+    '$camera$t$rotation$t$owner$t$imageType$t${hasThumbnail?"y":"n"}$t'+
+        '$contentHash$t$deletedDate';
   } // toMap
 
 } // of ImgFile
 
-const FIELD_COUNT = 17;
-final ImgFileHeader = "dirname\tfilename\tcaption\tdateTaken\tbyteCount\twidth\t"+
-    "height\tlastModifiedDate\trank\tlatitude\tlongitude\t"+
-    "camera\trotation\towner\timageType\thasThumbnail\tcontentHash";
+const FIELD_COUNT = 20;
+final ImgFileHeader = "dirname\tfilename\tcaption\ttakenDate\tbyteCount\twidth\t"+
+    "height\tlastModifiedDate\trank\tlatitude\tlongitude\tlocation\ttags\t"+
+    "camera\trotation\towner\timageType\thasThumbnail\tcontentHash\tdeletedDate";

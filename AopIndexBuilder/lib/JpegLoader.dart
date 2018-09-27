@@ -20,7 +20,7 @@ class JpegLoader {
    }
 
    static double dmsToDeg(List dms, String direction) {
-     if (dms==null)  return null;
+     if (dms==null)  return ImgFile.UNKNOWN_LONGLAT;
      double result = 0.0;
      for (int ix in [2,1,0]) {
        result = result / 60 + (dms[ix].numerator / dms[ix].denominator);
@@ -41,12 +41,12 @@ class JpegLoader {
    }  // dateTimeFromExit
    void saveToImgFile( ImgFile thisFile) {
      thisFile
-       ..caption = tag('Image ImageDescription')?.toString()
-       ..dateTaken = dateTimeFromExif(tag('Image DateTime')?.toString())
+       ..caption = tag('Image ImageDescription')?.toString() ?? ''
+       ..takenDate = dateTimeFromExif(tag('Image DateTime')?.toString())
        ..byteCount = _buffer.length
        ..width = int.parse(tag('EXIF ExifImageWidth')?.toString())
        ..height = int.parse(tag('EXIF ExifImageLength')?.toString())
-       ..lastModifiedDate = thisFile.dateTaken   // default to be overwritten
+       ..lastModifiedDate = thisFile.takenDate   // default to be overwritten
        ..rank = 2
        ..latitude = dmsToDeg(tag('GPS GPSLatitude')?.values, tag('GPS GPSLatitudeRef')?.toString())
        ..longitude = dmsToDeg(tag('GPS GPSLongitude')?.values, tag('GPS GPSLongitudeRef')?.toString())
