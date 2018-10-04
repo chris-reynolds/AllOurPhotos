@@ -4,10 +4,12 @@
 import './Logger.dart' as log;
 //import 'dart:core';
 import 'dart:math' as Math;
+import 'dart:collection';
 
 
 const INDEX_FILENAME = 'index.tsv';
 
+typedef  boolFunction = bool Function();
 class ImgCatalog {
   static List<ImgDirectory> _directories = <ImgDirectory>[];
 
@@ -29,19 +31,49 @@ class ImgCatalog {
     return result;
   } // of newDirectory
 
+  static bool saveAll() {
+    bool result = true;
+    for (ImgDirectory dir in _directories)
+      result = result && ImgDirectory.save(dir);
+    return result;
+  } // of save
+
+  static bool actOnAll(ImgFileAction thisAction) {
+    bool result = true;
+    for (ImgDirectory dir in _directories) {
+      bool directoryResult = true;
+      log.message('ActOnAll starting in ${dir.directoryName}');
+      for (var thisImgFile in dir) {
+        directoryResult = directoryResult && thisAction(thisImgFile);
+      } // of file loop
+      log.message('${directoryResult?"Passed":"Failed"} in ${dir.directoryName}');
+      result = result && directoryResult;
+    } // of directory loop
+    return result;
+  }
 }  // of ImgCatalog
 
-class ImgDirectory {
+typedef ImgDirectoryAction = bool Function(ImgDirectory);
+class ImgDirectory extends IterableBase{
+  static ImgDirectoryAction save = (img) => throw "Directory Save handler not defined";
   List<ImgFile> files = <ImgFile>[];
+  get iterator => files.iterator;
   String directoryName;
   bool dirty = false;
-  ImgFile getFile(String thisFilename) {
+  ImgFile getFile(String thisFilename,{bool force = false}) {
     for (ImgFile file in files)
       if (file.filename == thisFilename)
         return file;
-     return null;
+      if (!force)
+        return null;
+      else {
+        ImgFile newFile = ImgFile(directoryName, thisFilename);
+        files.add(newFile);
+        dirty = true;
+        return newFile;
+      }
   } // of getFile
-
+  ImgFile operator [](String s) => getFile(s);
   static String directoryNameForDate(DateTime aDate) {
     int yy = aDate.year;
     int mm = aDate.month;
@@ -49,9 +81,10 @@ class ImgDirectory {
   }
 }  // of ImgDirectory
 
-
+typedef ImgFileAction = bool Function(ImgFile);
 class ImgFile {
   static const UNKNOWN_LONGLAT = 999.0;
+  static ImgFileAction save = (img) => throw "Save handler not defined";
   ImgFile (String this.dirname, String this.filename) {
     log.message('create ImgFile:'+fullFilename);
   } // of constructor

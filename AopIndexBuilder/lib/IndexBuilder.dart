@@ -110,11 +110,13 @@ void addFile(String originalFilename,List<int> imageBuffer) {
     newImage.dirname = newDirectoryName;
     String tempFilename = path.join(newDirectoryName, originalFilename);
     log.message('Import into directory :' + newDirectoryName);
-    if (saveFileAs(newImage, imageBuffer: imageBuffer) > '') {
+    if (saveFileAs(newImage, imageBuffer: imageBuffer) ) {
       ImgDirectory imgDirectory = ImgCatalog.getDirectory(newDirectoryName);
+      imgDirectory.files.add(newImage);
+      imgDirectory.dirty = true;
     }
   } catch (ex) {
-
+     throw ex+' while adding $originalFilename';
   }
 } // of addFile
 

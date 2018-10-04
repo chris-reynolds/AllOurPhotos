@@ -9,3 +9,4 @@ void _message(s) {
 } // of message
 
 LoggerFunc message = _message;  // setup default logger
+LoggerFunc error = _message; // setup default error logger
