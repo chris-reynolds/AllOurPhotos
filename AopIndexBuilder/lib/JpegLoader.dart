@@ -1,21 +1,20 @@
 /**
  * Created by Chris on 21/09/2018.
  */
-import 'package:exif/exif.dart';
+import 'package:exifdart/exifdart.dart' as exif;
 import './ImgFile.dart';
 import 'Logger.dart' as log;
 
 class JpegLoader {
    List<int> _buffer;
 //   File _baseFile;
-   Map<String, IfdTag> tags = null;
+   Map<String, dynamic> tags = null;
 
 
    void loadBuffer(List<int> newBuffer) async {
      _buffer = newBuffer;
-  //   _baseFile =  File(path);
- //    _buffer = _baseFile.readAsBytesSync();
-     tags = await readExifFromBytes(_buffer);
+     exif.MemoryBlobReader mbr = exif.MemoryBlobReader(newBuffer);
+     tags = await exif.readExif(mbr);
      log.message('read tags');
    }
 
@@ -40,24 +39,33 @@ class JpegLoader {
      } // of try catch
    }  // dateTimeFromExit
    void saveToImgFile( ImgFile thisFile) {
-     thisFile
-       ..caption = tag('Image ImageDescription')?.toString() ?? ''
-       ..takenDate = dateTimeFromExif(tag('Image DateTime')?.toString())
-       ..byteCount = _buffer.length
-       ..width = int.parse(tag('EXIF ExifImageWidth')?.toString())
-       ..height = int.parse(tag('EXIF ExifImageLength')?.toString())
-       ..lastModifiedDate = thisFile.takenDate   // default to be overwritten
-       ..rank = 2
-       ..latitude = dmsToDeg(tag('GPS GPSLatitude')?.values, tag('GPS GPSLatitudeRef')?.toString())
-       ..longitude = dmsToDeg(tag('GPS GPSLongitude')?.values, tag('GPS GPSLongitudeRef')?.toString())
-       ..camera = tag('Image Model')?.toString()
-       ..rotation = 0
-       ..owner = 'All'
-       ..imageType = 'JPEG'
-       ..hasThumbnail = false
-       ..contentHash = thisFile.calcContentHash();
+     int imageWidth = tag('ImageWidth')  ?? tag('PixelXDimension');
+     int imageHeight = tag('ImageHeight')  ?? tag('PixelYDimension');
+     try {
+       thisFile
+         ..caption = tag('ImageDescription')
+         ..takenDate = dateTimeFromExif(tag('DateTime'))
+         ..byteCount = _buffer.length
+         ..width = imageWidth
+         ..height = imageHeight
+         ..lastModifiedDate = thisFile.takenDate // default to be overwritten
+         ..rank = 2
+         ..latitude = dmsToDeg(tag('GPSLatitude'),
+             tag('GPSLatitudeRef'))
+         ..longitude = dmsToDeg(tag('GPSLongitude'),
+             tag('GPSLongitudeRef'))
+         ..camera = tag('Model')
+         ..rotation = 0
+         ..owner = 'All'
+         ..imageType = 'JPEG'
+         ..hasThumbnail = false
+         ..contentHash = thisFile.calcContentHash();
+     } catch(ex) {
+       log.error(ex);
+       rethrow;
+     }
    }  // of saveToImgFile
-   IfdTag tag(String tagName) {
+   dynamic tag(String tagName) {
      try {
        return tags[tagName];
      } catch (ex) {

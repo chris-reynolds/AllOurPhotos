@@ -17,86 +17,91 @@ class IndexBuilder {
   IndexBuilder(String thisRootDir) {
     rootDir = thisRootDir;
     log.message('Registered root '+rootDir);
+    ImgDirectory.save = saveDirectoryToFileStore;
+    ImgFile.save = saveImageToDirectory;
   } // of constructor
 
   buildAll() async {
-    List<FileSystemEntity> rootEntries = Directory(rootDir).listSync();
-    for (FileSystemEntity fse in rootEntries) {
-      var fseStat = fse.statSync();
-      if (fseStat.type == FileSystemEntityType.directory)
-        await buildDir(fse,fseStat.modified);
-    }
+    List<FileSystemEntity> rootSubdirectories = Directory(rootDir).listSync()
+        ..retainWhere((fse) => FileSystemEntity.isDirectorySync(fse.path));
+    for (FileSystemEntity fse in rootSubdirectories) {
+      String subDirectoryName = path.split(fse.path).removeLast();
+      ImgDirectory thisIndexDirectory = ImgCatalog.getDirectory(subDirectoryName);
+      if (thisIndexDirectory == null)
+        thisIndexDirectory = ImgCatalog.newDirectory(subDirectoryName);
+      await matchDirectoryAndIndex(fse,thisIndexDirectory);
+    } // of subdirec tory loop
   } // of buildAll
 
-  buildDir(FileSystemEntity directory,DateTime dirModified) async {
-    DateTime indexModified;
+  void matchDirectoryAndIndex(FileSystemEntity directory,ImgDirectory indexDirectory)  async {
     bool indexScanRequired = true;
     bool indexWriteRequired = false;
-    List<ImgFile> indexEntries = <ImgFile>[];
 
-    log.message('Starting Directory '+directory.path+' '+dirModified.toString());
+    log.message('Starting Directory ${directory.path}');
     File indexFile = File(path.join(directory.path,INDEX_FILENAME));
     if (indexFile.existsSync()) {
-      indexScanRequired = indexFile.lastModifiedSync().isBefore(dirModified);
+      indexScanRequired = indexFile.lastModifiedSync().isBefore(indexDirectory.modifiedDate);
       List<String> lines = indexFile.readAsLinesSync();
-      lines.removeAt(0); // remove header
-      lines.forEach((thisLine) {
-        ImgFile thisEntry = ImgFile('','');
-        thisEntry.fromTabDelimited(thisLine);
-        indexEntries.add(thisEntry);
-      });
+       if (!indexDirectory.fromStrings(lines))
+         log.error('Errors found while loading ${directory.path}');
+      indexDirectory.modifiedDate = indexFile.lastModifiedSync();
     } // of indexLoad
     indexWriteRequired = false;
-    log.message('Index start count=${indexEntries.length}');
+    log.message('Index start count=${indexDirectory.files.length}');
     JpegLoader jpegLoader = JpegLoader();
     List<FileSystemEntity> fileList  = Directory(directory.path).listSync();
     for (FileSystemEntity fse in fileList) {
       String targetFilename = path.basename(fse.path);
       // check for desire file type
-      String blah = right(targetFilename,4);
       if (['.jpg','.mov'].indexOf(right(targetFilename,4).toLowerCase()) >= 0) {
         String targetDir = path.relative(path.dirname(fse.path), from: rootDir);
-        ImgFile existingEntry;
-        try {
-          existingEntry = indexEntries.singleWhere((thisEntry) =>
-          thisEntry.filename == targetFilename);
-        } catch (e) {
-          existingEntry = null;
-        } // of try/catch
+        ImgFile existingEntry = indexDirectory[targetFilename];
         // add new Entry to index if required
         if (existingEntry == null) {
           ImgFile newEntry = ImgFile(targetDir, targetFilename);
           File theFile = File(fse.path);
           await jpegLoader.loadBuffer(theFile.readAsBytesSync());
-          jpegLoader.saveToImgFile(newEntry);
+          if (jpegLoader.tags != null)
+            jpegLoader.saveToImgFile(newEntry);
           newEntry.lastModifiedDate = fse.statSync().modified;
-          indexEntries.add(newEntry);
+          indexDirectory.files.add(newEntry);
           indexWriteRequired = true;
         }
       }
     }  // of fileList loop
-    log.message('Index end count=${indexEntries.length}');
+    log.message('Index end count=${indexDirectory.files.length}');
     if (indexWriteRequired) {
-      saveIndex(directory, indexEntries);
+      saveDirectoryToFileStore(indexDirectory);
+      indexWriteRequired = false;
       log.message('Index written');
     }
     log.message('Finishing Directory '+directory.path+' scan:$indexScanRequired');
   } // of buildDir
 
-  saveIndex(FileSystemEntity directory, List<ImgFile> fileList) {
-    List<String> lines = <String>[];
-    lines.add(ImgFileHeader);
-    fileList.forEach((file) {
-        lines.add(file.toTabDelimited());
-    });
-    File indexFile = File(path.join(directory.path,INDEX_FILENAME));
-    indexFile.writeAsStringSync(lines.join("\n"));
-  }
-
+  save() {
+    ImgCatalog.saveAll();
+  }  // of save
 
 } // of IndexBuilder
 
+bool saveDirectoryToFileStore(ImgDirectory thisDirectory) {
+  List<String> lines = thisDirectory.toStrings();
+  File indexFile = File(absPath(thisDirectory.directoryName,INDEX_FILENAME));
+  indexFile.writeAsStringSync(lines.join("\n"));
+  thisDirectory.dirty = false;
+  return true;
+} // of saveDirectoryToFileStore
 
+bool saveImageToDirectory(ImgFile thisFile) {
+  ImgDirectory dir = ImgCatalog.getDirectory(thisFile.dirname);
+  if (dir == null)
+    dir = ImgCatalog.newDirectory(thisFile.dirname);
+  ImgFile currentEntry = dir[thisFile.filename];
+  if (currentEntry == null)
+    dir.files.add(thisFile);
+  dir.dirty = true;
+  return true;
+} // of saveImageToDirectory
 
 void addFile(String originalFilename,List<int> imageBuffer) {
   log.message('import new file ' + originalFilename);
@@ -108,7 +113,6 @@ void addFile(String originalFilename,List<int> imageBuffer) {
     String newDirectoryName = ImgDirectory.directoryNameForDate(
         newImage.takenDate);
     newImage.dirname = newDirectoryName;
-    String tempFilename = path.join(newDirectoryName, originalFilename);
     log.message('Import into directory :' + newDirectoryName);
     if (saveFileAs(newImage, imageBuffer: imageBuffer) ) {
       ImgDirectory imgDirectory = ImgCatalog.getDirectory(newDirectoryName);
@@ -120,32 +124,32 @@ void addFile(String originalFilename,List<int> imageBuffer) {
   }
 } // of addFile
 
-    bool saveFileAs(ImgFile newImage, {List<int> imageBuffer, File fromFile}) {
-      bool result = true;
-      String targetName = newImage.filename;
-      int tries = 0;
-      while (tries < 10) {
-        tries += 1;
-        ImgDirectory imgDirectory = ImgCatalog.getDirectory(newImage.dirname);
-        ImgFile previousFile = imgDirectory.getFile(targetName);
-        String absFilename = absPath(newImage.dirname,newImage.filename);
-        if (previousFile == null) { // not found
-          if (fromFile != null)
-            fromFile.renameSync(absFilename);
-          else
-            File(absFilename).writeAsBytesSync(imageBuffer, flush: true);
-        } else if (previousFile.contentHash != newImage.contentHash) {
-          targetName = newImage.filename + '_c$tries'; // try a new target name
-        } else {
-          log.message('skipped importing as a duplicate of $targetName');
-          result = false;
-          break;
-        }
-      } // of while loop
-      if (result)
-        newImage.filename = targetName;
-      return result;
-    } // of saveNewFile
+bool saveFileAs(ImgFile newImage, {List<int> imageBuffer, File fromFile}) {
+  bool result = true;
+  String targetName = newImage.filename;
+  int tries = 0;
+  while (tries < 10) {
+    tries += 1;
+    ImgDirectory imgDirectory = ImgCatalog.getDirectory(newImage.dirname);
+    ImgFile previousFile = imgDirectory.getFile(targetName);
+    String absFilename = absPath(newImage.dirname,newImage.filename);
+    if (previousFile == null) { // not found
+      if (fromFile != null)
+        fromFile.renameSync(absFilename);
+      else
+        File(absFilename).writeAsBytesSync(imageBuffer, flush: true);
+    } else if (previousFile.contentHash != newImage.contentHash) {
+      targetName = newImage.filename + '_c$tries'; // try a new target name
+    } else {
+      log.message('skipped importing as a duplicate of $targetName');
+      result = false;
+      break;
+    }
+  } // of while loop
+  if (result)
+    newImage.filename = targetName;
+  return result;
+} // of saveNewFile
 
     void importTempFile (String originalFilename, String tempPath) {
       log.message('import temp file ' + originalFilename);

@@ -21,13 +21,14 @@ class ImgCatalog {
   } // of getDirectory
 
   static ImgDirectory newDirectory(String dirName) {
-    if (dirName.length!=7 || dirName.substring(4,4)!='-')
+    if (dirName.length!=7 || dirName.substring(4,5)!='-')
       throw ('Directory $dirName should be in the form yyyy-mm');
     if (getDirectory(dirName) != null)
       throw('Directory $dirName already exists');
     ImgDirectory result = ImgDirectory();
     result.directoryName = dirName;
     result.dirty = true;
+    _directories.add(result);
     return result;
   } // of newDirectory
 
@@ -50,7 +51,11 @@ class ImgCatalog {
       result = result && directoryResult;
     } // of directory loop
     return result;
-  }
+  } // of actOnAll
+
+  static clear() {
+    _directories.length = 0;
+  } // of clear
 }  // of ImgCatalog
 
 typedef ImgDirectoryAction = bool Function(ImgDirectory);
@@ -59,6 +64,7 @@ class ImgDirectory extends IterableBase{
   List<ImgFile> files = <ImgFile>[];
   get iterator => files.iterator;
   String directoryName;
+  DateTime modifiedDate = DateTime(1980); // way-back
   bool dirty = false;
   ImgFile getFile(String thisFilename,{bool force = false}) {
     for (ImgFile file in files)
@@ -79,6 +85,28 @@ class ImgDirectory extends IterableBase{
     int mm = aDate.month;
     return '$yy-${(mm <= 9) ? "0" : ""}$mm';
   }
+  List<String> toStrings() {
+    List<String>result = [];
+    result.add(ImgFileHeaderLine);
+    for (var file in files)
+      result.add(file.toTabDelimited());
+    return result;
+  } // toStrings
+
+  bool fromStrings(List<String> lines) {
+    bool result = true;
+    files.length = 0;
+    lines.removeAt(0); // remove headerline
+    for (var thisLine in lines) {
+      ImgFile file = ImgFile('',''); // load blank
+      if (file.fromTabDelimited(thisLine)) {
+        files.add(file);
+      } else {
+        log.error('Problem in index line ${lines.indexOf(thisLine)}');
+      }
+    } // of line loop
+    return result;
+  } // of fromStrings
 }  // of ImgDirectory
 
 typedef ImgFileAction = bool Function(ImgFile);
@@ -130,35 +158,43 @@ class ImgFile {
     return dirname+'/'+filename;
   }
 
-  fromTabDelimited(String source) {
+  bool fromTabDelimited(String source) {
     List<String> fields = source.split('\t');
-    if (fields.length != FIELD_COUNT)
+    if (fields.length != FIELD_COUNT) {
       log.message('Invalid line :$source');
-    else {
-      for (String thisField in fields)
-        if (thisField == 'null')
-          thisField=null;
-      dirname = fields[0];
-      filename = fields[1];
-      caption = fields[2];
-      takenDate = DateTime.parse(fields[3]);
-      byteCount = int.parse(fields[4]);
-      width = int.parse(fields[5]);
-      height = int.parse(fields[6]);
-      lastModifiedDate = DateTime.parse(fields[7]);
-      rank = int.parse(fields[8]);
-      latitude = double.tryParse(fields[9])??-1.0;
-      longitude = double.tryParse(fields[10])??-1.0;
-      location = fields[11];
-      tags = fields[12];
-      camera = fields[13];
-      rotation = int.parse(fields[14]);
-      owner = fields[15];
-      imageType = fields[16];
-      hasThumbnail = (fields[17]=='y');
-      contentHash = fields[18];
-      deletedDate = DateTime.parse(fields[19]);
+      return false;
+    } else {
+      for (int fieldIx = 0; fieldIx < fields.length; fieldIx++) {
+        if (fields[fieldIx] == 'null')
+          fields[fieldIx] = null;
+      }
+      try {
+        dirname = fields[0];
+        filename = fields[1];
+        caption = fields[2];
+        takenDate = (fields[3] != null) ? DateTime.parse(fields[3]) : null;
+        byteCount = (fields[4] != null) ? int.tryParse(fields[4]) : null;
+        width = (fields[5] != null) ? int.tryParse(fields[5]) : null;
+        height = (fields[6] != null) ? int.tryParse(fields[6]) : null;
+        lastModifiedDate = DateTime.parse(fields[7]);
+        rank = int.parse(fields[8]);
+        latitude = double.tryParse(fields[9]) ?? -1.0;
+        longitude = double.tryParse(fields[10]) ?? -1.0;
+        location = fields[11];
+        tags = fields[12];
+        camera = fields[13];
+        rotation = int.parse(fields[14]);
+        owner = fields[15];
+        imageType = fields[16];
+        hasThumbnail = (fields[17] == 'y');
+        contentHash = fields[18];
+        deletedDate = (fields[19] != null) ? DateTime.parse(fields[19]) : null;
+      } catch(ex) {
+        log.error('failed to load an index line');
+        rethrow;
+      }
     }
+    return true;
   } // of fromTabDelimited
 
   String toTabDelimited() {
@@ -173,6 +209,6 @@ class ImgFile {
 } // of ImgFile
 
 const FIELD_COUNT = 20;
-final ImgFileHeader = "dirname\tfilename\tcaption\ttakenDate\tbyteCount\twidth\t"+
+final ImgFileHeaderLine = "dirname\tfilename\tcaption\ttakenDate\tbyteCount\twidth\t"+
     "height\tlastModifiedDate\trank\tlatitude\tlongitude\tlocation\ttags\t"+
     "camera\trotation\towner\timageType\thasThumbnail\tcontentHash\tdeletedDate";

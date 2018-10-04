@@ -7,9 +7,10 @@ myLogger(String s) {
   stdout.writeln('${DateTime.now()} : $s');
 }  // myLogger
 
-main(List<String> arguments) {
+main(List<String> arguments) async {
   log.message = myLogger;
   IndexBuilder ib = IndexBuilder('C:\\projects\\AllOurPhotos\\testdata\\');
-  ib.buildAll();
+  await ib.buildAll();
   IndexScanner.justdoit();
+  ib.save();
 }

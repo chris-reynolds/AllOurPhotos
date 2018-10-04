@@ -8,5 +8,9 @@ void _message(s) {
   print('----------- $s');   // print to console
 } // of message
 
+void _error(s) {
+  print('--ERROR---- $s');   // print to console
+} // of message
+
 LoggerFunc message = _message;  // setup default logger
-LoggerFunc error = _message; // setup default error logger
+LoggerFunc error = _error; // setup default error logger

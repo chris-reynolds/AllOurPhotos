@@ -11,7 +11,7 @@ import 'package:path/path.dart' as path;
 //typedef ImgAction = void Function(ImgFile thisFile);
 
 bool thumbnailAction(ImgFile thisFile) {
-   log.message('Starting thumbnail action for ${thisFile.dirname}/${thisFile.filename}');
+   log.message('Considering thumbnail action for ${thisFile.dirname}/${thisFile.filename}');
    bool result = false;
    bool saveRequired = true;
    try {
