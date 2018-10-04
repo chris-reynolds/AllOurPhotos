@@ -2,16 +2,37 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e413bc1-e4ef-443f-94c5-6633750ec397" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/nev.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nev.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/ourPhotos.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/ourPhotos.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/DataService.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/DataService.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/ModalPicture.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/ModalPicture.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyEditor.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/MyEditor.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyHeader.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/MyHeader.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/PhotoCell.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/PhotoCell.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/Calendar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/Calendar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.cfg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.dof" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.dpr" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.res" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/nodelauncher.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.dcu" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.dfm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.pas" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/ddl/Aop10_tables.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/lib/exif_adder.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/lib/fs_utils.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/lib/fs_utils.tests.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/ImageUploader.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/aopModel.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/aopServerMain.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/aopServerMainTests.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/aopWebServer.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/async-mysql.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/fsUtils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/fsUtilsTests.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/imgCatalog.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/jpegHelper.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/sample_upload.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/testPages/testUpload.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/tsconfig.json" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -27,16 +48,18 @@
     <session id="1443074520">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
+          <entry key="project.closed" value="5" />
           <entry key="project.open.time.12" value="1" />
           <entry key="project.open.time.13" value="1" />
+          <entry key="project.open.time.23" value="1" />
           <entry key="project.open.time.6" value="1" />
-          <entry key="project.opened" value="3" />
+          <entry key="project.open.time.7" value="1" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts">
         <counts>
-          <entry key="TypeScriptServerServiceImpl" value="2" />
+          <entry key="TypeScriptServerServiceImpl" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -107,8 +130,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server/src/aopServerMainTests.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="23" column="13" lean-forward="true" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+            <state relative-caret-position="125">
+              <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
               <folding>
                 <element signature="e#33#69#0" expanded="true" />
               </folding>
@@ -257,11 +280,13 @@
   </component>
   <component name="NodeModulesDirectoryManager">
     <handled-path value="$PROJECT_DIR$/client/node_modules" />
+    <handled-path value="$PROJECT_DIR$/deleted/server/node_modules" />
     <handled-path value="$PROJECT_DIR$/server/node_modules" />
   </component>
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths>
       <path value="$PROJECT_DIR$/client/package.json" />
+      <path value="$PROJECT_DIR$/deleted/server/package.json" />
       <path value="$PROJECT_DIR$/server/package.json" />
     </packageJsonPaths>
   </component>
@@ -298,6 +323,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -308,18 +334,7 @@
             <path>
               <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
               <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
               <item name="server" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="server" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
@@ -336,7 +351,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -496,6 +510,8 @@
       <workItem from="1536377100807" duration="4379000" />
       <workItem from="1536637698233" duration="543000" />
       <workItem from="1536638509969" duration="1237000" />
+      <workItem from="1538614307000" duration="28000" />
+      <workItem from="1538614495232" duration="60000" />
     </task>
     <servers />
   </component>
@@ -511,7 +527,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="463374000" />
+    <option name="totallyTimeSpent" value="463462000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="5" y="1" width="1329" height="768" extended-state="0" />
@@ -529,7 +545,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.47741935" side_tool="true" weight="0.45754716" />
-      <window_info anchor="bottom" id="TypeScript" order="8" sideWeight="0.49459785" weight="0.3292683" />
+      <window_info anchor="bottom" id="TypeScript" order="8" sideWeight="0.49459785" visible="true" weight="0.32861635" />
       <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.425" weight="0.3233909" />
       <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
       <window_info anchor="bottom" id="REST Client" order="11" weight="0.3288835" />
@@ -964,8 +980,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/src/aopServerMainTests.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="23" column="13" lean-forward="true" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+        <state relative-caret-position="125">
+          <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
           <folding>
             <element signature="e#33#69#0" expanded="true" />
           </folding>

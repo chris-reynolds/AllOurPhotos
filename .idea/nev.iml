@@ -3,6 +3,10 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/AopIndexBuilder/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/AopIndexBuilder/build" />
+      <excludeFolder url="file://$MODULE_DIR$/DartWebServer/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/DartWebServer/build" />
       <excludeFolder url="file://$MODULE_DIR$/client2/dist" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
