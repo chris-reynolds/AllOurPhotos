@@ -93,9 +93,11 @@ bool saveDirectoryToFileStore(ImgDirectory thisDirectory) {
 } // of saveDirectoryToFileStore
 
 bool saveImageToDirectory(ImgFile thisFile) {
-  ImgDirectory dir = ImgCatalog.getDirectory(thisFile.dirname);
-  if (dir == null)
+  ImgDirectory dir;
+  if (thisFile.directory == null)  // make new directory if required
     dir = ImgCatalog.newDirectory(thisFile.dirname);
+  else
+    dir = thisFile.directory;
   ImgFile currentEntry = dir[thisFile.filename];
   if (currentEntry == null)
     dir.files.add(thisFile);
