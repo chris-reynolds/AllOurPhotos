@@ -8,7 +8,8 @@ myLogger(String s) {
 }  // myLogger
 
 main(List<String> arguments) async {
-  log.message = myLogger;
+  log.onMessage = myLogger;
+  log.logLevel = log.eLogLevel.llMessage; // show messages and errors for now
   IndexBuilder ib = IndexBuilder('C:\\projects\\AllOurPhotos\\testdata\\');
   await ib.buildAll();
   IndexScanner.justdoit();
