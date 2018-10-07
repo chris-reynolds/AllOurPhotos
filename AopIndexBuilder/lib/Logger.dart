@@ -4,13 +4,20 @@
 
 typedef LoggerFunc = void Function(String s);
 
-void _message(s) {
-  print('----------- $s');   // print to console
-} // of message
+enum eLogLevel {llMessage,llError}
 
-void _error(s) {
-  print('--ERROR---- $s');   // print to console
-} // of message
+eLogLevel logLevel = eLogLevel.llMessage;
 
-LoggerFunc message = _message;  // setup default logger
-LoggerFunc error = _error; // setup default error logger
+// setup default loggers
+LoggerFunc onMessage = (s) => print('----------- $s');
+
+LoggerFunc onError = (s) => onMessage('--- ERROR ---- $s');
+
+
+void message(String s) {
+  if (logLevel == eLogLevel.llMessage)
+    onMessage(s);
+}
+void error(String s) {
+  onError(s);
+}
