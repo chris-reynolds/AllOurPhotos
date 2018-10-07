@@ -35,7 +35,7 @@ class ImgCatalog {
   static bool saveAll() {
     bool result = true;
     for (ImgDirectory dir in _directories)
-      result = result && ImgDirectory.save(dir);
+      result = ImgDirectory.save(dir) && result;
     return result;
   } // of save
 
@@ -45,10 +45,10 @@ class ImgCatalog {
       bool directoryResult = true;
       log.message('ActOnAll starting in ${dir.directoryName}');
       for (var thisImgFile in dir) {
-        directoryResult = directoryResult && thisAction(thisImgFile);
+        directoryResult =  thisAction(thisImgFile) && directoryResult;
       } // of file loop
       log.message('${directoryResult?"Passed":"Failed"} in ${dir.directoryName}');
-      result = result && directoryResult;
+      result = directoryResult && result;
     } // of directory loop
     return result;
   } // of actOnAll
@@ -147,9 +147,7 @@ class ImgFile {
     int mmss = 0;
     if (takenDate != null)
       mmss = takenDate.minute*100+takenDate.second;
-    if (mmss==0)
-      mmss = 9000 + Math.Random().nextInt(999);
-    result += '$mmss';
+    result += '$mmss:$width:$height';
     // todo get some pixels rather than random numbers to breakup scanned images if the same
     return result;
   } // of calcContentHash
@@ -157,6 +155,8 @@ class ImgFile {
   String get fullFilename {
     return dirname+'/'+filename;
   }
+
+  ImgDirectory get directory  => ImgCatalog.getDirectory(dirname);
 
   bool fromTabDelimited(String source) {
     List<String> fields = source.split('\t');
