@@ -1,10 +1,10 @@
 #All Our Photos
 
-This is supposed to be a trivial little exercise in node/vue.
+This is supposed to be a trivial little exercise in dart.
 
 It is to provide a webserver on an old desktop at home so we can upload
-all out photos from different devices, caption, rank and orient them.
+all out photos from different devices, sync with google photos, caption, rank and orient them.
+Also provide support for scanning old photos and doing bulk captions and locations.
+Also create albums that can be printed,uploaded to FB or synced with Google Photos
 
-Then potentially create albums that can be printed or uploaded to FB.
-
-#DEVELOPMENT STILL VERY MUCH - IN PROGRESS
+#back-end beginning to stablize. 
