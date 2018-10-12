@@ -2,9 +2,9 @@
  * Created by Chris on 21/09/2018.
  */
 import './Logger.dart' as log;
-//import 'dart:core';
-import 'dart:math' as Math;
+//import 'dart:math' as Math;
 import 'dart:collection';
+import 'dart:async';
 
 
 const INDEX_FILENAME = 'index.tsv';
@@ -52,6 +52,21 @@ class ImgCatalog {
     } // of directory loop
     return result;
   } // of actOnAll
+
+  static Future<bool> asyncActOnAll(ImgFileFutureAction thisFutureAction) async {
+    bool result = true;
+    for (ImgDirectory dir in _directories) {
+      bool directoryResult = true;
+      log.message('awaitActOnAll starting in ${dir.directoryName}');
+      for (var thisImgFile in dir) {
+        bool f = await thisFutureAction(thisImgFile);
+        directoryResult = f  && directoryResult;
+      } // of file loop
+      log.message('${directoryResult?"Passed":"Failed"} in ${dir.directoryName}');
+      result = directoryResult && result;
+    } // of directory loop
+    return result;
+  } // of asyncActOnAll
 
   static clear() {
     _directories.length = 0;
@@ -110,6 +125,8 @@ class ImgDirectory extends IterableBase{
 }  // of ImgDirectory
 
 typedef ImgFileAction = bool Function(ImgFile);
+typedef ImgFileFutureAction = Future<bool> Function(ImgFile);
+
 class ImgFile {
   static const UNKNOWN_LONGLAT = 999.0;
   static ImgFileAction save = (img) => throw "Save handler not defined";
@@ -158,6 +175,7 @@ class ImgFile {
 
   ImgDirectory get directory  => ImgCatalog.getDirectory(dirname);
 
+  bool hasLonglat() => (longitude != UNKNOWN_LONGLAT) && (latitude != UNKNOWN_LONGLAT);
   bool fromTabDelimited(String source) {
     List<String> fields = source.split('\t');
     if (fields.length != FIELD_COUNT) {
@@ -178,8 +196,8 @@ class ImgFile {
         height = (fields[6] != null) ? int.tryParse(fields[6]) : null;
         lastModifiedDate = DateTime.parse(fields[7]);
         rank = int.parse(fields[8]);
-        latitude = double.tryParse(fields[9]) ?? -1.0;
-        longitude = double.tryParse(fields[10]) ?? -1.0;
+        latitude = double.tryParse(fields[9]) ?? UNKNOWN_LONGLAT;
+        longitude = double.tryParse(fields[10]) ?? UNKNOWN_LONGLAT;
         location = fields[11];
         tags = fields[12];
         camera = fields[13];

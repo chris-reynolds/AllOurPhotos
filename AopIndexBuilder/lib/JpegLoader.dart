@@ -18,13 +18,19 @@ class JpegLoader {
      log.message('read tags');
    }
 
+   String cleanString(String s) {
+      RegExp nullMask = RegExp(r"[\0|\00]");
+      String result = s.replaceAll(nullMask, '');
+      return result.trim();
+   } // of cleanString
+
    static double dmsToDeg(List dms, String direction) {
      if (dms==null)  return ImgFile.UNKNOWN_LONGLAT;
      double result = 0.0;
      for (int ix in [2,1,0]) {
        result = result / 60 + (dms[ix].numerator / dms[ix].denominator);
      }
-     if ('sSeE'.indexOf(direction)>=0)
+     if ('sSwW'.indexOf(direction)>=0)
        result = -result;
      return result;
    } // of dmsToDeg
@@ -43,7 +49,7 @@ class JpegLoader {
      int imageHeight = tag('ImageHeight')  ?? tag('PixelYDimension');
      try {
        thisFile
-         ..caption = tag('ImageDescription')
+         ..caption = cleanString(tag('ImageDescription')??'')
          ..takenDate = dateTimeFromExif(tag('DateTime'))
          ..byteCount = _buffer.length
          ..width = imageWidth
@@ -54,7 +60,7 @@ class JpegLoader {
              tag('GPSLatitudeRef'))
          ..longitude = dmsToDeg(tag('GPSLongitude'),
              tag('GPSLongitudeRef'))
-         ..camera = tag('Model')
+         ..camera = cleanString(tag('Model')??'')
          ..rotation = 0
          ..owner = 'All'
          ..imageType = 'JPEG'

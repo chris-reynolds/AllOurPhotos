@@ -14,6 +14,37 @@
       <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.dcu" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.dfm" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.pas" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/.babelrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/404.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/ourPhotos.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/classes.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/DataService.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/ModalPicture.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/MyEditor.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/MyFooter.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/MyHeader.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/MyMenu.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/MyOrientation.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/MyRank.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/Paginator.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/PhotoCell.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/VLink.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/fixtures.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/layouts/Main.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/404.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/About.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/Albums.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/Calendar.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/Home.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/routes.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/webpack.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/yarn.lock" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/server/ddl/Aop10_tables.sql" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/server/lib/exif_adder.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/server/lib/fs_utils.js" beforeDir="false" />
@@ -48,13 +79,13 @@
     <session id="1443074520">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="5" />
+          <entry key="project.closed" value="6" />
           <entry key="project.open.time.12" value="1" />
-          <entry key="project.open.time.13" value="1" />
+          <entry key="project.open.time.13" value="2" />
           <entry key="project.open.time.23" value="1" />
           <entry key="project.open.time.6" value="1" />
           <entry key="project.open.time.7" value="1" />
-          <entry key="project.opened" value="5" />
+          <entry key="project.opened" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts">
@@ -81,65 +112,7 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/src/aopWebServer.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2482">
-              <caret line="151" column="48" selection-start-line="151" selection-start-column="48" selection-end-line="151" selection-end-column="48" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/src/imgCatalog.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3485">
-              <caret line="208" column="40" selection-start-line="208" selection-start-column="40" selection-end-line="208" selection-end-column="40" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/src/jpegHelper.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1258">
-              <caret line="77" column="46" selection-start-line="77" selection-start-column="46" selection-end-line="77" selection-end-column="46" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/testPages/testUpload.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="21" selection-start-line="8" selection-start-column="21" selection-end-line="8" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server/src/aopServerMain.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="7" column="48" selection-start-line="7" selection-start-column="48" selection-end-line="7" selection-end-column="48" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/src/aopServerMainTests.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="125">
-              <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
-              <folding>
-                <element signature="e#33#69#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -279,15 +252,13 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="NodeModulesDirectoryManager">
-    <handled-path value="$PROJECT_DIR$/client/node_modules" />
+    <handled-path value="$PROJECT_DIR$/deleted/client/node_modules" />
     <handled-path value="$PROJECT_DIR$/deleted/server/node_modules" />
-    <handled-path value="$PROJECT_DIR$/server/node_modules" />
   </component>
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths>
-      <path value="$PROJECT_DIR$/client/package.json" />
+      <path value="$PROJECT_DIR$/deleted/client/package.json" />
       <path value="$PROJECT_DIR$/deleted/server/package.json" />
-      <path value="$PROJECT_DIR$/server/package.json" />
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds">
@@ -330,17 +301,6 @@
             <path>
               <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
               <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="server" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="server" type="462c0819:PsiDirectoryNode" />
-              <item name="testPages" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
@@ -512,6 +472,7 @@
       <workItem from="1536638509969" duration="1237000" />
       <workItem from="1538614307000" duration="28000" />
       <workItem from="1538614495232" duration="60000" />
+      <workItem from="1538614605042" duration="61000" />
     </task>
     <servers />
   </component>
@@ -527,11 +488,10 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="463462000" />
+    <option name="totallyTimeSpent" value="463523000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="5" y="1" width="1329" height="768" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info active="true" id="Project" order="0" sideWeight="0.48243558" visible="true" weight="0.24012393" />
       <window_info id="Structure" order="1" weight="0.25" />
@@ -874,10 +834,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" column="39" selection-start-line="9" selection-start-column="39" selection-end-line="9" selection-end-column="39" />
-          <folding>
-            <element signature="n#style#0;n#div#2;n#div#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="e#721#761#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -885,9 +841,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="35" column="9" selection-start-line="35" selection-start-column="9" selection-end-line="35" selection-end-column="9" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -895,9 +848,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
-          <folding>
-            <element signature="e#967#1017#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>

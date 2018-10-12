@@ -24,13 +24,24 @@ class IndexBuilder {
   buildAll() async {
     List<FileSystemEntity> rootSubdirectories = Directory(rootDir).listSync()
         ..retainWhere((fse) => FileSystemEntity.isDirectorySync(fse.path));
+    String currentDirList = '~';
     for (FileSystemEntity fse in rootSubdirectories) {
       String subDirectoryName = path.split(fse.path).removeLast();
+      currentDirList = currentDirList + subDirectoryName + '~';
       ImgDirectory thisIndexDirectory = ImgCatalog.getDirectory(subDirectoryName);
       if (thisIndexDirectory == null)
         thisIndexDirectory = ImgCatalog.newDirectory(subDirectoryName);
       await matchDirectoryAndIndex(fse,thisIndexDirectory);
     } // of subdirec tory loop
+    // now check the top level index
+
+    String indexFilename = path.join(rootDir,'aopTop.txt');
+    String oldFileContents = '';
+    File topIndexFile = File(indexFilename);
+    if (topIndexFile.existsSync())
+      oldFileContents = topIndexFile.readAsStringSync();
+    if (oldFileContents != currentDirList)
+      topIndexFile.writeAsStringSync(currentDirList);
   } // of buildAll
 
   void matchDirectoryAndIndex(FileSystemEntity directory,ImgDirectory indexDirectory)  async {
@@ -53,7 +64,7 @@ class IndexBuilder {
     for (FileSystemEntity fse in fileList) {
       String targetFilename = path.basename(fse.path);
       // check for desire file type
-      if (['.jpg','.mov'].indexOf(right(targetFilename,4).toLowerCase()) >= 0) {
+      if (['.jpg','.movx'].indexOf(right(targetFilename,4).toLowerCase()) >= 0) {
         String targetDir = path.relative(path.dirname(fse.path), from: rootDir);
         ImgFile existingEntry = indexDirectory[targetFilename];
         // add new Entry to index if required

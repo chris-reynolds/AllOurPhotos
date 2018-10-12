@@ -3,11 +3,13 @@
  */
 
 import 'dart:io';
+import 'dart:async';
 import 'ImgFile.dart';
 import 'Logger.dart' as log;
 import 'IndexBuilder.dart' as IB;
 import 'package:path/path.dart' as path;
 import 'package:image/image.dart';
+import 'package:AopIndexBuilder/Geocoding.dart' as geo;
 
 DateTime _cutOffDate = DateTime.now().add(Duration(days:-365)); // last year
 bool deleteOldDebrisAction(ImgFile imgFile) {
@@ -16,17 +18,41 @@ bool deleteOldDebrisAction(ImgFile imgFile) {
       ..files.remove(imgFile)
       ..dirty = true;
   }
+  return true;
 } // of deleteOldDebrisAction
 
 bool fixDirectoryAction(ImgFile imgFile) {
   // TODO : fixDirectoryAction
-  throw("todo fixDirectoryAction()");
+ print("todo fixDirectoryAction()");
+  return true;
 } // of fixDirectoryAction
 
-bool geocodingAction(ImgFile imgFile) {
-  // TODO : geocodingAction
-  throw("todo geocodingAction()");
-} // of geocodingAction
+bool geocodingBuildAction(ImgFile imgFile) {
+  if (imgFile.hasLonglat() && imgFile.location.length > 0)
+    geo.setLocation(imgFile.longitude, imgFile.latitude, imgFile.location);
+  return true;
+} // of geocodingBuildAction
+
+
+Future<bool> geocodingCheckAction(ImgFile imgFile) async {
+  if (imgFile.hasLonglat() && imgFile.location.length == 0) {
+    // get from cache first
+    String thisLocation = geo.getLocation(imgFile.longitude, imgFile.latitude);
+    if (thisLocation == null) { // try the api
+      dynamic newLocation = await geo.fetchGoogleLocation(
+          imgFile.longitude, imgFile.latitude);
+      if (newLocation != null) {
+        imgFile.location = newLocation;
+        ImgFile.save(imgFile);
+        geo.setLocation(imgFile.longitude, imgFile.latitude, newLocation);
+      }
+    } else { // update from cache
+      imgFile.location = thisLocation;
+      ImgFile.save(imgFile);
+    }
+  }
+  return Future(()=>true);
+} // of geocodingCheckAction
 
 bool missingWidthAction(ImgFile thisFile) {
   bool result = true;
@@ -92,10 +118,18 @@ bool thumbnailAction(ImgFile thisFile) {
 } // of thumbnail Action
 
 
-bool justdoit() {
-  ImgCatalog.actOnAll(missingWidthAction);
-  ImgCatalog.actOnAll(deleteOldDebrisAction);
-  ImgCatalog.actOnAll(thumbnailAction);
-  ImgCatalog.actOnAll(fixDirectoryAction);
-  ImgCatalog.actOnAll(geocodingAction);
+void justdoit() async {
+//  log.message('Starting missingWidth scan');
+//  ImgCatalog.actOnAll(missingWidthAction);
+//  log.message('Starting deleteOldDebris scan');
+//  ImgCatalog.actOnAll(deleteOldDebrisAction);
+//  log.message('Starting thumbnail scan');
+//  ImgCatalog.actOnAll(thumbnailAction);
+//  log.message('Starting fixDirectory scan');
+//  ImgCatalog.actOnAll(fixDirectoryAction);
+  log.message('Starting geocoding build');
+  ImgCatalog.actOnAll(geocodingBuildAction);
+  log.message('${geo.length} cache items');
+  log.message('Starting geocoding check scan');
+  await ImgCatalog.asyncActOnAll(geocodingCheckAction);
 }
