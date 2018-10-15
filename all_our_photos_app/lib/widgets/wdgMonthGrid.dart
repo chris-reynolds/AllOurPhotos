@@ -2,8 +2,8 @@
 //import 'package:flutter/cupertino.dart';
 //import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'ImgFile.dart';
-import 'Logger.dart' as log;
+import 'package:all_our_photos_app/ImgFile.dart';
+import 'package:all_our_photos_app/Logger.dart' as log;
 
 // Note there is a blank month name in entry 0 for the year column
 final List<String> monthNames = 'Year/Jan/Feb/Mar/Apr/May/Jun/Jul/Aug/Sep/Oct/Nov/Dec'.split('/');
@@ -50,8 +50,11 @@ class MonthGrid extends StatelessWidget {
 }
 
 void buildYears() {
+  log.message('Building years grid');
   yearList.length = 0;
+  log.message('Building each of ${ImgCatalog.length} directories');
   ImgCatalog.forEachDir((thisDirectory) {
+    log.message('building [${thisDirectory.directoryName}]');
     int thisYearNo = int.parse(thisDirectory.directoryName.substring(0,4));
     int thisMonthNo = int.parse(thisDirectory.directoryName.substring(5,7));
     YearEntry thisYear;
@@ -95,7 +98,7 @@ Row yearRowBuilder(YearEntry thisYear,TextStyle style) {
 
 void lookAtMonth(int yearNo,int monthNo) {
   log.message('look at ${monthNames[monthNo]} $yearNo ');
-  Navigator.of(context).
+ // Navigator.of(context).
 } // lookAtMonth
 
 class YearGrid {

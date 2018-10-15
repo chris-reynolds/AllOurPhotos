@@ -4,7 +4,7 @@
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'dart:async';
-import './ImgFile.dart';
+import 'package:all_our_photos_app/ImgFile.dart';
 import './Logger.dart' as log;
 
 const webRoute = 'http://192.168.1.251:3333/';
@@ -27,7 +27,7 @@ Future<String> loadTop() async {
       thisDirectory.fromStrings(remoteIndex);
    //   log.message('$thisDirName loaded with ${remoteIndex.length} entries');
     } // of dirName loop
-    log.message('Index loaded');
+    log.message('Index loaded ${ImgCatalog.length} directories');
   } catch(ex) {
     result = (ex is String)? ex : ex.toString();
   } // of try except

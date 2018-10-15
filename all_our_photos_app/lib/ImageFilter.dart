@@ -2,7 +2,7 @@
  * Created by Chris on 13/10/2018.
  */
 
-import './ImgFile.dart';
+import 'package:all_our_photos_app/ImgFile.dart';
 
 int _defaultMinRank = 1;
 int _defaultMaxRank = 2;

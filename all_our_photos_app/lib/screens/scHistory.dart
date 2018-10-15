@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'wdgHistoryScrollingList.dart';
-import 'wdgPhotoGrid.dart';
-import 'wdgMonthGrid.dart';
+import 'package:all_our_photos_app/widgets/wdgHistoryScrollingList.dart';
+import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
+import 'package:all_our_photos_app/widgets/wdgMonthGrid.dart';
 
 class HistoryScreen extends StatefulWidget {
   HistoryScreen(this.title) : super();

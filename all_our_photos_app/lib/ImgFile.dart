@@ -80,6 +80,8 @@ class ImgCatalog {
   static clear() {
     _directories.length = 0;
   } // of clear
+
+  static get length => _directories.length;
 }  // of ImgCatalog
 
 typedef ImgDirectoryAction = bool Function(ImgDirectory);

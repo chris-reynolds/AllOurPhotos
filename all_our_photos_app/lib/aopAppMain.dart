@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import './vwRecentPics.dart';
-import './vwAlbums.dart';
-import './vwHistory.dart';
-import './vwTesting.dart';
+import 'package:all_our_photos_app/screens/scRecentPics.dart';
+import 'package:all_our_photos_app/screens/scAlbums.dart';
+import 'package:all_our_photos_app/screens/scHistory.dart';
+import 'package:all_our_photos_app/screens/scTesting.dart';
 import './srvCatalogueLoader.dart';
 
 void main() => runApp(new MyApp());
