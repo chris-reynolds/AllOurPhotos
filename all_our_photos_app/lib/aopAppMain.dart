@@ -3,9 +3,28 @@ import 'package:all_our_photos_app/screens/scRecentPics.dart';
 import 'package:all_our_photos_app/screens/scAlbums.dart';
 import 'package:all_our_photos_app/screens/scHistory.dart';
 import 'package:all_our_photos_app/screens/scTesting.dart';
-import './srvCatalogueLoader.dart';
+import 'package:all_our_photos_app/srvCatalogueLoader.dart';
+import 'package:all_our_photos_app/appNavigator.dart';
+import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
-void main() => runApp(new MyApp());
+void main() {
+  application = new MaterialApp(
+    title: 'All Our Photos',
+    debugShowCheckedModeBanner: true,
+    theme: new ThemeData(
+      primaryColor: const Color(0xFF02BB9F),
+      primaryColorDark: const Color(0xFF167F67),
+      accentColor: const Color(0xFFFFAD32),
+    ),
+    home: new DashboardScreen(title: 'All Our Photos4'),
+    routes: <String, WidgetBuilder> {
+      '/a': (BuildContext context) => GridListDemo(key:Key('blah')),
+      '/b': (BuildContext context) => Albums('albums route b'),
+      '/c': (BuildContext context) => Albums('albums route c'),
+    },
+  );
+  runApp(application);
+} // of main
 
 class MyApp extends StatelessWidget {
   @override
@@ -76,7 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: new PageView(
         children: [
           new Home("Recent Pics"),
-          new Locations("Albums"),
+          new Albums("Albums"),
           new HistoryScreen("History"),
           new Testing("Testing"),
         ],
