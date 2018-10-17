@@ -15,6 +15,7 @@ class YearEntry {
 } // of yearEntry
 
 List<YearEntry> yearList = [];
+BuildContext lastContext; // TODO sus out about contexts
 
 class MonthGrid extends StatelessWidget {
   MonthGrid() {
@@ -23,6 +24,7 @@ class MonthGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    lastContext = context;
     TextStyle myTextStyle = TextStyle(fontSize: 20.0,fontWeight: FontWeight.bold);
     List<Widget> gridItems = [];
     for (YearEntry thisYear in yearList) {
@@ -98,6 +100,8 @@ Row yearRowBuilder(YearEntry thisYear,TextStyle style) {
 
 void lookAtMonth(int yearNo,int monthNo) {
   log.message('look at ${monthNames[monthNo]} $yearNo ');
+  Navigator.pushNamed(lastContext,'/a');
+  log.message('fred was hear');
  // Navigator.of(context).
 } // lookAtMonth
 
