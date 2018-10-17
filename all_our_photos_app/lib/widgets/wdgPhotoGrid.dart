@@ -321,30 +321,7 @@ class GridListDemoState extends State<GridListDemo> {
       title: 'Chettinad',
       caption: 'Silk Maker',
     ),
-    new Photo(
-      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4192.JPG',
-      assetPackage: _kGalleryAssetsPackage,
-      title: 'Chettinad',
-      caption: 'Lunch Prep',
-    ),
-    new Photo(
-      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4193.JPG',
-      assetPackage: _kGalleryAssetsPackage,
-      title: 'Tanjore',
-      caption: 'Market',
-    ),
-    new Photo(
-      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4194.JPG',
-      assetPackage: _kGalleryAssetsPackage,
-      title: 'Pondicherry',
-      caption: 'Beach',
-    ),
-    new Photo(
-      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4195.JPG',
-      assetPackage: _kGalleryAssetsPackage,
-      title: 'Pondicherry',
-      caption: 'Fisherman',
-    ),
+
   ];
 
   void changeTileStyle(GridDemoTileStyle value) {
