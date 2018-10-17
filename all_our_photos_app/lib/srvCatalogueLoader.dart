@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'dart:async';
 import 'package:all_our_photos_app/ImgFile.dart';
-import './Logger.dart' as log;
+import 'package:all_our_photos_app/Logger.dart' as log;
 
 const webRoute = 'http://192.168.1.251:3333/';
 const rootFilename = 'aopTop.txt';
