@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Locations extends StatelessWidget {
-  Locations(this.listType);
+class Albums extends StatelessWidget {
+  Albums(this.listType);
   final String listType;
   @override
   Widget build(BuildContext context) {
