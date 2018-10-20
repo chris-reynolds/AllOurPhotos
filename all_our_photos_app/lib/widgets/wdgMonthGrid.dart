@@ -3,6 +3,9 @@
 //import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:all_our_photos_app/ImgFile.dart';
+import 'package:all_our_photos_app/ImageFilter.dart';
+import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
+import 'package:all_our_photos_app/widgets/wdgImageList.dart';
 import 'package:all_our_photos_app/Logger.dart' as log;
 
 // Note there is a blank month name in entry 0 for the year column
@@ -52,6 +55,10 @@ class MonthGrid extends StatelessWidget {
 }
 
 void buildYears() {
+  if (yearList.length>0) {
+    log.message('trying to rebuild yearlist!!!');
+    return;
+  }
   log.message('Building years grid');
   yearList.length = 0;
   log.message('Building each of ${ImgCatalog.length} directories');
@@ -100,7 +107,10 @@ Row yearRowBuilder(YearEntry thisYear,TextStyle style) {
 
 void lookAtMonth(int yearNo,int monthNo) {
   log.message('look at ${monthNames[monthNo]} $yearNo ');
-  Navigator.pushNamed(lastContext,'/a');
+//  Navigator.push(lastContext, MaterialPageRoute(
+//      builder: (context) =>ImageListWidget(ImageFilter.yearMonth(yearNo,monthNo))));
+  Navigator.push(lastContext, MaterialPageRoute(
+      builder: (context) =>GridListDemo.byFilter(ImageFilter.yearMonth(yearNo,monthNo))));
   log.message('fred was hear');
  // Navigator.of(context).
 } // lookAtMonth
