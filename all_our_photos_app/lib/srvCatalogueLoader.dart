@@ -42,3 +42,5 @@ Future<List<String>> getRemoteStrings(String url, {String delimiter:"\n"}) async
     throw Exception('Failed to load remote info');
   }
 } // of getRemoteStrings
+
+String thumbnailURL(ImgFile imgFile) => '$webRoute${imgFile.dirname}/thumbnails/${imgFile.filename}';
