@@ -18,7 +18,7 @@ void main() {
     ),
     home: new DashboardScreen(title: 'All Our Photos4'),
     routes: <String, WidgetBuilder> {
-      '/a': (BuildContext context) => GridListDemo(key:Key('blah')),
+      '/a': (BuildContext context) => GridListDemo(),
       '/b': (BuildContext context) => Albums('albums route b'),
       '/c': (BuildContext context) => Albums('albums route c'),
     },
