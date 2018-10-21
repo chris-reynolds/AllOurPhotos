@@ -26,7 +26,7 @@ class Photo {
   Photo.byImgFile(this._imageFile) {
     this.assetName = thumbnailURL(_imageFile);
     this.title = _imageFile.location;
-    this.caption = _imageFile.caption;
+    this.caption = _imageFile.rotation.toString()+'---'+_imageFile.caption;
     this.isSelected = false;
     this.isFavorite = (_imageFile.rank==1);
   } // byImgFile constructor
@@ -56,7 +56,7 @@ class _GridPhotoViewerState extends State<GridPhotoViewer>  {
   @override
   Widget build(BuildContext context) {
     return new ClipRect(
-          child: new Image.network(widget.photo.assetName,
+          child: new Image.network(fullsizeURL(widget.photo._imageFile),
       //      package: widget.photo.assetPackage,
             fit: BoxFit.cover,
           ),
@@ -175,59 +175,8 @@ class GridListDemo extends StatefulWidget {
 }
 
 class GridListDemoState extends State<GridListDemo> {
-  bool _tileStyle = false;
+  bool _tileStyle = true;
 
-//  List<Photo> hardPhotos = <Photo>[
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4192.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Omokoroa',
-//      caption: 'Boat Club',
-//    ),
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4193.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Omokoroa',
-//      caption: 'Boat Club',
-//    ),
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4194.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Omokoroa',
-//      caption: 'Boat Club',
-//    ),
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4195.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Omokoroa',
-//      caption: 'Boat Club',
-//    ),
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4196.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Tanjore',
-//      caption: 'Thanjavur Temple',
-//    ),
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4197.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Pondicherry',
-//      caption: 'Salt Farm',
-//    ),
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4198.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Chennai',
-//      caption: 'Scooters',
-//    ),
-//    new Photo(
-//      assetName: 'http://192.168.1.251:3333/2017-01/thumbnails/DSCN4199.JPG',
-//      assetPackage: _kGalleryAssetsPackage,
-//      title: 'Chettinad',
-//      caption: 'Silk Maker',
-//    ),
-//
-//  ];
 
   void changeTileStyle(bool value) {
     setState(() {
@@ -254,7 +203,7 @@ class GridListDemoState extends State<GridListDemo> {
         children: <Widget>[
           ImageFilterWidget(widget._imageFilter),
           new Expanded(
-              child: new GridView.count(
+            child: new GridView.count(
                 crossAxisCount: (orientation == Orientation.portrait) ? 4 : 6,
                 mainAxisSpacing: 4.0,
                 crossAxisSpacing: 4.0,
@@ -274,7 +223,7 @@ class GridListDemoState extends State<GridListDemo> {
                   );
                 }).toList().cast<GridDemoPhotoItem>(),
               ),
-            ),
+          ),
           ImageEditorWidget(),
         ],
       ),
