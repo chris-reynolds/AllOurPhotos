@@ -44,3 +44,4 @@ Future<List<String>> getRemoteStrings(String url, {String delimiter:"\n"}) async
 } // of getRemoteStrings
 
 String thumbnailURL(ImgFile imgFile) => '$webRoute${imgFile.dirname}/thumbnails/${imgFile.filename}';
+String fullsizeURL(ImgFile imgFile) => '$webRoute${imgFile.dirname}/${imgFile.filename}';
