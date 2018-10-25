@@ -1,4 +1,4 @@
-package kiwi.retired.allourphotosapp;
+package com.example.allourphotosapp;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
