@@ -16,7 +16,7 @@ void main() {
       primaryColorDark: const Color(0xFF167F67),
       accentColor: const Color(0xFFFFAD32),
     ),
-    home: new DashboardScreen(title: 'All Our Photos4'),
+    home: new DashboardScreen(title: 'All Our Photos5'),
     routes: <String, WidgetBuilder> {
       '/a': (BuildContext context) => GridListDemo(),
       '/b': (BuildContext context) => Albums('albums route b'),
@@ -26,7 +26,7 @@ void main() {
   runApp(application);
 } // of main
 
-class MyApp extends StatelessWidget {
+/*class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+*/
 
 class DashboardScreen extends StatefulWidget {
   DashboardScreen({Key key, this.title}) : super(key: key);
