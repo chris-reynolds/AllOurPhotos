@@ -41,7 +41,16 @@ class ImageFilter {
   }
 
   get fromDate => _fromDate;
+  set fromDate(newValue) {
+    _fromDate = newValue;
+    _refreshRequired = true;
+  } // of set fromDate
+
   get toDate => _toDate;
+  set toDate(newValue) {
+    _toDate = newValue;
+    _refreshRequired = true;
+  } // of set fromDate
 
   set searchText(String value) {
     _searchText = value.toLowerCase();
