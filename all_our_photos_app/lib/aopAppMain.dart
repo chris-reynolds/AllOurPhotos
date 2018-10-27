@@ -15,8 +15,12 @@ void main() {
       primaryColor: const Color(0xFF02BB9F),
       primaryColorDark: const Color(0xFF167F67),
       accentColor: const Color(0xFFFFAD32),
+      textTheme: TextTheme(
+//          body1: TextStyle(fontSize: 25.0, color: Colors.red),
+          body2: TextStyle(fontSize: 25.0, color: Colors.red)
+      ),
     ),
-    home: new DashboardScreen(title: 'All Our Photos5'),
+    home: new DashboardScreen(title: 'All Our Photos6'),
     routes: <String, WidgetBuilder> {
       '/a': (BuildContext context) => GridListDemo(),
       '/b': (BuildContext context) => Albums('albums route b'),
@@ -114,45 +118,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
             new BottomNavigationBarItem(
                 icon: new Icon(
                   Icons.camera_roll,
-                  color: const Color(0xFFFFFFFF),
+   //               color: const Color(0xFFFFFFFF),
                 ),
                 title: new Text(
                   "Recent Pics",
                   style: new TextStyle(
-                    color: const Color(0xFFFFFFFF),
+   //                 color: const Color(0xFFFFFFFF),
                   ),
                 )),
             new BottomNavigationBarItem(
                 icon: new Icon(
                   Icons.collections,
-                  color: const Color(0xFFFFFFFF),
+  //                color: const Color(0xFFFFFFFF),
                 ),
                 title: new Text(
                   "Albums",
                   style: new TextStyle(
-                    color: const Color(0xFFFFFFFF),
+   //                 color: const Color(0xFFFFFFFF),
                   ),
                 )),
             new BottomNavigationBarItem(
                 icon: new Icon(
                   Icons.history,
-                  color: const Color(0xFFFFFFFF),
+   //               color: const Color(0xFFFFFFFF),
                 ),
                 title: new Text(
                   "History",
                   style: new TextStyle(
-                    color: const Color(0xFFFFFFFF),
+   //                 color: const Color(0xFFFFFFFF),
                   ),
                 )),
             new BottomNavigationBarItem(
                 icon: new Icon(
                   Icons.text_fields,
-                  color: const Color(0xFFFFFFFF),
+  //                color: const Color(0xFFFFFFFF),
                 ),
                 title: new Text(
                   "Testing",
                   style: new TextStyle(
-                    color: const Color(0xFFFFFFFF),
+  //                  color: const Color(0xFFFFFFFF),
                   ),
                 ))
           ],
