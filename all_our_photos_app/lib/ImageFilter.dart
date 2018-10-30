@@ -4,19 +4,15 @@
 
 import 'package:all_our_photos_app/ImgFile.dart';
 
-int _defaultMinRank = 1;
-int _defaultMaxRank = 2;
 
 typedef ImageFilterAction = void Function(ImageFilter);
 
 class ImageFilter {
 
-
   DateTime _fromDate = DateTime(1900);
   DateTime _toDate = DateTime(2030);
   ImageFilterAction onRefresh;
-  int _minRank = _defaultMinRank;
-  int _maxRank = _defaultMaxRank;
+  List<bool> rank = <bool>[null,false,true,true];  // ignore entry zero
   String _searchText = '';
   List<ImgFile> _images;
   get images {
@@ -25,6 +21,8 @@ class ImageFilter {
   }
 
   bool _refreshRequired = true;
+  bool get refreshRequired => _refreshRequired;
+
   // two constructors
   ImageFilter.dateRange(this._fromDate, this._toDate,{ImageFilterAction refresh}) {
     onRefresh = refresh;
@@ -56,21 +54,25 @@ class ImageFilter {
     _searchText = value.toLowerCase();
     _refreshRequired = true;
   }
-  setRankRange(int min,int max) {
-     _minRank = min;
-     _maxRank = max;
-     _refreshRequired = true;
-  }
+  setRank(int rankNo,bool value) {
+    if (rank[rankNo] != value)
+      _refreshRequired = true;
+    rank[rankNo] = value;
+  } // of setRank
+
   bool isWanted(thisImage) {
+    try {
       if (thisImage.deletedDate != null) return false;
-      if (thisImage.rank < _minRank) return false;
-      if (thisImage.rank > _maxRank) return false;
+      if (!rank[thisImage.rank]) return false;
       if (thisImage.takenDate == null || thisImage.takenDate.isBefore(_fromDate)) return false;
       if (thisImage.takenDate == null || thisImage.takenDate.isAfter(_toDate)) return false;
       if (_searchText.length > 0 )
         if ((thisImage.caption+' '+thisImage.location+' '+
             thisImage.tags).toLowerCase().indexOf(_searchText)<0) return false;
       return true;
+    } catch(ex) {
+      return true;
+    }
   } // isWanted
   void checkImages() {
     if (!_refreshRequired) return;
