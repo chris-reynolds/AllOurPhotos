@@ -12,7 +12,7 @@ String formatDate(DateTime aDate,{String format} ) {
   result = result.replaceAll('mm', right((aDate.month+100).toString(),2));
   result = result.replaceAll('m', aDate.month.toString());
   result = result.replaceAll('yyyy', aDate.year.toString());
-  result = result.replaceAll('yy', (aDate.year % 100).toString());
+  result = result.replaceAll('yy', right((aDate.year).toString(),2));
   result = result.replaceAll('dd', 'TODO');
   result = result.replaceAll('dd', 'TODO');
 
