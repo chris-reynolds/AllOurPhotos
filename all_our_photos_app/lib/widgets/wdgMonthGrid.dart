@@ -100,19 +100,13 @@ Row yearRowBuilder(YearEntry thisYear,TextStyle style) {
   }  // of month loop
   return Row (
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
     children: cellList
   );
 } // of yearRowBuilder
 
 void lookAtMonth(int yearNo,int monthNo) {
-  log.message('look at ${monthNames[monthNo]} $yearNo ');
-//  Navigator.push(lastContext, MaterialPageRoute(
-//      builder: (context) =>ImageListWidget(ImageFilter.yearMonth(yearNo,monthNo))));
   Navigator.push(lastContext, MaterialPageRoute(
-      builder: (context) =>GridListDemo.byFilter(ImageFilter.yearMonth(yearNo,monthNo))));
-  log.message('fred was hear');
- // Navigator.of(context).
+      builder: (context) =>PhotoGrid(ImageFilter.yearMonth(yearNo,monthNo))));
 } // lookAtMonth
 
 class YearGrid {

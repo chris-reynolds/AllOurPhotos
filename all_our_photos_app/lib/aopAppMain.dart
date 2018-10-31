@@ -7,6 +7,7 @@ import 'package:all_our_photos_app/srvCatalogueLoader.dart';
 import 'package:all_our_photos_app/appNavigator.dart';
 import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
+
 void main() {
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -22,7 +23,7 @@ void main() {
     ),
     home: new DashboardScreen(title: 'All Our Photos6'),
     routes: <String, WidgetBuilder> {
-      '/a': (BuildContext context) => GridListDemo(),
+//      '/a': (BuildContext context) => GridListDemo(),
       '/b': (BuildContext context) => Albums('albums route b'),
       '/c': (BuildContext context) => Albums('albums route c'),
     },
