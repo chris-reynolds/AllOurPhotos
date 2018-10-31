@@ -11,50 +11,29 @@ import 'package:all_our_photos_app/widgets/wdgImageFilter.dart';
 import 'package:all_our_photos_app/widgets/ImageEditorWidget.dart';
 import 'package:all_our_photos_app/ImgFile.dart';
 import 'package:all_our_photos_app/srvCatalogueLoader.dart';
+import 'package:all_our_photos_app/widgets/wdgSingleImage.dart';
 
 typedef void BannerTapCallback(Photo photo,ImgFile imageFile);
 
 class Photo {
 
   Photo.byImgFile(this._imageFile) {
-    this.assetName = thumbnailURL(_imageFile);
-    this.title = _imageFile.location;
-    this.caption = _imageFile.rotation.toString()+'---'+_imageFile.caption;
-    this.isSelected = false;
+    this._isSelected = false;
   } // byImgFile constructor
 
   final ImgFile _imageFile;
-  String assetName;
-  String assetPackage;
-  String title;
-  String caption;
-  bool isSelected = false;
-  String get tag => assetName; // Assuming that all asset names are unique.
+  bool _isSelected = false;
+  get isSelected => _isSelected;
+  set isSelected(bool value) {
+    _isSelected = value;
+    if (value)
+      print('${_imageFile.filename} is selected');
 
-  bool get isValid => assetName != null && title != null && caption != null;
+  } // of set isSelected
+//  String get tag => assetName; // Assuming that all asset names are unique.
+
+//  bool get isValid => assetNameX != null && titleX != null && captionX != null;
 }  // of Photo
-
-
-class GridPhotoViewer extends StatefulWidget {
-  const GridPhotoViewer(this.photo);
-  final Photo photo;
-
-  @override
-  _GridPhotoViewerState createState() => new _GridPhotoViewerState();
-}
-
-class _GridPhotoViewerState extends State<GridPhotoViewer>  {
-
-  @override
-  Widget build(BuildContext context) {
-    return new ClipRect(
-          child: new Image.network(fullsizeURL(widget.photo._imageFile),
-      //      package: widget.photo.assetPackage,
-            fit: BoxFit.cover,
-          ),
-    );
-  }
-}
 
 class PhotoItem extends StatelessWidget {
   PhotoItem({
@@ -63,7 +42,7 @@ class PhotoItem extends StatelessWidget {
     @required this.photo,
     @required this.tileStyle,
     @required this.onBannerTap
-  }) : assert(photo != null && photo.isValid),
+  }) : assert(photo != null ),
         assert(tileStyle != null),
         assert(onBannerTap != null),
         super(key: key);
@@ -73,33 +52,17 @@ class PhotoItem extends StatelessWidget {
   final BannerTapCallback onBannerTap; // User taps on the photo's header or footer.
 //  final BannerTapCallback onCheckTap; // User taps on the photo's header or footer.
 
-  void showPhoto(BuildContext context) {
-    Navigator.push(context, new MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return new Scaffold(
-            appBar: new AppBar(
-                title: new Text(photo.title)
-            ),
-            body: new SizedBox.expand(
-              child: new Hero(
-                tag: photo.tag,
-                child: new GridPhotoViewer(photo),
-              ),
-            ),
-          );
-        }
-    ));
-  }
+
 
   @override
   Widget build(BuildContext context) {
     final Widget image = new GestureDetector(
-        onTap: () { showPhoto(context); },
+        onTap: () { showPhoto(context,photo._imageFile); },
         child: new Hero(
-            key: new Key(photo.assetName),
-            tag: photo.tag,
+            key: new Key(thumbnailURL(photo._imageFile)),
+            tag: photo._imageFile.fullFilename,
             child: new Image.network(
-              photo.assetName,
+              thumbnailURL(photo._imageFile),
               fit: BoxFit.cover,
             )
         )
@@ -117,8 +80,8 @@ class PhotoItem extends StatelessWidget {
           },
           child: new GridTileBar(
               backgroundColor: Colors.black45,
-              title: Text(photo.title),
-              subtitle: Text(photo.caption),
+              title: Text(photo._imageFile.location),
+              subtitle: Text(photo._imageFile.caption),
               trailing: Row(
                   children: [
 //                    new Icon(iconCut, color: Colors.white),
@@ -134,8 +97,8 @@ class PhotoItem extends StatelessWidget {
             onTap: () { onBannerTap(photo,imageFile); },
             child: new GridTileBar(
                 backgroundColor: photo.isSelected ? Colors.black45 :Colors.black87,
-                title: Text(photo.title),
-                subtitle: Text(photo.caption),
+                title: Text(photo._imageFile.location),
+                subtitle: Text(photo._imageFile.caption),
                 trailing: new Icon(iconSelect, color: Colors.white),
             ),
           ),
