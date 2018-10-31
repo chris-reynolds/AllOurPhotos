@@ -15,20 +15,12 @@ import 'package:all_our_photos_app/srvCatalogueLoader.dart';
 typedef void BannerTapCallback(Photo photo,ImgFile imageFile);
 
 class Photo {
-//  Photo({
-//    this.assetName,
-//    this.assetPackage,
-//    this.title,
-//    this.caption,
-//    this.isFavorite = false,
-//  });
 
   Photo.byImgFile(this._imageFile) {
     this.assetName = thumbnailURL(_imageFile);
     this.title = _imageFile.location;
     this.caption = _imageFile.rotation.toString()+'---'+_imageFile.caption;
     this.isSelected = false;
-    this.isFavorite = (_imageFile.rank==1);
   } // byImgFile constructor
 
   final ImgFile _imageFile;
@@ -37,11 +29,11 @@ class Photo {
   String title;
   String caption;
   bool isSelected = false;
-  bool isFavorite;
   String get tag => assetName; // Assuming that all asset names are unique.
 
-  bool get isValid => assetName != null && title != null && caption != null && isFavorite != null;
-}
+  bool get isValid => assetName != null && title != null && caption != null;
+}  // of Photo
+
 
 class GridPhotoViewer extends StatefulWidget {
   const GridPhotoViewer(this.photo);
@@ -64,8 +56,8 @@ class _GridPhotoViewerState extends State<GridPhotoViewer>  {
   }
 }
 
-class GridDemoPhotoItem extends StatelessWidget {
-  GridDemoPhotoItem({
+class PhotoItem extends StatelessWidget {
+  PhotoItem({
     Key key,
     @required this.imageFile,
     @required this.photo,
@@ -113,8 +105,8 @@ class GridDemoPhotoItem extends StatelessWidget {
         )
     );
 
-    final IconData icon = photo.isFavorite ? Icons.star : Icons.star_border;
-    final IconData iconCut =  Icons.content_cut ;
+    final IconData icon = Icons.star;
+//    final IconData iconCut =  Icons.content_cut ;
     final IconData iconSelect = photo.isSelected ? Icons.check_box : Icons.check_box_outline_blank;
 
     if (tileStyle) {
@@ -129,8 +121,8 @@ class GridDemoPhotoItem extends StatelessWidget {
               subtitle: Text(photo.caption),
               trailing: Row(
                   children: [
-                    new Icon(iconCut, color: Colors.white),
-                    new Icon(icon, color: Colors.white),
+//                    new Icon(iconCut, color: Colors.white),
+                    new Icon(icon, color: filterColors[photo._imageFile.rank]),
                   ])
           ),
         ),
@@ -150,8 +142,6 @@ class GridDemoPhotoItem extends StatelessWidget {
           child: image,
         );
     }
-    assert(tileStyle != null);
-    return null;
   }
 }
 
@@ -159,13 +149,12 @@ class GridDemoPhotoItem extends StatelessWidget {
  *                     Main Entry Point
  ****************************************************************/
 class GridListDemo extends StatefulWidget {
-  ImageFilter _imageFilter;
+  ImageFilter _initImageFilter;
 
   GridListDemo();
 
-  GridListDemo.byFilter(ImageFilter initFilter) {
-    print('Started by filter');
-    _imageFilter = initFilter;
+  GridListDemo.byFilter(this._initImageFilter) {
+    print('GridLIstDemo constructor by filter');
   }
 
   static const String routeName = '/material/grid-list';
@@ -176,7 +165,7 @@ class GridListDemo extends StatefulWidget {
 
 class GridListDemoState extends State<GridListDemo> {
   bool _tileStyle = true;
-
+  ImageFilter _imageFilter;
 
   void changeTileStyle(bool value) {
     setState(() {
@@ -188,10 +177,22 @@ class GridListDemoState extends State<GridListDemo> {
       _tileStyle =  !_tileStyle;
     });
   }
+  @override
+  void initState() {
+    super.initState();
+    _imageFilter = widget._initImageFilter;
+    _imageFilter.onRefresh = filterRefreshCallback;
+    print('GridlistDemo copying initFilter');
+  }
 
+  void filterRefreshCallback() {
+    setState(() {
+      print('filterRefresh triggered');
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    final Orientation orientation = MediaQuery.of(context).orientation;
+//    final Orientation orientation = MediaQuery.of(context).orientation;
     return new Scaffold(
       appBar: new AppBar(
         title: const Text('Grid list'),
@@ -201,27 +202,26 @@ class GridListDemoState extends State<GridListDemo> {
       ),
       body: new Column(
         children: <Widget>[
-          ImageFilterWidget(widget._imageFilter),
+          ImageFilterWidget(_imageFilter,filterRefreshCallback),
           new Expanded(
             child: new GridView.count(
-                crossAxisCount: (orientation == Orientation.portrait) ? 4 : 6,
+                crossAxisCount: 4, //(orientation == Orientation.portrait) ? 4 : 6,
                 mainAxisSpacing: 4.0,
                 crossAxisSpacing: 4.0,
                 padding: const EdgeInsets.all(4.0),
-                childAspectRatio: (orientation == Orientation.portrait) ? 1.0 : 1.3,
-                children: widget._imageFilter.images.map((ImgFile imageFile) {
-                  return new GridDemoPhotoItem(
+                childAspectRatio: 1.0, //(orientation == Orientation.portrait) ? 1.0 : 1.3,
+                children: _imageFilter.images.map((ImgFile imageFile) {
+                  return new PhotoItem(
                       photo: Photo.byImgFile(imageFile),
                       imageFile: imageFile,
                       tileStyle: _tileStyle,
                       onBannerTap: (photo,imageFile) {
                         setState(() {
-                          photo.isSelected = !photo.isSelected; // TODO : Not both settings
-                          photo.isFavorite = !photo.isFavorite;
+                          photo.isSelected = !photo.isSelected;
                         });
                       }
                   );
-                }).toList().cast<GridDemoPhotoItem>(),
+                }).toList().cast<PhotoItem>(),
               ),
           ),
           ImageEditorWidget(),
