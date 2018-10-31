@@ -10,14 +10,15 @@ import 'package:all_our_photos_app/ImageFilter.dart';
 import 'package:all_our_photos_app/widgets/wdgTapDate.dart';
 import 'package:all_our_photos_app/utils.dart' as Utils;
 
-const  filterColors = <Color>[null,Colors.red,Colors.amber,Colors.green];
+const  filterColors = <Color>[null,Colors.red,Colors.orange,Colors.green];
 
 IconData _rankIcon(bool selected) => selected ? Icons.star : Icons.star_border;
 
 class ImageFilterWidget extends StatefulWidget {
-  ImageFilter _imageFilter;
+  final ImageFilter _initImageFilter;
+  final VoidCallback _onRefresh;
 
-  ImageFilterWidget(this._imageFilter);
+  ImageFilterWidget(this._initImageFilter,this._onRefresh);
 
   @override
   State<StatefulWidget> createState() {
@@ -28,11 +29,18 @@ class ImageFilterWidget extends StatefulWidget {
 
 class ImageFilterWidgetState extends State<ImageFilterWidget> {
 
+  ImageFilter _imageFilter;
   bool _changeMode = false;
   bool get changeMode => _changeMode;
-  void set changeMode(bool value) {
+  set changeMode(bool value) {
     _changeMode = value;
   }
+
+
+  @override
+  void initState() {
+    _imageFilter = widget._initImageFilter;
+  } // initState
 
   Widget Text2(String s) {
     return Text(s,style:Theme.of(context).textTheme.body2);
@@ -40,23 +48,32 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
 
   void toggleRank(int rankNo) {
     setState(() {
-      widget._imageFilter.rank[rankNo] = !widget._imageFilter.rank[rankNo];
+      _imageFilter.setRank(rankNo,!_imageFilter.getRank(rankNo));
     });
   } // of toggleRank
 
-  onSearchTextChanged(String value) {
-    widget._imageFilter.searchText = value;
+  void onRefresh() {
+    setState(() {
+      changeMode = false;
+      _imageFilter.checkImages();
+    });
+  } // onRefresh
+
+  void onSearchTextChanged(String value) {
+    setState(() {
+      _imageFilter.searchText = value;
+    });
   } // of onSearchTextChanged
 
   //  @override
   Widget build(BuildContext context) {
-    print('building ImageFilter with ${changeMode} and ${widget._imageFilter.refreshRequired}');
+    print('building ImageFilter with changeMode=$changeMode and refreshRequired=${_imageFilter.refreshRequired}');
     return new Center(
       child: !changeMode ?
       FlatButton(
         child: Text(
-          'Image Filter ${Utils.formatDate(widget._imageFilter.fromDate,format:'d-mmm-yyyy')}'+
-              ' upto ${Utils.formatDate(widget._imageFilter.toDate,format:'d-mmm-yyyy')}',
+          '${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate,format:'d-mmm-yyyy')}'+
+              ' upto ${Utils.formatDate(_imageFilter.toDate,format:'d-mmm-yyyy')}',
           style: Theme.of(context).textTheme.display1,
         ),
         onPressed: () {setState(() {
@@ -70,25 +87,6 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Row(
-//            mainAxisAlignment: MainAxisAlignment.
-            children: [
-              Text2('From '),
-              TapDateWidget(widget._imageFilter.fromDate,(changedDate) {
-                setState( (){widget._imageFilter.fromDate = changedDate;});
-              }), // of TapDateWidget
-              Text2('To '),
-              TapDateWidget(widget._imageFilter.toDate,(changedDate) {
-                setState( (){widget._imageFilter.toDate = changedDate;});
-              }), // of TapDateWidget
-              widget._imageFilter.refreshRequired ? Expanded(
-
-                child: Row(
-                  mainAxisAlignment : MainAxisAlignment.end,
-                  children: [Icon(Icons.refresh,size:40.0)],
-                ),
-              ) : Container(),
-            ]), // Date filter
-          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
 
@@ -96,6 +94,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
               Flexible(
                 child:  TextField(
                   onChanged: onSearchTextChanged,
+                  style:Theme.of(context).textTheme.body2,
                   decoration: InputDecoration(
  //                     border: InputBorder.none,
                       hintText: 'Please enter a search term'
@@ -103,14 +102,35 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                 )
               ),
               Text2('Rank:'),
-              IconButton(icon: Icon(_rankIcon(widget._imageFilter.rank[1]),color:filterColors[1],size:40.0),
+              IconButton(icon: Icon(_rankIcon(_imageFilter.getRank(1)),color:filterColors[1],size:40.0),
                   onPressed: () {toggleRank(1);}),
-              IconButton(icon: Icon(_rankIcon(widget._imageFilter.rank[2]),color:filterColors[2],size:40.0),
+              IconButton(icon: Icon(_rankIcon(_imageFilter.getRank(2)),color:filterColors[2],size:40.0),
                   onPressed: () {toggleRank(2);}),
-              IconButton(icon: Icon(_rankIcon(widget._imageFilter.rank[3]),color:filterColors[3],size:40.0),
+              IconButton(icon: Icon(_rankIcon(_imageFilter.getRank(3)),color:filterColors[3],size:40.0),
                   onPressed: () {toggleRank(3);}),
             ]
-          )
+          ),
+          Row(
+//            mainAxisAlignment: MainAxisAlignment.
+              children: [
+                Text2('From '),
+                TapDateWidget(_imageFilter.fromDate,(changedDate) {
+                  setState( (){_imageFilter.fromDate = changedDate;});
+                }), // of TapDateWidget
+                Text2('To '),
+                TapDateWidget(_imageFilter.toDate,(changedDate) {
+                  setState( (){_imageFilter.toDate = changedDate;});
+                }), // of TapDateWidget
+                _imageFilter.refreshRequired ? Expanded(
+
+                  child: Row(
+                    mainAxisAlignment : MainAxisAlignment.end,
+                    children: [
+                      IconButton(icon:Icon(Icons.refresh,size:40.0),onPressed:onRefresh),
+                    ],
+                  ),
+                ) : Container(),
+              ]), // Date filter
         ],
       )
     );
