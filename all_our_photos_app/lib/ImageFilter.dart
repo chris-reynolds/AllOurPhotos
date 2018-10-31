@@ -5,14 +5,14 @@
 import 'package:all_our_photos_app/ImgFile.dart';
 
 
-typedef ImageFilterAction = void Function(ImageFilter);
+typedef ImageFilterAction = void Function();
 
 class ImageFilter {
 
   DateTime _fromDate = DateTime(1900);
   DateTime _toDate = DateTime(2030);
   ImageFilterAction onRefresh;
-  List<bool> rank = <bool>[null,false,true,true];  // ignore entry zero
+  List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
   String _searchText = '';
   List<ImgFile> _images;
   get images {
@@ -26,16 +26,19 @@ class ImageFilter {
   // two constructors
   ImageFilter.dateRange(this._fromDate, this._toDate,{ImageFilterAction refresh}) {
     onRefresh = refresh;
+    print('Image Filter - Date constructor $searchText');
   } // create with dateRange
 
   ImageFilter.yearMonth(int year,int month,{ImageFilterAction refresh}) {
     _fromDate = DateTime(year,month,1);
     _toDate = _fromDate.add(Duration(days: 31));
     onRefresh = refresh;
+    print('Image Filter - yearmonth constructor $searchText');
   }  // create with yearMonth
 
   ImageFilter.searchText(String searchText) {
     this.searchText = searchText;  // force lowercase
+    print('Image Filter - Search Text constructor $searchText');
   }
 
   get fromDate => _fromDate;
@@ -50,20 +53,25 @@ class ImageFilter {
     _refreshRequired = true;
   } // of set fromDate
 
+  get searchText => _searchText;
+
   set searchText(String value) {
     _searchText = value.toLowerCase();
     _refreshRequired = true;
+    print('searchText set to ($_searchText)');
   }
+  bool getRank(int rankNo) => _rank[rankNo];
+
   setRank(int rankNo,bool value) {
-    if (rank[rankNo] != value)
+    if (_rank[rankNo] != value)
       _refreshRequired = true;
-    rank[rankNo] = value;
+    _rank[rankNo] = value;
   } // of setRank
 
   bool isWanted(thisImage) {
     try {
       if (thisImage.deletedDate != null) return false;
-      if (!rank[thisImage.rank]) return false;
+      if (!_rank[thisImage.rank]) return false;
       if (thisImage.takenDate == null || thisImage.takenDate.isBefore(_fromDate)) return false;
       if (thisImage.takenDate == null || thisImage.takenDate.isAfter(_toDate)) return false;
       if (_searchText.length > 0 )
@@ -75,6 +83,7 @@ class ImageFilter {
     }
   } // isWanted
   void checkImages() {
+    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
     _images = [];
     ImgCatalog.actOnAll((thisImage) {
@@ -85,8 +94,9 @@ class ImageFilter {
     // todo check ascending or descending date sort
     _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
+    print('returning ${_images.length} images');
     if (onRefresh != null)  // alert listen of changes
-      onRefresh(this);
+      onRefresh();
   } // of calcImages
 
   void extendDateRange({int days = 7}) {
