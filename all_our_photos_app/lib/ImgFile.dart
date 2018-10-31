@@ -52,11 +52,11 @@ class ImgCatalog {
     bool result = true;
     for (ImgDirectory dir in _directories) {
       bool directoryResult = true;
-      log.message('ActOnAll starting in ${dir.directoryName}');
+///      log.message('ActOnAll starting in ${dir.directoryName}');
       for (var thisImgFile in dir) {
         directoryResult =  thisAction(thisImgFile) && directoryResult;
       } // of file loop
-      log.message('${directoryResult?"Passed":"Failed"} in ${dir.directoryName}');
+///      log.message('${directoryResult?"Passed":"Failed"} in ${dir.directoryName}');
       result = directoryResult && result;
     } // of directory loop
     return result;
