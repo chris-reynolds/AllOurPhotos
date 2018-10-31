@@ -39,6 +39,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
 
   @override
   void initState() {
+    super.initState();
     _imageFilter = widget._initImageFilter;
   } // initState
 
@@ -121,15 +122,14 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                 TapDateWidget(_imageFilter.toDate,(changedDate) {
                   setState( (){_imageFilter.toDate = changedDate;});
                 }), // of TapDateWidget
-                _imageFilter.refreshRequired ? Expanded(
-
+                Expanded(
                   child: Row(
                     mainAxisAlignment : MainAxisAlignment.end,
                     children: [
                       IconButton(icon:Icon(Icons.refresh,size:40.0),onPressed:onRefresh),
                     ],
                   ),
-                ) : Container(),
+                )
               ]), // Date filter
         ],
       )

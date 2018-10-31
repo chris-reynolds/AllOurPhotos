@@ -130,6 +130,18 @@ class GridListDemoState extends State<GridListDemo> {
   bool _tileStyle = true;
   ImageFilter _imageFilter;
 
+  int _picsPerRow = 4;  // can be toggled
+
+  void changePicsPerRow() {
+    setState(() {
+      switch (_picsPerRow) {
+        case 4: _picsPerRow =2; break;
+        case 2: _picsPerRow =1; break;
+        default:_picsPerRow =4;
+      } // of switch
+    });
+  } // of changePicsPerRow
+
   void changeTileStyle(bool value) {
     setState(() {
       _tileStyle = value;
@@ -160,7 +172,8 @@ class GridListDemoState extends State<GridListDemo> {
       appBar: new AppBar(
         title: const Text('Grid list'),
         actions: <Widget>[
-          new RaisedButton(onPressed: changeSelectMode,child: Text('Select'),),
+          new IconButton(icon: Icon(Icons.photo_size_select_large), onPressed: changePicsPerRow),
+          new IconButton(icon: Icon(Icons.check), onPressed: changeSelectMode),
         ],
       ),
       body: new Column(
@@ -168,7 +181,7 @@ class GridListDemoState extends State<GridListDemo> {
           ImageFilterWidget(_imageFilter,filterRefreshCallback),
           new Expanded(
             child: new GridView.count(
-                crossAxisCount: 4, //(orientation == Orientation.portrait) ? 4 : 6,
+                crossAxisCount: _picsPerRow, //(orientation == Orientation.portrait) ? 4 : 6,
                 mainAxisSpacing: 4.0,
                 crossAxisSpacing: 4.0,
                 padding: const EdgeInsets.all(4.0),
