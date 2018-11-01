@@ -1,3 +1,9 @@
+/*
+  Created by Chris on 1st Nov 2018
+
+  Purpose: PhotoTile widget is a tile of a PhotoGrid
+*/
+
 import 'package:flutter/material.dart';
 import 'package:all_our_photos_app/ImgFile.dart';
 import 'package:all_our_photos_app/srvCatalogueLoader.dart';
@@ -29,7 +35,7 @@ class PhotoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget image = new GestureDetector(
+    final Widget imageWidget = new GestureDetector(
         onTap: () { showPhoto(context,imageFile); },
         child: new Hero(
             key: new Key(thumbnailURL(imageFile)),
@@ -46,12 +52,12 @@ class PhotoTile extends StatelessWidget {
 
     if (!inSelectMode) {
       return new GridTile(
-        footer: new GestureDetector(
+        header: new GestureDetector(
           onTap: () {
             onBannerTap(imageFile);
           },
           child: new GridTileBar(
-              backgroundColor: Colors.black45,
+              backgroundColor: Colors.black26,
               title: Text(imageFile.location),
               subtitle: Text(imageFile.caption),
               trailing: Row(
@@ -60,20 +66,20 @@ class PhotoTile extends StatelessWidget {
                   ])
           ),
         ),
-        child: image,
+        child: imageWidget,
       );
     } else {
       return new GridTile(
         header: new GestureDetector(
           onTap: () { onBannerTap(imageFile); },
           child: new GridTileBar(
-            backgroundColor: isSelected ? Colors.black45 :Colors.black87,
+            backgroundColor: isSelected ? Colors.black45 :Colors.black26,
             title: Text(imageFile.location),
             subtitle: Text(imageFile.caption),
             trailing: new Icon(iconSelect, color: Colors.white),
           ),
         ),
-        child: image,
+        child: imageWidget,
       );
     }
   }

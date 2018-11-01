@@ -75,6 +75,26 @@ class PhotoGridState extends State<PhotoGrid> {
       print('filterRefresh triggered');
     });
   }
+
+  void editorCallback(String caption,String location) {
+    int updateCount = 0;
+    if (caption=='' && location=='')
+      return;
+    setState(() {
+      for (int ix = 0; ix < _imageFilter.images.length; ix++) {
+        ImgFile thisImage = _imageFilter.images[ix];
+        if (isSelected(thisImage)) {
+          if (caption != '')
+            thisImage.caption = caption;
+          if (location != '')
+            thisImage.location = location;
+          updateCount++;
+        }
+      }
+    });
+    print('$updateCount images updated');
+  } // editor Callback
+
   @override
   Widget build(BuildContext context) {
 //    final Orientation orientation = MediaQuery.of(context).orientation;
@@ -103,14 +123,17 @@ class PhotoGridState extends State<PhotoGrid> {
                       inSelectMode: _inSelectMode,
                       onBannerTap: (imageFile) {
                         setState(() {
-                          toggleSelected(imageFile);
+                          if (_inSelectMode)
+                            toggleSelected(imageFile);
+                          else
+                            imageFile.rank = (imageFile.rank % 3 )+1;
                         });
                       }
                   );
                 }).toList().cast<PhotoTile>(),
               ),
           ),
-          ImageEditorWidget(),
+          _inSelectMode ? ImageEditorWidget2(editorCallback) : Container(),
         ],
       ),
     );
