@@ -83,7 +83,7 @@ class ImageFilter {
     }
   } // isWanted
   void checkImages() {
-    print('checking images with refreshRequired set to $_refreshRequired');
+//    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
     _images = [];
     ImgCatalog.actOnAll((thisImage) {

@@ -145,18 +145,42 @@ class ImgFile {
  //   log.message('create ImgFile:'+fullFilename);
   } // of constructor
 
+  void markDirty() {
+    ImgCatalog.getDirectory(dirname).dirty = true;
+  } // of markDirty
+
   String dirname;
   String filename;
-  String caption = '-';
-  DateTime takenDate;
+  String _caption = '-';
+  get caption => _caption;
+  set caption(String value) {
+    _caption = value;
+    markDirty();
+  }
+  DateTime _takenDate;
+  get takenDate => _takenDate;
+  set takenDate(DateTime value) {
+    _takenDate = value;
+    markDirty();
+  }
   int byteCount;
   int width;
   int height;
   DateTime lastModifiedDate;
-  int rank = 3;
+  int _rank = 3;
+  get rank => _rank;
+  set rank(int value) {
+    _rank = value;
+    markDirty();
+  }
   double latitude = UNKNOWN_LONGLAT;
   double longitude = UNKNOWN_LONGLAT;
-  String location = '';
+  String _location = '';
+  get location => _location;
+  set location(String value) {
+    _location = value;
+    markDirty();
+  }
   String tags = '';
   String camera = 'unknown';
   int rotation = 0;
