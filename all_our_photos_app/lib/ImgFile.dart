@@ -131,6 +131,7 @@ class ImgDirectory extends IterableBase{
         log.error('Problem in index line ${lines.indexOf(thisLine)}');
       }
     } // of line loop
+    dirty = false;
     return result;
   } // of fromStrings
 }  // of ImgDirectory
@@ -251,12 +252,17 @@ class ImgFile {
   } // of fromTabDelimited
 
   String toTabDelimited() {
-    String t='\t';
-    return '$dirname$t$filename$t$caption$t$takenDate$t$byteCount$t$width$t'+
+    // we need to ensure that the only tabs in the line are for field separation
+    String t = '~@`@~';  // random unlikely string
+    String tab = '\t';
+    String result =  '$dirname$t$filename$t$caption$t$takenDate$t$byteCount$t$width$t'+
        '$height$t$lastModifiedDate$t$rank$t$latitude$t$longitude$t'+
         '$location$t$tags$t'+
     '$camera$t$rotation$t$owner$t$imageType$t${hasThumbnail?"y":"n"}$t'+
         '$contentHash$t$deletedDate';
+    result = result.replaceAll(tab, " ");
+    result = result.replaceAll(t,tab);
+    return result;
   } // toMap
 
 } // of ImgFile
