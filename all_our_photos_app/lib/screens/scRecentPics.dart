@@ -12,7 +12,7 @@ class Home extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new Text(
-              listType,
+              "Please wait...",
               style: Theme.of(context).textTheme.display1,
             ),
           ],

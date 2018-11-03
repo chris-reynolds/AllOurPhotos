@@ -21,7 +21,7 @@ void main() {
           body2: TextStyle(fontSize: 25.0, color: Colors.red)
       ),
     ),
-    home: new DashboardScreen(title: 'All Our Photos6'),
+    home: new DashboardScreen(title: 'All Our Photos v0.1'),
     routes: <String, WidgetBuilder> {
 //      '/a': (BuildContext context) => GridListDemo(),
       '/b': (BuildContext context) => Albums('albums route b'),
@@ -67,7 +67,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _pageController = new PageController();
-    loadTop().then((loadResult) { print(loadResult); }); // TODO show bad result
+    loadTop().then((loadResult) {
+      print(loadResult);
+      initTimer();
+      _pageController.jumpToPage(2);
+    }); // TODO show bad result
   }
 
   @override
