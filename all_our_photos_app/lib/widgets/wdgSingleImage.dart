@@ -8,7 +8,7 @@ void showPhoto(BuildContext context, ImgFile imgFile) {
       builder: (BuildContext context) {
         return new Scaffold(
           appBar: new AppBar(
-              title: new Text(imgFile.caption)
+              title: new Text(imgFile.filename+' '+imgFile.caption)
           ),
           body: new SizedBox.expand(
             child: new Hero(
@@ -35,8 +35,7 @@ class _SingleImageWidgetState extends State<SingleImageWidget>  {
   Widget build(BuildContext context) {
     return new ClipRect(
       child: new Image.network(fullsizeURL(widget._imgFile),
-        //      package: widget.photo.assetPackage,
-        fit: BoxFit.cover,
+        fit: BoxFit.scaleDown,
       ),
     );
   }
