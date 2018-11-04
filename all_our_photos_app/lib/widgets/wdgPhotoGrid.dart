@@ -121,6 +121,7 @@ class PhotoGridState extends State<PhotoGrid> {
                       isSelected: isSelected(imageFile),
                       imageFile: imageFile,
                       inSelectMode: _inSelectMode,
+                      highResolution: (_picsPerRow == 1),
                       onBannerTap: (imageFile) {
                         setState(() {
                           if (_inSelectMode)

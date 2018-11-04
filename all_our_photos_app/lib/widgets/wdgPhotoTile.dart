@@ -21,6 +21,7 @@ class PhotoTile extends StatelessWidget {
     @required this.imageFile,
     @required this.isSelected,
     @required this.inSelectMode,
+    @required this.highResolution,
     @required this.onBannerTap
   }) : assert(isSelected != null ),
         assert(inSelectMode != null),
@@ -29,6 +30,7 @@ class PhotoTile extends StatelessWidget {
   final ImgFile imageFile;
   final bool isSelected;
   final bool inSelectMode;
+  final bool highResolution;
   final BannerTapCallback onBannerTap; // User taps on the photo's header or footer.
 
 
@@ -41,8 +43,8 @@ class PhotoTile extends StatelessWidget {
             key: new Key(thumbnailURL(imageFile)),
             tag: imageFile.fullFilename,
             child: new Image.network(
-              thumbnailURL(imageFile),
-              fit: BoxFit.cover,
+              highResolution? fullsizeURL(imageFile) : thumbnailURL(imageFile),
+              fit: BoxFit.scaleDown,
             )
         )
     );
@@ -57,9 +59,9 @@ class PhotoTile extends StatelessWidget {
             onBannerTap(imageFile);
           },
           child: new GridTileBar(
-              backgroundColor: Colors.black26,
-              title: Text(imageFile.location),
-              subtitle: Text(imageFile.caption),
+//              backgroundColor: Colors.black26,
+              title: Text(imageFile.location,style:TextStyle(color:Colors.black)),
+              subtitle: Text(imageFile.filename,style:TextStyle(color:Colors.black)),
               trailing: Row(
                   children: [
                     new Icon(icon, color: filterColors[imageFile.rank]),
@@ -73,10 +75,10 @@ class PhotoTile extends StatelessWidget {
         header: new GestureDetector(
           onTap: () { onBannerTap(imageFile); },
           child: new GridTileBar(
-            backgroundColor: isSelected ? Colors.black45 :Colors.black26,
-            title: Text(imageFile.location),
-            subtitle: Text(imageFile.caption),
-            trailing: new Icon(iconSelect, color: Colors.white),
+//            backgroundColor: isSelected ? Colors.black45 :Colors.black26,
+            title: Text(imageFile.location,style:TextStyle(color:Colors.black)),
+            subtitle: Text(imageFile.filename,style:TextStyle(color:Colors.black)),
+            trailing: new Icon(iconSelect, color: Colors.black),
           ),
         ),
         child: imageWidget,
