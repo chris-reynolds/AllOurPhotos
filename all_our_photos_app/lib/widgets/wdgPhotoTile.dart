@@ -9,6 +9,7 @@ import 'package:all_our_photos_app/ImgFile.dart';
 import 'package:all_our_photos_app/srvCatalogueLoader.dart';
 import 'package:all_our_photos_app/widgets/wdgSingleImage.dart';
 import 'package:all_our_photos_app/widgets/wdgImageFilter.dart' show filterColors;
+import 'package:all_our_photos_app/utils.dart';
 
 
 
@@ -60,11 +61,11 @@ class PhotoTile extends StatelessWidget {
           },
           child: new GridTileBar(
 //              backgroundColor: Colors.black26,
-              title: Text(imageFile.location,style:TextStyle(color:Colors.black)),
+              title: Text(formatDate(imageFile.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
               subtitle: Text(imageFile.filename,style:TextStyle(color:Colors.black)),
               trailing: Row(
                   children: [
-                    new Icon(icon, color: filterColors[imageFile.rank]),
+                    new Icon(icon, color: filterColors[imageFile.rank],size:40.0),
                   ])
           ),
         ),
@@ -76,7 +77,7 @@ class PhotoTile extends StatelessWidget {
           onTap: () { onBannerTap(imageFile); },
           child: new GridTileBar(
 //            backgroundColor: isSelected ? Colors.black45 :Colors.black26,
-            title: Text(imageFile.location,style:TextStyle(color:Colors.black)),
+            title: Text(formatDate(imageFile.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
             subtitle: Text(imageFile.filename,style:TextStyle(color:Colors.black)),
             trailing: new Icon(iconSelect, color: Colors.black),
           ),

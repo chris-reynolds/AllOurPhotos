@@ -21,7 +21,7 @@ void main() {
           body2: TextStyle(fontSize: 25.0, color: Colors.red)
       ),
     ),
-    home: new DashboardScreen(title: 'All Our Photos v0.2'),
+    home: new DashboardScreen(title: 'All Our Photos v0.4'),
     routes: <String, WidgetBuilder> {
 //      '/a': (BuildContext context) => GridListDemo(),
       '/b': (BuildContext context) => Albums('albums route b'),
