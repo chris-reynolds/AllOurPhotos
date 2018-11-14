@@ -26,6 +26,8 @@ class PhotoGrid extends StatefulWidget {
 class PhotoGridState extends State<PhotoGrid> {
 
   ImageFilter _imageFilter;
+  double _targetOffset = 0.0;
+  ScrollController _scrollController = ScrollController();
 
   List<String> _selectedImages = [];
   bool isSelected(ImgFile imgFile) {
@@ -48,11 +50,16 @@ class PhotoGridState extends State<PhotoGrid> {
   int _picsPerRow = 4;  // can be toggled
   void changePicsPerRow() {
     setState(() {
+      int oldPicsPerRow = _picsPerRow;
+      double oldOffset = _scrollController.offset;
       switch (_picsPerRow) {
         case 4: _picsPerRow =2; break;
         case 2: _picsPerRow =1; break;
         default:_picsPerRow =4;
       } // of switch
+      double targetOffset = oldOffset*oldPicsPerRow/_picsPerRow;
+      _targetOffset = targetOffset;
+      print('=============scroll controller offset $oldOffset to $targetOffset');
     });
   } // of changePicsPerRow
 
@@ -68,6 +75,12 @@ class PhotoGridState extends State<PhotoGrid> {
     _imageFilter = widget._initImageFilter;
     _imageFilter.onRefresh = filterRefreshCallback;
     print('PhotoGrid copying initFilter');
+  }
+
+
+  @override
+  void didUpdateWidget(PhotoGrid oldWidget) {
+
   }
 
   void filterRefreshCallback() {
@@ -98,6 +111,8 @@ class PhotoGridState extends State<PhotoGrid> {
   @override
   Widget build(BuildContext context) {
 //    final Orientation orientation = MediaQuery.of(context).orientation;
+    _scrollController = ScrollController(initialScrollOffset: _targetOffset, keepScrollOffset: false);
+
     return new Scaffold(
       appBar: new AppBar(
         title: const Text('Grid list'),
@@ -111,9 +126,11 @@ class PhotoGridState extends State<PhotoGrid> {
           ImageFilterWidget(_imageFilter,filterRefreshCallback),
           new Expanded(
             child: new GridView.count(
+                controller: _scrollController,
                 crossAxisCount: _picsPerRow, //(orientation == Orientation.portrait) ? 4 : 6,
                 mainAxisSpacing: 4.0,
                 crossAxisSpacing: 4.0,
+
                 padding: const EdgeInsets.all(4.0),
                 childAspectRatio: 1.0, //(orientation == Orientation.portrait) ? 1.0 : 1.3,
                 children: _imageFilter.images.map((ImgFile imageFile) {

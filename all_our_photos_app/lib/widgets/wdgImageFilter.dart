@@ -68,7 +68,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
 
   //  @override
   Widget build(BuildContext context) {
-    print('building ImageFilter with changeMode=$changeMode and refreshRequired=${_imageFilter.refreshRequired}');
+//    print('building ImageFilter with changeMode=$changeMode and refreshRequired=${_imageFilter.refreshRequired}');
     return new Center(
       child: !changeMode ?
       FlatButton(
