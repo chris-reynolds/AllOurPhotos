@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:all_our_photos_app/widgets/CameraRollWidget.dart';
 
 class Home extends StatelessWidget {
   Home(this.listType);
@@ -8,15 +9,16 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              "Please wait...",
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
+        child : new CameraRollWidget(),
+//        child: new Column(
+//          mainAxisAlignment: MainAxisAlignment.center,
+//          children: <Widget>[
+//            new Text(
+//              "Please wait...",
+//              style: Theme.of(context).textTheme.display1,
+//            ),
+//          ],
+//        ),
       ),
     );
   }
