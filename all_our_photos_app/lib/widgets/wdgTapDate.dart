@@ -12,9 +12,9 @@ import 'package:all_our_photos_app/utils.dart' as Utils;
 typedef DateChangedEvent = Function(DateTime);
 
 class TapDateWidget extends StatefulWidget {
-  DateTime _date;
-  DateChangedEvent _onChange;
-  TapDateWidget(this._date, this._onChange);
+  final DateTime _initDate;
+  final DateChangedEvent _onChange;
+  TapDateWidget(this._initDate, this._onChange);
 
   @override
   State<StatefulWidget> createState() {
@@ -24,21 +24,31 @@ class TapDateWidget extends StatefulWidget {
 
 class TapDateWidgetState extends State<TapDateWidget> {
 
+  DateTime _date;
+
   Future<Null> popupDatePicker(BuildContext context)  async {
     final _selectedDate = await showDatePicker(
-      context: context, initialDate: widget._date,
+      context: context, initialDate: _date,
         firstDate: DateTime(1900), lastDate: DateTime.now() );
-    if (_selectedDate != null && _selectedDate != widget._date) {
+    if (_selectedDate != null && _selectedDate != _date) {
       setState( () {
-        widget._date = _selectedDate;
+        _date = _selectedDate;
         widget._onChange(_selectedDate);
       }); // of setState
     }
   }
+
+
+  @override
+  void initState() {
+    super.initState();
+    _date = widget._initDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     return new FlatButton(
-      child: Text('(${Utils.formatDate(widget._date,format:'d-mmm-yy')})',
+      child: Text('(${Utils.formatDate(_date,format:'d-mmm-yy')})',
       // TODO : work out how to decorate theme styles with underscore
       style: Theme.of(context).textTheme.body2.apply(decoration: TextDecoration.underline)),
       onPressed: () { popupDatePicker(context); },

@@ -80,7 +80,7 @@ class PhotoGridState extends State<PhotoGrid> {
 
   @override
   void didUpdateWidget(PhotoGrid oldWidget) {
-
+    super.didUpdateWidget(oldWidget);
   }
 
   void filterRefreshCallback() {

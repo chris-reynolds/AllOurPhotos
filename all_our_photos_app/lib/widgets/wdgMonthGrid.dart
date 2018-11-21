@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:all_our_photos_app/ImgFile.dart';
 import 'package:all_our_photos_app/ImageFilter.dart';
 import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
-import 'package:all_our_photos_app/widgets/wdgImageList.dart';
 import 'package:all_our_photos_app/Logger.dart' as log;
 
 // Note there is a blank month name in entry 0 for the year column
@@ -79,7 +78,8 @@ void buildYears() {
       return true;
   }); // of directory loop
   yearList.sort((YearEntry y1,YearEntry y2)=> (y2.yearno-y1.yearno));
-  log.message('${yearList.length} years loaded ${yearList[0].yearno}');
+  if (yearList.length>0)
+    log.message('${yearList.length} years loaded ${yearList[0].yearno}');
 } // of buildYears
 
 Row yearRowBuilder(YearEntry thisYear,TextStyle style) {
