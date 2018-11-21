@@ -5,7 +5,7 @@ import 'package:all_our_photos_app/screens/scHistory.dart';
 import 'package:all_our_photos_app/screens/scTesting.dart';
 import 'package:all_our_photos_app/srvCatalogueLoader.dart';
 import 'package:all_our_photos_app/appNavigator.dart';
-import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
+//import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
 void main() {

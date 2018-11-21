@@ -35,9 +35,9 @@ class ImageEditorWidgetState extends State<ImageEditorWidget> {
 typedef EditorCallback = Function(String caption,String location);
 class ImageEditorWidget2 extends StatelessWidget {
 
-  TextEditingController _captionController = TextEditingController();
-  TextEditingController _locationController = TextEditingController();
-  EditorCallback _editorCallback;
+  final TextEditingController _captionController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final EditorCallback _editorCallback;
 
   ImageEditorWidget2(this._editorCallback);
 

@@ -58,6 +58,9 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
       changeMode = false;
       _imageFilter.checkImages();
     });
+    // just added this cos of Dart analysis. Not sure if it used.
+    if (widget._onRefresh != null)
+      widget._onRefresh();
   } // onRefresh
 
   void onSearchTextChanged(String value) {

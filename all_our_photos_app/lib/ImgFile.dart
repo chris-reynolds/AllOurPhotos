@@ -113,7 +113,7 @@ class ImgDirectory extends IterableBase{
   }
   List<String> toStrings() {
     List<String>result = [];
-    result.add(ImgFileHeaderLine);
+    result.add(IMGFILECOLUMNHEADER);
     for (var file in files)
       result.add(file.toTabDelimited());
     return result;
@@ -142,7 +142,7 @@ typedef ImgFileFutureAction = Future<bool> Function(ImgFile);
 class ImgFile {
   static const UNKNOWN_LONGLAT = 999.0;
   static ImgFileAction save = (img) => throw "Save handler not defined";
-  ImgFile (String this.dirname, String this.filename) {
+  ImgFile (this.dirname, this.filename) {
  //   log.message('create ImgFile:'+fullFilename);
   } // of constructor
 
@@ -268,6 +268,6 @@ class ImgFile {
 } // of ImgFile
 
 const FIELD_COUNT = 20;
-final ImgFileHeaderLine = "dirname\tfilename\tcaption\ttakenDate\tbyteCount\twidth\t"+
+final IMGFILECOLUMNHEADER = "dirname\tfilename\tcaption\ttakenDate\tbyteCount\twidth\t"+
     "height\tlastModifiedDate\trank\tlatitude\tlongitude\tlocation\ttags\t"+
     "camera\trotation\towner\timageType\thasThumbnail\tcontentHash\tdeletedDate";

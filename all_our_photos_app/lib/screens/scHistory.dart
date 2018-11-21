@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:all_our_photos_app/widgets/wdgHistoryScrollingList.dart';
-import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
+//import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 import 'package:all_our_photos_app/widgets/wdgMonthGrid.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   _HistoryScreenState(this.listType);
   final String listType;
   PageController _pageController;
-  int _page = 0;
+  int _page;
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   void onPageChanged(int page) {
     setState(() {
-      this._page = page;
+      _page = page;
     });
   }
 
