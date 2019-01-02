@@ -4,7 +4,7 @@
 
 In the projects directory:
 
-`flutter create freddyApp`
+`flutter create --org kiwi.retired freddyapp`
 
 # Create a firebase app
 

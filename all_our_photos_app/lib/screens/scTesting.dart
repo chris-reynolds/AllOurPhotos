@@ -1,8 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:all_our_photos_app/appNavigator.dart';
+
 
 class Testing extends StatelessWidget {
-  Testing(this.listType);
+  Testing(this.listType) {
+    //
+    signInToGoogle();   // async but lets not worry about waiting for now
+  } // of constructor
+
   final String listType;
   @override
   Widget build(BuildContext context) {

@@ -5,6 +5,7 @@ import 'package:all_our_photos_app/screens/scHistory.dart';
 import 'package:all_our_photos_app/screens/scTesting.dart';
 import 'package:all_our_photos_app/srvCatalogueLoader.dart';
 import 'package:all_our_photos_app/appNavigator.dart';
+import 'package:all_our_photos_app/GooglePhotos.dart';
 //import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
@@ -106,7 +107,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: new PageView(
         children: [
           new Home("Recent Pics"),
-          new Albums("Albums"),
+          new GoogleAlbumsWidget(),
+//          new Albums("Albums"),
           new HistoryScreen("History"),
           new Testing("Testing"),
         ],
