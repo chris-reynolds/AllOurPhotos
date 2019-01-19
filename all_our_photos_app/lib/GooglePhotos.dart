@@ -41,14 +41,15 @@ class _GoogleAlbumsState extends State<GoogleAlbumsWidget> {
 
   @override
   void initState() {
+    super.initState();
     PhotosLibraryClient.listAlbums();
   }
 
   @override
   Widget build(BuildContext context) {
-    Future<String> stuff = DefaultAssetBundle
-        .of(context)
-        .loadString('assets/services.json');
+//    Future<String> stuff = DefaultAssetBundle
+//        .of(context)
+//        .loadString('assets/services.json');
     return new Scaffold(
         appBar: new AppBar(
           title: new Text("Load local JSON file"),
