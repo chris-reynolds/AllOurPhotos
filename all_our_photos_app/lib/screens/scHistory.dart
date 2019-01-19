@@ -17,7 +17,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   _HistoryScreenState(this.listType);
   final String listType;
   PageController _pageController;
-  int _page;
+  int _currentPage;
 
   @override
   void initState() {
@@ -40,7 +40,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   void onPageChanged(int page) {
     setState(() {
-      _page = page;
+      this._currentPage = page;
+      print('$_currentPage');
     });
   }
 
