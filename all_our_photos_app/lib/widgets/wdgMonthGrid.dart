@@ -35,11 +35,14 @@ class MonthGrid extends StatelessWidget {
     List<Row> yearRows = yearList.map(
             (thisYear)=> yearRowBuilder(thisYear,myTextStyle)).toList();
     List<Widget> header = [
-    Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: monthNames.map((monthName) =>
-            Text(monthName,style:myTextStyle)).toList()
-    )
+      new InkWell(
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: monthNames.map((monthName) =>
+                Text(monthName,style:myTextStyle,)).toList()
+        ),
+        onTap: () {print('blah');yearList = [];},
+      )
 
     ];
     header.addAll(yearRows);

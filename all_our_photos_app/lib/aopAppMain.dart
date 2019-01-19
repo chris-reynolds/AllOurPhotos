@@ -68,11 +68,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _pageController = new PageController();
-    loadTop().then((loadResult) {
-      print(loadResult);
+    // loadTop will callback when completed
+    loadTop(() {
       initTimer();
       _pageController.jumpToPage(2);
-    }); // TODO show bad result
+    });
   }
 
   @override
