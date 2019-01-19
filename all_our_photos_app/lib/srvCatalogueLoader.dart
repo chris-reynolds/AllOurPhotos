@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:all_our_photos_app/ImgFile.dart';
 import 'package:all_our_photos_app/Logger.dart' as log;
+import 'package:all_our_photos_app/utils/timing.dart';
 import 'dart:async';
 
 const webRoute = 'http://192.168.1.251:3333/';
@@ -15,8 +16,10 @@ const indexFilename = 'index.tsv';
 
 
 
-Future<String> loadTop() async {
+Future<String> loadTop(Function continuer) async {
   String result = '';
+  int requestCount = 0;
+  Timing.start('loadTop');
   try {
     List<String> dirNames = await getRemoteStrings(webRoute+rootFilename,delimiter:'~');
     if (dirNames.length<2)
@@ -27,8 +30,12 @@ Future<String> loadTop() async {
     ImgCatalog.clear();
     for (String thisDirName in dirNames) {
       ImgDirectory thisDirectory = ImgCatalog.newDirectory(thisDirName);
-      List<String> remoteIndex = await getRemoteStrings(webRoute+thisDirName+'/'+indexFilename);
-      thisDirectory.fromStrings(remoteIndex);
+      requestCount++;
+      getRemoteStrings(webRoute+thisDirName+'/'+indexFilename).then((remoteIndex) {
+        thisDirectory.fromStrings(remoteIndex);
+        if (--requestCount==0)
+          continuer();
+      });
     } // of dirName loop
     result = 'Index loaded ${ImgCatalog.length} directories';
   } catch(ex) {
@@ -74,6 +81,7 @@ String fullsizeURL(ImgFile imgFile) => '$webRoute${imgFile.dirname}/${imgFile.fi
 const oneSec = Duration(seconds:10);
 Timer _timer;
 void initTimer() {
+
   _timer = new Timer.periodic(oneSec, directoryWatcher);
 } // of initTimer
 
