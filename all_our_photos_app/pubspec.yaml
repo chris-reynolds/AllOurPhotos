@@ -14,7 +14,7 @@ environment:
 
 dependencies:
   http:
-  image_picker:
+#  image_picker:
   google_sign_in:
   flutter:
     sdk: flutter

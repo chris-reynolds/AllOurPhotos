@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class CameraRollWidget extends StatelessWidget {
-  static final Directory _photoDir =
-  new Directory('/storage/emulated/0/DCIM/Camera');
+//  static final Directory _photoDir =
+//  new Directory('/storage/emulated/0/DCIM/Camera');
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class CameraRollWidget extends StatelessWidget {
 
     Widget buildPhotoList() {
       try {
-        _photoList = _photoDir.listSync();
+        _photoList = []; //_photoDir.listSync();
       } catch(ex) {
         print('Failed to get directory : $ex');
         _photoList = <FileSystemEntity>[]; // empty array
