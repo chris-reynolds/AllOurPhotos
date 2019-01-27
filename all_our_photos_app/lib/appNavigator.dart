@@ -11,6 +11,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 MaterialApp application;
 bool _isSignedInToGoogle = false;
+String googleUserName = '(Not logged in)';
+
 Map<String,String> authHeaders;
 get isSignedInToGoogle => _isSignedInToGoogle; // readonly from outside
 
@@ -27,6 +29,7 @@ Future<bool> signInToGoogle() async {
     await _googleSignIn.signIn();
     print('Signed in as ${_googleSignIn.currentUser.displayName}');
     _isSignedInToGoogle = true;
+    googleUserName = _googleSignIn.currentUser.displayName;
     authHeaders = await _googleSignIn.currentUser.authHeaders;
   } catch (error) {
     print('Failed to signin $error');
