@@ -36,7 +36,7 @@ class _GoogleAlbumsState extends State<GoogleAlbumsWidget> {
                     itemBuilder: albumButtonBuilder
                 )),
               Flexible(
-                  flex:2,
+                  flex:3,
                   child:ListView.builder(
                 itemCount: _photos.length,
                 itemBuilder: thumbnailBuilder
