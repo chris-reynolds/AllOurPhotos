@@ -40,7 +40,7 @@ class TestRequest  {
     throw 'TODO: uExpectedData method';
   } // of uExpectData
 
-  uExpectHeader(String expectedKey,String expectedText) {
+  uExpectHeader(String expectedKey,String expectedText) async {
 //    print('headers: ${response.headers}');
     expect(response.headers.value(expectedKey),contains(expectedText),reason:'Header '+expectedKey );
   } // of expectHeader

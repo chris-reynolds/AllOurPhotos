@@ -1,64 +1,47 @@
-Image ImageDescription
-Image Make
-Image Model
-Image Orientation
-Image XResolution
-Image YResolution
-Image ResolutionUnit
-Image Software
-Image DateTime
-Image YCbCrPositioning
-Image Tag 0x0220
-Image Tag 0x0221
-Image Tag 0x0222
-Image Tag 0x0223
-Image Tag 0x0224
-Image Tag 0x0225
-Image ExifOffset
-GPS GPSVersionID
-GPS GPSLatitudeRef
-GPS GPSLatitude
-GPS GPSLongitudeRef
-GPS GPSLongitude
-GPS GPSAltitudeRef
-GPS GPSAltitude
-GPS GPSTimeStamp
-GPS GPSProcessingMethod
-GPS GPSDate
-Image GPSInfo
-Thumbnail Compression
-Thumbnail Orientation
-Thumbnail XResolution
-Thumbnail YResolution
-Thumbnail ResolutionUnit
-Thumbnail JPEGInterchangeFormat
-Thumbnail JPEGInterchangeFormatLength
-Thumbnail YCbCrPositioning
-EXIF ExposureTime
-EXIF FNumber
-EXIF ExposureProgram
-EXIF ISOSpeedRatings
-EXIF ExifVersion
-EXIF DateTimeOriginal
-EXIF DateTimeDigitized
-EXIF ComponentsConfiguration
-EXIF ExposureBiasValue
-EXIF MeteringMode
-EXIF LightSource
-EXIF Flash
-EXIF FocalLength
-EXIF SubSecTime
-EXIF SubSecTimeOriginal
-EXIF SubSecTimeDigitized
-EXIF FlashPixVersion
-EXIF ColorSpace
-EXIF ExifImageWidth
-EXIF ExifImageLength
-Interoperability InteroperabilityIndex
-Interoperability InteroperabilityVersion
-EXIF InteroperabilityOffset
-EXIF ExposureMode
-EXIF WhiteBalance
-EXIF DigitalZoomRatio
-EXIF SceneCaptureType
-JPEGThumbnail
+ImageDescription
+Make
+Model
+Orientation
+XResolution
+YResolution
+ResolutionUnit
+Software
+DateTime
+YCbCrPositioning
+ExifIFDPointer
+GPSInfoIFDPointer
+ExposureTime
+FNumber
+ExposureProgram
+ISOSpeedRatings
+ExifVersion
+DateTimeOriginal
+DateTimeDigitized
+ComponentsConfiguration
+ExposureBias
+MeteringMode
+LightSource
+Flash
+FocalLength
+SubsecTime
+SubsecTimeOriginal
+SubsecTimeDigitized
+FlashpixVersion
+ColorSpace
+PixelXDimension
+PixelYDimension
+InteroperabilityIFDPointer
+ExposureMode
+WhiteBalance
+DigitalZoomRation
+SceneCaptureType
+GPSVersionID
+GPSLatitudeRef
+GPSLatitude
+GPSLongitudeRef
+GPSLongitude
+GPSAltitudeRef
+GPSAltitude
+GPSTimeStamp
+GPSProcessingMethod
+GPSDateStamp
