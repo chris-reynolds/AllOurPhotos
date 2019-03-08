@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:all_our_photos_app/appNavigator.dart' as appNavigator;
+import 'package:image/image.dart';
 
 final String baseURL = 'https://photoslibrary.googleapis.com/v1/';
 
@@ -83,12 +84,13 @@ abstract class GooglePhotosLibraryClient {
     Map<String, dynamic> thisMap = await fetch('albums');
     if (thisMap.containsKey('error')) throw Exception(thisMap['error'].message);
     for (var thisNode in thisMap['albums'])
-      result.add(new GoogleAlbum.fromJson(thisNode));
+      if (thisNode.containsKey('mediaItemsCount'))
+        result.add(new GoogleAlbum.fromJson(thisNode));
     log.message('I have loaded ${result.length} albums');
     return result;
   } // of listAlbums
 
-  static Future<List<GooglePhoto>> listAlbumPhotos(String albumId) async {
+  static Future<List<GooglePhoto>> listAlbumPhotosX(String albumId) async {
     List<GooglePhoto> result = [];
     Map<String, dynamic> thisMap = await search('mediaItems:search',
         {"albumId" : albumId});
@@ -99,4 +101,23 @@ abstract class GooglePhotosLibraryClient {
     return result;
   } // of listAlbumPhotos
 
+  static Stream<GooglePhoto> listAlbumPhotos(String albumId) async* {
+ //   List<GooglePhoto> result = [];
+    Map<String, dynamic> thisMap = await search('mediaItems:search',
+        {"albumId" : albumId});
+    if (thisMap.containsKey('error')) throw Exception(thisMap['error'].message);
+    for (var thisNode in thisMap['mediaItems'])
+      yield  GooglePhoto.fromJson(thisNode);
+    log.message('I have loaded ${thisMap['mediaItems'].length} photos');
+  } // of listAlbumPhotos
+
+  static Future<Image> getImageFromGoogleURL(GooglePhoto gPhoto) async {
+    var response = await http.get(gPhoto.productUrl);
+    if (response.statusCode == 200) {
+      Image result = Image.fromBytes(gPhoto.width, gPhoto.height, response.bodyBytes);
+      return result;
+    } else {
+      throw Exception('Failed to load remote info : ${gPhoto.productUrl}');
+    }
+  }
 } // of GooglePhotosLibraryClient

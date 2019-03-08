@@ -33,6 +33,8 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
   bool _changeMode = false;
   bool get changeMode => _changeMode;
   set changeMode(bool value) {
+    // try and fool the compiler
+    print('change to $value');
     _changeMode = value;
   }
 

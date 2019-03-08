@@ -13,11 +13,15 @@ typedef  boolFunction = bool Function();
 class ImgCatalog {
   static List<ImgDirectory> _directories = <ImgDirectory>[];
 
-  static ImgDirectory getDirectory(String dirName) {
-    for (ImgDirectory directory in _directories)
+  static ImgDirectory getDirectory(String dirName,{bool forceInsert=false}) {
+    for (ImgDirectory directory in _directories) {
       if (directory.directoryName == dirName)
         return directory;
-    return null;
+    }
+    if (forceInsert)
+      return newDirectory(dirName);
+    else
+      return null;
   } // of getDirectory
 
   static ImgDirectory newDirectory(String dirName) {
@@ -142,9 +146,12 @@ typedef ImgFileFutureAction = Future<bool> Function(ImgFile);
 class ImgFile {
   static const UNKNOWN_LONGLAT = 999.0;
   static ImgFileAction save = (img) => throw "Save handler not defined";
-  ImgFile (this.dirname, this.filename) {
+  ImgFile (this.dirname, this.filename, {bool forceInsert:false}) {
  //   log.message('create ImgFile:'+fullFilename);
-  } // of constructor
+    if (forceInsert)
+      ImgDirectory directory = ImgCatalog.getDirectory(dirname,forceInsert:true);
+    directory.files.add(this);
+   } // of constructor
 
   void markDirty() {
     ImgCatalog.getDirectory(dirname).dirty = true;
@@ -268,6 +275,6 @@ class ImgFile {
 } // of ImgFile
 
 const FIELD_COUNT = 20;
-final IMGFILECOLUMNHEADER = "dirname\tfilename\tcaption\ttakenDate\tbyteCount\twidth\t"+
+const IMGFILECOLUMNHEADER = "dirname\tfilename\tcaption\ttakenDate\tbyteCount\twidth\t"+
     "height\tlastModifiedDate\trank\tlatitude\tlongitude\tlocation\ttags\t"+
     "camera\trotation\towner\timageType\thasThumbnail\tcontentHash\tdeletedDate";
