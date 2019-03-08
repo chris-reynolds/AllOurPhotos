@@ -27,12 +27,9 @@ Future main(List<String> arguments) async {
   Future<HttpServer> loadServer(int port, String rootPath) async {
     // TODO: check rootpath file existance
     _staticFileRoot = new VirtualDirectory(rootPath)
-      ..allowDirectoryListing = true;
-    _staticFileRoot.directoryHandler = serveDirectory;
-//    (dir, request) {
-//      var indexUri = Uri.file(dir.path).resolve('index.json');
-//      _staticFileRoot.serveFile(File(indexUri.toFilePath()), request);
-//    };
+      ..allowDirectoryListing = false;
+//      ..allowDirectoryListing = true;
+//    _staticFileRoot.directoryHandler = serveDirectory;
     return await HttpServer.bind(InternetAddress.anyIPv4,port);
   }  // of loadServer
 
@@ -96,7 +93,7 @@ Future main(List<String> arguments) async {
     } else
       plainResponse(HttpStatus.methodNotAllowed, 'Invalid method ${request.method}');
   } // of process request
-
+/*
 void serveDirectory(Directory dir, HttpRequest request) async {
   HttpResponse response = request.response;
   var dirStats = dir.statSync();
@@ -151,7 +148,7 @@ void serveDirectory(Directory dir, HttpRequest request) async {
     response.close();
     print('close');
 }
-
+*/
   Future<Map> loadConfig(String filename) async {
     if (!FileSystemEntity.isFileSync(filename))
       throw 'Invalid configuration filename';
