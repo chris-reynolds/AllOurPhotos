@@ -7,7 +7,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'Logger.dart' as log;
 
-String gooKey = 'AIzaSyDl6P'+'sEAYBbataJfQS'+'n3hiOs8x02ntBhAk';
+String gooKey = 'AIzaSyDl6P'+'sEAYBbataJfQS';
 double tileSizeKms = 5.0;
 String _calcKey(double longitude,double latitude) {
     double latDegree = 111.0;
@@ -34,7 +34,7 @@ void setLocation(double longitude,double latitude,String location) {
 GeocodingSession _session;
 dynamic fetchGoogleLocation(double longitude,double latitude) async {
   if (_session == null)   // first time setup
-    _session = GeocodingSession(apiKey);
+    _session = GeocodingSession(gooKey+'n3hiOs8x02ntBhAk');
   return await _session.findLocationFromCoordinates(latitude, longitude);
 } // of fetchGoogleLocation
 
