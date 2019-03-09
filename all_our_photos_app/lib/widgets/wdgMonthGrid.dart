@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:all_our_photos_app/ImgFile.dart';
 import 'package:all_our_photos_app/ImageFilter.dart';
 import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
-import 'package:all_our_photos_app/Logger.dart' as log;
+import 'package:all_our_photos_app/utils/Logger.dart' as log;
 
 // Note there is a blank month name in entry 0 for the year column
 final List<String> monthNames = 'Year/Jan/Feb/Mar/Apr/May/Jun/Jul/Aug/Sep/Oct/Nov/Dec'.split('/');
