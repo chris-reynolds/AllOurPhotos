@@ -2,6 +2,8 @@
 
 import 'package:all_our_photos_app/ImgFile.dart';
 import 'package:all_our_photos_app/GooglePhotosLibraryApi.dart';
+import 'package:all_our_photos_app/srvCatalogueLoader.dart';
+import 'package:all_our_photos_app/JpegLoader.dart';
 import 'package:image/image.dart';
 
 /*
@@ -58,16 +60,23 @@ class GooglePhotoSync {
     }
   } // of checkGPhotos
 
-  static ImgFile makeImgFile(GooglePhoto gPhoto)  {
+  static Future<ImgFile> makeImgFile(GooglePhoto gPhoto) async {
+    JpegLoader jpegLoader = JpegLoader();
+    Image image = await GooglePhotosLibraryClient.getImageFromGoogleURL(gPhoto);
     String dirName = ImgDirectory.directoryNameForDate(gPhoto.creationDate);
+    ImgDirectory indexDirectory = ImgCatalog.getDirectory(dirName,forceInsert:true);
+    await writeRemoteImage(dirName, gPhoto.filename, image.data);
     ImgFile newImage = new ImgFile(dirName, gPhoto.filename);
     newImage.filename = gPhoto.filename;
     newImage.height = gPhoto.height;
     newImage.width = gPhoto.width;
+    await jpegLoader.loadBuffer(image.data);
+    if (jpegLoader.tags != null)
+      jpegLoader.saveToImgFile(newImage);
+    newImage.lastModifiedDate = gPhoto.creationDate;
+    indexDirectory.files.add(newImage);
     return newImage;
-  }
-  static uploadImage(GooglePhoto gPhoto) async {
-    Image image = await GooglePhotosLibraryClient.getImageFromGoogleURL(gPhoto);
-  } // of uploadImage
+  } // of makeImgFile
+
 
 } // of GooglePhotoSync

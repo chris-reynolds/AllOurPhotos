@@ -1,7 +1,7 @@
 /**
  * Created by Chris on 21/09/2018.
  */
-import './Logger.dart' as log;
+import 'package:all_our_photos_app/utils/Logger.dart' as log;
 //import 'dart:math' as Math;
 import 'dart:collection';
 import 'dart:async';
@@ -148,9 +148,11 @@ class ImgFile {
   static ImgFileAction save = (img) => throw "Save handler not defined";
   ImgFile (this.dirname, this.filename, {bool forceInsert:false}) {
  //   log.message('create ImgFile:'+fullFilename);
-    if (forceInsert)
-      ImgDirectory directory = ImgCatalog.getDirectory(dirname,forceInsert:true);
-    directory.files.add(this);
+    if (forceInsert) {
+      ImgDirectory directory = ImgCatalog.getDirectory(
+          dirname, forceInsert: true);
+      directory.files.add(this);
+    }
    } // of constructor
 
   void markDirty() {

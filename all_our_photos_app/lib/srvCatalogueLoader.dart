@@ -5,12 +5,12 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:all_our_photos_app/ImgFile.dart';
-import 'package:all_our_photos_app/Logger.dart' as log;
+import 'package:all_our_photos_app/utils/Logger.dart' as log;
 import 'package:all_our_photos_app/utils/timing.dart';
 import 'dart:async';
 
-const webRoute = 'http://192.168.1.251:3333/';
-const rootFilename = 'aopTop.txt';
+const webRoute = 'http://192.168.1.69:3333/';
+const rootFilename = 'aoptop';
 const indexFilename = 'index.tsv';
 
 
@@ -54,6 +54,14 @@ Future<List<String>> getRemoteStrings(String url, {String delimiter:"\n"}) async
 } // of getRemoteStrings
 
 Future<void> writeRemoteString(String dirname,String filename,String contents) async {
+  _writeRemote(dirname,filename,utf8.encode(contents));
+} // writeRemoteString
+
+Future<void> writeRemoteImage(String dirname,String filename,List<int> contents) async {
+  _writeRemote(dirname,filename,contents);
+} // writeRemoteString
+
+Future<void> _writeRemote(String dirname,String filename,dynamic body) async {
   int statusCode = 0;
   List<String> returnData;
   log.message('starting writefile $dirname/$filename');
@@ -62,18 +70,20 @@ Future<void> writeRemoteString(String dirname,String filename,String contents) a
     HttpClient httpClient = HttpClient();
     HttpClientRequest request = await httpClient.putUrl(url);
     request.cookies.add(Cookie('aop','F71'));
-    request.add(utf8.encode(contents));
+    request.add(body);
     HttpClientResponse response = await request.close();
     returnData = await response.transform(utf8.decoder).toList();
     statusCode = response.statusCode;
     log.message('Response ${response.statusCode}: $returnData');
     httpClient.close();
+    if (statusCode==500)
+      throw returnData;
   } catch(ex) {
     throw new Exception('Failed to write file: '+ex.toString());
   }
   if (statusCode != 200)
     throw new Exception('Failed to write to server $statusCode: \n $returnData');
-}  // of writeRemoteString
+}  // of writeRemote
 
 String thumbnailURL(ImgFile imgFile) => '$webRoute${imgFile.dirname}/thumbnails/${imgFile.filename}';
 String fullsizeURL(ImgFile imgFile) => '$webRoute${imgFile.dirname}/${imgFile.filename}';

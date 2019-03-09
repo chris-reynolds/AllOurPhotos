@@ -1,7 +1,7 @@
 /**
  * Created by Chris on 25/10/2018.
  */
-import './Logger.dart' as log;
+import 'package:all_our_photos_app/utils/Logger.dart' as log;
 
 //import 'dart:collection';
 import 'dart:async';
@@ -112,7 +112,7 @@ abstract class GooglePhotosLibraryClient {
   } // of listAlbumPhotos
 
   static Future<Image> getImageFromGoogleURL(GooglePhoto gPhoto) async {
-    var response = await http.get(gPhoto.productUrl);
+    var response = await http.get(gPhoto.baseUrl+'=d');   // =d adds the exif data
     if (response.statusCode == 200) {
       Image result = Image.fromBytes(gPhoto.width, gPhoto.height, response.bodyBytes);
       return result;

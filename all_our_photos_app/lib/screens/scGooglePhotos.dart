@@ -43,7 +43,7 @@ class _GoogleAlbumsState extends State<GoogleAlbumsWidget> {
             IconButton(
                 icon: Icon(Icons.refresh),
                 tooltip: 'Sync with Google Photos',
-                onPressed: _downloadAlbums,
+                onPressed: () => _downloadAlbums(context),
             ),
         ]),
         body: Column(
@@ -84,7 +84,7 @@ class _GoogleAlbumsState extends State<GoogleAlbumsWidget> {
     ]);
   } // of thumbnailBuilder
 
-  void _downloadAlbums() async {
+  void _downloadAlbums(BuildContext context) async {
     print ('downloadAlbums starting');
     for (var thisAlbum in _albums) {
       print('Album  - ${thisAlbum.title}');
@@ -93,6 +93,12 @@ class _GoogleAlbumsState extends State<GoogleAlbumsWidget> {
         ImgFile imgFile = GooglePhotoSync.findInCatalogue(thisPhoto);
         if (imgFile == null) {
           print('${thisPhoto.filename} to be added');
+          try {
+            await GooglePhotoSync.makeImgFile(thisPhoto);
+          } catch(ex) {
+            final snackBar = SnackBar(content: Text(ex.toString()));
+            Scaffold.of(context).showSnackBar(snackBar);
+          } // of try/catch
         } else
           print('${thisPhoto.filename} is ignored');
       } // of photoStream
