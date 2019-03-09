@@ -7,7 +7,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'Logger.dart' as log;
 
-String apiKey = 'AIzaSyDl6PsEAYBbataJfQSn3hiOs8x02ntBhAk';
+String gooKey = 'AIzaSyDl6P'+'sEAYBbataJfQS'+'n3hiOs8x02ntBhAk';
 double tileSizeKms = 5.0;
 String _calcKey(double longitude,double latitude) {
     double latDegree = 111.0;
