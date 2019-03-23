@@ -17,6 +17,7 @@ dependencies:
   image:
   exifdart:
   mysql1:
+  multi_image_picker: ^3.0.23
 #  image_picker:
   google_sign_in:
   flutter:
