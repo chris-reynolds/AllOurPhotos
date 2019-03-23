@@ -5,11 +5,11 @@ import 'package:all_our_photos_app/screens/scHistory.dart';
 import 'package:all_our_photos_app/screens/scTesting.dart';
 import 'package:all_our_photos_app/srvCatalogueLoader.dart';
 import 'package:all_our_photos_app/appNavigator.dart';
-import 'package:all_our_photos_app/screens/scGooglePhotos.dart';
+import 'package:all_our_photos_app/screens/scDeviceCameraRoll.dart';
 //import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
-void main() {
+void main() async {
   application = new MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: true,
@@ -107,7 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: new PageView(
         children: [
           new Home("Recent Pics"),
-          new GoogleAlbumsWidget(),
+          new MyHomePage(),
 //          new Albums("Albums"),
           new HistoryScreen("History"),
           new Testing("Testing"),

@@ -6,7 +6,7 @@ import 'package:all_our_photos_app/appNavigator.dart';
 class Testing extends StatelessWidget {
   Testing(this.listType) {
     //
-    signInToGoogle();   // async but lets not worry about waiting for now
+//    signInToGoogle();   // async but lets not worry about waiting for now
   } // of constructor
 
   final String listType;
