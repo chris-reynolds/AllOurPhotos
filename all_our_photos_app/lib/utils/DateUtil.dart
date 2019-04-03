@@ -18,4 +18,13 @@ String formatDate(DateTime aDate,{String format} ) {
 
   return result;
 }
+DateTime dateTimeFromExif(String exifString)  {
+try {
+String tmp = exifString.substring(0,4)+'-'+exifString.substring(5,7)+
+'-'+exifString.substring(8);
+return DateTime.parse(tmp);
+} catch(ex) {
+return null;
+} // of try catch
+}  // dateTimeFromExit
 
