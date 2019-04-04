@@ -1,14 +1,14 @@
 Number,Name,Size LMS,ProgressUIDPTF,Group,Finished On
-I1,Setup Project Control Metrics,M,F,init,2019-03-29
-I2,Setup Bug Tracking,S,F,init,2019-03-29
-I3,Setup Dev/Test/Prod Databases,M,U,init,
+I1,Setup Project Control Metrics,M,F,init,29/03/2019
+I2,Setup Bug Tracking,S,F,init,29/03/2019
+I3,Setup Dev/Test/Prod Databases,M,U,init,4/04/2019
 I4,Setup Dev/Test/Prod Environs,M,U,init,
 I5,Setup Unit Test Environment,M,U,init,
 I6,Experiment with Coverage metric,L,U,init,
 I7,Write-up technical architecture,S,U,init,
 I8,Detail artifact List,M,U,init,
 ,,,,,
-D1,Write persistence layer,M,U,dbload,
+D1,Write persistence layer,M,I,dbload,
 D2,Convert index.tsv to mysql,M,U,dbload,
 D3,Upload latest pictures from phones,L,U,dbload,
 D4,Upload latest pictures from tablets,L,U,dbload,
