@@ -10,12 +10,14 @@ drop function if exists spsessioncreate;
 drop table if exists aopalbums;
 -- Table aopalbum_items
 drop table if exists aopalbum_items;
--- Table aopimages
-drop table if exists aopimages;
+-- Table aopfull_images
+drop table if exists aopfull_images;
 -- Table aopsessions
 drop table if exists aopsessions;
 -- Table aopsnaps
 drop table if exists aopsnaps;
+-- Table aopthumbnails
+drop table if exists aopthumbnails;
 -- Table aopusers
 drop table if exists aopusers;
 -- todo referential integrity drop

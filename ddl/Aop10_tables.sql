@@ -14,11 +14,11 @@ CREATE TABLE aopalbums (
   , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_user         varchar(30) not null
-  , name Varchar(50) 
+  , name Varchar(50) not Null
   , description Varchar(250) 
   , first_date Datetime 
   , last_date Datetime 
-  ,  user_id INT NULL
+  ,  user_id Int NULL
 ); 
 
 -- Table aopalbum_items
@@ -30,21 +30,20 @@ CREATE TABLE aopalbum_items (
   , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_user         varchar(30) not null
-  ,  album_id INT NULL
-  ,  snap_id INT NULL
+  ,  album_id Int NULL
+  ,  snap_id Int NULL
 ); 
 
--- Table aopimages
+-- Table aopfull_images
   --   
---  ' > CREATING - aopimages ...'
-DROP TABLE IF EXISTS aopimages ;
-CREATE TABLE aopimages (
+--  ' > CREATING - aopfull_images ...'
+DROP TABLE IF EXISTS aopfull_images ;
+CREATE TABLE aopfull_images (
   id             INT AUTO_INCREMENT Not null PRIMARY KEY 
   , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_user         varchar(30) not null
-  , media Blob 
-  , thumbnail Blob 
+  , contents Blob 
 ); 
 
 -- Table aopsessions
@@ -59,7 +58,7 @@ CREATE TABLE aopsessions (
   , start_date Datetime 
   , end_date Datetime 
   , source Varchar(30) 
-  ,  user_id INT NULL
+  ,  user_id Int NULL
 ); 
 
 -- Table aopsnaps
@@ -87,10 +86,23 @@ CREATE TABLE aopsnaps (
   , imported_date Datetime 
   , has_thumbnail Tinyint not Null
   , tag_list Varchar(250) 
-  ,  image_id INT NULL
-  ,  session_id INT NULL
-  ,  source_snap_id INT NULL
-  ,  user_id INT NULL
+  ,  full_image_id Int NULL
+  ,  session_id Int NULL
+  ,  source_snap_id Int NULL
+  ,  thumbnail_id Int NULL
+  ,  user_id Int NULL
+); 
+
+-- Table aopthumbnails
+  --   
+--  ' > CREATING - aopthumbnails ...'
+DROP TABLE IF EXISTS aopthumbnails ;
+CREATE TABLE aopthumbnails (
+  id             INT AUTO_INCREMENT Not null PRIMARY KEY 
+  , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
+  , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
+  , updated_user         varchar(30) not null
+  , contents Blob 
 ); 
 
 -- Table aopusers
@@ -102,7 +114,7 @@ CREATE TABLE aopusers (
   , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_user         varchar(30) not null
-  , name Varchar(30) 
+  , name Varchar(30) not Null
   , hint Varchar(20) 
 ); 
 
@@ -121,19 +133,34 @@ ALTER TABLE aopalbum_items ADD CONSTRAINT fk_album_item_snap
 ALTER TABLE aopsessions ADD CONSTRAINT fk_session_user
   FOREIGN KEY fk_user(user_id)
   references aopusers(ID);
-ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_image
-  FOREIGN KEY fk_image(image_id)
-  references aopimages(ID);
+ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_full_image
+  FOREIGN KEY fk_full_image(full_image_id)
+  references aopfull_images(ID);
 ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_session
   FOREIGN KEY fk_session(session_id)
   references aopsessions(ID);
 ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_source_snap
   FOREIGN KEY fk_source_snap(source_snap_id)
   references aopsnaps(ID);
+ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_thumbnail
+  FOREIGN KEY fk_thumbnail(thumbnail_id)
+  references aopthumbnails(ID);
 ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_user
   FOREIGN KEY fk_user(user_id)
   references aopusers(ID);
 */ 
+-- '   > ALTER - add uniqueness for column name to aopalbums table ...'
+ALTER TABLE aopalbums
+ADD
+  CONSTRAINT aopalbums_uq1 UNIQUE NONCLUSTERED (name);
+-- '   > ALTER - add composite uniqueness constraint to aopsnaps table ...'
+ALTER TABLE aopsnaps
+ADD
+  CONSTRAINT aopsnaps_compuq UNIQUE NONCLUSTERED ( file_name,  directory);
+-- '   > ALTER - add uniqueness for column name to aopusers table ...'
+ALTER TABLE aopusers
+ADD
+  CONSTRAINT aopusers_uq1 UNIQUE NONCLUSTERED (name);
 
 -- Table Creation Script Finished
 
