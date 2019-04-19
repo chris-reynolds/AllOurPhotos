@@ -43,7 +43,7 @@ CREATE TABLE aopfull_images (
   , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_user         varchar(30) not null
-  , contents Blob 
+  , contents LongBlob 
 ); 
 
 -- Table aopsessions
@@ -79,6 +79,8 @@ CREATE TABLE aopsnaps (
   , ranking INT not Null
   , longitude Float 
   , latitude Float 
+  , width Int 
+  , height Int 
   , location Varchar(100) 
   , rotation Varchar(30) 
   , import_source Varchar(50) 
@@ -102,7 +104,7 @@ CREATE TABLE aopthumbnails (
   , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_user         varchar(30) not null
-  , contents Blob 
+  , contents LongBlob 
 ); 
 
 -- Table aopusers
