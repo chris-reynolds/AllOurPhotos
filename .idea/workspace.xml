@@ -2,68 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e413bc1-e4ef-443f-94c5-6633750ec397" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/nev.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nev.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/markdown-navigator/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/markdown-navigator/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.cfg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.dof" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.dpr" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/NodeLauncher.res" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/nodelauncher.ini" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.dcu" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.dfm" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/NodeLauncher/servNodeLauncher.pas" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/.babelrc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/404.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/ourPhotos.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/classes.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/DataService.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/ModalPicture.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyEditor.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyFooter.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyHeader.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyMenu.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyOrientation.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/MyRank.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/Paginator.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/PhotoCell.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/VLink.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/fixtures.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/layouts/Main.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/404.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/About.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/Albums.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/Calendar.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/pages/Home.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/routes.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/webpack.config.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/yarn.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/ddl/Aop10_tables.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/lib/exif_adder.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/lib/fs_utils.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/lib/fs_utils.tests.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/ImageUploader.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/aopModel.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/aopServerMain.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/aopServerMainTests.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/aopWebServer.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/async-mysql.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/fsUtils.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/fsUtilsTests.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/imgCatalog.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/jpegHelper.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/sample_upload.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/testPages/testUpload.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/TaskList.csv" beforeDir="false" afterPath="$PROJECT_DIR$/planning/TaskList.csv" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -110,9 +51,40 @@
       <usages-collector id="statistics.file.extensions.edit" />
       <usages-collector id="statistics.file.types.edit" />
     </session>
+    <session id="-1822032791">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="3" />
+          <entry key="project.open.time.0" value="1" />
+          <entry key="project.open.time.17" value="1" />
+          <entry key="project.open.time.5" value="1" />
+          <entry key="project.opened" value="3" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="dart" value="8" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="Dart" value="8" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/planning/daily_scan.dart">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="2" selection-start-column="2" selection-end-column="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -184,7 +156,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/client/testUpload.html" />
         <option value="$PROJECT_DIR$/server/config.json" />
         <option value="$PROJECT_DIR$/server/blah/ormconfig.json" />
         <option value="$PROJECT_DIR$/server/blah/src/entity/User.ts" />
@@ -235,6 +206,7 @@
         <option value="$PROJECT_DIR$/client/src/components/DataService.vue" />
         <option value="$PROJECT_DIR$/client/src/components/MyEditor.vue" />
         <option value="$PROJECT_DIR$/client/src/components/PhotoCell.vue" />
+        <option value="$PROJECT_DIR$/planning/daily_scan.dart" />
       </list>
     </option>
   </component>
@@ -263,7 +235,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="5" />
-    <option name="y" value="1" />
+    <option name="y" value="23" />
     <option name="width" value="1329" />
     <option name="height" value="768" />
   </component>
@@ -290,10 +262,11 @@
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectView">
-    <navigator proportions="" version="1">
+    <navigator currentView="ProjectPane" proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -320,6 +293,7 @@
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://C:/projects/AllOurPhotos/server/src/imgCatalog.ts" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="add_unversioned_files" value="true&#10;C:/projects/AllOurPhotos/server/node_modules/@types/supertest/index.d.ts" />
+    <property name="dart.analysis.tool.window.force.activate" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/.idea/workspace.xml" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -329,6 +303,7 @@
     <property name="nodejs_interpreter_path" value="C:/Program Files/nodejs/node" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="dart.settings" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
     <property name="ts.external.directory.path" value="C:\projects\AllOurPhotos\server\node_modules\typescript\lib" />
   </component>
   <component name="RecentsManager">
@@ -357,7 +332,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Mocha.server\src\aopServerMainTests.ts">
+  <component name="RunManager" selected="Unknown.Attach to node1070638768">
     <configuration name="Attach to node" type="ChromiumRemoteDebugType" factoryName="Chromium Remote" port="64958">
       <method v="2" />
     </configuration>
@@ -398,13 +373,6 @@
       <test-file>$PROJECT_DIR$/server/src/aopServerMainTests.ts</test-file>
       <method v="2" />
     </configuration>
-    <list>
-      <item itemvalue="Attach to Node.js/Chrome.Attach to node" />
-      <item itemvalue="JavaScript Debug.Client8080 after npm run dev" />
-      <item itemvalue="Node.js.aopServer-build" />
-      <item itemvalue="npm.dev" />
-      <item itemvalue="Mocha.server\src\aopServerMainTests.ts" />
-    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -491,12 +459,16 @@
     <option name="totallyTimeSpent" value="463523000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="5" y="1" width="1329" height="768" extended-state="0" />
+    <frame x="5" y="23" width="1329" height="768" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" id="Project" order="0" sideWeight="0.48243558" visible="true" weight="0.24012393" />
+      <window_info id="Project" order="0" sideWeight="0.48243558" visible="true" weight="0.25174826" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="npm" order="2" sideWeight="0.5175644" side_tool="true" weight="0.2766129" />
       <window_info id="Favorites" order="3" side_tool="true" />
+      <window_info id="Image Layers" order="4" />
+      <window_info id="Designer" order="5" />
+      <window_info id="Capture Tool" order="6" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32821077" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.46285337" weight="0.22169812" />
@@ -510,9 +482,16 @@
       <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
       <window_info anchor="bottom" id="REST Client" order="11" weight="0.3288835" />
       <window_info anchor="bottom" id="Version Control" order="12" sideWeight="0.48790324" weight="0.3265306" />
+      <window_info anchor="bottom" id="Flutter Performance" order="13" side_tool="true" />
+      <window_info active="true" anchor="bottom" id="Dart Analysis" order="14" visible="true" weight="0.32924962" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Theme Preview" order="3" />
+      <window_info anchor="right" id="Flutter Inspector" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Palette&#9;" order="6" />
+      <window_info anchor="right" id="Flutter Outline" order="7" />
     </layout>
     <layout-to-restore>
       <window_info id="Project" order="0" sideWeight="0.48243558" visible="true" weight="0.27580646" />
@@ -549,98 +528,6 @@
     </ignored-roots>
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/nevServer/nevServerMain.js</url>
-          <line>8</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>mock://webpack-internal:///103</url>
-          <line>79</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>mock://webpack-internal:///95</url>
-          <line>26</line>
-          <option name="timeStamp" value="23" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>mock://webpack-internal:///95</url>
-          <line>24</line>
-          <option name="timeStamp" value="24" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>mock://webpack-internal:///95</url>
-          <line>19</line>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>mock://webpack-internal:///95</url>
-          <line>20</line>
-          <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/client/src/components/PhotoGrid.vue</url>
-          <line>33</line>
-          <option name="timeStamp" value="52" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>mock://C:/projects/AllOurPhotos/server/src/connection/Connection.ts</url>
-          <line>457</line>
-          <option name="timeStamp" value="142" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/server/src/aopServerMain.ts</url>
-          <line>20</line>
-          <option name="timeStamp" value="224" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/server/src/imgCatalog.ts</url>
-          <line>76</line>
-          <option name="timeStamp" value="225" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/server/src/imgCatalog.ts</url>
-          <line>245</line>
-          <option name="timeStamp" value="229" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/client/src/pages/Calendar.vue</url>
-          <line>92</line>
-          <option name="timeStamp" value="237" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/client/src/components/DataService.vue</url>
-          <line>24</line>
-          <option name="timeStamp" value="240" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/client/src/pages/Calendar.vue</url>
-          <line>77</line>
-          <option name="timeStamp" value="247" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/client/src/components/MyEditor.vue</url>
-          <line>40</line>
-          <option name="timeStamp" value="248" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/client/src/components/PhotoCell.vue</url>
-          <line>32</line>
-          <option name="timeStamp" value="251" />
-        </line-breakpoint>
-        <line-breakpoint type="javascript">
-          <url>file://$PROJECT_DIR$/client/src/components/PhotoCell.vue</url>
-          <line>33</line>
-          <option name="timeStamp" value="252" />
-        </line-breakpoint>
-      </breakpoints>
-      <breakpoints-dialog>
-        <breakpoints-dialog />
-      </breakpoints-dialog>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="JavascriptDebugType">
         <watch expression="this" />
@@ -677,215 +564,47 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/server/build/dbPhoto.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2431">
-          <caret line="143" column="4" selection-start-line="143" selection-start-column="4" selection-end-line="143" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="28" lean-forward="true" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/server/build/dbPhoto.js" />
+    <entry file="file://$PROJECT_DIR$/server/package.json" />
     <entry file="file://$PROJECT_DIR$/server/src/sqlBuilderTests.ts" />
     <entry file="file://$PROJECT_DIR$/server/node_modules/async-mysql/package.json" />
     <entry file="file://$PROJECT_DIR$/server/node_modules/async-mysql/src/main.js" />
     <entry file="file://$PROJECT_DIR$/server/src/sqlBuilder.ts" />
     <entry file="file://$PROJECT_DIR$/server/node_modules/mysql/index.js" />
-    <entry file="file://$PROJECT_DIR$/server/build/aopWebServer.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" column="13" lean-forward="true" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/server/build/aopWebServer.js" />
     <entry file="file://$PROJECT_DIR$/server/src/dbPhotos.ts" />
     <entry file="file://$PROJECT_DIR$/server/src/dbMysql.ts" />
     <entry file="file://$PROJECT_DIR$/server/node_modules/@types/mysql/index.d.ts" />
     <entry file="file://$PROJECT_DIR$/server/src/entity/Album.ts" />
     <entry file="file://$PROJECT_DIR$/server/src/entity/User.ts" />
     <entry file="file://$PROJECT_DIR$/server/src/entity/Image.ts" />
-    <entry file="file://$PROJECT_DIR$/server/build/imageUploader.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="21" column="17" selection-start-line="21" selection-start-column="17" selection-end-line="21" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/ImageUploader.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="25" lean-forward="true" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/server/build/imageUploader.js" />
+    <entry file="file://$PROJECT_DIR$/server/src/ImageUploader.ts" />
     <entry file="file://$PROJECT_DIR$/test/testUpload.html" />
-    <entry file="file://$PROJECT_DIR$/server/build/aopConfig.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="1" selection-start-column="1" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/node_modules/piexifjs/piexif.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="327">
-          <caret line="93" column="20" lean-forward="true" selection-start-line="93" selection-start-column="20" selection-end-line="93" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/fixtures.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="37" lean-forward="true" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/classes.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/VLink.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="12" lean-forward="true" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/main.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="26" lean-forward="true" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/server/build/aopConfig.json" />
+    <entry file="file://$PROJECT_DIR$/server/node_modules/piexifjs/piexif.js" />
+    <entry file="file://$PROJECT_DIR$/client/src/fixtures.js" />
+    <entry file="file://$PROJECT_DIR$/client/src/classes.js" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/VLink.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/main.js" />
     <entry file="file://$PROJECT_DIR$/client/src/components/PhotoGridxxx.vue" />
-    <entry file="file://$PROJECT_DIR$/client/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="1" lean-forward="true" selection-start-column="1" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyFooter.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="2" lean-forward="true" selection-start-line="1" selection-start-column="2" selection-end-line="1" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/pages/Home.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="13" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/layouts/Main.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyMenu.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="30" lean-forward="true" selection-start-line="1" selection-start-column="30" selection-end-line="1" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/ourPhotos.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="21" selection-start-column="21" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="73" selection-start-line="6" selection-start-column="73" selection-end-line="6" selection-end-column="73" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyHeader.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="50" selection-start-line="9" selection-start-column="50" selection-end-line="9" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/pages/Calendar.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="92" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/PhotoGrid.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="39" selection-start-line="9" selection-start-column="39" selection-end-line="9" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/PhotoCell.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="35" column="9" selection-start-line="35" selection-start-column="9" selection-end-line="35" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyEditor.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/DataService.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="39" column="37" selection-start-line="39" selection-start-column="37" selection-end-line="39" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/components/ModalPicture.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="54" selection-start-line="3" selection-start-column="54" selection-end-line="3" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aopModel.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="60" column="18" lean-forward="true" selection-start-line="60" selection-start-column="18" selection-end-line="60" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/async-mysql.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="20" column="21" lean-forward="true" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/fsUtils.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1139">
-          <caret line="67" column="18" selection-start-line="67" selection-start-column="18" selection-end-line="67" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/client/package.json" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/MyFooter.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/pages/Home.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/layouts/Main.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/MyMenu.vue" />
+    <entry file="file://$PROJECT_DIR$/client/ourPhotos.css" />
+    <entry file="file://$PROJECT_DIR$/client/index.html" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/MyHeader.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/pages/Calendar.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/PhotoGrid.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/PhotoCell.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/MyEditor.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/DataService.vue" />
+    <entry file="file://$PROJECT_DIR$/client/src/components/ModalPicture.vue" />
+    <entry file="file://$PROJECT_DIR$/server/src/aopModel.ts" />
+    <entry file="file://$PROJECT_DIR$/server/src/async-mysql.ts" />
+    <entry file="file://$PROJECT_DIR$/server/src/fsUtils.ts" />
     <entry file="file://$PROJECT_DIR$/test/aopConfig.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
@@ -893,48 +612,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aopWebServer.ts">
+    <entry file="file://$PROJECT_DIR$/server/src/aopWebServer.ts" />
+    <entry file="file://$PROJECT_DIR$/server/src/imgCatalog.ts" />
+    <entry file="file://$PROJECT_DIR$/server/src/jpegHelper.ts" />
+    <entry file="file://$PROJECT_DIR$/server/testPages/testUpload.html" />
+    <entry file="file://$PROJECT_DIR$/server/src/aopServerMain.ts" />
+    <entry file="file://$PROJECT_DIR$/server/src/aopServerMainTests.ts" />
+    <entry file="file://$PROJECT_DIR$/planning/daily_scan.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2482">
-          <caret line="151" column="48" selection-start-line="151" selection-start-column="48" selection-end-line="151" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/imgCatalog.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3485">
-          <caret line="208" column="40" selection-start-line="208" selection-start-column="40" selection-end-line="208" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/jpegHelper.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1258">
-          <caret line="77" column="46" selection-start-line="77" selection-start-column="46" selection-end-line="77" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/testPages/testUpload.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="21" selection-start-line="8" selection-start-column="21" selection-end-line="8" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aopServerMain.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="7" column="48" selection-start-line="7" selection-start-column="48" selection-end-line="7" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aopServerMainTests.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="125">
-          <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
-          <folding>
-            <element signature="e#33#69#0" expanded="true" />
-          </folding>
+        <state>
+          <caret column="2" selection-start-column="2" selection-end-column="2" />
         </state>
       </provider>
     </entry>
