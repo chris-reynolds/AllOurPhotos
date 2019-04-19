@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:all_our_photos_app/dbAllOurPhotos.dart';
 import 'dart:typed_data';
-import 'package:all_our_photos_app/classes.dart';
+import 'package:all_our_photos_app/aopClasses.dart';
 //import 'package:image_gallery/image_gallery.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -33,14 +33,21 @@ class _MyHomePageState extends State<MyHomePage> {
     var imageData = await anImage.requestOriginal();
     var thumbnail = await anImage.releaseThumb();
     var metaData = await anImage.requestMetadata();
-    Media newImage = Media()
-      ..name = anImage.name
+    AopSnap newSnap = AopSnap()
+      ..fileName = anImage.name
       ..width = anImage.originalWidth
       ..height = anImage.originalHeight
-      ..taken_date = dateTimeFromExif(metaData.exif.dateTimeOriginal)
+      ..takenDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
+      ..modifiedDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
       ..latitude= metaData.gps.gpsLatitude
-      ..longtitude = metaData.gps.gpsLongitude;
-    await db.addImage(newImage, imageData.buffer.asUint8List());
+      ..longitude = metaData.gps.gpsLongitude
+      ..deviceName = metaData.device.model
+      ..rotation = '0'  // todo support enumeration
+      ..importSource = '${metaData.device.cameraOwnerName} camera roll'
+      ..importedDate = DateTime.now();
+    ;
+    int insertId = await newSnap.save();
+ //   await db.addImage(newImage, imageData.buffer.asUint8List());
   } // of uploadImage
 
   Future getImage() async {
