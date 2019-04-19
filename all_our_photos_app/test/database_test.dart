@@ -14,6 +14,7 @@ DbAllOurPhotos dbAop;
 
 Io.Directory testDataDirectory;
 
+int insertedSnapId_forAlbum;
 void main() {
   setUp(() async {
     dbAop = DbAllOurPhotos();
@@ -88,8 +89,35 @@ void main() {
       snap.importSource = 'test script';
       snap.fullImageId = insertId;
       insertId = await snap.save();
+      insertedSnapId_forAlbum = insertId;
     });  // of save image as file
   }); // of Image Group
+  group('Albums',() {
+    test('Clean All albums',() async {
+      List<AopAlbum> testAlbums = await albumProvider.getSome('name like "test%"');
+      for (var testAlbum in testAlbums) {
+        List<AopAlbumItem> items = await testAlbum.albumItems;
+        items.forEach((item) async => await item.delete());
+        await testAlbum.delete();
+      }
+    }); // of Clean All albums test
+    test('Create album',() async {
+      AopAlbum newAlbum = AopAlbum();
+      newAlbum.name = 'test 1';
+      await newAlbum.save();
+      List<AopAlbum> testAlbums = await albumProvider.getSome('name like "test%"');
+      expect(testAlbums.length,1,reason:'Created one test album after scrubbing');
+    }); // of Create album test
+    test('Create album item',() async {
+      AopAlbum newAlbum = AopAlbum();
+      newAlbum.name = 'test 2';
+      int newAlbumId = await newAlbum.save();
+      AopAlbumItem item = AopAlbumItem();
+      item.snapId = insertedSnapId_forAlbum;
+      item.albumId = newAlbumId;
+      await item.save();
+    }); // of Create album item test
+  }); // of Albums group
 } // of main
 
 

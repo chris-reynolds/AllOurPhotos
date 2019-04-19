@@ -47,7 +47,6 @@ class DOProvider<TDO extends DomainObject> {
   Function newFn;
 
   List<TDO> toList(dynamic r) {  // todo tighter declaration than dynamic
-    print(r);
     var result = <TDO>[];
     for (var row in r) {
       TDO newDomainObject = (newFn() as TDO);
@@ -69,7 +68,6 @@ class DOProvider<TDO extends DomainObject> {
 //    throw Exception('sql : $sql');
     print('save sql : $sql');
     var r = await dbConn.query(sql,aDomainObject.toRow());
-    print(r);
     return r.insertId;
   } // of save
   Future<TDO> get(int id) async {
@@ -91,7 +89,7 @@ class DOProvider<TDO extends DomainObject> {
   }
   Future<void> delete(TDO aDomainObect) async {
     var r = await dbConn.query(sqlStatements.deleteStatement(),[aDomainObect.id]);
-    print('Delete Response  for $tableName id=${aDomainObect.id} $r');
+    print('Delete for $tableName id=${aDomainObect.id} ');
   }
 } // of DOProvider
 
