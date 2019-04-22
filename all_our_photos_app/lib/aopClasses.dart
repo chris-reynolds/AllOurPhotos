@@ -625,8 +625,8 @@ Map<String,dynamic> toMap() {
 		result = super.toRow();
 	result.add(fileName);
 	result.add(directory);
-	result.add(takenDate);
-	result.add(modifiedDate);
+	result.add(takenDate.toIso8601String());
+	result.add(modifiedDate.toIso8601String());
 	result.add(deviceName);
 	result.add(caption);
 	result.add(ranking);
@@ -638,7 +638,7 @@ Map<String,dynamic> toMap() {
 	result.add(rotation);
 	result.add(importSource);
 	result.add(mediaType);
-	result.add(importedDate);
+	result.add(importedDate.toIso8601String());
 	result.add(hasThumbnail);
 	result.add(tagList);
 	result.add(_fullImageId);

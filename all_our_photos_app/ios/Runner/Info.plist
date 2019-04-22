@@ -42,23 +42,8 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>AllOurPhotos wants access to the photo library</string>
+	<string>AllOurPhotos needs access to the photo library</string>
 	<key>NSCameraUsageDescription</key>
-    <string>Can I use the camera please?</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Can I use the mic please?</string>
-	<!-- Google Sign-in Section -->
-    <key>CFBundleURLTypes</key>
-    <array>
-    	<dict>
-    		<key>CFBundleTypeRole</key>
-    		<string>Editor</string>
-    		<key>CFBundleURLSchemes</key>
-    		<array>
-    			<string>com.googleusercontent.apps.997108185003-ile5jrlha6cd52j2vpvq7ku8j4qcis87</string>
-    		</array>
-    	</dict>
-    </array>
-
+	<string>AllOurPhotos needs access to the camera</string>
 </dict>
 </plist>

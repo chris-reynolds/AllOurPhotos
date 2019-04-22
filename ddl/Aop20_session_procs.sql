@@ -2,7 +2,7 @@
 -- Target Database is mySql + dart + flutter
 
 --                                '*** Start Custom Code database connect
---use allourphotos;
+-- use allourphotos;
 
 --                                '*** End Custom Code
 
@@ -31,8 +31,8 @@ BEGIN
     insert into aopsessions( updated_user, start_date, source, user_id)
     	values(in_name,now(),in_source,_userid);
    	select last_insert_id() into _sessionid;
-   	create temporary table currentsession(username varchar(50));
-   	insert into currentsession(username) values(in_name);
+   	create temporary table currentsession(username varchar(50),session_id int,user_id int);
+   	insert into currentsession values(in_name,_sessionid,_userid);
   else
     set _sessionid = -1;
   end if;	  
@@ -149,4 +149,12 @@ END @@
 --                                '*** Start Custom Code finish
 drop trigger if exists aopsessions_before_ins@@
 drop trigger if exists aopsessions_before_upd@@
+drop trigger if exists aopsnaps_before_ins@@
+CREATE TRIGGER aopsnaps_before_ins BEFORE INSERT ON aopsnaps FOR EACH ROW BEGIN
+  set new.created_on = now();
+  set new.updated_on = new.updated_on;
+  set new.updated_user =(select username from currentsession);
+  set new.user_id = (select user_id from currentsession);
+  set new.session_id = (select session_id from currentsession);
+END @@  
 --                                '*** End Custom Code

@@ -7,6 +7,7 @@ import 'package:all_our_photos_app/dbAllOurPhotos.dart';
 import 'dart:typed_data';
 import 'package:all_our_photos_app/aopClasses.dart';
 //import 'package:image_gallery/image_gallery.dart';
+import 'package:device_info/device_info.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -30,11 +31,33 @@ class _MyHomePageState extends State<MyHomePage> {
   } // of uploader
 
   Future<void> uploadImage(MIP.Asset anImage, DbAllOurPhotos db) async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    String deviceName = 'Unknown';
+    if (!Platform.isIOS) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      deviceName = androidInfo.device;
+//      print('Running on ${androidInfo.model}');  // e.g. "Moto G (4)"
+    } else {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      deviceName = iosInfo.name;
+//      print('Running on ${iosInfo.utsname.machine}');  // e.g. "iPod7,1"
+    }
     var imageData = await anImage.requestOriginal();
-    var thumbnail = await anImage.releaseThumb();
+    bool isPortrait = (anImage.originalHeight>anImage.originalWidth);
+    double scale = 640/anImage.originalWidth;
+    if (isPortrait)
+      scale = 640/anImage.originalHeight;
+    var thumbnailImage = await anImage.requestThumbnail((anImage.originalWidth*scale).floor(), (anImage.originalHeight*scale).floor());
+    AopThumbnail thumbnail = AopThumbnail();
+    thumbnail.contents = thumbnailImage.buffer.asUint8List(thumbnailImage.offsetInBytes, thumbnailImage.lengthInBytes);
+    int thumbnailId = await thumbnail.save();
+    AopFullImage fullImage = AopFullImage();
+    fullImage.contents = imageData.buffer.asUint8List(imageData.offsetInBytes, imageData.lengthInBytes);
+    int fullImageId = await fullImage.save();
     var metaData = await anImage.requestMetadata();
     AopSnap newSnap = AopSnap()
       ..fileName = anImage.name
+      ..directory = '${deviceName} roll'
       ..width = anImage.originalWidth
       ..height = anImage.originalHeight
       ..takenDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
@@ -43,11 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ..longitude = metaData.gps.gpsLongitude
       ..deviceName = metaData.device.model
       ..rotation = '0'  // todo support enumeration
-      ..importSource = '${metaData.device.cameraOwnerName} camera roll'
+      ..fullImageId = fullImageId
+      ..thumbnailId = thumbnailId
+      ..importSource = '${metaData.device.cameraOwnerName??metaData.device.model} camera roll'
       ..importedDate = DateTime.now();
     ;
     int insertId = await newSnap.save();
- //   await db.addImage(newImage, imageData.buffer.asUint8List());
   } // of uploadImage
 
   Future getImage() async {
