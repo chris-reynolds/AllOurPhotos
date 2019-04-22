@@ -25,3 +25,5 @@ all_our_photos_app/assets/services.json
 *.03
 *.04
 *.05
+AopIndexBuilder/bin/aopFileImporter.config.json
+AopIndexBuilder/bin/aopFileImporter.config.json

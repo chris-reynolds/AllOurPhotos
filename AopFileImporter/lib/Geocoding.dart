@@ -5,7 +5,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:convert';
-import 'Logger.dart' as log;
+import 'package:AopIndexBuilder/dart_common/Logger.dart' as log;
 
 String apiKey = 'AIzaSyDl6PsEAYBbataJfQSn3hiOs8x02ntBhAk';
 double tileSizeKms = 5.0;

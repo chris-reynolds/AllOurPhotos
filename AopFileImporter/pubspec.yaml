@@ -11,6 +11,7 @@ dependencies:
   path: ^1.4.1
   image:
   exifdart:
+  mysql1:
 
 dev_dependencies:
   test: ^1.0.0

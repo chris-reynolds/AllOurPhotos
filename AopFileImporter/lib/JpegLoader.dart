@@ -2,10 +2,11 @@
  * Created by Chris on 21/09/2018.
  */
 import 'package:exifdart/exifdart.dart' as exif;
-import './ImgFile.dart';
-import 'Logger.dart' as log;
+//import './ImgFile.dart';
+import './dart_common/Logger.dart' as log;
 
 class JpegLoader {
+  static const UNKNOWN_LONGLAT = 999.0;
    List<int> _buffer;
 //   File _baseFile;
    Map<String, dynamic> tags = null;
@@ -25,7 +26,7 @@ class JpegLoader {
    } // of cleanString
 
    static double dmsToDeg(List dms, String direction) {
-     if (dms==null)  return ImgFile.UNKNOWN_LONGLAT;
+     if (dms==null)  return UNKNOWN_LONGLAT;
      double result = 0.0;
      for (int ix in [2,1,0]) {
        result = result / 60 + (dms[ix].numerator / dms[ix].denominator);
@@ -44,7 +45,7 @@ class JpegLoader {
        return null;
      } // of try catch
    }  // dateTimeFromExit
-   void saveToImgFile( ImgFile thisFile) {
+   void saveToImgFile( dynamic thisFile) {
      int imageWidth = tag('ImageWidth')  ?? tag('PixelXDimension');
      int imageHeight = tag('ImageHeight')  ?? tag('PixelYDimension');
      try {
