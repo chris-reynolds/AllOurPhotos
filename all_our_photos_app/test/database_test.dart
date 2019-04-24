@@ -5,8 +5,8 @@
  */
 
 import 'package:test/test.dart';
-import '../lib/dbAllOurPhotos.dart';
-import '../lib/aopClasses.dart';
+import 'package:all_our_photos_app/shared/dbAllOurPhotos.dart';
+import 'package:all_our_photos_app/shared/aopClasses.dart';
 import 'dart:io' as Io;
 
 

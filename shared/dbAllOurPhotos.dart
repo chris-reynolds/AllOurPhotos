@@ -7,15 +7,19 @@ MySqlConnection dbConn;
 
 class DbAllOurPhotos {
 
-  Future<void> initConnection() async {
+  Future<int> initConnection(Map config) async {
     //todo : get db connection/session parameters from local storage
     if (dbConn==null ) {
       dbConn = await MySqlConnection.connect(new ConnectionSettings(
-          host: '192.168.1.251', port: 3306, user: 'photos', password:'photos00', db: 'allourphotos'));
-      await dbConn.query("select spsessioncreate('chris','chris00','aopDev')");
+          host: config['dbhost'], port: config['dbport'], user: config['dbuser'],
+          password:config['dbpassword'], db: config['dbname']));
     }
-  }
+    return 1;
+  } // future<int> forces us to use await with compile error
 
+  Future<int> startSession(Map config) async {
+    await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
+  } // of startSession
   /*
   Future<dynamic> addImage(Media item,List<int> picContents) async {
     // Insert some data

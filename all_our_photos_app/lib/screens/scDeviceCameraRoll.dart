@@ -3,9 +3,9 @@ import 'package:multi_image_picker/multi_image_picker.dart' as MIP;
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:all_our_photos_app/dbAllOurPhotos.dart';
+import 'package:all_our_photos_app/shared/dbAllOurPhotos.dart';
 import 'dart:typed_data';
-import 'package:all_our_photos_app/aopClasses.dart';
+import 'package:all_our_photos_app/shared/aopClasses.dart';
 //import 'package:image_gallery/image_gallery.dart';
 import 'package:device_info/device_info.dart';
 

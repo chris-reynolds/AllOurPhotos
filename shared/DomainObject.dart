@@ -1,4 +1,5 @@
-import 'dbAllOurPhotos.dart';
+import 'dart:async';
+import './dbAllOurPhotos.dart';
 
 
 
@@ -89,7 +90,10 @@ class DOProvider<TDO extends DomainObject> {
   }
   Future<void> delete(TDO aDomainObect) async {
     var r = await dbConn.query(sqlStatements.deleteStatement(),[aDomainObect.id]);
-    print('Delete for $tableName id=${aDomainObect.id} ');
+    if (r.affectedRows==0)
+      throw Exception('Failed Delete for $tableName id=${aDomainObect.id} ');
+    else
+      print('Delete for $tableName id=${aDomainObect.id} ');
   }
 } // of DOProvider
 

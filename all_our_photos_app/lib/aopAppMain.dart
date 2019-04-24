@@ -6,7 +6,7 @@ import 'package:all_our_photos_app/screens/scTesting.dart';
 import 'package:all_our_photos_app/srvCatalogueLoader.dart';
 import 'package:all_our_photos_app/appNavigator.dart';
 import 'package:all_our_photos_app/screens/scDeviceCameraRoll.dart';
-import 'package:all_our_photos_app/dbAllOurPhotos.dart';
+import 'package:all_our_photos_app/shared/dbAllOurPhotos.dart';
 //import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
