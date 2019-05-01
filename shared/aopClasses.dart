@@ -464,6 +464,14 @@ class AopSnap extends DomainObject {
     mediaType = 'jpg';
   if (hasThumbnail==null)
     hasThumbnail = false;
+  if (caption == null)
+    caption = '';
+  if (deviceName == null)
+    deviceName = '';
+  if (rotation == null)
+    rotation = '0';
+  if (tagList == null)
+    tagList = '';
 //                                '*** End Custom Code
   } // of constructor 
 
@@ -664,6 +672,9 @@ Future<void> delete() async {
 
 
 //                                '*** Start Custom Code snap custom procedures
+static Future<bool> exists(String path) async {
+	  return false;  // todo
+} // of exists
 //                                '*** End Custom Code
 } // of class snap
 

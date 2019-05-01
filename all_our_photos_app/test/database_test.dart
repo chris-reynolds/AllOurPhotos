@@ -5,8 +5,9 @@
  */
 
 import 'package:test/test.dart';
-import 'package:all_our_photos_app/shared/dbAllOurPhotos.dart';
-import 'package:all_our_photos_app/shared/aopClasses.dart';
+import '../lib/shared/dbAllOurPhotos.dart';
+import '../lib/shared/aopClasses.dart';
+import '../lib/dart_common/Config.dart';
 import 'dart:io' as Io;
 
 
@@ -17,8 +18,9 @@ Io.Directory testDataDirectory;
 int insertedSnapId_forAlbum;
 void main() {
   setUp(() async {
+    loadConfig();
     dbAop = DbAllOurPhotos();
-    await dbAop.initConnection();
+    await dbAop.initConnection(config);
     testDataDirectory = Io.Directory('${Io.Directory.current.parent.path}/testdata');
   });
 

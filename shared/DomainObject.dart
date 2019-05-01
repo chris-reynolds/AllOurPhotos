@@ -1,8 +1,9 @@
 import 'dart:async';
 import './dbAllOurPhotos.dart';
+import '../dart_common/Logger.dart' as log;
 
 
-
+bool sqlLogging = false;
 
 abstract class DomainObject {
   DomainObject({Map<String,dynamic> data});
@@ -67,7 +68,8 @@ class DOProvider<TDO extends DomainObject> {
       sql = sqlStatements.insertStatement();
     }
 //    throw Exception('sql : $sql');
-    print('save sql : $sql');
+    if (sqlLogging)
+      log.message('save sql : $sql');
     var r = await dbConn.query(sql,aDomainObject.toRow());
     return r.insertId;
   } // of save
@@ -93,7 +95,8 @@ class DOProvider<TDO extends DomainObject> {
     if (r.affectedRows==0)
       throw Exception('Failed Delete for $tableName id=${aDomainObect.id} ');
     else
-      print('Delete for $tableName id=${aDomainObect.id} ');
+      if (sqlLogging)
+        log.message('Delete for $tableName id=${aDomainObect.id} ');
   }
 } // of DOProvider
 

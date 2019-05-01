@@ -6,7 +6,7 @@ import 'package:exifdart/exifdart.dart' as exif;
 import './dart_common/Logger.dart' as log;
 
 class JpegLoader {
-  static const UNKNOWN_LONGLAT = 999.0;
+  static const UNKNOWN_LONGLAT = null;
 //  List<int> _buffer;
   Map<String, dynamic> tags = null;
 
@@ -14,7 +14,7 @@ class JpegLoader {
 //    _buffer = newBuffer;
     exif.MemoryBlobReader mbr = exif.MemoryBlobReader(newBuffer);
     tags = await exif.readExif(mbr);
-    log.message('read tags');
+//    log.message('read tags');
   }
 
   String cleanString(String s) {

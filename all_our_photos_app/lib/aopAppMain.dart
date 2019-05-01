@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:all_our_photos_app/screens/scRecentPics.dart';
-import 'package:all_our_photos_app/screens/scAlbums.dart';
-import 'package:all_our_photos_app/screens/scHistory.dart';
-import 'package:all_our_photos_app/screens/scTesting.dart';
-import 'package:all_our_photos_app/srvCatalogueLoader.dart';
-import 'package:all_our_photos_app/appNavigator.dart';
-import 'package:all_our_photos_app/screens/scDeviceCameraRoll.dart';
-import 'package:all_our_photos_app/shared/dbAllOurPhotos.dart';
+import 'screens/scRecentPics.dart';
+import 'screens/scAlbums.dart';
+import 'screens/scHistory.dart';
+import 'screens/scTesting.dart';
+import 'screens/scDeviceCameraRoll.dart';
+import 'srvCatalogueLoader.dart';
+import 'appNavigator.dart';
+import 'shared/dbAllOurPhotos.dart';
+import 'dart_common/Config.dart';
 //import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
 void main() async {
-  await DbAllOurPhotos().initConnection(); // todo parameterise
+  loadConfig(null);
+  await DbAllOurPhotos().initConnection(config); // todo parameterise
   application = new MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: true,

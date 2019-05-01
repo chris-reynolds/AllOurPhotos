@@ -7,7 +7,7 @@ import '../lib/shared/dbAllOurPhotos.dart';
 
 
 const VERSION = '2019-04-22';
-const DAYS_AGO = 10000;  // todo change to 90
+const DAYS_AGO = 100000;  // todo change to 90
 
 
 
