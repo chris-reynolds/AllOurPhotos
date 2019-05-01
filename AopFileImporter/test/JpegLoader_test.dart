@@ -12,7 +12,7 @@ const String TESTFILENAME = "C:\\projects\\AllOurPhotos\\testdata\\2017-08\\IMG_
 void main() {
   test("JPEG Loader", () async {
     var jpegLoader = JpegLoader();
-    await jpegLoader.loadBuffer(File(TESTFILENAME).readAsBytesSync());
+    await jpegLoader.extractTags(File(TESTFILENAME).readAsBytesSync());
     var tagList = jpegLoader.tags;
     var keys = List<String>.of(tagList.keys);
     File fred = File('tags.txt');

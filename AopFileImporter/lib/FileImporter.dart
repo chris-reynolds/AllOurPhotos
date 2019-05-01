@@ -81,6 +81,7 @@ class FileImporter {
           populateSnapFromTags(thisSnap, jpegLoader);
       }
       thisSnap.fileName = Path.basename(thisImageFile.path);
+      thisSnap.mediaLength = fileImageContents.length;
       thisSnap.directory = Path.canonicalize(thisImageFile.path);
       thisSnap.mediaType = thisExtension.substring(1); // chop off the dot
       thisSnap.importedDate = DateTime.now();
@@ -123,8 +124,7 @@ class FileImporter {
         ..deviceName = jpl.cleanString(jpl.tag('Model') ?? '')
         ..rotation = '0'
         ..userId = 1
-        ..tagList = ''
-        ..hasThumbnail = false;
+        ..tagList = '';
     } catch (ex) {
       log.error(ex);
       rethrow;

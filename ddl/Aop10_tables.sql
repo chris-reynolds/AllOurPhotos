@@ -86,7 +86,7 @@ CREATE TABLE aopsnaps (
   , import_source Varchar(50) 
   , media_type Varchar(30) not Null
   , imported_date Datetime 
-  , has_thumbnail Tinyint not Null
+  , media_length INT 
   , tag_list Varchar(250) 
   ,  full_image_id Int NULL
   ,  session_id Int NULL
@@ -158,7 +158,7 @@ ADD
 -- '   > ALTER - add composite uniqueness constraint to aopsnaps table ...'
 ALTER TABLE aopsnaps
 ADD
-  CONSTRAINT aopsnaps_compuq UNIQUE NONCLUSTERED ( file_name,  directory);
+  CONSTRAINT aopsnaps_compuq UNIQUE NONCLUSTERED ( file_name,  media_length);
 -- '   > ALTER - add uniqueness for column name to aopusers table ...'
 ALTER TABLE aopusers
 ADD
