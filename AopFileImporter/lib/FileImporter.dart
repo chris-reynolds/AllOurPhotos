@@ -24,11 +24,11 @@ class FileImporter {
   void scanAll() async {
     List<String> fileNames = [];
     List<DateTime> modifiedDates = [];
-//    Stream<FileSystemEntity> directoryStream = await
-//        Directory(rootDir).list(recursive: true);
-    List<FileSystemEntity> directoryList = await
-    Directory(rootDir).list(recursive: true).toList();
-    for (FileSystemEntity fse in directoryList) {
+    Stream<FileSystemEntity> directoryStream = await
+        Directory(rootDir).list(recursive: true);
+    //    List<FileSystemEntity> directoryList = await
+    //    Directory(rootDir).list(recursive: true).toList();
+    await for (FileSystemEntity fse in directoryStream) {
       String thisExtension = Path.extension(fse.path).toLowerCase();
       if (WANTED_FILES.indexOf(thisExtension) >= 0 &&
               fse.path.indexOf('thumbnail') < 0
@@ -36,8 +36,13 @@ class FileImporter {
           ) {
         var fileStat = fse.statSync();
         if (fileStat.modified.isAfter(startDate)) {
-          fileNames.add(fse.path);
-          modifiedDates.add(fileStat.modified);
+          bool alreadyExists = await AopSnap.exists(fse.path,fileStat.size);
+          if (alreadyExists)
+            log.message('${fse.path} skipped. Already imported');
+          else {
+            fileNames.add(fse.path);
+            modifiedDates.add(fileStat.modified);
+          }
         }
       } else {
 //        log.message('skipping ${fse.path} with extension $thisExtension');
@@ -46,11 +51,7 @@ class FileImporter {
     log.message('${fileNames.length} files to load');
     for (int i = 0; i < fileNames.length; i++)
       try {
-        bool imported = await AopSnap.exists(fileNames[i]);
-        if (!imported)
           await importFile(File(fileNames[i]), modifiedDates[i]);
-        else
-          log.message(fileNames[i] + ' already imported');
       } catch (ex) {
         log.error(ex);
       }

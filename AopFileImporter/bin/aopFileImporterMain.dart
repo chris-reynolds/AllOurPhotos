@@ -28,7 +28,9 @@ void main(List<String> arguments) async {
     // setup the logger to show the time
     //now connect to the database
     await DbAllOurPhotos().initConnection(config);
-    await DbAllOurPhotos().startSession(config);
+    int sessionId = await DbAllOurPhotos().startSession(config);
+    if (sessionId<=0)
+      throw Exception('Failed to login session correctly');
     FileImporter fImporter = FileImporter(photoRootDir,startDate);
     await fImporter.scanAll();
     log.message('AllOurPhotos file importer $VERSION completed successfully ');
