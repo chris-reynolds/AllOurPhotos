@@ -5,7 +5,7 @@ import 'dart:async';
 import 'DomainObject.dart';
 //                                '*** Start Custom Code imports
 //import 'package:image/image.dart';
-
+import 'package:path/path.dart' as Path;
 //                                '*** End Custom Code
 
 // Domain object providers
@@ -455,7 +455,7 @@ class AopSnap extends DomainObject {
     fromMap(data);
 //                                '*** Start Custom Code snap.create
   if (ranking==null)
-    ranking = 3;
+    ranking = 2;
   if (mediaType==null)
     mediaType = 'jpg';
   if (caption == null)
@@ -666,8 +666,12 @@ Future<void> delete() async {
 
 
 //                                '*** Start Custom Code snap custom procedures
-static Future<bool> exists(String path) async {
-	  return false;  // todo
+static Future<bool> exists(String path,int fileSize) async {
+	  String fileName = Path.basename(path);
+	  var r = await snapProvider.rawExecute('select count(*) from aopsnaps '+
+        'where file_name=? and media_Length=?',[fileName,fileSize]);
+	  var values = r.first.values;
+	  return values[0]>0;
 } // of exists
 //                                '*** End Custom Code
 } // of class snap
@@ -863,10 +867,14 @@ Future<void> delete() async {
 //-------------------------------------------------------------------
 //Custom Procedures
 //                                '*** Start Custom Code customprocedures
+
 //                                '*** End Custom Code
 
 //initialization
 //                                '*** Start Custom Code initialization
+void init() {
+
+} // of customInit
 //                                '*** End Custom Code
 
 //finalization

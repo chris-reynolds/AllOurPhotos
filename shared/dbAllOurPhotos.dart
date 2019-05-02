@@ -18,8 +18,9 @@ class DbAllOurPhotos {
   } // future<int> forces us to use await with compile error
 
   Future<int> startSession(Map config) async {
-    var res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
-    return 1;
+    Results res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
+    Iterable sp_result = res.first.asMap().values;
+    return sp_result.first as int;
   } // of startSession
   /*
   Future<dynamic> addImage(Media item,List<int> picContents) async {
