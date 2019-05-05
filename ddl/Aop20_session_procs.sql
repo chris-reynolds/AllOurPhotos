@@ -70,21 +70,6 @@ CREATE TRIGGER aopalbum_items_before_upd BEFORE UPDATE ON aopalbum_items FOR EAC
   set new.updated_user =(select username from currentsession);
 END @@
 
--- Table aopfull_images
-  --   
-drop trigger if exists aopfull_images_before_ins@@
-CREATE TRIGGER aopfull_images_before_ins BEFORE INSERT ON aopfull_images FOR EACH ROW BEGIN
-  set new.created_on = now();
-  set new.updated_on = new.updated_on;
-  set new.updated_user =(select username from currentsession);
-END @@  
-
-drop trigger if exists aopfull_images_before_upd@@
-CREATE TRIGGER aopfull_images_before_upd BEFORE UPDATE ON aopfull_images FOR EACH ROW BEGIN
-  set new.updated_on = now();
-  set new.updated_user =(select username from currentsession);
-END @@
-
 -- Table aopsessions
   --   
 drop trigger if exists aopsessions_before_ins@@
@@ -111,21 +96,6 @@ END @@
 
 drop trigger if exists aopsnaps_before_upd@@
 CREATE TRIGGER aopsnaps_before_upd BEFORE UPDATE ON aopsnaps FOR EACH ROW BEGIN
-  set new.updated_on = now();
-  set new.updated_user =(select username from currentsession);
-END @@
-
--- Table aopthumbnails
-  --   
-drop trigger if exists aopthumbnails_before_ins@@
-CREATE TRIGGER aopthumbnails_before_ins BEFORE INSERT ON aopthumbnails FOR EACH ROW BEGIN
-  set new.created_on = now();
-  set new.updated_on = new.updated_on;
-  set new.updated_user =(select username from currentsession);
-END @@  
-
-drop trigger if exists aopthumbnails_before_upd@@
-CREATE TRIGGER aopthumbnails_before_upd BEFORE UPDATE ON aopthumbnails FOR EACH ROW BEGIN
   set new.updated_on = now();
   set new.updated_user =(select username from currentsession);
 END @@

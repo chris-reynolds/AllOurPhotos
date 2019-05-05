@@ -34,18 +34,6 @@ CREATE TABLE aopalbum_items (
   ,  snap_id Int NULL
 ); 
 
--- Table aopfull_images
-  --   
---  ' > CREATING - aopfull_images ...'
-DROP TABLE IF EXISTS aopfull_images ;
-CREATE TABLE aopfull_images (
-  id             INT AUTO_INCREMENT Not null PRIMARY KEY 
-  , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
-  , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
-  , updated_user         varchar(30) not null
-  , contents LongBlob 
-); 
-
 -- Table aopsessions
   --   
 --  ' > CREATING - aopsessions ...'
@@ -73,14 +61,15 @@ CREATE TABLE aopsnaps (
   , file_name Varchar(100) 
   , directory Varchar(100) 
   , taken_date Datetime 
+  , original_taken_date Datetime 
   , modified_date Datetime 
   , device_name Varchar(100) 
   , caption Varchar(100) 
   , ranking INT not Null
   , longitude Float 
   , latitude Float 
-  , width Int 
-  , height Int 
+  , width INT 
+  , height INT 
   , location Varchar(100) 
   , rotation Varchar(30) 
   , import_source Varchar(50) 
@@ -88,23 +77,8 @@ CREATE TABLE aopsnaps (
   , imported_date Datetime 
   , media_length INT 
   , tag_list Varchar(250) 
-  ,  full_image_id Int NULL
   ,  session_id Int NULL
-  ,  source_snap_id Int NULL
-  ,  thumbnail_id Int NULL
   ,  user_id Int NULL
-); 
-
--- Table aopthumbnails
-  --   
---  ' > CREATING - aopthumbnails ...'
-DROP TABLE IF EXISTS aopthumbnails ;
-CREATE TABLE aopthumbnails (
-  id             INT AUTO_INCREMENT Not null PRIMARY KEY 
-  , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
-  , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
-  , updated_user         varchar(30) not null
-  , contents LongBlob 
 ); 
 
 -- Table aopusers
@@ -135,18 +109,9 @@ ALTER TABLE aopalbum_items ADD CONSTRAINT fk_album_item_snap
 ALTER TABLE aopsessions ADD CONSTRAINT fk_session_user
   FOREIGN KEY fk_user(user_id)
   references aopusers(ID);
-ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_full_image
-  FOREIGN KEY fk_full_image(full_image_id)
-  references aopfull_images(ID);
 ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_session
   FOREIGN KEY fk_session(session_id)
   references aopsessions(ID);
-ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_source_snap
-  FOREIGN KEY fk_source_snap(source_snap_id)
-  references aopsnaps(ID);
-ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_thumbnail
-  FOREIGN KEY fk_thumbnail(thumbnail_id)
-  references aopthumbnails(ID);
 ALTER TABLE aopsnaps ADD CONSTRAINT fk_snap_user
   FOREIGN KEY fk_user(user_id)
   references aopusers(ID);

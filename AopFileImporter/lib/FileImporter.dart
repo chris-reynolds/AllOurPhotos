@@ -15,7 +15,7 @@ class FileImporter {
 
   String absPath(String dirName, String filename) =>
       Path.join(rootDir, dirName, filename);
-  final WANTED_FILES = ['.jpg', '.mvi', '.png', '.maov']; // todo import movies
+  final WANTED_FILES = ['.jpg', '.not-mvi', '.not-png', '.not-mov']; // todo import movies
 
   FileImporter(this.rootDir, this.startDate) {
     log.message('Registered root $rootDir starting at $startDate');
@@ -52,16 +52,16 @@ class FileImporter {
     for (int i = 0; i < fileNames.length; i++)
       try {
           await importFile(File(fileNames[i]), modifiedDates[i]);
-      } catch (ex) {
-        log.error(ex);
+      } catch (ex,stack) {
+        log.error('$ex  stack $stack');
       }
   } // of scanAll
 
   void importFile(File thisImageFile, DateTime fileModifiedDate) async {
-    Image thumbnailImage;
+ //   Image thumbnailImage;
     try {
       log.message('importing file ' + thisImageFile.path);
-      List<int> fileImageContents = thisImageFile.readAsBytesSync();
+      List<int> fileImageContents = await thisImageFile.readAsBytesSync();
       if (thisImageFile.path.indexOf('helen') >= 0)
         log.message('checkpoint available');
       AopSnap thisSnap = AopSnap();
@@ -71,10 +71,11 @@ class FileImporter {
           Image originalImage = decodeImage(fileImageContents);
           thisSnap.width = originalImage.width;
           thisSnap.height = originalImage.height;
-          bool isPortrait = (originalImage.height > originalImage.width);
-          thumbnailImage = copyResize(originalImage, isPortrait ? 480 : 640);
+          //         bool isPortrait = (originalImage.height > originalImage.width);
+          //  thumbnailImage = copyResize(originalImage, isPortrait ? 480 : 640);
         } catch (ex) {
           log.error('failed to decode ${thisImageFile.path}');
+          exit;
         }
         var jpegLoader = JpegLoader();
         await jpegLoader.extractTags(fileImageContents);
@@ -83,24 +84,29 @@ class FileImporter {
       }
       thisSnap.fileName = Path.basename(thisImageFile.path);
       thisSnap.mediaLength = fileImageContents.length;
-      thisSnap.directory = Path.canonicalize(thisImageFile.path);
+      thisSnap.directory = Path.dirname(thisImageFile.path);
+      if (rootDir == thisSnap.directory)
+        thisSnap.directory = '';
+      else if (rootDir == thisSnap.directory.substring(0,rootDir.length))
+        thisSnap.directory = thisSnap.directory.substring(rootDir.length);
       thisSnap.mediaType = thisExtension.substring(1); // chop off the dot
       thisSnap.importedDate = DateTime.now();
       thisSnap.modifiedDate = fileModifiedDate;
       if (thisSnap.takenDate == null ||
           thisSnap.takenDate.isBefore(DateTime(1901)))
         thisSnap.takenDate = thisSnap.modifiedDate;
+      thisSnap.originalTakenDate = thisSnap.takenDate;
       thisSnap.importSource = config['importsource'] ?? "FileImporter";
-      AopFullImage fullImage = AopFullImage();
-      fullImage.contents = fileImageContents;
-      int fullImageId = await fullImage.save();
-      thisSnap.fullImageId = fullImageId;
-      if (thumbnailImage != null) {
-        AopThumbnail thumbnail = AopThumbnail();
-        thumbnail.contents = encodeJpg(thumbnailImage, quality: 75);
-        thisSnap.thumbnailId = await thumbnail.save();
-      }
-      int snapId = await thisSnap.save();
+//      AopFullImage fullImage = AopFullImage();
+//      fullImage.contents = fileImageContents;
+//      int fullImageId = await fullImage.save();
+//      thisSnap.fullImageId = fullImageId;
+//      if (thumbnailImage != null) {
+//        AopThumbnail thumbnail = AopThumbnail();
+//        thumbnail.contents = encodeJpg(thumbnailImage, quality: 75);
+//        thisSnap.thumbnailId = await thumbnail.save();
+//      }
+      /* int snapId = */ await thisSnap.save();
     } catch (err) {
       throw 'Error on importing ${thisImageFile.path} with exception ${err.message}';
     } // of try/catch
