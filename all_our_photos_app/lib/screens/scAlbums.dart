@@ -18,6 +18,6 @@ class Albums extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
+    ); // of scaffold
+  } // of build
+} // of Albums widget

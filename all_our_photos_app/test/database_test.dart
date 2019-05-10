@@ -15,7 +15,7 @@ DbAllOurPhotos dbAop;
 
 Io.Directory testDataDirectory;
 
-int insertedSnapId_forAlbum;
+int insertedSnapIdForAlbum;
 void main() {
   setUp(() async {
     loadConfig();
@@ -74,24 +74,18 @@ void main() {
     test('Scrub snaps', () async {
       List<AopSnap> testSnaps = await snapProvider.getSome('import_source="test script"');
       for (var testSnap in testSnaps) {
-        (await testSnap.fullImage).delete();
         await testSnap.delete();
       }
     }); // of scrub snaps
     test('Save image from file', () async {
-      Io.File testFile = Io.File('${testDataDirectory.path}/test.jpg');
-      List<int> contents = testFile.readAsBytesSync();
-      AopFullImage image = AopFullImage();
-      image.contents = contents;
-      //image.snap_id = 99;
-      int insertId = await image.save();
+//      Io.File testFile = Io.File('${testDataDirectory.path}/test.jpg');
+//      List<int> contents = testFile.readAsBytesSync();
       AopSnap snap = AopSnap();
       snap.directory = '${testDataDirectory.path}';
       snap.fileName = 'test.jpg';
       snap.importSource = 'test script';
-      snap.fullImageId = insertId;
-      insertId = await snap.save();
-      insertedSnapId_forAlbum = insertId;
+      int insertId = await snap.save();
+      insertedSnapIdForAlbum = insertId;
     });  // of save image as file
   }); // of Image Group
   group('Albums',() {
@@ -115,7 +109,7 @@ void main() {
       newAlbum.name = 'test 2';
       int newAlbumId = await newAlbum.save();
       AopAlbumItem item = AopAlbumItem();
-      item.snapId = insertedSnapId_forAlbum;
+      item.snapId = insertedSnapIdForAlbum;
       item.albumId = newAlbumId;
       await item.save();
     }); // of Create album item test

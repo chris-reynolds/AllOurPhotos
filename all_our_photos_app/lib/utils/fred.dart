@@ -25,7 +25,7 @@ Future main() async {
   // Query the database using a parameterized query
   var results = await conn
       .query('select name, email,media from users where id = ?', [result.insertId]);
-  Blob fred;
+//  Blob fred;
   for (var row in results) {
     print('Name: ${row[0]}, email: ${row[1]}, media: ${row[2]}');
     picContents = row[2].toBytes();

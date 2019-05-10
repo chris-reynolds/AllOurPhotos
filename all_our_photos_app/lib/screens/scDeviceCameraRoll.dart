@@ -42,22 +42,11 @@ class _MyHomePageState extends State<MyHomePage> {
       deviceName = iosInfo.name;
 //      print('Running on ${iosInfo.utsname.machine}');  // e.g. "iPod7,1"
     }
-    var imageData = await anImage.requestOriginal();
-    bool isPortrait = (anImage.originalHeight>anImage.originalWidth);
-    double scale = 640/anImage.originalWidth;
-    if (isPortrait)
-      scale = 640/anImage.originalHeight;
-    var thumbnailImage = await anImage.requestThumbnail((anImage.originalWidth*scale).floor(), (anImage.originalHeight*scale).floor());
-    AopThumbnail thumbnail = AopThumbnail();
-    thumbnail.contents = thumbnailImage.buffer.asUint8List(thumbnailImage.offsetInBytes, thumbnailImage.lengthInBytes);
-    int thumbnailId = await thumbnail.save();
-    AopFullImage fullImage = AopFullImage();
-    fullImage.contents = imageData.buffer.asUint8List(imageData.offsetInBytes, imageData.lengthInBytes);
-    int fullImageId = await fullImage.save();
+//    var imageData = await anImage.requestOriginal();
     var metaData = await anImage.requestMetadata();
     AopSnap newSnap = AopSnap()
       ..fileName = anImage.name
-      ..directory = '${deviceName} roll'
+      ..directory = '$deviceName roll'
       ..width = anImage.originalWidth
       ..height = anImage.originalHeight
       ..takenDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
@@ -66,12 +55,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ..longitude = metaData.gps.gpsLongitude
       ..deviceName = metaData.device.model
       ..rotation = '0'  // todo support enumeration
-      ..fullImageId = fullImageId
-      ..thumbnailId = thumbnailId
       ..importSource = '${metaData.device.cameraOwnerName??metaData.device.model} camera roll'
-      ..importedDate = DateTime.now();
+      ..importedDate = DateTime.now()
     ;
-    int insertId = await newSnap.save();
+    //int insertId =
+    await newSnap.save();
   } // of uploadImage
 
   Future getImage() async {

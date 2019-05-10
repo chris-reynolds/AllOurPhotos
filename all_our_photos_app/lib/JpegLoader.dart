@@ -8,7 +8,7 @@ import 'utils/Logger.dart' as log;
 class JpegLoader {
    List<int> _buffer;
 //   File _baseFile;
-   Map<String, dynamic> tags = null;
+   Map<String, dynamic> tags;
 
 
    void loadBuffer(List<int> newBuffer) async {

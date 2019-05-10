@@ -45,7 +45,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
     _imageFilter = widget._initImageFilter;
   } // initState
 
-  Widget Text2(String s) {
+  Widget qText(String s) {
     return Text(s,style:Theme.of(context).textTheme.body2);
   } // of Text2
 
@@ -96,7 +96,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
 
-              Text2('Search:'),
+              qText('Search:'),
               Flexible(
                 child:  TextField(
                   onChanged: onSearchTextChanged,
@@ -107,7 +107,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                   ),
                 )
               ),
-              Text2('Rank:'),
+              qText('Rank:'),
               IconButton(icon: Icon(_rankIcon(_imageFilter.getRank(1)),color:filterColors[1],size:40.0),
                   onPressed: () {toggleRank(1);}),
               IconButton(icon: Icon(_rankIcon(_imageFilter.getRank(2)),color:filterColors[2],size:40.0),
@@ -119,11 +119,11 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
           Row(
 //            mainAxisAlignment: MainAxisAlignment.
               children: [
-                Text2('From '),
+                qText('From '),
                 TapDateWidget(_imageFilter.fromDate,(changedDate) {
                   setState( (){_imageFilter.fromDate = changedDate;});
                 }), // of TapDateWidget
-                Text2('To '),
+                qText('To '),
                 TapDateWidget(_imageFilter.toDate,(changedDate) {
                   setState( (){_imageFilter.toDate = changedDate;});
                 }), // of TapDateWidget

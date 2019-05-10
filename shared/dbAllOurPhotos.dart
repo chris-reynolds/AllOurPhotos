@@ -19,8 +19,8 @@ class DbAllOurPhotos {
 
   Future<int> startSession(Map config) async {
     Results res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
-    Iterable sp_result = res.first.asMap().values;
-    return sp_result.first as int;
+    Iterable spResult = res.first.asMap().values;
+    return spResult.first as int;
   } // of startSession
   /*
   Future<dynamic> addImage(Media item,List<int> picContents) async {

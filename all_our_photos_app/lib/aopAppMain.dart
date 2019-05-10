@@ -4,16 +4,20 @@ import 'screens/scAlbums.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
 import 'screens/scDeviceCameraRoll.dart';
+import 'screens/scLogin.dart';
 import 'srvCatalogueLoader.dart';
 import 'appNavigator.dart';
-import 'shared/dbAllOurPhotos.dart';
-import 'dart_common/Config.dart';
+//import 'shared/dbAllOurPhotos.dart';
+//import 'dart_common/Config.dart';
+import 'dart_common/LoginStateMachine.dart';
 //import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
 void main() async {
-  loadConfig(null);
-  await DbAllOurPhotos().initConnection(config); // todo parameterise
+//  loadConfig(null);
+//  await DbAllOurPhotos().initConnection(config); // todo parameterise
+  loginStateMachine = LoginStateMachine({});
+  await loginStateMachine.initState();
   application = new MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: true,
@@ -26,7 +30,7 @@ void main() async {
           body2: TextStyle(fontSize: 25.0, color: Colors.red)
       ),
     ),
-    home: new DashboardScreen(title: 'All Our Photos v0.5'),
+    home:  LoginForm(loginStateMachine),     //new DashboardScreen(title: 'All Our Photos v0.5'),
     routes: <String, WidgetBuilder> {
 //      '/a': (BuildContext context) => GridListDemo(),
       '/b': (BuildContext context) => Albums('albums route b'),
@@ -35,23 +39,6 @@ void main() async {
   );
   runApp(application);
 } // of main
-
-/*class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'All Our Photos',
-      debugShowCheckedModeBanner: false,
-      theme: new ThemeData(
-        primaryColor: const Color(0xFF02BB9F),
-        primaryColorDark: const Color(0xFF167F67),
-        accentColor: const Color(0xFFFFAD32),
-      ),
-      home: new DashboardScreen(title: 'All Our Photos3'),
-    );
-  }
-}
-*/
 
 class DashboardScreen extends StatefulWidget {
   DashboardScreen({Key key, this.title}) : super(key: key);
