@@ -7,28 +7,41 @@ PODS:
   - device_info (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - multi_image_picker (4.2.0):
+  - keyboard_visibility (0.5.0):
+    - Flutter
+    - Reachability
+  - multi_image_picker (4.2.2):
     - BSImagePicker (~> 2.10.0)
     - Flutter
+  - path_provider (0.0.1):
+    - Flutter
+  - Reachability (3.2)
 
 DEPENDENCIES:
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
+  - keyboard_visibility (from `.symlinks/plugins/keyboard_visibility/ios`)
   - multi_image_picker (from `.symlinks/plugins/multi_image_picker/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - BSGridCollectionViewLayout
     - BSImagePicker
     - BSImageView
+    - Reachability
 
 EXTERNAL SOURCES:
   device_info:
     :path: ".symlinks/plugins/device_info/ios"
   Flutter:
     :path: ".symlinks/flutter/ios"
+  keyboard_visibility:
+    :path: ".symlinks/plugins/keyboard_visibility/ios"
   multi_image_picker:
     :path: ".symlinks/plugins/multi_image_picker/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
 
 SPEC CHECKSUMS:
   BSGridCollectionViewLayout: 568273e113fbc815f868f1898ef0465aee68f955
@@ -36,7 +49,10 @@ SPEC CHECKSUMS:
   BSImageView: a149459433a2687157d034c78e059d30ac7f2544
   device_info: 76ce0b32e13034d1883be4a382433648f9dcee63
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
-  multi_image_picker: dd257133d5b4196ae2b424799dc2d0d516b1d834
+  keyboard_visibility: 091164adbb54829fcee802523daff9e64a7d8023
+  multi_image_picker: f04b58cae70d245ae6f7d88294ad791ef15105d0
+  path_provider: 09407919825bfe3c2deae39453b7a5b44f467873
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
 
 PODFILE CHECKSUM: d231b65d6bea6d24555f84ca7901720538b5791f
 

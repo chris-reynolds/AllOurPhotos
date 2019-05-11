@@ -10,7 +10,7 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   http:
@@ -18,7 +18,10 @@ dependencies:
   exifdart:
   mysql1:
   multi_image_picker: ^4.2.0
+  flutter_form_builder: ^3.0.1
   device_info: ^0.4.0+1
+#  localstorage: ^1.2.0
+  path_provider: ^1.1.0
 #  image_picker:
 #  google_sign_in:
   flutter:
@@ -46,8 +49,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  #assets:
-  #  - assets/services.json
+  assets:
+    - assets/login_icon.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
