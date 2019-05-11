@@ -6,11 +6,13 @@
 */
 
 import 'package:flutter/material.dart';
-
+import 'dart_common/LoginStateMachine.dart';
 
 MaterialApp application;
 
 Map<String,String> authHeaders;
+
+LoginStateMachine loginStateMachine;
 
 
 

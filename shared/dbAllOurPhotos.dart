@@ -11,7 +11,7 @@ class DbAllOurPhotos {
     //todo : get db connection/session parameters from local storage
     if (dbConn==null ) {
       dbConn = await MySqlConnection.connect(new ConnectionSettings(
-          host: config['dbhost'], port: config['dbport'], user: config['dbuser'],
+          host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
           password:config['dbpassword'], db: config['dbname']));
     }
     return 1;

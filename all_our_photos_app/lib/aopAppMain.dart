@@ -8,16 +8,18 @@ import 'screens/scLogin.dart';
 import 'srvCatalogueLoader.dart';
 import 'appNavigator.dart';
 //import 'shared/dbAllOurPhotos.dart';
-//import 'dart_common/Config.dart';
+import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
 //import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
 void main() async {
-//  loadConfig(null);
+  await loadConfig('allourphotos.config.json');
 //  await DbAllOurPhotos().initConnection(config); // todo parameterise
-  loginStateMachine = LoginStateMachine({});
+  loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.52');
+  Widget loginScreen = LoginForm(loginStateMachine);
   application = new MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: true,
@@ -30,9 +32,12 @@ void main() async {
           body2: TextStyle(fontSize: 25.0, color: Colors.red)
       ),
     ),
-    home:  LoginForm(loginStateMachine),     //new DashboardScreen(title: 'All Our Photos v0.5'),
+    home:  (loginStateMachine.loginStatus==etLoginStatus.LoggedIn)
+        ? dashboardScreen : loginScreen,
     routes: <String, WidgetBuilder> {
 //      '/a': (BuildContext context) => GridListDemo(),
+    'home': (context) => DashboardScreen(title: 'All Our Photos v0.51'),
+      'login': (BuildContext context) => loginScreen,
       '/b': (BuildContext context) => Albums('albums route b'),
       '/c': (BuildContext context) => Albums('albums route c'),
     },
