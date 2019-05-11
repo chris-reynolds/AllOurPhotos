@@ -127,4 +127,6 @@ CREATE TRIGGER aopsnaps_before_ins BEFORE INSERT ON aopsnaps FOR EACH ROW BEGIN
   set new.user_id = (select user_id from currentsession);
   set new.session_id = (select session_id from currentsession);
 END @@  
+select `spsessioncreate`('chris','chris00','testload')@@
+insert into aopalbums(name,description) values('My first album','this is a test')@@
 --                                '*** End Custom Code
