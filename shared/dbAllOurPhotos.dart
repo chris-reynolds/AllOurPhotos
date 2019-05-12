@@ -39,6 +39,7 @@ class DbAllOurPhotos {
     dbConn = null;
   }  // of close
 
+
 }  // of DbAllOurPhotos
 
 

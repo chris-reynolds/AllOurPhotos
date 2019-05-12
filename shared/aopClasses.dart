@@ -561,6 +561,12 @@ static Future<bool> exists(String path,int fileSize) async {
 	  var values = r.first.values;
 	  return values[0]>0;
 } // of exists
+
+static Future<dynamic> get monthGrid async {
+  var r = await snapProvider.rawExecute('select * from vwmonthgrid');
+  return r;
+}  // of yearGrid
+
 //                                '*** End Custom Code
 } // of class snap
 

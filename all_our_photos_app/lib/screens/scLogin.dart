@@ -72,7 +72,6 @@ class _LoginFormState extends State<LoginForm> {
   } // of build
 
   List<Widget> loginUserWidgets() {
-    String deviceName = 'ffff';
     List<String> fields = [
       'User name:sesuser',
       'Password:sespassword',

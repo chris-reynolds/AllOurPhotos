@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:all_our_photos_app/widgets/wdgHistoryScrollingList.dart';
+import '../widgets/wdgHistoryScrollingList.dart';
 //import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
-import 'package:all_our_photos_app/widgets/wdgMonthGrid.dart';
+import '../widgets/wdgYearGrid.dart';
 
 class HistoryScreen extends StatefulWidget {
   HistoryScreen(this.title) : super();
@@ -51,7 +51,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
    //   body: PageView(
         children: [
 //          new GridListDemo(),
-          new MonthGrid(),
+          new YearGrid(),
           new HistoryScrollingList("Albums"),
           new HistoryScrollingList("History"),
           new HistoryScrollingList("Testing"),

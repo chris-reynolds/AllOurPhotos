@@ -18,7 +18,7 @@ void main() async {
 //  await DbAllOurPhotos().initConnection(config); // todo parameterise
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.52');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.53');
   Widget loginScreen = LoginForm(loginStateMachine);
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -36,7 +36,7 @@ void main() async {
         ? dashboardScreen : loginScreen,
     routes: <String, WidgetBuilder> {
 //      '/a': (BuildContext context) => GridListDemo(),
-    'home': (context) => DashboardScreen(title: 'All Our Photos v0.51'),
+    'home': (context) => dashboardScreen,
       'login': (BuildContext context) => loginScreen,
       '/b': (BuildContext context) => Albums('albums route b'),
       '/c': (BuildContext context) => Albums('albums route c'),
@@ -118,50 +118,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ), // sets the inactive color of the `BottomNavigationBar`
         child: new BottomNavigationBar(
           items: [
-            new BottomNavigationBarItem(
-                icon: new Icon(
-                  Icons.camera_roll,
-   //               color: const Color(0xFFFFFFFF),
-                ),
-                title: new Text(
-                  "Recent Pics",
-                  style: new TextStyle(
-   //                 color: const Color(0xFFFFFFFF),
-                  ),
-                )),
-            new BottomNavigationBarItem(
-                icon: new Icon(
-                  Icons.collections,
-  //                color: const Color(0xFFFFFFFF),
-                ),
-                title: new Text(
-                  "Albums",
-                  style: new TextStyle(
-   //                 color: const Color(0xFFFFFFFF),
-                  ),
-                )),
-            new BottomNavigationBarItem(
-                icon: new Icon(
-                  Icons.history,
-   //               color: const Color(0xFFFFFFFF),
-                ),
-                title: new Text(
-                  "History",
-                  style: new TextStyle(
-   //                 color: const Color(0xFFFFFFFF),
-                  ),
-                )),
-            new BottomNavigationBarItem(
-                icon: new Icon(
-                  Icons.text_fields,
-  //                color: const Color(0xFFFFFFFF),
-                ),
-                title: new Text(
-                  "Testing",
-                  style: new TextStyle(
-  //                  color: const Color(0xFFFFFFFF),
-                  ),
-                ))
+            bottomButton('Recent Pics',Icons.camera_roll),
+            bottomButton('Albums',Icons.collections),
+            bottomButton('History',Icons.history),
+            bottomButton('Testing',Icons.text_fields),
           ],
           onTap: navigationTapped,
           currentIndex: _page,
@@ -169,4 +129,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+  BottomNavigationBarItem bottomButton(String keyText,IconData valueIcon)=>
+      BottomNavigationBarItem(
+        icon: new Icon(valueIcon),title: new Text(keyText));
 }
+
+

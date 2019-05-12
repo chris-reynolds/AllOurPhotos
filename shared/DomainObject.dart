@@ -99,7 +99,7 @@ class DOProvider<TDO extends DomainObject> {
         log.message('Delete for $tableName id=${aDomainObect.id} ');
   }
 
-  Future<dynamic> rawExecute(String sql,List<dynamic> params) async {
+  Future<dynamic> rawExecute(String sql,[List<dynamic> params]) async {
       return await dbConn.query(sql,params);
   } // of execute
 

@@ -2,7 +2,7 @@
  * Created by Chris on 13/10/2018.
  */
 
-import 'package:all_our_photos_app/ImgFile.dart';
+import 'shared/aopClasses.dart';
 
 
 typedef ImageFilterAction = void Function();
@@ -14,7 +14,7 @@ class ImageFilter {
   ImageFilterAction onRefresh;
   List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
   String _searchText = '';
-  List<ImgFile> _images;
+  List<AopSnap> _images;
   get images {
     checkImages();
     return _images;
@@ -68,15 +68,15 @@ class ImageFilter {
     _rank[rankNo] = value;
   } // of setRank
 
-  bool isWanted(thisImage) {
+  bool isWanted(AopSnap thisImage) {
     try {
-      if (thisImage.deletedDate != null) return false;
-      if (!_rank[thisImage.rank]) return false;
+//      if (thisImage.deletedDate != null) return false;
+      if (!_rank[thisImage.ranking]) return false;
       if (thisImage.takenDate == null || thisImage.takenDate.isBefore(_fromDate)) return false;
       if (thisImage.takenDate == null || thisImage.takenDate.isAfter(_toDate)) return false;
       if (_searchText.length > 0 )
         if ((thisImage.caption+' '+thisImage.location+' '+
-            thisImage.tags).toLowerCase().indexOf(_searchText)<0) return false;
+            thisImage.tagList).toLowerCase().indexOf(_searchText)<0) return false;
       return true;
     } catch(ex) {
       return true;
@@ -86,11 +86,12 @@ class ImageFilter {
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
     _images = [];
-    ImgCatalog.actOnAll((thisImage) {
-      if (isWanted(thisImage))
-        _images.add(thisImage);
-      return true;
-      }); // actoOnAll
+//    ImgCatalog.actOnAll((thisImage) {
+//      if (isWanted(thisImage))
+//        _images.add(thisImage);
+//      return true;
+//      }); // actoOnAll
+
     // todo check ascending or descending date sort
     _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
@@ -98,6 +99,10 @@ class ImageFilter {
     if (onRefresh != null)  // alert listen of changes
       onRefresh();
   } // of calcImages
+
+  String whereClause() {
+     return null; // TODO create where clause for remote execution
+  } // of whereClause
 
   void extendDateRange({int days = 7}) {
     _toDate = _toDate.add(Duration(days:days));
