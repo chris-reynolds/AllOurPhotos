@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:all_our_photos_app/ImgFile.dart';
-import 'package:all_our_photos_app/srvCatalogueLoader.dart';
+import '../shared/aopClasses.dart';
 
 
-void showPhoto(BuildContext context, ImgFile imgFile) {
+void showPhoto(BuildContext context, AopSnap snap) {
   Navigator.push(context, new MaterialPageRoute<void>(
       builder: (BuildContext context) {
         return new Scaffold(
           appBar: new AppBar(
-              title: new Text(imgFile.filename+' '+imgFile.caption)
+              title: new Text(snap.fileName+' '+snap.caption)
           ),
           body: new SizedBox.expand(
             child: new Hero(
-              tag: imgFile.fullFilename,
-              child: new SingleImageWidget(imgFile),
+              tag: snap.fileName,
+              child: new SingleImageWidget(snap),
             ),
           ),
         );
@@ -22,8 +21,8 @@ void showPhoto(BuildContext context, ImgFile imgFile) {
 }
 
 class SingleImageWidget extends StatefulWidget {
-  const SingleImageWidget(this._imgFile);
-  final ImgFile _imgFile;
+  const SingleImageWidget(this._snap);
+  final AopSnap _snap;
 
   @override
   _SingleImageWidgetState createState() => new _SingleImageWidgetState();
@@ -34,7 +33,7 @@ class _SingleImageWidgetState extends State<SingleImageWidget>  {
   @override
   Widget build(BuildContext context) {
     return new ClipRect(
-      child: new Image.network(fullsizeURL(widget._imgFile),
+      child: new Image.network(widget._snap.fullSizeURL,
         fit: BoxFit.scaleDown,
       ),
     );

@@ -567,6 +567,13 @@ static Future<dynamic> get monthGrid async {
   return r;
 }  // of yearGrid
 
+  String get fullSizeURL {
+    return 'TODO fullSizeURL';
+  } // of fullSizeURL
+  String get thumbnailURL {
+	  return 'TODO thumbnailURL';
+  } // of thumbnailURL
+
 //                                '*** End Custom Code
 } // of class snap
 

@@ -5,12 +5,9 @@ import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
 import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
-import 'srvCatalogueLoader.dart';
 import 'appNavigator.dart';
-//import 'shared/dbAllOurPhotos.dart';
 import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
-//import 'package:all_our_photos_app/widgets/wdgPhotoGrid.dart';
 
 
 void main() async {
@@ -65,10 +62,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _pageController = new PageController();
     // loadTop will callback when completed
-    loadTop(() {
-      initTimer();
-      _pageController.jumpToPage(2);
-    });
+//    loadTop(() {
+//      initTimer();
+//      _pageController.jumpToPage(2);
+//    });
   }
 
   @override

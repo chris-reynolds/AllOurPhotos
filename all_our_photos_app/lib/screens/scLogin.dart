@@ -23,8 +23,11 @@ class _LoginFormState extends State<LoginForm> {
   LoginStateMachine _loginSM;
   var _loginFormKey = GlobalKey<FormBuilderState>();
   String _messageText = 'Nothing2';
-  Map<String,dynamic> fieldValues = {'dbhost':'192.168.1.251','dbport':'3306',
-    'sesdevice':'fffff'};
+  Map<String, dynamic> fieldValues = {
+    'dbhost': '192.168.1.251',
+    'dbport': '3306',
+    'sesdevice': 'fffff'
+  };
 
   _LoginFormState(this._loginSM) : super();
 
@@ -34,7 +37,7 @@ class _LoginFormState extends State<LoginForm> {
       body: SafeArea(
         child: FormBuilder(
 //          onChanged: handleFormChanged,
-          key : _loginFormKey,
+          key: _loginFormKey,
           child: ListView(
             padding: EdgeInsets.symmetric(horizontal: 24),
             children: <Widget>[
@@ -53,17 +56,20 @@ class _LoginFormState extends State<LoginForm> {
               if (_loginSM.loginStatus == etLoginStatus.TooManyTries)
                 ...lockedOutWidgets(),
               if (_loginSM.loginStatus == etLoginStatus.ServerNotAvailable)
-                Text('Please try later'),
+                ...serverNotAvailableWidgets(),
               SizedBox(height: 36),
               Text('$_messageText',
                   style: TextStyle(color: Colors.red, fontSize: 20)),
-              ButtonBar(children: <Widget>[
-                FlatButton(
-                  child: Text('Cancel'),
-                  onPressed: handleCancelPressed,
-                ),
-                RaisedButton(child: Text('Next'), onPressed: handleNextPressed)
-              ])
+              if (_loginSM.loginStatus == etLoginStatus.NoConfig ||
+                  _loginSM.loginStatus == etLoginStatus.NotLoggedIn)
+                ButtonBar(children: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: handleCancelPressed,
+                  ),
+                  RaisedButton(
+                      child: Text('Next'), onPressed: handleNextPressed)
+                ])
             ], // of listview children
           ), // of listView
         ), // of form
@@ -77,7 +83,9 @@ class _LoginFormState extends State<LoginForm> {
       'Password:sespassword',
       'Device:sesdevice',
     ];
-    return fields.map((thisFieldDef) => wsMakeField(thisFieldDef,values:fieldValues)).toList();
+    return fields
+        .map((thisFieldDef) => wsMakeField(thisFieldDef, values: fieldValues))
+        .toList();
   }
 
   List<Widget> registerMachineWidgets() {
@@ -88,17 +96,36 @@ class _LoginFormState extends State<LoginForm> {
       'DB Password:dbpassword',
       'Database:dbname'
     ];
-    return fields.map((thisFieldDef) => wsMakeField(thisFieldDef,values:fieldValues)).toList();
+    return fields
+        .map((thisFieldDef) => wsMakeField(thisFieldDef, values: fieldValues))
+        .toList();
   }
 
   List<Widget> lockedOutWidgets() {
     return [Text('locked out')];
   }
 
+  List<Widget> serverNotAvailableWidgets() {
+    return [
+      Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+        Text('Server Not Available',
+            style: TextStyle(fontSize: 20, color: Colors.red)),
+        RaisedButton(
+            child: Text('RETRY'),
+            onPressed: () {
+              _loginSM.logout();
+            }),
+      ]))
+    ];
+  } // of serverNotAvailableWidgets
+
   void handleShowMessage(String messageText) {
-     setState(() {
-       _messageText = messageText;
-     });
+    setState(() {
+      _messageText = messageText;
+    });
   }
 
   @override
@@ -143,8 +170,8 @@ class _LoginFormState extends State<LoginForm> {
 
   void handleCancelPressed() {
     Log.message('The cancel button was pressed');
-    _loginFormKey.currentState.reset();
+    _loginSM.backTrack();
+//    _loginFormKey.currentState.reset();
   } // of handleCancelPressed
-
 
 } // of _LoginFormState

@@ -5,21 +5,20 @@
 */
 
 import 'package:flutter/material.dart';
-import 'package:all_our_photos_app/ImgFile.dart';
-import 'package:all_our_photos_app/srvCatalogueLoader.dart';
+import '../shared/aopClasses.dart';
 import 'package:all_our_photos_app/widgets/wdgSingleImage.dart';
 import 'package:all_our_photos_app/widgets/wdgImageFilter.dart' show filterColors;
 import 'package:all_our_photos_app/utils/DateUtil.dart';
 
 
 
-typedef void BannerTapCallback(ImgFile imageFile);
+typedef void BannerTapCallback(AopSnap snap);
 
 
 class PhotoTile extends StatelessWidget {
   PhotoTile({
     Key key,
-    @required this.imageFile,
+    @required this.snap,
     @required this.isSelected,
     @required this.inSelectMode,
     @required this.highResolution,
@@ -28,7 +27,7 @@ class PhotoTile extends StatelessWidget {
         assert(inSelectMode != null),
         assert(onBannerTap != null),
         super(key: key);
-  final ImgFile imageFile;
+  final AopSnap snap;
   final bool isSelected;
   final bool inSelectMode;
   final bool highResolution;
@@ -39,12 +38,12 @@ class PhotoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget imageWidget = new GestureDetector(
-        onTap: () { showPhoto(context,imageFile); },
+        onTap: () { showPhoto(context,snap); },
         child: new Hero(
-            key: new Key(thumbnailURL(imageFile)),
-            tag: imageFile.fullFilename,
+            key: new Key(snap.thumbnailURL),
+            tag: snap.fileName,
             child: new Image.network(
-              highResolution? fullsizeURL(imageFile) : thumbnailURL(imageFile),
+              highResolution? snap.fullSizeURL : snap.thumbnailURL,
               fit: BoxFit.scaleDown,
             )
         )
@@ -57,15 +56,15 @@ class PhotoTile extends StatelessWidget {
       return new GridTile(
         header: new GestureDetector(
           onTap: () {
-            onBannerTap(imageFile);
+            onBannerTap(snap);
           },
           child: new GridTileBar(
 //              backgroundColor: Colors.black26,
-              title: Text(formatDate(imageFile.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
-              subtitle: Text(imageFile.filename,style:TextStyle(color:Colors.black)),
+              title: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
+              subtitle: Text(snap.fileName,style:TextStyle(color:Colors.black)),
               trailing: Row(
                   children: [
-                    new Icon(icon, color: filterColors[imageFile.rank],size:40.0),
+                    new Icon(icon, color: filterColors[snap.ranking],size:40.0),
                   ])
           ),
         ),
@@ -74,11 +73,11 @@ class PhotoTile extends StatelessWidget {
     } else {
       return new GridTile(
         header: new GestureDetector(
-          onTap: () { onBannerTap(imageFile); },
+          onTap: () { onBannerTap(snap); },
           child: new GridTileBar(
 //            backgroundColor: isSelected ? Colors.black45 :Colors.black26,
-            title: Text(formatDate(imageFile.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
-            subtitle: Text(imageFile.filename,style:TextStyle(color:Colors.black)),
+            title: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
+            subtitle: Text(snap.fileName,style:TextStyle(color:Colors.black)),
             trailing: new Icon(iconSelect, color: Colors.black),
           ),
         ),

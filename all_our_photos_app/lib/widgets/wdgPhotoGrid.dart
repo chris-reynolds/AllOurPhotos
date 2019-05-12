@@ -1,16 +1,16 @@
 /*
   Created by Chris on 20th Oct 2018
 
-  Purpose: Stateful ImageList widget
+  Purpose: Stateful PhotoGrid widget with multi-select
 */
 
 
 import 'package:flutter/material.dart';
-import 'package:all_our_photos_app/ImageFilter.dart';
-import 'package:all_our_photos_app/widgets/wdgImageFilter.dart';
-import 'package:all_our_photos_app/widgets/ImageEditorWidget.dart';
-import 'package:all_our_photos_app/ImgFile.dart';
-import 'package:all_our_photos_app/widgets/wdgPhotoTile.dart';
+import '../shared/aopClasses.dart';
+import '../ImageFilter.dart';
+import 'wdgImageFilter.dart';
+import 'ImageEditorWidget.dart';
+import 'wdgPhotoTile.dart';
 
 class PhotoGrid extends StatefulWidget {
   final ImageFilter _initImageFilter;
@@ -30,15 +30,15 @@ class PhotoGridState extends State<PhotoGrid> {
   ScrollController _scrollController = ScrollController();
 
   List<String> _selectedImages = [];
-  bool isSelected(ImgFile imgFile) {
-    int idx = _selectedImages.indexOf(imgFile.filename);
+  bool isSelected(AopSnap snap) {
+    int idx = _selectedImages.indexOf(snap.fileName);
     return (idx>=0);
   } // of isSelected
 
-  void toggleSelected(ImgFile imgFile) {
-    int idx = _selectedImages.indexOf(imgFile.filename);
+  void toggleSelected(AopSnap snap) {
+    int idx = _selectedImages.indexOf(snap.fileName);
     if (idx<0)
-      _selectedImages.add(imgFile.filename);
+      _selectedImages.add(snap.fileName);
     else
       _selectedImages.removeAt(idx);
   } // of toggleSelected;
@@ -95,7 +95,7 @@ class PhotoGridState extends State<PhotoGrid> {
       return;
     setState(() {
       for (int ix = 0; ix < _imageFilter.images.length; ix++) {
-        ImgFile thisImage = _imageFilter.images[ix];
+        AopSnap thisImage = _imageFilter.images[ix];
         if (isSelected(thisImage)) {
           if (caption != '')
             thisImage.caption = caption;
@@ -133,10 +133,10 @@ class PhotoGridState extends State<PhotoGrid> {
 
                 padding: const EdgeInsets.all(4.0),
                 childAspectRatio: 1.0, //(orientation == Orientation.portrait) ? 1.0 : 1.3,
-                children: _imageFilter.images.map((ImgFile imageFile) {
+                children: _imageFilter.images.map((AopSnap snap) {
                   return new PhotoTile(
-                      isSelected: isSelected(imageFile),
-                      imageFile: imageFile,
+                      isSelected: isSelected(snap),
+                      snap: snap,
                       inSelectMode: _inSelectMode,
                       highResolution: (_picsPerRow == 1),
                       onBannerTap: (imageFile) {
@@ -144,7 +144,7 @@ class PhotoGridState extends State<PhotoGrid> {
                           if (_inSelectMode)
                             toggleSelected(imageFile);
                           else
-                            imageFile.rank = (imageFile.rank % 3 )+1;
+                            imageFile.ranking = (imageFile.ranking % 3 )+1;
                         });
                       }
                   );
