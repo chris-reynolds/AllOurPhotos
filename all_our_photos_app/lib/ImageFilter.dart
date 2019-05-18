@@ -3,15 +3,15 @@
  */
 
 import 'shared/aopClasses.dart';
-
+import 'utils/DateUtil.dart';
 
 typedef ImageFilterAction = void Function();
-
 class ImageFilter {
 
   DateTime _fromDate = DateTime(1900);
   DateTime _toDate = DateTime(2030);
   ImageFilterAction onRefresh;
+  // by default only show ranks 2 and 3
   List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
   String _searchText = '';
   List<AopSnap> _images;
@@ -82,16 +82,10 @@ class ImageFilter {
       return true;
     }
   } // isWanted
-  void checkImages() {
+  Future<void> checkImages() async {
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
-    _images = [];
-//    ImgCatalog.actOnAll((thisImage) {
-//      if (isWanted(thisImage))
-//        _images.add(thisImage);
-//      return true;
-//      }); // actoOnAll
-
+    _images = await snapProvider.getSome(whereClause());
     // todo check ascending or descending date sort
     _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
@@ -101,7 +95,16 @@ class ImageFilter {
   } // of calcImages
 
   String whereClause() {
-     return null; // TODO create where clause for remote execution
+    String result = ' taken_date between \'${formatDate(_fromDate)}\' and \'${formatDate(_toDate)}\'';
+     if (searchText != '') {
+
+     }
+     result += ' and ranking in (';
+     for (int rankNo=1;rankNo<=3;rankNo++)
+       if (_rank[rankNo])
+         result +='$rankNo,';
+     result += '-999) ';
+     return result;
   } // of whereClause
 
   void extendDateRange({int days = 7}) {

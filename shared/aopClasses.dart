@@ -568,10 +568,10 @@ static Future<dynamic> get monthGrid async {
 }  // of yearGrid
 
   String get fullSizeURL {
-    return 'TODO fullSizeURL';
+    return 'http://192.168.1.251:3333/$directory/$fileName';
   } // of fullSizeURL
   String get thumbnailURL {
-	  return 'TODO thumbnailURL';
+	  return 'http://192.168.1.251:3333/$directory/thumbnails/$fileName';
   } // of thumbnailURL
 
 //                                '*** End Custom Code

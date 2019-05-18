@@ -56,9 +56,10 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
   } // of toggleRank
 
   void onRefresh() {
-    setState(() {
-      changeMode = false;
-      _imageFilter.checkImages();
+    _imageFilter.checkImages().then((dummy){
+      setState(() {
+        changeMode = false;
+      });
     });
     // just added this cos of Dart analysis. Not sure if it used.
     if (widget._onRefresh != null)

@@ -87,8 +87,13 @@ class DOProvider<TDO extends DomainObject> {
   }
   Future<List<TDO>> getSome(String whereClause) async {
     var sql = sqlStatements.getSomeStatement(whereClause);
-    var r = await dbConn.query(sql);
-    return toList(r);
+    try {
+      var r = await dbConn.query(sql);
+      return toList(r);
+    } catch(ex) {
+      log.error(ex);
+      rethrow;
+    }
   }
   Future<void> delete(TDO aDomainObect) async {
     var r = await dbConn.query(sqlStatements.deleteStatement(),[aDomainObect.id]);

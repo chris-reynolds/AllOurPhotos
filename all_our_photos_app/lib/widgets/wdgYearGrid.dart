@@ -9,19 +9,17 @@ import '../dart_common/Logger.dart' as log;
 import '../shared/aopClasses.dart';
 
 // Note there is a blank month name in entry 0 for the year column
-final List<
-    String> monthNames = 'Year/Jan/Feb/Mar/Apr/May/Jun/Jul/Aug/Sep/Oct/Nov/Dec'
-    .split('/');
+final List<String> monthNames =
+    'Year/Jan/Feb/Mar/Apr/May/Jun/Jul/Aug/Sep/Oct/Nov/Dec'.split('/');
 
 class YearEntry {
   final int yearno;
 
   // zeroth item not used - just makes coding cleaner
-  List<int> month = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  List<int> months = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
   YearEntry(this.yearno);
 } // of yearEntry
-
 
 class YearGrid extends StatefulWidget {
   @override
@@ -38,10 +36,10 @@ class _YearGridState extends State<YearGrid> {
   BuildContext currentContext;
 
   @override
-  initState()  {
+  initState() {
     super.initState();
     buildYears().then((newYearList) {
-      setState(()=> yearList = newYearList);
+      setState(() => yearList = newYearList);
     }); // of then
   } // of initState
 
@@ -50,7 +48,7 @@ class _YearGridState extends State<YearGrid> {
     for (var row in await AopSnap.monthGrid) {
       YearEntry newYear = YearEntry(row[0]);
       for (int monthIx = 1; monthIx <= 12; monthIx++)
-        newYear.month[monthIx] = (row[monthIx]).round();
+        newYear.months[monthIx] = (row[monthIx]).round();
       result.add(newYear);
     }
     result.sort((YearEntry y1, YearEntry y2) => (y2.yearno - y1.yearno));
@@ -61,53 +59,59 @@ class _YearGridState extends State<YearGrid> {
 
   void handleMonthClick(int yearNo, int monthNo) {
     if (monthNo > 0) // dont navigate if clicking on yearNo
-      Navigator.push(context, MaterialPageRoute(
-          builder: (context) =>
-              PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo))));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo))));
   } // handleMonthClick
 
   Row yearRowBuilder(YearEntry thisYear) {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text('${thisYear.yearno}', style: gridStyles['yearNos']),
-          for (int monthIx = 1; monthIx <= 12; monthIx++)
-            IconButton(
-              icon: Icon(Icons.image, size: 36.0),
-              tooltip: 'Todo: Maybe location info',
-              onPressed: () {
-                handleMonthClick(thisYear.yearno, monthIx);
-              },
-            )
-        ]
-    );
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      Text('${thisYear.yearno}', style: gridStyles['yearNos']),
+      for (int monthIx = 1; monthIx <= 12; monthIx++)
+        if (thisYear.months[monthIx] > 0)
+          IconButton(
+            icon: Icon(Icons.image, size: 36.0, color: Colors.amber),
+            tooltip: 'Todo: Maybe location info',
+            onPressed: () {
+              handleMonthClick(thisYear.yearno, monthIx);
+            },
+          )
+        else
+          IconButton(
+            icon: Icon(Icons.radio_button_unchecked, size: 12.0),
+            onPressed: () {},
+          ),
+    ]);
   } // of yearRowBuilder
+
   @override
   Widget build(BuildContext context) {
     List<Widget> monthNamesHeader = [
       new InkWell(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: monthNames.map((monthName) =>
-                Text(monthName, style: gridStyles['monthNames'],)).toList()
-        ),
+            children: monthNames
+                .map((monthName) => Text(
+                      monthName,
+                      style: gridStyles['monthNames'],
+                    ))
+                .toList()),
         onTap: () {
           print('resetting yearlist');
           yearList = [];
         },
       )
-
     ];
     return new ListView(
       children: [
-        ... monthNamesHeader,
-        for (var thisYear in yearList)
-          yearRowBuilder(thisYear)
+        ...monthNamesHeader,
+        for (var thisYear in yearList) yearRowBuilder(thisYear)
       ],
     ); // of ListView
   }
 }
-
 
 /*
 create view vwmonthgrid as
