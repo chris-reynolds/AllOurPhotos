@@ -3,7 +3,7 @@
  */
 
 import 'shared/aopClasses.dart';
-import 'utils/DateUtil.dart';
+import 'package:all_our_photos_app/dart_common/DateUtil.dart';
 
 typedef ImageFilterAction = void Function();
 class ImageFilter {

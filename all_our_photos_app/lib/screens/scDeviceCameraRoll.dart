@@ -1,4 +1,4 @@
-import 'package:all_our_photos_app/utils/DateUtil.dart';
+import 'package:all_our_photos_app/dart_common/DateUtil.dart';
 import 'package:multi_image_picker/multi_image_picker.dart' as MIP;
 import 'package:flutter/material.dart';
 import 'dart:async';
