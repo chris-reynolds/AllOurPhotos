@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:all_our_photos_app/utils/DateUtil.dart' as Utils;
+import '../dart_common/DateUtil.dart' as Utils;
 
 typedef DateChangedEvent = Function(DateTime);
 

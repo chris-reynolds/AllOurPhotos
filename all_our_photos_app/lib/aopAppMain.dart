@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'screens/scRecentPics.dart';
-import 'screens/scAlbums.dart';
+import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
 import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
+import 'screens/scAlbumDetail.dart';
 import 'appNavigator.dart';
 import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
@@ -35,8 +36,8 @@ void main() async {
 //      '/a': (BuildContext context) => GridListDemo(),
     'home': (context) => dashboardScreen,
       'login': (BuildContext context) => loginScreen,
-      '/b': (BuildContext context) => Albums('albums route b'),
-      '/c': (BuildContext context) => Albums('albums route c'),
+      'AlbumList': (BuildContext context) => AlbumList(),
+      'AlbumDetail': (BuildContext context) => AlbumDetail(),
     },
   );
   runApp(application);
@@ -100,10 +101,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: new PageView(
         children: [
           new Home("Recent Pics"),
-          new MyHomePage(),
-//          new Albums("Albums"),
+//          new MyHomePage(),
+          new AlbumList(),
           new HistoryScreen("History"),
-          new Testing("Testing"),
+          new SearchList(),
         ],
         onPageChanged: onPageChanged,
         controller: _pageController,
