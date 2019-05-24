@@ -11,9 +11,9 @@ abstract class DomainObject {
   DateTime createdOn;
   DateTime updatedOn;
   String updatedUser;
-  Map<String,String> lastErrors = {};
+  List<String> lastErrors = [];
   bool get isValid => lastErrors.length == 0;
-  void validate() async {  lastErrors = {}; }  // this writes to the lastErrors
+  void validate() async {  lastErrors = []; }  // this writes to the lastErrors
   void save() async { throw Exception("todo save");}
   Map<String,dynamic> toMap();
   void fromMap(Map<String,dynamic> map);
@@ -88,6 +88,7 @@ class DOProvider<TDO extends DomainObject> {
   Future<List<TDO>> getSome(String whereClause) async {
     var sql = sqlStatements.getSomeStatement(whereClause);
     try {
+      log.message('SQL:$sql');
       var r = await dbConn.query(sql);
       return toList(r);
     } catch(ex) {
