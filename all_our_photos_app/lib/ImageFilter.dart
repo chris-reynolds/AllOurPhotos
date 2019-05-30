@@ -3,7 +3,8 @@
  */
 
 import 'shared/aopClasses.dart';
-import 'package:all_our_photos_app/dart_common/DateUtil.dart';
+import 'dart_common/DateUtil.dart';
+import 'dart_common/Logger.dart' as Log;
 
 typedef ImageFilterAction = void Function();
 class ImageFilter {
@@ -31,7 +32,7 @@ class ImageFilter {
 
   ImageFilter.yearMonth(int year,int month,{ImageFilterAction refresh}) {
     _fromDate = DateTime(year,month,1);
-    _toDate = _fromDate.add(Duration(days: 31));
+    _toDate = addMonths(_fromDate,1);
     onRefresh = refresh;
     print('Image Filter - yearmonth constructor $searchText');
   }  // create with yearMonth
@@ -68,20 +69,20 @@ class ImageFilter {
     _rank[rankNo] = value;
   } // of setRank
 
-  bool isWanted(AopSnap thisImage) {
-    try {
-//      if (thisImage.deletedDate != null) return false;
-      if (!_rank[thisImage.ranking]) return false;
-      if (thisImage.takenDate == null || thisImage.takenDate.isBefore(_fromDate)) return false;
-      if (thisImage.takenDate == null || thisImage.takenDate.isAfter(_toDate)) return false;
-      if (_searchText.length > 0 )
-        if ((thisImage.caption+' '+thisImage.location+' '+
-            thisImage.tagList).toLowerCase().indexOf(_searchText)<0) return false;
-      return true;
-    } catch(ex) {
-      return true;
-    }
-  } // isWanted
+//  bool isWanted(AopSnap thisImage) {
+//    try {
+////      if (thisImage.deletedDate != null) return false;
+//      if (!_rank[thisImage.ranking]) return false;
+//      if (thisImage.takenDate == null || thisImage.takenDate.isBefore(_fromDate)) return false;
+//      if (thisImage.takenDate == null || thisImage.takenDate.isAfter(_toDate)) return false;
+//      if (_searchText.length > 0 )
+//        if ((thisImage.caption+' '+thisImage.location+' '+
+//            thisImage.tagList).toLowerCase().indexOf(_searchText)<0) return false;
+//      return true;
+//    } catch(ex) {
+//      return true;
+//    }
+//  } // isWanted
   Future<void> checkImages() async {
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
@@ -89,7 +90,7 @@ class ImageFilter {
     // todo check ascending or descending date sort
     _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
-    print('returning ${_images.length} images');
+    Log.message('returning ${_images.length} images');
     if (onRefresh != null)  // alert listen of changes
       onRefresh();
   } // of calcImages
@@ -104,6 +105,7 @@ class ImageFilter {
        if (_rank[rankNo])
          result +='$rankNo,';
      result += '-999) ';
+     // todo string search criteria
      return result;
   } // of whereClause
 

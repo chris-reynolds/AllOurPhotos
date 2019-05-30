@@ -6,6 +6,7 @@ import 'screens/scTesting.dart';
 import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
+import 'screens/scAlbumAddPhoto.dart';
 import 'appNavigator.dart';
 import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
@@ -38,6 +39,7 @@ void main() async {
       'login': (BuildContext context) => loginScreen,
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
+      'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
     },
   );
   runApp(application);
