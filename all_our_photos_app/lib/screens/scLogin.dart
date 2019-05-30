@@ -22,7 +22,7 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   LoginStateMachine _loginSM;
   var _loginFormKey = GlobalKey<FormBuilderState>();
-  String _messageText = 'Nothing2';
+  String _messageText = '';
   Map<String, dynamic> fieldValues = {
     'dbhost': '192.168.1.251',
     'dbport': '3306',
