@@ -126,6 +126,11 @@ Future<void> delete() async {
 static Future<List<AopAlbum>>all() async {
   return albumProvider.getSome('1=1');
 }  // all Albums
+
+  Future<List<AopSnap>>get snaps async {
+	  return snapProvider.getSome('id in (select snap_id from aopalbum_items where album_id=${this.id})');
+  } //  snaps property
+
   @override
   void validate() async {
 	  await super.validate(); // clear last errors
@@ -136,6 +141,7 @@ static Future<List<AopAlbum>>all() async {
 	  if (yearNo<1900 || yearNo>2099)
 	    lastErrors.add('name should start with 4 digit year');
   } // of validate
+
 //                                '*** End Custom Code
 } // of class album
 
@@ -482,7 +488,7 @@ Map<String,dynamic> toMap() {
       fld = 'directory';
       this.directory = row[5];
       fld = 'takenDate';
-      this.takenDate = row[6];
+      this.takenDate = (row[6] as DateTime)?.toLocal();
       fld = 'originalTakenDate';
       this.originalTakenDate = row[7];
       fld = 'modifiedDate';
