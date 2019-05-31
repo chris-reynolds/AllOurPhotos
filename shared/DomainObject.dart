@@ -13,8 +13,8 @@ abstract class DomainObject {
   String updatedUser;
   List<String> lastErrors = [];
   bool get isValid => lastErrors.length == 0;
-  void validate() async {  lastErrors = []; }  // this writes to the lastErrors
-  void save() async { throw Exception("todo save");}
+  Future<void> validate() async {  lastErrors = []; }  // this writes to the lastErrors
+  Future<void> save() async { throw Exception("todo save");}
   Map<String,dynamic> toMap();
   void fromMap(Map<String,dynamic> map);
   void fromRow(dynamic row) {
@@ -148,7 +148,7 @@ class SQLStatementFactory {
       'select ${_lockedColumns.join(",")},${_columnNames.join(",")}'+
           ' from $_tableName where id=?';
 
-  String getSomeStatement(String whereClause,{String orderBy = 'id'}) =>
+  String getSomeStatement(String whereClause,{String orderBy = 'created_on'}) =>
       'select ${_lockedColumns.join(",")},${_columnNames.join(",")}'+
           ' from $_tableName where $whereClause order by $orderBy';
 

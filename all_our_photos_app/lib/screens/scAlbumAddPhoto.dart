@@ -8,10 +8,12 @@
 import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/wdgMonthSelector.dart';
+//import '../widgets/wdgSelectionBar.dart';
 import '../ImageFilter.dart';
 import '../dart_common/DateUtil.dart';
 import '../dart_common/ListUtils.dart';
 import '../dart_common/Logger.dart' as Log;
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class AlbumAddPhoto extends StatefulWidget {
   @override
@@ -31,44 +33,84 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
       body: new ListView(
         padding: new EdgeInsets.symmetric(vertical: 8.0),
         children: <Widget>[
-          if (_list != null)
-            for (AopSnap snap in _list)
-              Text('${formatDate(snap.takenDate,format:'dd-mmm-yy hh:nn:ss')}    ${snap.fullSizeURL}      '),
+          if (_list != null) for (AopSnap snap in _list) snapCell(snap),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              RaisedButton.icon(
+                  onPressed: extendEndDate,
+                  icon: Icon(Icons.arrow_downward),
+                  label: Text('Show more...'))
+            ],
+          ), // or row
         ],
       ),
     );
   } // of build
 
   Widget buildBar(BuildContext context) {
-    return AppBar(
-      actions: <Widget>[
-        MonthSelector(onPressed: setQuarter,),
-      ],
-    );
+    if (selectionList.length == 0)
+      return AppBar(
+        actions: <Widget>[
+          MonthSelector(
+            onPressed: setQuarter,
+          ),
+          IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                saveSelectedToAlbum(context); // selectionList is empty.
+              }),
+        ],
+      );
+    else
+      return AppBar(
+        title: Text('${this.selectionList.length} items selected'),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.check),
+              onPressed: () {
+                saveSelectedToAlbum(context);
+              }),
+          IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                this.clearSelected();
+                setState(() {});
+              }),
+        ],
+      ); // of row
   } // of buildBar
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    album = ModalRoute.of(context).settings.arguments;
-    yearNo = int.tryParse(album.name.substring(0, 4));
-    if (yearNo == null) yearNo = DateTime.now().year;
-    DateTime startDate = DateTime(yearNo, 1, 1);
-    DateTime endDate = addMonths(startDate, 3);
-    imgFilter = ImageFilter.yearMonth(yearNo,1,refresh: refreshList);
-    Log.message('Album assigned');
- //   imgFilter.setRank(2, false);
-    refreshList();
+    if (album == null) {
+      album = ModalRoute
+          .of(context)
+          .settings
+          .arguments;
+      yearNo = int.tryParse(album.name.substring(0, 4));
+      if (yearNo == null) yearNo = DateTime
+          .now()
+          .year;
+      DateTime startDate = DateTime(yearNo, 1, 1);
+      imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
+      imgFilter.toDate = addMonths(startDate, 3);
+      Log.message('Album assigned');
+      //   imgFilter.setRank(2, false);
+      refreshList();
+    }
   } // of didChangeDependencies
 
   void extendEndDate() {
     imgFilter.toDate = addMonths(imgFilter.toDate, 1);
     refreshList();
   } // extendEndDate
+
   @override
   void initState() {
     super.initState();
-    Log.message('I was here without a list = ${_list==null}');
+    Log.message('I was here without a list = ${_list == null}');
   }
 
   Future<void> refreshList() async {
@@ -78,10 +120,28 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
     });
   } // refreshList
 
+  void saveSelectedToAlbum(BuildContext context) {
+    Navigator.pop(context,selectionList);
+  } // of saveSelectedToAlbum
+
   void setQuarter(int quarter) {
     imgFilter.fromDate = DateTime(yearNo, 3 * quarter + 1, 1);
     imgFilter.toDate = addMonths(imgFilter.fromDate, 3);
     refreshList();
   } // of setQuarter
+
+  Widget snapCell(AopSnap snap) {
+    return InkWell(
+      child: Text(
+          '${formatDate(snap.takenDate, format: 'dd-mmm-yy hh:nn:ss')} ' +
+              '   ${snap.fullSizeURL}      ',
+          style: TextStyle(
+              color: isSelected(snap.id) ? Colors.red : Colors.blueAccent)),
+      onTap: () {
+        this.toggleSelected(snap.id);
+        setState(() {});
+      },
+    );
+  } // of snapCell
 
 } // of AlbumAddPhotoState

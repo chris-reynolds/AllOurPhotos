@@ -3,7 +3,7 @@ import 'screens/scRecentPics.dart';
 import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
-import 'screens/scDeviceCameraRoll.dart';
+// import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';

@@ -6,8 +6,8 @@ Purpose: This is a popup dialog that will allow the user to enter the name of a 
 import 'package:flutter/material.dart';
 
 class DgAlbumCreate extends StatefulWidget {
-  String name;
-  String errorMessage;
+  final String name;
+  final String errorMessage;
   @override
   _DgAlbumCreateState createState() => _DgAlbumCreateState();
 

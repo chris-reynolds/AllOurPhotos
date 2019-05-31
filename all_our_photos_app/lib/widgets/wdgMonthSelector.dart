@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 typedef QuarterCallback = void Function(int);
 
 class MonthSelector extends StatefulWidget {
-  QuarterCallback onPressed;
+  final QuarterCallback onPressed;
 
   MonthSelector({@required this.onPressed});
 
@@ -20,7 +20,7 @@ class MonthSelector extends StatefulWidget {
 
 class _MonthSelectorState extends State<MonthSelector> {
   List<bool> _monthList = [true, false, false, false];
-  bool _multiMonth = true;
+//  bool _multiMonth = true;
   List<String> _monthNames = 'Jan-Mar Apr-Jun Jul-Sep Oct-Dec'.split(' ');
 
   @override

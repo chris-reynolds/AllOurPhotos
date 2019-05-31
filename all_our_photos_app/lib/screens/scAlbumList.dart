@@ -68,7 +68,7 @@ class _AlbumListState extends State<AlbumList> {
         children: _isSearching ? _buildAlbumList() : _buildList(),
       ),
       floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add), onPressed: ()=> handleAddAlbum(context)),
+          child: Icon(Icons.add), onPressed: () => handleAddAlbum(context)),
     );
   }
 
@@ -144,11 +144,13 @@ class _AlbumListState extends State<AlbumList> {
   }
 
   void handleAddAlbum(BuildContext context) async {
-    String name = '${formatDate(DateTime.now(),format:'yyyy')} Unknown';
+    String name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
     String errorMessage = '';
     bool done = false;
     while (!done) {
-      name = await showDialog(context: context,child: DgAlbumCreate(name,errorMessage));
+      name = await showDialog(
+          context: context,
+          builder: (BuildContext context) => DgAlbumCreate(name, errorMessage));
       Log.message('new name is: $name');
       AopAlbum newAlbum = AopAlbum();
       newAlbum.name = name;
@@ -159,7 +161,7 @@ class _AlbumListState extends State<AlbumList> {
           await newAlbum.save();
           refreshList();
           done = true;
-        } catch(ex) {
+        } catch (ex) {
           errorMessage = ex.message;
         }
       } else
@@ -175,7 +177,9 @@ class ChildItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new ListTile(title: new Text(this.album.name),
-      onTap: ()=> Navigator.pushNamed(context, 'AlbumDetail',arguments:this.album));
+    return new ListTile(
+        title: new Text(this.album.name),
+        onTap: () =>
+            Navigator.pushNamed(context, 'AlbumDetail', arguments: this.album));
   }
 }
