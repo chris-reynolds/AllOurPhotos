@@ -207,6 +207,18 @@ class AopAlbum extends DomainObject {
     return result;
   } // of addSnaps
 
+  Future<int> removeSnaps(List<int> oldSnapIds) async {
+    int result = 0;
+    List<AopAlbumItem> existingItems = await this.albumItems;
+    for (AopAlbumItem thisItem in existingItems) {
+      if (oldSnapIds.indexOf(thisItem.snapId)>=0) {
+        await thisItem.delete();
+        result += 1;
+      }
+    }
+    return result;
+  } // of removeSnaps
+
   @override
   Future<void> validate() async {
     await super.validate(); // clear last errors
