@@ -8,6 +8,7 @@ import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
 import '../widgets/wdgSnapGrid.dart';
+import 'scAlbumCreateDlg.dart';
 
 class AlbumDetail extends StatefulWidget {
   @override
@@ -27,15 +28,15 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
       return new Scaffold(
         key: scaffoldKey,
         appBar: buildBar(context),
-        body: snapGrid(context,_list),
+        body: snapGrid(context, _list, this),
 //          new ListView(
 //          padding: new EdgeInsets.symmetric(vertical: 8.0),
 //          children: _buildList(),
 //        ),
         floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add_a_photo),
-            onPressed: () => handleAddAlbumItem(context),
-      ),
+          child: Icon(Icons.add_a_photo),
+          onPressed: () => handleAddAlbumItem(context),
+        ),
       );
   } // of build
 
@@ -46,10 +47,10 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
           title: Text('${argAlbum.name}'),
           actions: <Widget>[
             new IconButton(
-              icon: Icon(Icons.save),
+              icon: Icon(Icons.edit),
               onPressed: () {
-                setState(() {
-                  // TODO save
+                handleRenameAlbum(context).then((xx) {
+                  setState(() {});
                 });
               },
             ),
@@ -66,12 +67,17 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
           IconButton(
               icon: Icon(Icons.delete),
               onPressed: () {
-                // TODO remove items from album
+                argAlbum.removeSnaps(selectionList).then((count) {
+                  clearSelected();
+                  refreshList();
+                  showSnackBar("$count items removed");
+                });
               }),
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                toggleSelected(0);
+                clearSelected();
+                refreshList();
               }),
         ],
       );
@@ -93,16 +99,13 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
 
   void handleAddAlbumItem(BuildContext context) {
     Navigator.pushNamed(context, 'AlbumItemCreate', arguments: argAlbum)
-        .then((selectedSnaps)  {
+        .then((selectedSnaps) {
       List<int> snapIds = selectedSnaps;
       Log.message('${snapIds.length} snaps returned');
-      Future<int> count = argAlbum.addSnaps(snapIds);
-      clearSelected();
-      refreshList();
-      count.then((value){
-        scaffoldKey.currentState
-          ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text("$value items added")));
+      argAlbum.addSnaps(snapIds).then((count) {
+        clearSelected();
+        refreshList();
+        showSnackBar("$count items added");
       });
     });
   } // of handleAddAlbumItem
@@ -110,6 +113,33 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
   void handleDelete() async {
     // todo : await sho
   } // of handleDelete
+
+  Future<void> handleRenameAlbum(BuildContext context) async {
+    String newName;
+    String errorMessage = '';
+    bool done = false;
+    while (!done) {
+      newName = await showDialog(
+          context: context,
+          builder: (BuildContext context) =>
+              DgAlbumCreate(argAlbum.name, errorMessage));
+      if (newName == EXIT_CODE)
+        return;  // jump straight out
+      Log.message('new name is: $newName');
+      argAlbum.name = newName;
+      await argAlbum.validate();
+      if (argAlbum.isValid) {
+        try {
+          await argAlbum.save();
+          refreshList();
+          done = true;
+        } catch (ex) {
+          errorMessage = ex.message;
+        }
+      } else
+        errorMessage = argAlbum.lastErrors.join('\n');
+    } // of done loop
+  } // handleRenameAlbum
 
   @override
   void initState() {
@@ -124,6 +154,12 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
       });
     });
   } // of refreshList
+
+  void showSnackBar(String message) {
+    scaffoldKey.currentState
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  } // of showSnackBar
 
   Widget snapTile(AopSnap snap) {
     return Column(children: [

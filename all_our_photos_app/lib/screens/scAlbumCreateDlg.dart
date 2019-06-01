@@ -5,6 +5,7 @@ Purpose: This is a popup dialog that will allow the user to enter the name of a 
 */
 import 'package:flutter/material.dart';
 
+final String EXIT_CODE = 'XXCLOSEXX';
 class DgAlbumCreate extends StatefulWidget {
   final String name;
   final String errorMessage;
@@ -18,7 +19,7 @@ class _DgAlbumCreateState extends State<DgAlbumCreate> {
   TextEditingController _nameController = TextEditingController();
 
   void handleSavePressed(String value) {
-    Navigator.pop(context,_nameController.text);
+    Navigator.pop(context,value);
   } // of handleSavePressed
 
   @override
@@ -32,7 +33,14 @@ class _DgAlbumCreateState extends State<DgAlbumCreate> {
     return SimpleDialog(
       contentPadding: EdgeInsets.all(20),
       titlePadding: EdgeInsets.all(20),
-      title: Text('New album'),
+      title: Row(
+        children:[Text('Album name'),
+          Spacer(),
+          IconButton(icon: Icon(Icons.close), onPressed: (){
+            handleSavePressed(EXIT_CODE);
+          })
+        ],
+      ),
       children: <Widget>[
         TextField(
           controller: _nameController,

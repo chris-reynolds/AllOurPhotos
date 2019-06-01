@@ -13,7 +13,7 @@ import '../ImageFilter.dart';
 import '../dart_common/DateUtil.dart';
 import '../dart_common/ListUtils.dart';
 import '../dart_common/Logger.dart' as Log;
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import '../widgets/wdgSnapGrid.dart';
 
 class AlbumAddPhoto extends StatefulWidget {
   @override
@@ -33,6 +33,8 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
       body: new ListView(
         padding: new EdgeInsets.symmetric(vertical: 8.0),
         children: <Widget>[
+          Text('blah'),
+          SsSnapGrid(_list, this),
           if (_list != null) for (AopSnap snap in _list) snapCell(snap),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -10,44 +10,74 @@ import '../shared/aopClasses.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../dart_common/ListUtils.dart';
 
+Widget snapGrid(
+    BuildContext context, List<AopSnap> snapList, dynamic parentGrid) {
+  assert(parentGrid is Selection<int>);
+  Widget snapTile(BuildContext context, int index) {
+    AopSnap snap = snapList[index];
+    return Stack(children: [
+      Image.network(snap.thumbnailURL),
+      Checkbox(
+        value: parentGrid.isSelected(snap.id),
+        onChanged: (value) {
+          parentGrid.setSelected(snap.id, value);
+          parentGrid.setState(() {});
+        },
+      ), // of checkbox
+      //title: Text('${snap.caption}'),
+      //),
+    ]);
+  } // of snapTile
 
-Widget snapGrid(BuildContext context, List<AopSnap> snapList) {
   if (snapList == null)
     return Container();
   else
-    return StaggeredGridView.countBuilder(
-        crossAxisCount: 8,
-        itemCount: snapList.length,
-        itemBuilder: (BuildContext context, int index) =>
-        new Container(
-          color: Colors.green,
-          child: Image.network(snapList[index].thumbnailURL),
-//            child: new Center(
-//              child: new CircleAvatar(
-//                backgroundColor: Colors.red,
-//                child: new Text('$index'),
-//              ),
-        )
-  ,
-  staggeredTileBuilder: (int index) =>
-  new StaggeredTile.count(4, index.isEven ? 3: 4),
-  mainAxisSpacing: 4.0,
-  crossAxisSpacing: 4.0,
-  );
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 3.0,
+          crossAxisSpacing: 3.0,
+          childAspectRatio: 1.33),
+      itemCount: snapList.length,
+      itemBuilder: snapTile,
+    );
 }
+class SsSnapGrid extends StatelessWidget {
+  List<AopSnap> snapList;
+  dynamic parentGrid;
+  SsSnapGrid(this.snapList,this.parentGrid);
 
-//Widget snapTile(AopSnap snap) {
-//  return Column(children: [
-//    ListTile(
-//      leading: Checkbox(
-//        value: isSelected(snap.id),
-//        onChanged: (value) {
-//          setSelected(snap.id, value);
-//          setState(() {});
-//        },
-//      ), // of checkbox
-//      title: Text('${snap.caption}'),
-//    ),
-//    Image.network(snap.thumbnailURL),
-//  ]);
-//} // of snapTile
+  @override
+  Widget build(BuildContext context) {
+    assert(parentGrid is Selection<int>);
+    Widget snapTile(BuildContext context, int index) {
+      AopSnap snap = snapList[index];
+      return Stack(children: [
+        Image.network(snap.thumbnailURL),
+        Checkbox(
+          value: parentGrid.isSelected(snap.id),
+          onChanged: (value) {
+            parentGrid.setSelected(snap.id, value);
+            parentGrid.setState(() {});
+          },
+        ), // of checkbox
+        //title: Text('${snap.caption}'),
+        //),
+      ]);
+    } // of snapTile
+
+    if (snapList == null)
+      return Container();
+    else
+      return GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 3.0,
+            crossAxisSpacing: 3.0,
+            childAspectRatio: 1.33),
+        itemCount: snapList.length,
+        itemBuilder: snapTile,
+      );
+  }
+} // of ssSnapGrid
+
