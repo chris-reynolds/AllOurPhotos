@@ -1,22 +1,32 @@
 import 'dart:async';
 import './dbAllOurPhotos.dart';
-import '../dart_common/Logger.dart' as log;
-
+import '../dart_common/Logger.dart' as Log;
 
 bool sqlLogging = false;
 
 abstract class DomainObject {
-  DomainObject({Map<String,dynamic> data});
+  DomainObject({Map<String, dynamic> data});
+
   int id;
   DateTime createdOn;
   DateTime updatedOn;
   String updatedUser;
   List<String> lastErrors = [];
+
   bool get isValid => lastErrors.length == 0;
-  Future<void> validate() async {  lastErrors = []; }  // this writes to the lastErrors
-  Future<void> save() async { throw Exception("todo save");}
-  Map<String,dynamic> toMap();
-  void fromMap(Map<String,dynamic> map);
+
+  Future<void> validate() async {
+    lastErrors = [];
+  } // this writes to the lastErrors
+
+  Future<void> save() async {
+    throw Exception("todo save");
+  }
+
+  Map<String, dynamic> toMap();
+
+  void fromMap(Map<String, dynamic> map);
+
   void fromRow(dynamic row) {
     String fld;
     try {
@@ -29,9 +39,10 @@ abstract class DomainObject {
       fld = 'updatedUser';
       updatedUser = row[3];
     } catch (ex) {
-      throw Exception('Failed to assign field $fld : '+ex.toString());
+      throw Exception('Failed to assign field $fld : ' + ex.toString());
     }
-  }  // from Row
+  } // from Row
+
   List<dynamic> toRow() {
     var result = [];
     result.add(id);
@@ -39,8 +50,8 @@ abstract class DomainObject {
     result.add(updatedOn);
     result.add(updatedUser);
     return result;
-  }  // to Row
-}  // of abstract class DomainObject
+  } // to Row
+} // of abstract class DomainObject
 
 class DOProvider<TDO extends DomainObject> {
   String tableName;
@@ -48,7 +59,8 @@ class DOProvider<TDO extends DomainObject> {
   SQLStatementFactory sqlStatements;
   Function newFn;
 
-  List<TDO> toList(dynamic r) {  // todo tighter declaration than dynamic
+  List<TDO> toList(dynamic r) {
+    // todo tighter declaration than dynamic
     var result = <TDO>[];
     for (var row in r) {
       TDO newDomainObject = (newFn() as TDO);
@@ -57,70 +69,105 @@ class DOProvider<TDO extends DomainObject> {
     }
     return result;
   }
-  DOProvider(this.tableName,this.columnList,this.newFn) {
-    sqlStatements = SQLStatementFactory(tableName,columnList);
+
+  DOProvider(this.tableName, this.columnList, this.newFn) {
+    sqlStatements = SQLStatementFactory(tableName, columnList);
   }
+
   Future<int> save(TDO aDomainObject) async {
     String sql;
-    if (aDomainObject.id != null && aDomainObject.id>0) { // then update
-      sql = sqlStatements.updateStatement();
-    } else { // insert
-      sql = sqlStatements.insertStatement();
+    try {
+      List<dynamic> dataFields = aDomainObject.toRow();
+      if (aDomainObject.id != null && aDomainObject.id > 0) {
+        // then update
+        sql = sqlStatements.updateStatement();
+        if (sqlLogging) Log.message('save sql : $sql');
+        dataFields.add(aDomainObject.id);
+//        dataFields.add(aDomainObject.updatedOn);
+        var r = await dbConn.query(sql, dataFields);
+        await refreshFromDb(aDomainObject);
+        return aDomainObject.id;
+      } else {
+        // insert
+        sql = sqlStatements.insertStatement();
+        if (sqlLogging) Log.message('save sql : $sql');
+        var r = await dbConn.query(sql, dataFields);
+        aDomainObject.id = r.insertId;
+        await refreshFromDb(aDomainObject);
+        return r.insertId;
+      }
+    } catch (ex) {
+      Log.error(ex);
+      rethrow;
     }
-//    throw Exception('sql : $sql');
-    if (sqlLogging)
-      log.message('save sql : $sql');
-    var r = await dbConn.query(sql,aDomainObject.toRow());
-    return r.insertId;
   } // of save
+
   Future<TDO> get(int id) async {
-    var r = await dbConn.query(sqlStatements.getStatement(),[id]);
+    var r = await dbConn.query(sqlStatements.getStatement(), [id]);
     List<TDO> results = toList(r);
     if (results.length == 0) throw Exception('id $id not found in $tableName');
-    if (results.length > 1) throw Exception('id $id is duplicate in $tableName');
+    if (results.length > 1)
+      throw Exception('id $id is duplicate in $tableName');
     return results[0];
   } //
-  Future<List<TDO>> getWithFKey(String keyname,int keyValue) async {
+
+  Future<List<TDO>> getWithFKey(String keyname, int keyValue) async {
     var sql = sqlStatements.getSomeStatement('$keyname=$keyValue');
     var r = await dbConn.query(sql);
     return toList(r);
   }
+
   Future<List<TDO>> getSome(String whereClause) async {
     var sql = sqlStatements.getSomeStatement(whereClause);
     try {
-      log.message('SQL:$sql');
+      Log.message('SQL:$sql');
       var r = await dbConn.query(sql);
       return toList(r);
-    } catch(ex) {
-      log.error(ex);
+    } catch (ex) {
+      Log.error(ex);
       rethrow;
     }
   }
+
   Future<void> delete(TDO aDomainObect) async {
-    var r = await dbConn.query(sqlStatements.deleteStatement(),[aDomainObect.id]);
-    if (r.affectedRows==0)
+    var r =
+        await dbConn.query(sqlStatements.deleteStatement(), [aDomainObect.id]);
+    if (r.affectedRows == 0)
       throw Exception('Failed Delete for $tableName id=${aDomainObect.id} ');
-    else
-      if (sqlLogging)
-        log.message('Delete for $tableName id=${aDomainObect.id} ');
+    else if (sqlLogging)
+      Log.message('Delete for $tableName id=${aDomainObect.id} ');
   }
 
-  Future<dynamic> rawExecute(String sql,[List<dynamic> params]) async {
-      return await dbConn.query(sql,params);
+  Future<dynamic> rawExecute(String sql, [List<dynamic> params]) async {
+    return await dbConn.query(sql, params);
   } // of execute
+
+  Future<int> refreshFromDb(TDO aDomainObject) async {
+    var r = await dbConn.query(sqlStatements.getStatement(), [aDomainObject.id]);
+//    List<TDO> results = toList(r);
+    if (r.length == 0) throw Exception('id ${aDomainObject.id} not found in $tableName');
+    aDomainObject.fromRow(r.single);
+    return r.affectedRows;
+  } //
 
 } // of DOProvider
 
-
 class SQLStatementFactory {
-  final List<String>  _lockedColumns = ['id','created_on','updated_on','updated_user'];
+  final List<String> _lockedColumns = [
+    'id',
+    'created_on',
+    'updated_on',
+    'updated_user'
+  ];
   final String _tableName;
-  final List<String>_columnNames;
-  String _placeholders ;
+  final List<String> _columnNames;
+  String _placeholders;
 
-  SQLStatementFactory(this._tableName,this._columnNames) {
+  SQLStatementFactory(this._tableName, this._columnNames) {
     List<String> questions = [];
-    _columnNames.forEach((s){questions.add('?');});
+    _columnNames.forEach((s) {
+      questions.add('?');
+    });
     _placeholders = questions.join(',');
   }
 
@@ -128,7 +175,7 @@ class SQLStatementFactory {
     return 'delete from `$_tableName` where id=?';
   }
 
-  String insertStatement()  {
+  String insertStatement() {
     var result = 'insert into `$_tableName`(${_columnNames.join(",")}) ';
     result += ' values($_placeholders); ';
     return result;
@@ -139,17 +186,19 @@ class SQLStatementFactory {
     _columnNames.forEach((colName) {
       result += '$colName=?,';
     });
-    result = result.substring(0,result.length-2) // trim last comma
-        +' where id=? and updated_on=?';  // tie breaker for record locking
+    result = result.substring(0, result.length - 1) // trim last comma
+        +
+        ' where id=? ';
+    // todo multi-user and updated_on=?'; // tie breaker for record locking
     return result;
   } // of update Statement
 
   String getStatement() =>
-      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}'+
-          ' from $_tableName where id=?';
+      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' +
+      ' from $_tableName where id=?';
 
-  String getSomeStatement(String whereClause,{String orderBy = 'created_on'}) =>
-      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}'+
-          ' from $_tableName where $whereClause order by $orderBy';
-
+  String getSomeStatement(String whereClause,
+          {String orderBy = 'created_on'}) =>
+      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' +
+      ' from $_tableName where $whereClause order by $orderBy';
 } // of SQLStatementFactory
