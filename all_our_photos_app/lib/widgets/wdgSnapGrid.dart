@@ -7,8 +7,8 @@
 
 import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../dart_common/ListUtils.dart';
+import 'wdgSingleImage.dart';
 
 Widget snapGrid(
     BuildContext context, List<AopSnap> snapList, dynamic parentGrid) {
@@ -16,16 +16,26 @@ Widget snapGrid(
   Widget snapTile(BuildContext context, int index) {
     AopSnap snap = snapList[index];
     return Stack(children: [
-      Image.network(snap.thumbnailURL),
+      GestureDetector(
+          onTap: () {
+            showPhoto(context, snapList, index);
+          },
+          child: Hero(
+              key: Key(snap.thumbnailURL),
+              tag: snap.fileName,
+              child: Image.network(
+                snap.thumbnailURL,
+                fit: BoxFit.scaleDown,
+              ))),
+      //     Image.network(snap.thumbnailURL),
       Checkbox(
         value: parentGrid.isSelected(snap.id),
         onChanged: (value) {
           parentGrid.setSelected(snap.id, value);
           parentGrid.setState(() {});
         },
-      ), // of checkbox
-      //title: Text('${snap.caption}'),
-      //),
+
+      ),
     ]);
   } // of snapTile
 
@@ -42,10 +52,12 @@ Widget snapGrid(
       itemBuilder: snapTile,
     );
 }
+
 class SsSnapGrid extends StatelessWidget {
   List<AopSnap> snapList;
   dynamic parentGrid;
-  SsSnapGrid(this.snapList,this.parentGrid);
+
+  SsSnapGrid(this.snapList, this.parentGrid);
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +65,17 @@ class SsSnapGrid extends StatelessWidget {
     Widget snapTile(BuildContext context, int index) {
       AopSnap snap = snapList[index];
       return Stack(children: [
-        Image.network(snap.thumbnailURL),
+        GestureDetector(
+            onTap: () {
+              showPhoto(context, snapList, index);
+            },
+            child: Hero(
+                key: Key(snap.thumbnailURL),
+                tag: snap.fileName,
+                child: Image.network(
+                  snap.thumbnailURL,
+                  fit: BoxFit.scaleDown,
+                ))),
         Checkbox(
           value: parentGrid.isSelected(snap.id),
           onChanged: (value) {
@@ -80,4 +102,3 @@ class SsSnapGrid extends StatelessWidget {
       );
   }
 } // of ssSnapGrid
-

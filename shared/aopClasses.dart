@@ -179,7 +179,7 @@ class AopAlbum extends DomainObject {
 
 //                                '*** Start Custom Code album custom procedures
   static Future<List<AopAlbum>> all() async {
-    return albumProvider.getSome('1=1');
+    return albumProvider.getSome('1=1',orderBy:'name');
   } // all Albums
 
   Future<List<AopSnap>> get snaps async {

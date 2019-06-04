@@ -28,11 +28,8 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
       return new Scaffold(
         key: scaffoldKey,
         appBar: buildBar(context),
-        body: snapGrid(context, _list, this),
-//          new ListView(
-//          padding: new EdgeInsets.symmetric(vertical: 8.0),
-//          children: _buildList(),
-//        ),
+//        body: snapGrid(context, _list, this),
+        body: SsSnapGrid(_list, this),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_a_photo),
           onPressed: () => handleAddAlbumItem(context),

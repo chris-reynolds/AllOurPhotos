@@ -18,7 +18,8 @@ typedef void BannerTapCallback(AopSnap snap);
 class PhotoTile extends StatelessWidget {
   PhotoTile({
     Key key,
-    @required this.snap,
+    @required this.snapList,
+    @required this.index,
     @required this.isSelected,
     @required this.inSelectMode,
     @required this.highResolution,
@@ -27,18 +28,19 @@ class PhotoTile extends StatelessWidget {
         assert(inSelectMode != null),
         assert(onBannerTap != null),
         super(key: key);
-  final AopSnap snap;
+  final List<AopSnap> snapList;
+  final int index;
   final bool isSelected;
   final bool inSelectMode;
   final bool highResolution;
   final BannerTapCallback onBannerTap; // User taps on the photo's header or footer.
 
-
+  AopSnap get snap => snapList[index];
 
   @override
   Widget build(BuildContext context) {
     final Widget imageWidget = new GestureDetector(
-        onTap: () { showPhoto(context,snap); },
+        onTap: () { showPhoto(context,snapList,index); },
         child: new Hero(
             key: new Key(snap.thumbnailURL),
             tag: snap.fileName,
@@ -60,8 +62,8 @@ class PhotoTile extends StatelessWidget {
           },
           child: new GridTileBar(
 //              backgroundColor: Colors.black26,
-              title: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
-              subtitle: Text(snap.fileName,style:TextStyle(color:Colors.black)),
+             // title: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
+              title: Text(snap.fileName,style:TextStyle(color:Colors.black)),
               trailing: Row(
                   children: [
                     new Icon(icon, color: filterColors[snap.ranking],size:40.0),

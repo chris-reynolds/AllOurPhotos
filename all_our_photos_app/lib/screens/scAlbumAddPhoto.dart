@@ -30,23 +30,24 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildBar(context),
-      body: new ListView(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
-        children: <Widget>[
-          Text('blah'),
-          SsSnapGrid(_list, this),
-          if (_list != null) for (AopSnap snap in _list) snapCell(snap),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              RaisedButton.icon(
-                  onPressed: extendEndDate,
-                  icon: Icon(Icons.arrow_downward),
-                  label: Text('Show more...'))
-            ],
-          ), // or row
-        ],
-      ),
+      body: SsSnapGrid(_list, this),
+//      new ListView(
+//        padding: new EdgeInsets.symmetric(vertical: 8.0),
+//        children: <Widget>[
+//          Text('blah'),
+//          SsSnapGrid(_list, this),
+//          if (_list != null) for (AopSnap snap in _list) snapCell(snap),
+//          Row(
+//            mainAxisAlignment: MainAxisAlignment.center,
+//            children: <Widget>[
+//              RaisedButton.icon(
+//                  onPressed: extendEndDate,
+//                  icon: Icon(Icons.arrow_downward),
+//                  label: Text('Show more...'))
+//            ],
+//          ), // or row
+//        ],
+//      ),
     );
   } // of build
 

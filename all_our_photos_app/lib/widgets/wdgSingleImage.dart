@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
 
 
-void showPhoto(BuildContext context, AopSnap snap) {
+void showPhoto(BuildContext context, List<AopSnap> snapList, int index) {
+  AopSnap snap = snapList[index];
   Navigator.push(context, new MaterialPageRoute<void>(
       builder: (BuildContext context) {
         return new Scaffold(

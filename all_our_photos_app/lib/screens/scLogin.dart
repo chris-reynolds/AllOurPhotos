@@ -4,6 +4,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../appNavigator.dart';
 import '../dart_common/LoginStateMachine.dart';
 import '../dart_common/WidgetSupport.dart';
 import '../dart_common/Logger.dart' as Log;
@@ -11,16 +12,16 @@ import '../dart_common/Config.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class LoginForm extends StatefulWidget {
-  final LoginStateMachine loginSM;
+//  final LoginStateMachine loginSM;
 
-  LoginForm(this.loginSM);
+  LoginForm();
 
   @override
-  _LoginFormState createState() => _LoginFormState(loginSM);
+  _LoginFormState createState() => _LoginFormState();
 }
 
 class _LoginFormState extends State<LoginForm> {
-  LoginStateMachine _loginSM;
+
   var _loginFormKey = GlobalKey<FormBuilderState>();
   String _messageText = '';
   Map<String, dynamic> fieldValues = {
@@ -29,7 +30,10 @@ class _LoginFormState extends State<LoginForm> {
     'sesdevice': 'fffff'
   };
 
-  _LoginFormState(this._loginSM) : super();
+  _LoginFormState() : super() {
+    if (loginStateMachine.loginStatus == etLoginStatus.LoggedIn)
+      loginStateMachine.logout();
+  } // of constructor
 
   @override
   Widget build(BuildContext context) {
@@ -49,19 +53,19 @@ class _LoginFormState extends State<LoginForm> {
                   Text('All Our Photos - LOGIN'),
                 ],
               ),
-              if (_loginSM.loginStatus == etLoginStatus.NoConfig)
+              if (loginStateMachine.loginStatus == etLoginStatus.NoConfig)
                 ...registerMachineWidgets(),
-              if (_loginSM.loginStatus == etLoginStatus.NotLoggedIn)
+              if (loginStateMachine.loginStatus == etLoginStatus.NotLoggedIn)
                 ...loginUserWidgets(),
-              if (_loginSM.loginStatus == etLoginStatus.TooManyTries)
+              if (loginStateMachine.loginStatus == etLoginStatus.TooManyTries)
                 ...lockedOutWidgets(),
-              if (_loginSM.loginStatus == etLoginStatus.ServerNotAvailable)
+              if (loginStateMachine.loginStatus == etLoginStatus.ServerNotAvailable)
                 ...serverNotAvailableWidgets(),
               SizedBox(height: 36),
               Text('$_messageText',
                   style: TextStyle(color: Colors.red, fontSize: 20)),
-              if (_loginSM.loginStatus == etLoginStatus.NoConfig ||
-                  _loginSM.loginStatus == etLoginStatus.NotLoggedIn)
+              if (loginStateMachine.loginStatus == etLoginStatus.NoConfig ||
+                  loginStateMachine.loginStatus == etLoginStatus.NotLoggedIn)
                 ButtonBar(children: <Widget>[
                   FlatButton(
                     child: Text('Cancel'),
@@ -116,7 +120,7 @@ class _LoginFormState extends State<LoginForm> {
         RaisedButton(
             child: Text('RETRY'),
             onPressed: () {
-              _loginSM.logout();
+              loginStateMachine.logout();
             }),
       ]))
     ];
@@ -132,14 +136,14 @@ class _LoginFormState extends State<LoginForm> {
   void initState() {
     // hook up the listeners to react to the state changes
     super.initState();
-    _loginSM.addStateListener(this.handleStatusChange);
-    _loginSM.addMessageListener(handleShowMessage);
+    loginStateMachine.addStateListener(this.handleStatusChange);
+    loginStateMachine.addMessageListener(handleShowMessage);
   } // of initState
 
   @override
   void dispose() {
-    _loginSM.removeStateListener(this.handleStatusChange);
-    _loginSM.removeMessageListener(handleShowMessage);
+    loginStateMachine.removeStateListener(this.handleStatusChange);
+    loginStateMachine.removeMessageListener(handleShowMessage);
     super.dispose();
   } // of dispose
 
@@ -159,10 +163,10 @@ class _LoginFormState extends State<LoginForm> {
     if (_loginFormKey.currentState.validate()) {
       _loginFormKey.currentState.save();
       fieldValues.addAll(wsFormValues(_loginFormKey.currentState));
-      await _loginSM.startSession(fieldValues);
+      await loginStateMachine.startSession(fieldValues);
     } else
       Log.message('Validation failed ');
-    if (_loginSM.loginStatus == etLoginStatus.LoggedIn) {
+    if (loginStateMachine.loginStatus == etLoginStatus.LoggedIn) {
       saveConfig();
       Navigator.of(context).pushNamed('home');
     }
@@ -170,7 +174,7 @@ class _LoginFormState extends State<LoginForm> {
 
   void handleCancelPressed() {
     Log.message('The cancel button was pressed');
-    _loginSM.backTrack();
+    loginStateMachine.backTrack();
 //    _loginFormKey.currentState.reset();
   } // of handleCancelPressed
 

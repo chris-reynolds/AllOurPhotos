@@ -1,3 +1,10 @@
 {
-  "fred" : "1"
+  "dbhost": "192.168.1.251",
+  "dbport": 3306,
+  "dbuser": "photos",
+  "dbpassword":"photos00",
+  "dbname": "allourphotos",
+  "sesuser": "chris",
+  "sespassword": "chris00",
+  "sesdevice": "archives"
 }

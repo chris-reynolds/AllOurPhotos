@@ -12,13 +12,14 @@ import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
 
 
+
 void main() async {
   await loadConfig('allourphotos.config.json');
 //  await DbAllOurPhotos().initConnection(config); // todo parameterise
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
   Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.54');
-  Widget loginScreen = LoginForm(loginStateMachine);
+//  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: true,
@@ -32,11 +33,11 @@ void main() async {
       ),
     ),
     home:  (loginStateMachine.loginStatus==etLoginStatus.LoggedIn)
-        ? dashboardScreen : loginScreen,
+        ? dashboardScreen : LoginForm(),
     routes: <String, WidgetBuilder> {
 //      '/a': (BuildContext context) => GridListDemo(),
     'home': (context) => dashboardScreen,
-      'login': (BuildContext context) => loginScreen,
+      'login': (BuildContext context) => LoginForm(),
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
@@ -99,6 +100,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           widget.title,
           style: new TextStyle(color: const Color(0xFFFFFFFF)),
         ),
+        actions: <Widget>[
+          IconButton(icon:Icon(Icons.exit_to_app),onPressed: (){
+            loginStateMachine.logout();
+            Navigator.pushNamed(context, 'login');
+          },)
+        ],
       ),
       body: new PageView(
         children: [

@@ -15,22 +15,22 @@ D4,Upload latest pictures from tablets,L,U,dbload,
 D5,Import from cameras,M,U,dbload,
 D6,Import file archives of old photos,M,F,dbload,2019-05-04
 D7,Remove/Ignore duplicates,S,I,dbload,
-D8,Deduce location name from long/lat,M,D,dbload,
+D8,Deduce location name from long/lat,M,P,dbload,
 D9,Import file archives of old videos,M,U,dbload,
 D10,Import Facebook albums,M,U,dbload,
 ,,,,,
 V1,View months as a scrollable grid,L,F,view1,2019-05-16
-V2,View a list of photos as a full-width list,L,D,view1,
+V2,View a list of photos as a full-width list,L,F,view1,2019-06-02
 V3,View the year/month grid,S,F,view1,2019-05-11
 ,,,,,
 M1,Create album,S,F,albums,2019-05-26
-M2,Add one or more photos to an album,M,D,albums,
-M3,Remove one or more photos from an album,S,U,albums,
+M2,Add one or more photos to an album,M,F,albums,2019-06-02
+M3,Remove one or more photos from an album,S,F,albums,2019-06-02
 M4,View album names with filter,M,F,albums,2019-05-26
-M5,Delete album,M,U,albums,
-M6,Merge/Split albums,L,I,albums,
+M5,Delete album,M,P,albums,
+M6,Merge/Split albums,L,P,albums,
 ,,,,,
-E1,Rank a single photo 1-5,S,U,edit,
+E1,Rank a single photo 1-5,S,F,edit,2019-06-05
 E2,Add caption and tags to a single photo,S,U,edit,
 E3,Add location name to a single photo,S,U,edit,
 E4,Change date taken of a single photo,M,U,edit,

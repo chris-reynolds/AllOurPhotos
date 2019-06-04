@@ -117,8 +117,8 @@ class DOProvider<TDO extends DomainObject> {
     return toList(r);
   }
 
-  Future<List<TDO>> getSome(String whereClause) async {
-    var sql = sqlStatements.getSomeStatement(whereClause);
+  Future<List<TDO>> getSome(String whereClause,{String orderBy='created_on'}) async {
+    var sql = sqlStatements.getSomeStatement(whereClause,orderBy:orderBy);
     try {
       Log.message('SQL:$sql');
       var r = await dbConn.query(sql);
