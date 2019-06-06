@@ -1,34 +1,8 @@
-//import 'package:flutter/cupertino.dart';
-//import 'package:flutter/material.dart';
-////import 'package:all_our_photos_app/appNavigator.dart';
-//
-//
-//class Testing extends StatelessWidget {
-//  Testing(this.listType) {
-//    //
-////    signInToGoogle();   // async but lets not worry about waiting for now
-//  } // of constructor
-//
-//  final String listType;
-//  @override
-//  Widget build(BuildContext context) {
-//    return new Scaffold(
-//      body: new Center(
-//        child: new Column(
-//          mainAxisAlignment: MainAxisAlignment.center,
-//          children: <Widget>[
-//            new Text(
-//              listType,
-//              style: Theme.of(context).textTheme.display1,
-//            ),
-//          ],
-//        ),
-//      ),
-//    );
-//  }
-//}
+
 import 'package:flutter/material.dart';
 import '../dart_common/Logger.dart' as Log;
+import '../dart_common/Geocoding.dart';
+import '../shared/aopClasses.dart';
 
 class SearchList extends StatefulWidget {
   SearchList({ Key key }) : super(key: key);
@@ -126,6 +100,7 @@ class _SearchListState extends State<SearchList>
         centerTitle: true,
         title: appBarTitle,
         actions: <Widget>[
+          new IconButton(icon: Icon(Icons.map),iconSize: 40, onPressed: handleLocationCompletion,),
           new IconButton(icon: actionIcon, onPressed: () {
             setState(() {
               if (this.actionIcon.icon == Icons.search) {
@@ -152,6 +127,31 @@ class _SearchListState extends State<SearchList>
         ]
     );
   }
+
+  void handleLocationCompletion() async {
+    List<AopSnap> snapList = await snapProvider.getSome('location is null and latitude is not null');
+    GeocodingSession geo = GeocodingSession();
+    int sofar = 0;
+    // todo populate the cache
+    dynamic r = await AopSnap.existingLocations;
+    Log.message('${snapList.length} snaps to code');
+    for (AopSnap snap in snapList) {
+      String location = await geo.getLocation(snap.longitude, snap.latitude);
+      if (location != null) {
+        if (location.length>100)
+          location = location.substring(location.length-100);
+        snap.location = location;
+        await snap.save();
+        if (++sofar % 20 == 0) {
+          Log.message('$sofar');
+          setState(() {});
+        }
+      }
+    } // of for loop
+    Log.message('Locations complete');
+    setState(() {});
+
+  } // of handleLocationCompletion
 
   void _handleSearchStart() {
     setState(() {
