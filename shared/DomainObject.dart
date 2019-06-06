@@ -124,7 +124,7 @@ class DOProvider<TDO extends DomainObject> {
       var r = await dbConn.query(sql);
       return toList(r);
     } catch (ex) {
-      Log.error(ex);
+      Log.error(ex.toString());
       rethrow;
     }
   }

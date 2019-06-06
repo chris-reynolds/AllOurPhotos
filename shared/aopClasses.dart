@@ -663,6 +663,13 @@ class AopSnap extends DomainObject {
     return values[0] > 0;
   } // of exists
 
+  static Future<dynamic> get existingLocations async {
+    var r = await snapProvider.rawExecute('select location,avg(longitude) as lng, '+
+        'avg(latitude) as lon from aopsnaps where latitude '+
+        'is not null and location is not null group by 1');
+    return r;
+  } // of existingLocations
+
   static Future<dynamic> get monthGrid async {
     var r = await snapProvider.rawExecute('select * from vwmonthgrid');
     return r;
