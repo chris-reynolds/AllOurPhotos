@@ -64,6 +64,7 @@ class PhotoTile extends StatelessWidget {
 //              backgroundColor: Colors.black26,
              // title: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
               title: Text(snap.fileName,style:TextStyle(color:Colors.black)),
+              subtitle: Text(snap.location?.substring(0,20)??''),
               trailing: Row(
                   children: [
                     new Icon(icon, color: filterColors[snap.ranking],size:40.0),

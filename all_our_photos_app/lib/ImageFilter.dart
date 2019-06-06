@@ -98,7 +98,7 @@ class ImageFilter {
   String whereClause() {
     String result = ' taken_date between \'${formatDate(_fromDate)}\' and \'${formatDate(_toDate)}\'';
      if (searchText != '') {
-
+       result += "and ((location) like '%$searchText%' or caption like '%$searchText%') ";
      }
      result += ' and ranking in (';
      for (int rankNo=1;rankNo<=3;rankNo++)

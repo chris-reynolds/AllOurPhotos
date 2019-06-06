@@ -16,7 +16,7 @@ class PhotoGrid extends StatefulWidget {
   final ImageFilter _initImageFilter;
 
   PhotoGrid(this._initImageFilter) {
-    Log.message('PhotoGrid constructor by filter');
+//    Log.message('PhotoGrid constructor by filter');
   }
 
   @override
@@ -64,8 +64,8 @@ class PhotoGridState extends State<PhotoGrid> {
       } // of switch
       double targetOffset = oldOffset * oldPicsPerRow / _picsPerRow;
       _targetOffset = targetOffset;
-      Log.message(
-          '=============scroll controller offset $oldOffset to $targetOffset');
+ //     Log.message(
+ //         '=============scroll controller offset $oldOffset to $targetOffset');
     });
   } // of changePicsPerRow
 
@@ -82,7 +82,7 @@ class PhotoGridState extends State<PhotoGrid> {
     super.initState();
     _imageFilter = widget._initImageFilter;
     _imageFilter.onRefresh = filterRefreshCallback;
-    Log.message('PhotoGrid copying initFilter');
+ //   Log.message('PhotoGrid copying initFilter');
   }
 
   @override
@@ -125,7 +125,7 @@ class PhotoGridState extends State<PhotoGrid> {
           new IconButton(
               icon: Icon(Icons.photo_size_select_large),
               onPressed: changePicsPerRow),
-          new IconButton(icon: Icon(Icons.check), onPressed: changeSelectMode),
+          new IconButton(icon: Icon(Icons.edit), onPressed: changeSelectMode),
         ],
       ),
       body: new Column(children: <Widget>[
@@ -160,24 +160,6 @@ class PhotoGridState extends State<PhotoGrid> {
                       });
                     }),
 
-//                _imageFilter.images.map((AopSnap snap) {
-//                  return new PhotoTile(
-//                      isSelected: isSelected(snap),
-//                      snap: snap,
-//                      inSelectMode: _inSelectMode,
-//                      highResolution: (_picsPerRow == 1),
-//                      onBannerTap: (imageFile) {
-//                        setState(() {
-//                          if (_inSelectMode)
-//                            toggleSelected(imageFile);
-//                          else
-//                            imageFile.ranking = (imageFile.ranking % 3 )+1;
-//                        });
-//                      }
-//                  );
-//                }).toList().cast<PhotoTile>(),
-//              ),
-//          ),
               _inSelectMode ? ImageEditorWidget2(editorCallback) : Container(),
             ],
           ),

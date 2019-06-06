@@ -30,6 +30,7 @@ class ImageFilterWidget extends StatefulWidget {
 class ImageFilterWidgetState extends State<ImageFilterWidget> {
 
   ImageFilter _imageFilter;
+  TextEditingController textController = TextEditingController();
   bool _changeMode = false;
   bool get changeMode => _changeMode;
   set changeMode(bool value) {
@@ -56,19 +57,20 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
   } // of toggleRank
 
   void onRefresh() {
+    _imageFilter.searchText = textController.value.text;
     _imageFilter.checkImages().then((dummy){
       setState(() {
         changeMode = false;
       });
     });
     // just added this cos of Dart analysis. Not sure if it used.
-    if (widget._onRefresh != null)
-      widget._onRefresh();
+ //   if (widget._onRefresh != null)
+ //     widget._onRefresh();
   } // onRefresh
 
   void onSearchTextChanged(String value) {
     setState(() {
-      _imageFilter.searchText = value;
+//      _imageFilter.searchText = value;
     });
   } // of onSearchTextChanged
 
@@ -100,12 +102,9 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
               qText('Search:'),
               Flexible(
                 child:  TextField(
-                  onChanged: onSearchTextChanged,
+                  controller: textController,
+//                  onChanged: onSearchTextChanged,
                   style:Theme.of(context).textTheme.body2,
-                  decoration: InputDecoration(
- //                     border: InputBorder.none,
-                      hintText: 'Please enter a search term'
-                  ),
                 )
               ),
               qText('Rank:'),
