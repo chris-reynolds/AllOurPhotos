@@ -86,7 +86,7 @@ class DOProvider<TDO extends DomainObject> {
 //        dataFields.add(aDomainObject.updatedOn);
         var r = await dbConn.query(sql, dataFields);
         await refreshFromDb(aDomainObject);
-        return aDomainObject.id;
+        return r.affectedRows;
       } else {
         // insert
         sql = sqlStatements.insertStatement();
@@ -129,13 +129,14 @@ class DOProvider<TDO extends DomainObject> {
     }
   }
 
-  Future<void> delete(TDO aDomainObect) async {
+  Future<bool> delete(TDO aDomainObect) async {
     var r =
         await dbConn.query(sqlStatements.deleteStatement(), [aDomainObect.id]);
     if (r.affectedRows == 0)
       throw Exception('Failed Delete for $tableName id=${aDomainObect.id} ');
     else if (sqlLogging)
       Log.message('Delete for $tableName id=${aDomainObect.id} ');
+    return true;
   }
 
   Future<dynamic> rawExecute(String sql, [List<dynamic> params]) async {

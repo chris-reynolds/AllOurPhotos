@@ -173,7 +173,7 @@ class AopAlbum extends DomainObject {
     }
   } // of save
 
-  Future<void> delete() async {
+  Future<bool> delete() async {
     return albumProvider.delete(this);
   } // of delete
 
