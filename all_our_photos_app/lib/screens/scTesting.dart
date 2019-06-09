@@ -134,6 +134,8 @@ class _SearchListState extends State<SearchList>
     int sofar = 0;
     // todo populate the cache
     dynamic r = await AopSnap.existingLocations;
+    for (dynamic row in r.rows)
+      geo.setLocation(row[1], row[2], row[0]);
     Log.message('${snapList.length} snaps to code');
     for (AopSnap snap in snapList) {
       String location = await geo.getLocation(snap.longitude, snap.latitude);
