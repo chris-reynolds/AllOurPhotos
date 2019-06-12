@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../shared/aopClasses.dart';
+import '../dart_common/WidgetSupport.dart';
 
+void showExif(BuildContext context,AopSnap thisSnap) async {
+  await showMessage(context,'Just me\n and me\nand me\n\nJust me\n and me\nand me\n\nJust me\n and me\nand me\n\nJust me\n and me\nand me\n\nJust me\n and me\nand me\n\n');
+
+}
 void showPhoto(BuildContext context, List<AopSnap> snapList, int index) {
   AopSnap snap = snapList[index];
   Navigator.push(context,
@@ -15,12 +20,14 @@ void showPhoto(BuildContext context, List<AopSnap> snapList, int index) {
           IconButton(icon: Icon(Icons.palette), onPressed: () {}),
           PopupMenuButton<String>(
             onSelected: (String result) {
-              Log.message('menu item selected - $result');
+              if (result == 'exif') {
+                showExif(context,snap);
+              }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                   const PopupMenuItem<String>(
-                    value: 'harder',
-                    child: Text('Working a lot harder'),
+                    value: 'exif',
+                    child: Text('exif Data'),
                   ),
                   const PopupMenuItem<String>(
                     value: 'smarter',

@@ -9,6 +9,7 @@ import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
 import '../widgets/wdgSnapGrid.dart';
 import 'scAlbumCreateDlg.dart';
+import '../dart_common/WidgetSupport.dart';
 
 class AlbumDetail extends StatefulWidget {
   @override
@@ -58,16 +59,25 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.redo),
-              onPressed: () {
-                // TODO move items to another album
-              }),
+              onPressed: () {moveToAnotherAlbum(context);}),
           IconButton(
               icon: Icon(Icons.delete),
-              onPressed: () {
+              onPressed: () async {
+                bool deleteAlbum = false;
+                if (_list.length == selectionList.length) {
+                  if (await confirmYesNo(context, 'Delete album',
+                      description: 'All photos for this album have been\n selected for deletion'))
+                    deleteAlbum = true;
+                }
                 argAlbum.removeSnaps(selectionList).then((count) {
                   clearSelected();
                   refreshList();
-                  showSnackBar("$count items removed");
+                  showSnackBar("$count photos removed");
+                  if (deleteAlbum) {
+                    argAlbum.delete();
+                    showSnackBar('Album deleted');
+                    Navigator.pop(context);
+                  }
                 });
               }),
           IconButton(
@@ -80,12 +90,6 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
       );
   }
 
-  List<Widget> _buildList() {
-    if (_list == null)
-      return [];
-    else
-      return _list.map((snap) => snapTile(snap)).toList();
-  } // buildList
 
   @override
   void didChangeDependencies() {
@@ -102,14 +106,49 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
       argAlbum.addSnaps(snapIds).then((count) {
         clearSelected();
         refreshList();
-        showSnackBar("$count items added");
+        showSnackBar("$count photos added");
       });
     });
   } // of handleAddAlbumItem
 
-  void handleDelete() async {
-    // todo : await sho
-  } // of handleDelete
+//  void handleDelete() async {
+//    // todo : await sho
+//  } // of handleDelete
+
+  Future<void> moveToAnotherAlbum(BuildContext context) async {
+    List<AopAlbum> allAlbums = await AopAlbum.all();
+    AopAlbum newAlbum = await showSelectDialog<AopAlbum>(context,
+        'Move to another album','Album', allAlbums, (AopAlbum album)=>album.name);
+    if (newAlbum == null)
+      showSnackBar('Move abandoned');
+    else if (newAlbum.id == argAlbum.id)
+      showSnackBar('You cant move to the same album');
+    else {
+      // check if everything is moving
+      bool deleteAlbum = false;
+      if (_list.length == selectionList.length) {
+        if (await confirmYesNo(context, 'Delete album',
+            description: 'All photos for this album have been\n selected for deletion'))
+          deleteAlbum = true;
+      }
+      // now we need to move the items before the optional delete
+      int counter = 0;
+      List<AopAlbumItem> oldItems = await argAlbum.albumItems;
+      for (AopAlbumItem albumItem in oldItems) {
+        if (isSelected(albumItem.snapId)) {
+          albumItem.albumId = newAlbum.id;
+          if (await albumItem.save() >0)
+            counter++;
+        } // match
+      } // of search loop
+      showSnackBar('$counter photos moved to (${newAlbum.name})');
+      if (deleteAlbum) {
+        await argAlbum.delete();
+        Navigator.pop(context);
+      } else
+        refreshList();
+    } // ok to move
+  } // moveToAnotherAlbum
 
   Future<void> handleRenameAlbum(BuildContext context) async {
     String newName;

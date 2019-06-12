@@ -31,6 +31,9 @@ void main() async {
 //          body1: TextStyle(fontSize: 25.0, color: Colors.red),
           body2: TextStyle(fontSize: 25.0, color: Colors.red)
       ),
+      buttonTheme: ButtonThemeData(
+          buttonColor: Colors.greenAccent,
+      ),
     ),
     home:  (loginStateMachine.loginStatus==etLoginStatus.LoggedIn)
         ? dashboardScreen : LoginForm(),

@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/wdgMonthSelector.dart';
+
 //import '../widgets/wdgSelectionBar.dart';
 import '../ImageFilter.dart';
 import '../dart_common/DateUtil.dart';
@@ -59,9 +60,15 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
             onPressed: setQuarter,
           ),
           IconButton(
-              icon: Icon(Icons.close),
+              icon: Icon(Icons.arrow_downward), onPressed: extendEndDate),
+          IconButton(
+              icon: Icon(
+                imgFilter.getRank(2) ? Icons.star : Icons.star_border,
+                color: Colors.orange,
+              ),
               onPressed: () {
-                saveSelectedToAlbum(context); // selectionList is empty.
+                imgFilter.setRank(2, !imgFilter.getRank(2)); // toggle.
+                refreshList();
               }),
         ],
       );
@@ -69,6 +76,8 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
       return AppBar(
         title: Text('${this.selectionList.length} items selected'),
         actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.arrow_downward), onPressed: extendEndDate),
           IconButton(
               icon: Icon(Icons.check),
               onPressed: () {
@@ -88,19 +97,14 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (album == null) {
-      album = ModalRoute
-          .of(context)
-          .settings
-          .arguments;
+      album = ModalRoute.of(context).settings.arguments;
       yearNo = int.tryParse(album.name.substring(0, 4));
-      if (yearNo == null) yearNo = DateTime
-          .now()
-          .year;
+      if (yearNo == null) yearNo = DateTime.now().year;
       DateTime startDate = DateTime(yearNo, 1, 1);
       imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
       imgFilter.toDate = addMonths(startDate, 3);
       Log.message('Album assigned');
-      //   imgFilter.setRank(2, false);
+      imgFilter.setRank(2, false);
       refreshList();
     }
   } // of didChangeDependencies
@@ -124,7 +128,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   } // refreshList
 
   void saveSelectedToAlbum(BuildContext context) {
-    Navigator.pop(context,selectionList);
+    Navigator.pop(context, selectionList);
   } // of saveSelectedToAlbum
 
   void setQuarter(int quarter) {
