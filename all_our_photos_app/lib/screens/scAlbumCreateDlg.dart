@@ -5,7 +5,7 @@ Purpose: This is a popup dialog that will allow the user to enter the name of a 
 */
 import 'package:flutter/material.dart';
 
-final String EXIT_CODE = 'XXCLOSEXX';
+const String EXIT_CODE = 'XXCLOSEXX';
 class DgAlbumCreate extends StatefulWidget {
   final String name;
   final String errorMessage;

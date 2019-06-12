@@ -54,8 +54,8 @@ Widget snapGrid(
 }
 
 class SsSnapGrid extends StatelessWidget {
-  List<AopSnap> snapList;
-  dynamic parentGrid;
+  final List<AopSnap> snapList;
+  final dynamic parentGrid;
 
   SsSnapGrid(this.snapList, this.parentGrid);
 

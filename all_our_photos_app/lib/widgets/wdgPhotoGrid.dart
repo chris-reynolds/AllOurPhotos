@@ -129,7 +129,7 @@ class PhotoGridState extends State<PhotoGrid> {
         ],
       ),
       body: new Column(children: <Widget>[
-        ImageFilterWidget(_imageFilter, filterRefreshCallback),
+        ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
         new Expanded(
           child: new GridView.count(
             controller: _scrollController,

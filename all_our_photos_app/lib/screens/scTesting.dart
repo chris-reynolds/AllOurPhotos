@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/Geocoding.dart';
@@ -6,14 +5,15 @@ import '../shared/aopClasses.dart';
 
 class SearchList extends StatefulWidget {
   SearchList({ Key key }) : super(key: key);
+
   @override
   _SearchListState createState() => new _SearchListState();
 
 }
 
-class _SearchListState extends State<SearchList>
-{
-  Widget appBarTitle = new Text("Search Sample", style: new TextStyle(color: Colors.white),);
+class _SearchListState extends State<SearchList> {
+  Widget appBarTitle = new Text(
+    "Search Sample", style: new TextStyle(color: Colors.white),);
   Icon actionIcon = new Icon(Icons.search, color: Colors.white,);
   final key = new GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = new TextEditingController();
@@ -85,7 +85,7 @@ class _SearchListState extends State<SearchList>
     else {
       List<String> _searchList = List();
       for (int i = 0; i < _list.length; i++) {
-        String  name = _list.elementAt(i);
+        String name = _list.elementAt(i);
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
           _searchList.add(name);
         }
@@ -100,7 +100,9 @@ class _SearchListState extends State<SearchList>
         centerTitle: true,
         title: appBarTitle,
         actions: <Widget>[
-          new IconButton(icon: Icon(Icons.map),iconSize: 40, onPressed: handleLocationCompletion,),
+          new IconButton(icon: Icon(Icons.map),
+            iconSize: 40,
+            onPressed: handleLocationCompletion,),
           new IconButton(icon: actionIcon, onPressed: () {
             setState(() {
               if (this.actionIcon.icon == Icons.search) {
@@ -129,7 +131,8 @@ class _SearchListState extends State<SearchList>
   }
 
   void handleLocationCompletion() async {
-    List<AopSnap> snapList = await snapProvider.getSome('location is null and latitude is not null');
+    List<AopSnap> snapList = await snapProvider.getSome(
+        'location is null and latitude is not null');
     GeocodingSession geo = GeocodingSession();
     int sofar = 0;
     // todo populate the cache
@@ -140,8 +143,8 @@ class _SearchListState extends State<SearchList>
     for (AopSnap snap in snapList) {
       String location = await geo.getLocation(snap.longitude, snap.latitude);
       if (location != null) {
-        if (location.length>100)
-          location = location.substring(location.length-100);
+        if (location.length > 100)
+          location = location.substring(location.length - 100);
         snap.location = location;
         await snap.save();
         if (++sofar % 20 == 0) {
@@ -152,7 +155,6 @@ class _SearchListState extends State<SearchList>
     } // of for loop
     Log.message('Locations complete');
     setState(() {});
-
   } // of handleLocationCompletion
 
   void _handleSearchStart() {
@@ -175,10 +177,16 @@ class _SearchListState extends State<SearchList>
 
 class ChildItem extends StatelessWidget {
   final String name;
+
   ChildItem(this.name);
+
   @override
   Widget build(BuildContext context) {
     return new ListTile(title: new Text(this.name));
   }
 
 }
+
+
+
+
