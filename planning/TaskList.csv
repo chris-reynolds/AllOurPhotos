@@ -27,8 +27,8 @@ M1,Create album,S,F,albums,2019-05-26
 M2,Add one or more photos to an album,M,F,albums,2019-06-02
 M3,Remove one or more photos from an album,S,F,albums,2019-06-02
 M4,View album names with filter,M,F,albums,2019-05-26
-M5,Delete album,M,P,albums,
-M6,Merge/Split albums,L,P,albums,
+M5,Delete album,M,F,albums,2019-06-10
+M6,Merge/Split albums,L,F,albums,2019-06-12
 ,,,,,
 E1,Rank a single photo 1-5,S,F,edit,2019-06-05
 E2,Add caption and tags to a single photo,S,U,edit,
