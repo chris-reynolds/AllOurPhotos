@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'screens/scRecentPics.dart';
+//import 'screens/scRecentPics.dart';
 import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
-// import 'screens/scDeviceCameraRoll.dart';
+import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';
@@ -18,7 +18,7 @@ void main() async {
 //  await DbAllOurPhotos().initConnection(config); // todo parameterise
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.June12');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.June19');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -112,11 +112,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: new PageView(
         children: [
-          new Home("Recent Pics"),
-//          new MyHomePage(),
-          new AlbumList(),
-          new HistoryScreen("History"),
-          new SearchList(),
+          HistoryScreen("History"),
+//          new Home("Recent Pics"),
+          CameraRollPage(),
+          AlbumList(),
+          SearchList(),
         ],
         onPageChanged: onPageChanged,
         controller: _pageController,
@@ -128,9 +128,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ), // sets the inactive color of the `BottomNavigationBar`
         child: new BottomNavigationBar(
           items: [
+            bottomButton('History',Icons.grid_on),
             bottomButton('Recent Pics',Icons.camera_roll),
             bottomButton('Albums',Icons.collections),
-            bottomButton('History',Icons.history),
             bottomButton('Testing',Icons.text_fields),
           ],
           onTap: navigationTapped,

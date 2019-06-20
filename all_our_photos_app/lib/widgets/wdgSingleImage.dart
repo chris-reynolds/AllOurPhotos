@@ -26,7 +26,7 @@ void showExif(BuildContext context,AopSnap thisSnap) async {
     Http.Response hr = await Http.get(thisSnap.fullSizeURL);
     List<int> fileImageContents = hr.bodyBytes;
     var jpegLoader = JpegLoader();
-    await jpegLoader.loadBuffer(fileImageContents);
+    jpegLoader.loadBuffer(fileImageContents);
     if (jpegLoader.tags != null && jpegLoader.tags.length > 0) {
       String tagResult = '';
       jpegLoader.tags.forEach((k,v)=> tagResult+= '$k = $v \n');
