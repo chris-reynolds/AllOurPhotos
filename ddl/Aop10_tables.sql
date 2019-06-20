@@ -132,7 +132,7 @@ ADD
 -- Table Creation Script Finished
 
 --                                '*** Start Custom Code populatetestdata
-
+create index aopsnap_nondup on aopsnaps(original_taken_date,media_length);
 INSERT INTO `aopusers` (`updated_user`, `name`, `hint`) VALUES ('maxim', 'chris', 'chris00');
 INSERT INTO `aopusers` (`updated_user`, `name`, `hint`) VALUES ('maxim', 'janet', 'janet00');
 

@@ -42,23 +42,7 @@ class _SearchListState extends State<SearchList> {
   void initState() {
     super.initState();
     _isSearching = false;
-    init();
     _list = Log.logHistory;
-  }
-
-  void init() {
-    _list = List();
-    _list.add("Google");
-    _list.add("IOS");
-    _list.add("Andorid");
-    _list.add("Dart");
-    _list.add("Flutter");
-    _list.add("Python");
-    _list.add("React");
-    _list.add("Xamarin");
-    _list.add("Kotlin");
-    _list.add("Java");
-    _list.add("RxAndroid");
   }
 
   @override
@@ -100,8 +84,16 @@ class _SearchListState extends State<SearchList> {
         centerTitle: true,
         title: appBarTitle,
         actions: <Widget>[
+          new IconButton(icon: Icon(Icons.delete),
+            iconSize: 30,
+            onPressed: () {
+            Log.logHistory = [];
+              setState(() {
+                _list = [];
+              });
+            },),
           new IconButton(icon: Icon(Icons.map),
-            iconSize: 40,
+            iconSize: 30,
             onPressed: handleLocationCompletion,),
           new IconButton(icon: actionIcon, onPressed: () {
             setState(() {

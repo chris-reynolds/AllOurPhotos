@@ -143,7 +143,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
           Log.message('todo $_imagesToUpload skipped $_skipCount');
         });
       }
-      Log.message('while');
+      Log.message('end for $imageIx');
     }
     Log.message('uploader ended');
     setState(() {
@@ -174,8 +174,8 @@ class _CameraRollPageState extends State<CameraRollPage> {
         ..height = anImage.originalHeight
         ..takenDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
         ..modifiedDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
-        ..latitude = metaData.gps.gpsLatitude
-        ..longitude = metaData.gps.gpsLongitude
+        ..latitude = GeocodingSession.calcSign(metaData.gps.gpsLatitudeRef,metaData.gps.gpsLatitude)
+        ..longitude = GeocodingSession.calcSign(metaData.gps.gpsLongitudeRef,metaData.gps.gpsLongitude)
         ..deviceName = deviceName
         ..rotation = '0' // todo support enumeration
         ..importSource = deviceName
@@ -183,15 +183,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
       bool isScanned =
           ((metaData.device.software ?? '').toLowerCase().indexOf('scan') >= 0);
       newSnap.importSource += isScanned ? ' scanned' : ' camera roll';
-      if (newSnap.latitude != null) {
-        String location =
-            await _geo.getLocation(newSnap.longitude, newSnap.latitude);
-        if (location != null) {
-          if (location.length > 100)
-            location = location.substring(location.length - 100);
-          newSnap.location = location;
-        }
-      }
+
       newSnap.originalTakenDate = newSnap.takenDate;
       newSnap.directory =
           formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
@@ -199,8 +191,35 @@ class _CameraRollPageState extends State<CameraRollPage> {
       ByteData thumbnailBytes = await thumbnail640(anImage);
 
       newSnap.mediaLength = fullImageBytes.lengthInBytes;
-      if (await AopSnap.exists(newSnap.fileName, newSnap.mediaLength))
-        return false;
+
+      if (newSnap.latitude != null) {
+        String location =
+        await _geo.getLocation(newSnap.longitude, newSnap.latitude);
+        if (location != null) {
+          if (location.length > 100)
+            location = location.substring(location.length - 100);
+          newSnap.location = location;
+        }
+      }
+
+      if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year>1980) {
+        if (await AopSnap.dateTimeExists(
+            newSnap.originalTakenDate, newSnap.mediaLength))
+          return false;
+      } else {
+        if (await AopSnap.nameExists(
+            newSnap.fileName, newSnap.mediaLength))
+          return false;
+      }
+      if (newSnap.latitude != null) {
+        String location =
+        await _geo.getLocation(newSnap.longitude, newSnap.latitude);
+        if (location != null) {
+          if (location.length > 100)
+            location = location.substring(location.length - 100);
+          newSnap.location = location;
+        }
+      }
       await _uploadJpg(newSnap.thumbnailURL, thumbnailBytes);
       await _uploadJpg(newSnap.fullSizeURL, fullImageBytes);
       await newSnap.save();

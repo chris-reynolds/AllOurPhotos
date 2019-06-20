@@ -7,6 +7,7 @@ import 'DomainObject.dart';
 //                                '*** Start Custom Code imports
 //import 'package:image/image.dart';
 import 'package:path/path.dart' as Path;
+import '../dart_common/DateUtil.dart';
 //                                '*** End Custom Code
 
 // Domain object providers
@@ -653,7 +654,8 @@ class AopSnap extends DomainObject {
   } // of delete
 
 //                                '*** Start Custom Code snap custom procedures
-  static Future<bool> exists(String path, int fileSize) async {
+
+  static Future<bool> nameExists(String path, int fileSize) async {
     String fileName = Path.basename(path);
     var r = await snapProvider.rawExecute(
         'select count(*) from aopsnaps ' +
@@ -661,7 +663,16 @@ class AopSnap extends DomainObject {
         [fileName, fileSize]);
     var values = r.first.values;
     return values[0] > 0;
-  } // of exists
+  } // of nameExists
+
+  static Future<bool> dateTimeExists(DateTime taken, int fileSize) async {
+    var r = await snapProvider.rawExecute(
+        'select count(*) from aopsnaps ' +
+            "where original_taken_date=? and media_Length=?",
+        ["${formatDate(taken,format:'yyyy-mm-dd hh:nn:ss')}", fileSize]);
+    var values = r.first.values;
+    return values[0] > 0;
+  } // of nameExists
 
   static Future<dynamic> get existingLocations async {
     var r = await snapProvider.rawExecute('select location,avg(longitude) as lng, '+
@@ -677,10 +688,12 @@ class AopSnap extends DomainObject {
 
   // todo remove hardwired urls
   String get fullSizeURL {
+//    return 'http://192.168.1.65:4444/$directory/$fileName';
     return 'http://192.168.1.251:3333/$directory/$fileName';
   } // of fullSizeURL
 
   String get thumbnailURL {
+//    return 'http://192.168.1.65:4444/$directory/thumbnails/$fileName';
     return 'http://192.168.1.251:3333/$directory/thumbnails/$fileName';
   } // of thumbnailURL
 
