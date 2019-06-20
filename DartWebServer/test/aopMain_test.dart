@@ -38,14 +38,14 @@ void main() {
 //    ..uExpectData(length,4)
         ..uExpectStatus(404);
     });
-    test('can see folder index ',  () async {
-      var tr = TestRequest();
-      await tr.get('/2017-08/index.tsv',accept:'text/tab-separated-values')
-        ..uExpectHeader('content-type','tab-separated-values')
-        ..uExpectText('IMG_20170827_085827249')
-//    ..uExpectData(length,4)
-        ..uExpectStatus(200);
-    });
+//    test('can see folder index ',  () async {
+//      var tr = TestRequest();
+//      await tr.get('/2017-08/index.tsv',accept:'text/tab-separated-values')
+//        ..uExpectHeader('content-type','tab-separated-values')
+//        ..uExpectText('IMG_20170827_085827249')
+////    ..uExpectData(length,4)
+//        ..uExpectStatus(200);
+//    });
     test('can fail softly for bad folder ',  () async {
       var tr = TestRequest();
       await tr.get('/badname',accept: 'text/html')
@@ -62,7 +62,12 @@ void main() {
         ..uExpectText('Not Found')
         ..uExpectStatus(404);
     });
-
+    test('post file ',  () async {
+      var tr = TestRequest();
+      await tr.get('/2011-11/badname.jpg',accept:'text/html',putData:[1,2,4,8])
+        ..uExpectText('Written /2011-11/badname.jpg')
+        ..uExpectStatus(200);
+    });
   },);
 }
 

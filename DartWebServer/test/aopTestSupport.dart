@@ -17,10 +17,16 @@ class TestRequest  {
   List<String> responseText;
   dynamic responseData;
 
-  Future<TestRequest> get(String url,{String accept ,String cookie}) async {
+  Future<TestRequest> get(String url,{String accept ,String cookie,List<int> putData}) async {
     var url2 = Uri.parse(TEST_HOST + url);
     var httpClient = HttpClient();
-    var request = await httpClient.getUrl(url2);
+    HttpClientRequest request;
+    if (putData == null)
+      request = await httpClient.getUrl(url2);
+    else {
+      request = await httpClient.putUrl(url2);
+      request.add(putData);
+    }
     if (cookie != null)
       request.cookies.add(Cookie('aop',cookie));
     response = await request.close();

@@ -121,7 +121,7 @@ Future processRequest(HttpRequest request) async {
           print('Creating directory $dirName');
         }
         File(filePath).writeAsBytesSync(body.body, flush: true);
-        plainResponse(200, 'Written ${request.uri.path}');
+        plainResponse(200, 'Written ${request.uri.path} with ${body.body.length}');
       } catch (ex) {
         print('Exception on PUT : $ex');
         plainResponse(500, 'Failed to write $filePath \n $ex');

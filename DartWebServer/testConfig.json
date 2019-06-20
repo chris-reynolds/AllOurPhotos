@@ -1,6 +1,6 @@
 {
 	"webserver_port": "4444",
-	"fileserver_root": "C:\\projects\\AllOurPhotos\\testdata",
+	"fileserver_root": "../testdata",
 	"password.chris": "temp",
 	"password.janet": "temp"
 }
