@@ -3,12 +3,13 @@ import 'dart:async';
 import 'dart:convert' show jsonDecode, utf8;
 import 'package:http_server/http_server.dart';
 import 'package:path/path.dart' as path;
+import 'package:exif/exif.dart';
 
 String VERSION = '2019.03.09';
 HttpServer mainServer;
 VirtualDirectory _staticFileRoot;
 Map config;
-List<String>_topCache = <String>[];
+List<String> _topCache = <String>[];
 
 Future main(List<String> arguments) async {
   try {
@@ -25,9 +26,31 @@ Future main(List<String> arguments) async {
   } // of catch
 } // of main
 
+Future<String> extractExif(String path) async {
+  List<String> result = [];
+  Map<String, IfdTag> data =
+      await readExifFromBytes(await new File(path).readAsBytes());
+  if (data == null || data.isEmpty)
+    result.add('Error: No EXIF information found');
+  else {
+    if (data.containsKey('JPEGThumbnail')) {
+      result.add('File has JPEG thumbnail');
+      data.remove('JPEGThumbnail');
+    }
+    if (data.containsKey('TIFFThumbnail')) {
+      result.add('File has TIFF thumbnail');
+      data.remove('TIFFThumbnail');
+    }
+    for (String key in data.keys)
+      result.add("$key (${data[key].tagType}): ${data[key]}");
+  }
+  return result.join('\n');
+} // of extractExif
+
 Future<HttpServer> loadServer(int port, String rootPath) async {
   // TODO: check rootpath file existance
-  _staticFileRoot = new VirtualDirectory(rootPath)..allowDirectoryListing = false;
+  _staticFileRoot = new VirtualDirectory(rootPath)
+    ..allowDirectoryListing = false;
 //      ..allowDirectoryListing = true;
 //    _staticFileRoot.directoryHandler = serveDirectory;
   return await HttpServer.bind(InternetAddress.anyIPv4, port);
@@ -44,11 +67,13 @@ Future processRequest(HttpRequest request) async {
     response.close();
   } // of plainResponse
 
-  String cookieValue = response.cookies.length == 0 ? 'NONE' : response.cookies[0].value;
+  String cookieValue =
+      response.cookies.length == 0 ? 'NONE' : response.cookies[0].value;
   bool permissionDenied = securityCheck(cookieValue);
   List<String> bits = request.uri.path.split('/');
   if (request.method == 'GET') {
-    if (request.uri.path.length > 8 && request.uri.path.substring(0, 8) == '/located') {
+    if (request.uri.path.length > 8 &&
+        request.uri.path.substring(0, 8) == '/located') {
       String newToken = bits.length == 4 ? securityToken(bits[2], bits[3]) : '';
       permissionDenied = (newToken == '');
       if (!permissionDenied) {
@@ -64,8 +89,9 @@ Future processRequest(HttpRequest request) async {
       response.close();
       exit(0); // server abort
     } else if (request.uri.path == '/aoptop') {
-      List<FileSystemEntity> rootSubdirectories = Directory(config['fileserver_root']).listSync()
-        ..retainWhere((fse) => FileSystemEntity.isDirectorySync(fse.path));
+      List<FileSystemEntity> rootSubdirectories =
+          Directory(config['fileserver_root']).listSync()
+            ..retainWhere((fse) => FileSystemEntity.isDirectorySync(fse.path));
       String currentDirList = '~';
       for (FileSystemEntity fse in rootSubdirectories) {
         String subDirectoryName = path.split(fse.path).removeLast();
@@ -78,14 +104,18 @@ Future processRequest(HttpRequest request) async {
     } else if (request.uri.path == '/aoptop.full') {
       print(DateTime.now());
       response..headers.contentType = ContentType('text', 'plain');
-      if (_topCache.length==0) { // first timer
-        List<FileSystemEntity> rootSubdirectories = Directory(config['fileserver_root']).listSync()
-          ..retainWhere((fse) => FileSystemEntity.isDirectorySync(fse.path));
+      if (_topCache.length == 0) {
+        // first timer
+        List<FileSystemEntity> rootSubdirectories =
+            Directory(config['fileserver_root']).listSync()
+              ..retainWhere(
+                  (fse) => FileSystemEntity.isDirectorySync(fse.path));
         print('loading cache ${DateTime.now()}');
         for (FileSystemEntity fse in rootSubdirectories) {
           String subDirectoryName = path.split(fse.path).removeLast();
           _topCache.add('\n=Directory $subDirectoryName\n');
-          var indexFile = File(path.join(config['fileserver_root'], subDirectoryName, 'index.tsv'));
+          var indexFile = File(path.join(
+              config['fileserver_root'], subDirectoryName, 'index.tsv'));
           try {
             _topCache.add(indexFile.readAsStringSync());
           } catch (ex) {
@@ -104,6 +134,14 @@ Future processRequest(HttpRequest request) async {
         ..headers.contentType = ContentType('text', 'plain')
         ..write('Permission Denied');
       response.close();
+    } else if (bits[1].toLowerCase() == 'exif') {
+      bits.removeAt(1);
+      String pictureFile = config['fileserver_root'] + bits.join('/');
+      if (File(pictureFile).existsSync()) {
+        // now extract the exif data
+        plainResponse(HttpStatus.accepted, await extractExif(pictureFile));
+      } else
+        plainResponse(HttpStatus.notFound, '$pictureFile not found');
     } else {
       await _staticFileRoot.serveRequest(request);
     }
@@ -114,14 +152,15 @@ Future processRequest(HttpRequest request) async {
     );
     if (body.type == 'binary') {
       try {
-        // force the existence of the directory on the server
+// force the existence of the directory on the server
         String dirName = path.dirname(filePath);
         if (!Directory(dirName).existsSync()) {
           Directory(dirName).createSync(recursive: true);
           print('Creating directory $dirName');
         }
         File(filePath).writeAsBytesSync(body.body, flush: true);
-        plainResponse(200, 'Written ${request.uri.path} with ${body.body.length}');
+        plainResponse(
+            200, 'Written ${request.uri.path} with ${body.body.length}');
       } catch (ex) {
         print('Exception on PUT : $ex');
         plainResponse(500, 'Failed to write $filePath \n $ex');
@@ -129,7 +168,8 @@ Future processRequest(HttpRequest request) async {
     } else
       plainResponse(400, 'Todo put non-binary $filePath');
   } else
-    plainResponse(HttpStatus.methodNotAllowed, 'Invalid method ${request.method}');
+    plainResponse(
+        HttpStatus.methodNotAllowed, 'Invalid method${request.method}');
 } // of process request
 
 /*
