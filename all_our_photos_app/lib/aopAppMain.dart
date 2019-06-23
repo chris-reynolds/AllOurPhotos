@@ -18,7 +18,7 @@ void main() async {
 //  await DbAllOurPhotos().initConnection(config); // todo parameterise
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.June19');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.June21');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',

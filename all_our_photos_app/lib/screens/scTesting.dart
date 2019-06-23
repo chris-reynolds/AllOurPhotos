@@ -149,6 +149,34 @@ class _SearchListState extends State<SearchList> {
     setState(() {});
   } // of handleLocationCompletion
 
+  void handleLocationFix() async {
+    List<AopSnap> snapList = await snapProvider.getSome(
+        "import_source like '%ipad%' and latitude is not null");
+    GeocodingSession geo = GeocodingSession();
+    int sofar = 0;
+    // todo populate the cache
+    dynamic r = await AopSnap.existingLocations;
+    for (dynamic row in r.rows)
+      geo.setLocation(row[1], row[2], row[0]);
+    Log.message('${snapList.length} snaps to code');
+//    for (AopSnap snap in snapList) {
+//      Map(String,dynamic) exifData = await
+//      String location = await geo.getLocation(snap.longitude, snap.latitude);
+//      if (location != null) {
+//        if (location.length > 100)
+//          location = location.substring(location.length - 100);
+//        snap.location = location;
+//        await snap.save();
+//        if (++sofar % 20 == 0) {
+//          Log.message('$sofar');
+//          setState(() {});
+//        }
+//      }
+//    } // of for loop
+    Log.message('Locations complete');
+    setState(() {});
+  } // of handleLocationCompletion
+
   void _handleSearchStart() {
     setState(() {
       _isSearching = true;
