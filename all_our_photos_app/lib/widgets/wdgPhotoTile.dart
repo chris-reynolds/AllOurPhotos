@@ -63,8 +63,8 @@ class PhotoTile extends StatelessWidget {
           child: new GridTileBar(
 //              backgroundColor: Colors.black26,
              // title: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
-              title: Text(snap.fileName,style:TextStyle(color:Colors.black)),
-              subtitle: Text(snap.location?.substring(0,20)??''),
+              title: Text(snap.caption,style:TextStyle(color:Colors.black)),
+              subtitle: Text(snap.location??''),
               trailing: Row(
                   children: [
                     new Icon(icon, color: filterColors[snap.ranking],size:40.0),
@@ -79,8 +79,9 @@ class PhotoTile extends StatelessWidget {
           onTap: () { onBannerTap(snap); },
           child: new GridTileBar(
 //            backgroundColor: isSelected ? Colors.black45 :Colors.black26,
-            title: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
-            subtitle: Text(snap.fileName,style:TextStyle(color:Colors.black)),
+            title: Text(snap.caption,style:TextStyle(color:Colors.black)),
+            subtitle: Text(snap.location??''),
+//            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
             trailing: new Icon(iconSelect, color: Colors.black),
           ),
         ),
