@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:path/path.dart' as Path;
 import 'package:image/image.dart';
 import './dart_common/Logger.dart' as log;
-import './JpegLoader.dart';
+import './dart_common/JpegLoader.dart';
 import './shared/aopClasses.dart';
 import './dart_common/Config.dart';
 
@@ -36,7 +36,7 @@ class FileImporter {
           ) {
         var fileStat = fse.statSync();
         if (fileStat.modified.isAfter(startDate)) {
-          bool alreadyExists = await AopSnap.exists(fse.path,fileStat.size);
+          bool alreadyExists = await AopSnap.nameExists(fse.path,fileStat.size);
           if (alreadyExists)
             log.message('${fse.path} skipped. Already imported');
           else {

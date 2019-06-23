@@ -3,11 +3,11 @@
  */
 @TestOn("vm")
 import 'package:test/test.dart';
-import 'package:AopIndexBuilder/JpegLoader.dart';
+import '../lib/dart_common/JpegLoader.dart';
 //import 'package:AopIndexBuilder/ImgFile.dart';
 import 'dart:io';
 
-const String TESTFILENAME = "C:\\projects\\AllOurPhotos\\testdata\\2017-08\\IMG_20170827_085827249.jpg";
+const String TESTFILENAME = "../testdata/2017-08/IMG_20170827_085827249.jpg";
 
 void main() {
   test("JPEG Loader", () async {
