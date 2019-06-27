@@ -5,14 +5,14 @@ homepage: https://www.example.com
 author: Chris <chrisr@instantobjects.com>
 
 environment:
-  sdk: '>=2.1.0 <3.0.0'
+  sdk: '>=2.2.2 <3.0.0'
 
 dependencies:
   path: ^1.4.1
   image:
   exifdart:
   mysql1:
-  path_provider: ^1.1.0
+#  path_provider: ^1.1.0 requires flutter
 
 dev_dependencies:
   test: ^1.0.0

@@ -4,41 +4,43 @@
 import 'dart:io';
 import 'package:path/path.dart' as Path;
 import 'package:image/image.dart';
-import './dart_common/Logger.dart' as log;
+import './dart_common/Logger.dart' as Log;
+
 import './dart_common/JpegLoader.dart';
 import './shared/aopClasses.dart';
 import './dart_common/Config.dart';
+import './dart_common/Geocoding.dart';
+import './dart_common/DateUtil.dart';
 
 class FileImporter {
   final String rootDir;
   final DateTime startDate;
+  GeocodingSession _geo = GeocodingSession();
+  JpegLoader jpegLoader = JpegLoader();
 
-  String absPath(String dirName, String filename) =>
-      Path.join(rootDir, dirName, filename);
-  final WANTED_FILES = ['.jpg', '.not-mvi', '.not-png', '.not-mov']; // todo import movies
+  String absPath(String dirName, String filename) => Path.join(rootDir, dirName, filename);
+  final WANTED_FILES = ['.jpg', '.not-mvi', '.png', '.not-mp4', '.not-mov']; // todo import movies
 
   FileImporter(this.rootDir, this.startDate) {
-    log.message('Registered root $rootDir starting at $startDate');
+    Log.message('Registered root $rootDir starting at $startDate');
   } // of constructor
 
   void scanAll() async {
     List<String> fileNames = [];
     List<DateTime> modifiedDates = [];
-    Stream<FileSystemEntity> directoryStream = await
-        Directory(rootDir).list(recursive: true);
+    Stream<FileSystemEntity> directoryStream = await Directory(rootDir).list(recursive: true);
     //    List<FileSystemEntity> directoryList = await
     //    Directory(rootDir).list(recursive: true).toList();
     await for (FileSystemEntity fse in directoryStream) {
       String thisExtension = Path.extension(fse.path).toLowerCase();
-      if (WANTED_FILES.indexOf(thisExtension) >= 0 &&
-              fse.path.indexOf('thumbnail') < 0
+      if (WANTED_FILES.indexOf(thisExtension) >= 0 && fse.path.indexOf('thumbnail') < 0
 //          && fse.path.indexOf('1980-01') < 0
           ) {
         var fileStat = fse.statSync();
         if (fileStat.modified.isAfter(startDate)) {
-          bool alreadyExists = await AopSnap.nameExists(fse.path,fileStat.size);
+          bool alreadyExists = await AopSnap.nameExists(fse.path, fileStat.size);
           if (alreadyExists)
-            log.message('${fse.path} skipped. Already imported');
+            Log.message('${fse.path} skipped. Already imported');
           else {
             fileNames.add(fse.path);
             modifiedDates.add(fileStat.modified);
@@ -48,94 +50,101 @@ class FileImporter {
 //        log.message('skipping ${fse.path} with extension $thisExtension');
       }
     }
-    log.message('${fileNames.length} files to load');
+    Log.message('${fileNames.length} files to load');
     for (int i = 0; i < fileNames.length; i++)
       try {
-          await importFile(File(fileNames[i]), modifiedDates[i]);
-      } catch (ex,stack) {
-        log.error('$ex  stack $stack');
+        await makeSnap(File(fileNames[i]));
+      } catch (ex, stack) {
+        Log.error('$ex  stack $stack');
       }
   } // of scanAll
 
-  void importFile(File thisImageFile, DateTime fileModifiedDate) async {
- //   Image thumbnailImage;
+  void populateSnapFromTags(AopSnap thisSnap, dynamic jpl) {
     try {
-      log.message('importing file ' + thisImageFile.path);
-      List<int> fileImageContents = await thisImageFile.readAsBytesSync();
-      if (thisImageFile.path.indexOf('helen') >= 0)
-        log.message('checkpoint available');
-      AopSnap thisSnap = AopSnap();
-      String thisExtension = Path.extension(thisImageFile.path).toLowerCase();
-      if (thisExtension == '.jpg') {
-        try {
-          Image originalImage = decodeImage(fileImageContents);
-          thisSnap.width = originalImage.width;
-          thisSnap.height = originalImage.height;
-          //         bool isPortrait = (originalImage.height > originalImage.width);
-          //  thumbnailImage = copyResize(originalImage, isPortrait ? 480 : 640);
-        } catch (ex) {
-          log.error('failed to decode ${thisImageFile.path}');
-          exit;
-        }
-        var jpegLoader = JpegLoader();
-        await jpegLoader.extractTags(fileImageContents);
-        if (jpegLoader.tags != null && jpegLoader.tags.length > 0)
-          populateSnapFromTags(thisSnap, jpegLoader);
-      }
-      thisSnap.fileName = Path.basename(thisImageFile.path);
-      thisSnap.mediaLength = fileImageContents.length;
-      thisSnap.directory = Path.dirname(thisImageFile.path);
-      if (rootDir == thisSnap.directory)
-        thisSnap.directory = '';
-      else if (rootDir == thisSnap.directory.substring(0,rootDir.length))
-        thisSnap.directory = thisSnap.directory.substring(rootDir.length);
-      thisSnap.mediaType = thisExtension.substring(1); // chop off the dot
-      thisSnap.importedDate = DateTime.now();
-      thisSnap.modifiedDate = fileModifiedDate;
-      if (thisSnap.takenDate == null ||
-          thisSnap.takenDate.isBefore(DateTime(1901)))
-        thisSnap.takenDate = thisSnap.modifiedDate;
-      thisSnap.originalTakenDate = thisSnap.takenDate;
-      thisSnap.importSource = config['importsource'] ?? "FileImporter";
-//      AopFullImage fullImage = AopFullImage();
-//      fullImage.contents = fileImageContents;
-//      int fullImageId = await fullImage.save();
-//      thisSnap.fullImageId = fullImageId;
-//      if (thumbnailImage != null) {
-//        AopThumbnail thumbnail = AopThumbnail();
-//        thumbnail.contents = encodeJpg(thumbnailImage, quality: 75);
-//        thisSnap.thumbnailId = await thumbnail.save();
-//      }
-      /* int snapId = */ await thisSnap.save();
-    } catch (err) {
-      throw 'Error on importing ${thisImageFile.path} with exception ${err.message}';
-    } // of try/catch
-  } // of importFile
-
-  void populateSnapFromTags(AopSnap thisFile, JpegLoader jpl) {
-//    int imageWidth = jpl.tag('ImageWidth') ?? jpl.tag('PixelXDimension');
-//    int imageHeight = jpl.tag('ImageHeight') ?? jpl.tag('PixelYDimension');
-    try {
-      thisFile
+      thisSnap
         ..caption = jpl.cleanString(jpl.tag('ImageDescription') ?? '')
-        ..takenDate = jpl.dateTimeFromExif(jpl.tag('DateTime'))
-        //      ..width = imageWidth
-        //      ..height = imageHeight
-        ..takenDate = thisFile.takenDate // default to be overwritten
-        ..importedDate = DateTime.now()
-        ..ranking = 2
-        ..latitude =
-            jpl.dmsToDeg(jpl.tag('GPSLatitude'), jpl.tag('GPSLatitudeRef'))
-        ..longitude =
-            jpl.dmsToDeg(jpl.tag('GPSLongitude'), jpl.tag('GPSLongitudeRef'))
-        ..deviceName = jpl.cleanString(jpl.tag('Model') ?? '')
-        ..rotation = '0'
-        ..userId = 1
-        ..tagList = '';
+        ..originalTakenDate = jpl.dateTimeFromExif(jpl.tag('DateTime'))
+        ..latitude = jpl.dmsToDeg(jpl.tag('GPSLatitude'), jpl.tag('GPSLatitudeRef'))
+        ..longitude = jpl.dmsToDeg(jpl.tag('GPSLongitude'), jpl.tag('GPSLongitudeRef'))
+        ..deviceName = jpl.cleanString(jpl.tag('Model') ?? '');
     } catch (ex) {
-      log.error(ex);
+      Log.error(ex);
       rethrow;
     }
   } // of populateSnap
 
+  Future<void> _uploadJpg(String urlString, List<int> bytes) async {
+    var postUri = Uri.parse(urlString);
+    HttpClient httpClient = HttpClient();
+    var request = await httpClient.putUrl(postUri);
+    request.add(bytes);
+    var response = await request.close();
+    httpClient.close();
+    if (response.statusCode == 200)
+      Log.message("Uploaded $urlString");
+    else
+      throw Exception('Failed to upload $urlString with $response');
+    ;
+  } // of httpPostImage
+
+  Future<Image> _decode(File thisFile) async {} // decode
+
+  Future<AopSnap> makeSnap(File imageFile) async {
+    bool success = false;
+    try {
+      var fileStat = imageFile.statSync();
+      AopSnap thisSnap = AopSnap() // with a few defaults
+        ..rotation = '0'
+        ..importedDate = DateTime.now()
+        ..ranking = 2
+        ..userId = 1
+        ..importSource = config['importsource'] ?? "FileImporter"
+        ..tagList = '';
+      thisSnap.fileName = Path.basename(imageFile.path);
+      String thisExtension = Path.extension(imageFile.path).toLowerCase();
+      thisSnap.mediaType = thisExtension.substring(1); // chop off the dot
+      thisSnap.modifiedDate = fileStat.modified;
+      thisSnap.mediaLength = fileStat.size;
+      List<int> imageData = imageFile.readAsBytesSync();
+      var decoder = findDecoderForData(imageData);
+      Image thisImage = await decoder?.decodeImage(imageData);
+      if (thisImage == null) throw Exception('Failed to decode ${imageFile.path}');
+      thisSnap.width = thisImage.width;
+      thisSnap.height = thisImage.height;
+      await jpegLoader.extractTags(imageFile.readAsBytesSync());
+      if (jpegLoader.tags != null && jpegLoader.tags.length > 0)
+        populateSnapFromTags(thisSnap, jpegLoader);
+      if (thisSnap.latitude != null) {
+        String location = await _geo.getLocation(thisSnap.longitude, thisSnap.latitude);
+        if (location != null) {
+          if (location.length > 100) location = location.substring(location.length - 100);
+          thisSnap.location = location;
+        }
+      }
+      if (thisSnap.originalTakenDate == null || thisSnap.originalTakenDate.isBefore(DateTime(1901)))
+        thisSnap.originalTakenDate = thisSnap.modifiedDate;
+      thisSnap.takenDate = thisSnap.originalTakenDate;
+      thisSnap.directory = formatDate(thisSnap.originalTakenDate, format: 'yyyy-mm');
+      success = true;
+      return thisSnap;
+    } catch (ex) {
+      Log.error('Failed to make snap for ${imageFile.path}\n $ex');
+    } finally {
+      Log.message('${success?"OK":"ERR"} ${imageFile.path}');
+    } // of try
+  } // of makeSnap
+
+  Future<bool> _uploadSnap(AopSnap newSnap, Image fullImage) async {
+    try {
+      bool isPortrait = (fullImage.height > fullImage.width);
+      Image thumbnail = copyResize(fullImage, width: isPortrait ? 480 : 640);
+      await _uploadJpg(newSnap.thumbnailURL, thumbnail.data);
+      await _uploadJpg(newSnap.fullSizeURL, fullImage.data);
+      await newSnap.save();
+      return true;
+    } catch (ex) {
+      Log.message('Failed save for ${newSnap.fileName} - $ex');
+      return false;
+    } // of try
+  }
 } // of FileImporter
