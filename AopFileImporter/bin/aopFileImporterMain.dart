@@ -9,14 +9,12 @@ import '../lib/shared/dbAllOurPhotos.dart';
 const VERSION = '2019-04-22';
 const DAYS_AGO = 100000;  // todo change to 90
 
-
-
 void main(List<String> arguments) async {
 //final photoDir = 'C:\\projects\\AllOurPhotos\\testdata\\';
   String photoRootDir = (arguments.length > 0)? arguments[0] : null;
-  String configFileName = (arguments.length > 2)? arguments[2] : null;
-  DateTime startDate = (arguments.length > 1)? DateTime.parse(arguments[1]) :
-                DateTime.now().add(Duration( days:-DAYS_AGO));
+//  String configFileName = (arguments.length > 2)? arguments[2] : null;
+  DateTime startDate = DateTime.now().add(Duration( days:-DAYS_AGO));
+
   try {
     log.onMessage = (String s) => stdout.writeln('${DateTime.now().toString().substring(0,21)} : $s');
     log.logLevel = log.eLogLevel.llMessage; // show messages and errors for now
@@ -24,7 +22,10 @@ void main(List<String> arguments) async {
     if (arguments.length < 1) throw 'Invalid Usage: AopFileImport rootdir startDate [configFileName]';
     if (!Directory(photoRootDir).existsSync())
       throw 'rootDir ($photoRootDir) does not exist';
-    await loadConfig(configFileName);
+    await loadConfig(null); //( configFileName);
+    //add commandline options to loaded config
+    config['verbose'] = arguments.indexOf('-v')>0;
+    config['fix'] = arguments.indexOf('-f')>0;
     // setup the logger to show the time
     //now connect to the database
     await DbAllOurPhotos().initConnection(config);

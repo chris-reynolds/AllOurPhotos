@@ -39,9 +39,9 @@ class FileImporter {
         var fileStat = fse.statSync();
         if (fileStat.modified.isAfter(startDate)) {
           bool alreadyExists = await AopSnap.nameExists(fse.path, fileStat.size);
-          if (alreadyExists)
-            Log.message('${fse.path} skipped. Already imported');
-          else {
+          if (alreadyExists) {
+            if (config['verbose']) Log.message('${fse.path} skipped. Already imported');
+          } else {
             fileNames.add(fse.path);
             modifiedDates.add(fileStat.modified);
           }
@@ -67,8 +67,10 @@ class FileImporter {
         ..latitude = jpl.dmsToDeg(jpl.tag('GPSLatitude'), jpl.tag('GPSLatitudeRef'))
         ..longitude = jpl.dmsToDeg(jpl.tag('GPSLongitude'), jpl.tag('GPSLongitudeRef'))
         ..deviceName = jpl.cleanString(jpl.tag('Model') ?? '');
+      if (jpl.tag('DateTimeOriginal')!=null)
+        thisSnap.originalTakenDate = jpl.dateTimeFromExif(jpl.tag('DateTimeOriginal'));
     } catch (ex) {
-      Log.error(ex);
+      Log.error('bad exif:' + ex);
       rethrow;
     }
   } // of populateSnap
@@ -87,19 +89,18 @@ class FileImporter {
     ;
   } // of httpPostImage
 
-  Future<Image> _decode(File thisFile) async {} // decode
-
   Future<AopSnap> makeSnap(File imageFile) async {
     bool success = false;
+    bool isDup = false;
+    AopSnap thisSnap = AopSnap() // with a few defaults
+      ..rotation = '0'
+      ..importedDate = DateTime.now()
+      ..ranking = 2
+      ..userId = 1
+      ..importSource = config['importsource'] ?? "FileImporter"
+      ..tagList = '';
     try {
       var fileStat = imageFile.statSync();
-      AopSnap thisSnap = AopSnap() // with a few defaults
-        ..rotation = '0'
-        ..importedDate = DateTime.now()
-        ..ranking = 2
-        ..userId = 1
-        ..importSource = config['importsource'] ?? "FileImporter"
-        ..tagList = '';
       thisSnap.fileName = Path.basename(imageFile.path);
       String thisExtension = Path.extension(imageFile.path).toLowerCase();
       thisSnap.mediaType = thisExtension.substring(1); // chop off the dot
@@ -125,13 +126,24 @@ class FileImporter {
         thisSnap.originalTakenDate = thisSnap.modifiedDate;
       thisSnap.takenDate = thisSnap.originalTakenDate;
       thisSnap.directory = formatDate(thisSnap.originalTakenDate, format: 'yyyy-mm');
+      if (await AopSnap.sizeOrNameAtTimeExists(
+          thisSnap.originalTakenDate, thisSnap.mediaLength, thisSnap.fileName)) {
+        if (config['verbose'])
+          Log.message('sizeOrNameAtTimeExists ${thisSnap.directory}/${thisSnap.fileName} skipped ');
+        isDup = true;
+        return null;
+      }
+      if (config['fix']) _uploadSnap(thisSnap, thisImage);
       success = true;
-      return thisSnap;
     } catch (ex) {
       Log.error('Failed to make snap for ${imageFile.path}\n $ex');
+      rethrow;
     } finally {
-      Log.message('${success?"OK":"ERR"} ${imageFile.path}');
+      if (!isDup)
+        Log.message('${success ? "OK" : "ERROR"} ' +
+            '${formatDate(thisSnap.originalTakenDate, format: 'yyyy-mm-dd')} ${imageFile.path}  ');
     } // of try
+    return thisSnap;
   } // of makeSnap
 
   Future<bool> _uploadSnap(AopSnap newSnap, Image fullImage) async {
