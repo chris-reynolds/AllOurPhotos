@@ -180,12 +180,12 @@ class AopAlbum extends DomainObject {
 
 //                                '*** Start Custom Code album custom procedures
   static Future<List<AopAlbum>> all() async {
-    return albumProvider.getSome('1=1',orderBy:'name');
+    return albumProvider.getSome('1=1', orderBy: 'name');
   } // all Albums
 
   Future<List<AopSnap>> get snaps async {
-    return snapProvider.getSome(
-        'id in (select snap_id from aopalbum_items where album_id=${this.id})');
+    return snapProvider
+        .getSome('id in (select snap_id from aopalbum_items where album_id=${this.id})');
   } //  snaps property
 
   Future<int> addSnaps(List<int> newSnapIds) async {
@@ -193,17 +193,15 @@ class AopAlbum extends DomainObject {
     List<AopAlbumItem> existingItems = await this.albumItems;
     for (int newId in newSnapIds) {
       bool found = false;
-      for (AopAlbumItem item in existingItems)
-        if (item.snapId == newId)
-          found = true;
-        if (!found) {
-          AopAlbumItem newItem = AopAlbumItem();
-          newItem.albumId = this.id;
-          newItem.snapId = newId;
-          await newItem.save();
-          existingItems.add(newItem);
-          result += 1;
-        } // inserted newone
+      for (AopAlbumItem item in existingItems) if (item.snapId == newId) found = true;
+      if (!found) {
+        AopAlbumItem newItem = AopAlbumItem();
+        newItem.albumId = this.id;
+        newItem.snapId = newId;
+        await newItem.save();
+        existingItems.add(newItem);
+        result += 1;
+      } // inserted newone
     }
     return result;
   } // of addSnaps
@@ -212,7 +210,7 @@ class AopAlbum extends DomainObject {
     int result = 0;
     List<AopAlbumItem> existingItems = await this.albumItems;
     for (AopAlbumItem thisItem in existingItems) {
-      if (oldSnapIds.indexOf(thisItem.snapId)>=0) {
+      if (oldSnapIds.indexOf(thisItem.snapId) >= 0) {
         await thisItem.delete();
         result += 1;
       }
@@ -226,8 +224,7 @@ class AopAlbum extends DomainObject {
     if (name.length < 10) lastErrors.add('name must be 10 characters long');
     String yearStr = name.substring(0, 4);
     int yearNo = int.tryParse(yearStr) ?? -1;
-    if (yearNo < 1900 || yearNo > 2099)
-      lastErrors.add('name should start with 4 digit year');
+    if (yearNo < 1900 || yearNo > 2099) lastErrors.add('name should start with 4 digit year');
   } // of validate
 
 //                                '*** End Custom Code
@@ -350,8 +347,7 @@ class AopSession extends DomainObject {
   } // of constructor
 
 //Associations
-  Future<List<AopSnap>> get snaps async =>
-      snapProvider.getWithFKey('session_id', this.id);
+  Future<List<AopSnap>> get snaps async => snapProvider.getWithFKey('session_id', this.id);
 
   Future<AopUser> get user async => userProvider.get(_userId);
 
@@ -658,25 +654,42 @@ class AopSnap extends DomainObject {
   static Future<bool> nameExists(String path, int fileSize) async {
     String fileName = Path.basename(path);
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' +
-            'where file_name=? and media_Length=?',
+        'select count(*) from aopsnaps ' + 'where file_name=? and media_Length=?',
         [fileName, fileSize]);
     var values = r.first.values;
     return values[0] > 0;
   } // of nameExists
 
   static Future<bool> dateTimeExists(DateTime taken, int fileSize) async {
+    DateTime startTime = taken.add(Duration(seconds: -2));
+    DateTime endTime = taken.add(Duration(seconds: 2));
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' +
-            "where original_taken_date=? and media_Length=?",
-        ["${formatDate(taken,format:'yyyy-mm-dd hh:nn:ss')}", fileSize]);
+        'select count(*) from aopsnaps ' + "where original_taken_date=? and media_Length=?", [
+      "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+      "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}", fileSize ]);
     var values = r.first.values;
     return values[0] > 0;
-  } // of nameExists
+  } // of dateTimeExists
+
+  static Future<bool> sizeOrNameAtTimeExists(DateTime taken, int fileSize, String filename) async {
+    DateTime startTime = taken.add(Duration(seconds: -2));
+    DateTime endTime = taken.add(Duration(seconds: 2));
+    var r = await snapProvider.rawExecute(
+        'select count(*) from aopsnaps ' +
+            "where (original_taken_date between ? and ?) and (media_Length=? or file_name=?)",
+        [
+          "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          fileSize,
+          filename
+        ]);
+    var values = r.first.values;
+    return values[0] > 0;
+  } // of sizeOrNameAtTimeExists
 
   static Future<dynamic> get existingLocations async {
-    var r = await snapProvider.rawExecute('select location,avg(longitude) as lng, '+
-        'avg(latitude) as lon from aopsnaps where latitude '+
+    var r = await snapProvider.rawExecute('select location,avg(longitude) as lng, ' +
+        'avg(latitude) as lon from aopsnaps where latitude ' +
         'is not null and location is not null group by 1');
     return r;
   } // of existingLocations
@@ -729,14 +742,11 @@ class AopUser extends DomainObject {
   } //  of set hint
 
 //Associations
-  Future<List<AopAlbum>> get albums async =>
-      albumProvider.getWithFKey('user_id', this.id);
+  Future<List<AopAlbum>> get albums async => albumProvider.getWithFKey('user_id', this.id);
 
-  Future<List<AopSession>> get sessions async =>
-      sessionProvider.getWithFKey('user_id', this.id);
+  Future<List<AopSession>> get sessions async => sessionProvider.getWithFKey('user_id', this.id);
 
-  Future<List<AopSnap>> get snaps async =>
-      snapProvider.getWithFKey('user_id', this.id);
+  Future<List<AopSnap>> get snaps async => snapProvider.getWithFKey('user_id', this.id);
 
 //maker function for the provider
   static AopUser maker() {

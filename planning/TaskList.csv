@@ -10,11 +10,11 @@ I8,Detail artifact List,M,U,init,
 ,,,,,
 D1,Write persistence layer,M,F,dbload,2019-04-19
 D2,Convert index.tsv to mysql,M,F,dbload,2019-05-04
-D3,Upload latest pictures from phones,L,U,dbload,
+D3,Upload latest pictures from phones,L,P,dbload,
 D4,Upload latest pictures from tablets,L,P,dbload,
-D5,Import from cameras,M,D,dbload,
+D5,Import from cameras,M,P,dbload,
 D6,Import file archives of old photos,M,F,dbload,2019-05-04
-D7,Remove/Ignore duplicates,S,I,dbload,
+D7,Remove/Ignore duplicates,S,P,dbload,
 D8,Deduce location name from long/lat,M,P,dbload,
 D9,Import file archives of old videos,M,U,dbload,
 D10,Import Facebook albums,M,U,dbload,
