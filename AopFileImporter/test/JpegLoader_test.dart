@@ -18,8 +18,5 @@ void main() {
     File fred = File('tags.txt');
     fred.writeAsString(keys.join("\n"));
     expect(tagList['Model'].toString().replaceAll('\x00', ''), equals('Moto E (4)'));
-//    var newFile = ImgFile('dirrr','fileeeeeeeeeeee');
-//    jpegLoader.saveToImgFile(newFile);
-//    expect((newFile.latitude*1000).round(),equals(-37634));
   });
 }
