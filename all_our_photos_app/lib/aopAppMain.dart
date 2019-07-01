@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'screens/scRecentPics.dart';
+import 'package:path_provider/path_provider.dart';
 import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
@@ -14,8 +14,8 @@ import 'dart_common/LoginStateMachine.dart';
 
 
 void main() async {
-  await loadConfig('allourphotos.config.json');
-//  await DbAllOurPhotos().initConnection(config); // todo parameterise
+  String configFile = (await getApplicationDocumentsDirectory()).path+'/allourphotos.config.json';
+  await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
   Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.June21');
