@@ -43,6 +43,7 @@ CREATE TABLE aopsessions (
   , created_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_on      DATETIME not null DEFAULT CURRENT_TIMESTAMP
   , updated_user         varchar(30) not null
+  , session_status      varchar(30)
   , start_date Datetime 
   , end_date Datetime 
   , source Varchar(30) 
@@ -70,13 +71,14 @@ CREATE TABLE aopsnaps (
   , latitude Float 
   , width INT 
   , height INT 
-  , location Varchar(100) 
+  , location Varchar(200) 
   , rotation Varchar(30) 
   , import_source Varchar(50) 
   , media_type Varchar(30) not Null
   , imported_date Datetime 
   , media_length INT 
   , tag_list Varchar(250) 
+  , metadata Varchar(32000) 
   ,  session_id Int NULL
   ,  user_id Int NULL
 ); 
