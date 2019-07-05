@@ -6,7 +6,7 @@ import '../lib/dart_common/Config.dart';
 import '../lib/shared/dbAllOurPhotos.dart';
 
 
-const VERSION = '2019-04-22';
+const VERSION = '2019-07-02';
 const DAYS_AGO = 100000;  // todo change to 90
 
 void main(List<String> arguments) async {

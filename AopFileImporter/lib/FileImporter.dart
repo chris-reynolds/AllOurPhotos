@@ -118,7 +118,7 @@ class FileImporter {
       if (thisSnap.latitude != null) {
         String location = await _geo.getLocation(thisSnap.longitude, thisSnap.latitude);
         if (location != null) {
-          if (location.length > 100) location = location.substring(location.length - 100);
+          if (location.length > 200) location = location.substring(location.length - 200);
           thisSnap.location = location;
         }
       }
