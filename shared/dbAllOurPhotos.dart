@@ -1,6 +1,7 @@
 import 'dart:async';
 //import 'dart:io';
 import 'package:mysql1/mysql1.dart';
+import '../dart_common/Logger.dart' as Log;
 //import 'package:all_our_photos_app/aopClasses.dart';
 
 MySqlConnection dbConn;
@@ -13,6 +14,7 @@ class DbAllOurPhotos {
       dbConn = await MySqlConnection.connect(new ConnectionSettings(
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
           password:config['dbpassword'], db: config['dbname']));
+      Log.message('Database connection = ${config["dbname"]}');
     }
     return 1;
   } // future<int> forces us to use await with compile error

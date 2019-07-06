@@ -8,6 +8,9 @@ import 'DomainObject.dart';
 //import 'package:image/image.dart';
 import 'package:path/path.dart' as Path;
 import '../dart_common/DateUtil.dart';
+
+// todo remove hardwired url
+String rootUrl = 'http://192.168.1.251:3333';
 //                                '*** End Custom Code
 
 // Domain object providers
@@ -710,16 +713,23 @@ class AopSnap extends DomainObject {
     return r;
   } // of yearGrid
 
-  // todo remove hardwired urls
   String get fullSizeURL {
-//    return 'http://192.168.1.65:4444/$directory/$fileName';
-    return 'http://192.168.1.251:3333/$directory/$fileName';
+    return '$rootUrl/$directory/$fileName';
   } // of fullSizeURL
 
   String get thumbnailURL {
-//    return 'http://192.168.1.65:4444/$directory/thumbnails/$fileName';
-    return 'http://192.168.1.251:3333/$directory/thumbnails/$fileName';
+    return '$rootUrl/$directory/thumbnails/$fileName';
   } // of thumbnailURL
+
+  String get metadataURL {
+    return '$rootUrl/$directory/metadata/$fileName.json';
+  } // of metadataURL
+
+  void trimSetLocation(String newLocation) {
+    if (newLocation != null && newLocation.length > 200)
+        newLocation = newLocation.substring(newLocation.length - 200);
+    this.location = newLocation;
+  } // of trimSetLocation
 
 //                                '*** End Custom Code
 } // of class snap

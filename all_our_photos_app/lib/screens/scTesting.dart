@@ -153,7 +153,6 @@ class _SearchListState extends State<SearchList> {
     List<AopSnap> snapList = await snapProvider.getSome(
         "import_source like '%ipad%' and latitude is not null");
     GeocodingSession geo = GeocodingSession();
-    int sofar = 0;
     // todo populate the cache
     dynamic r = await AopSnap.existingLocations;
     for (dynamic row in r.rows)

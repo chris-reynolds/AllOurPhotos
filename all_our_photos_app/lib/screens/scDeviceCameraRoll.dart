@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:multi_image_picker/multi_image_picker.dart' as MIP;
 import 'package:device_info/device_info.dart';
@@ -21,42 +22,21 @@ class _CameraRollPageState extends State<CameraRollPage> {
   List<MIP.Asset> _images = [];
   GeocodingSession _geo = GeocodingSession();
 
-  Future<void> _uploadJpg(String urlString, ByteData bytes) async {
-//    Future<TestRequest> get(String url,{String accept ,String cookie,List<int> putData}) async {
-//      var url2 = Uri.parse(TEST_HOST + url);
-//      var httpClient = HttpClient();
-//      HttpClientRequest request;
-//      if (putData == null)
-//        request = await httpClient.getUrl(url2);
-//      else {
-//        request = await httpClient.putUrl(url2);
-//        request.add(putData);
-//      }
-//      if (cookie != null)
-//        request.cookies.add(Cookie('aop',cookie));
-//      response = await request.close();
-//      responseText = await response.transform(utf8.decoder).toList();
-//      testLog('Response ${response.statusCode}: type ${responseText.runtimeType} $responseText');
-//      if (response.headers.value('content-type').contains('json')) {
-//        responseData = jsonDecode(responseText.join());
-//      } else
-//        responseData = null;
-//      httpClient.close();
-//      return this;
-//    }
+  Future<void> _uploadJpg(String urlString, {ByteData bytes, String metaData}) async {
     var postUri = Uri.parse(urlString);
     HttpClient httpClient = HttpClient();
     var request = await httpClient.putUrl(postUri);
     //   request.fields['user'] = 'blah';
     //   request.files.add(new http.MultipartFile.fromBytes('file', await File.fromUri("<path/to/file").readAsBytes(), contentType: new MediaType('image', 'jpeg')))
-    request.add(bytes.buffer.asUint8List());
+    if (bytes != null)
+      request.add(bytes.buffer.asUint8List());
+    else if (metaData != null) request.add(utf8.encode(metaData));
     var response = await request.close();
     httpClient.close();
     if (response.statusCode == 200)
       Log.message("Uploaded $urlString");
     else
       throw Exception('Failed to upload $urlString with $response');
-    ;
   } // of httpPostImage
 
   @override
@@ -80,11 +60,8 @@ class _CameraRollPageState extends State<CameraRollPage> {
             child: Column(
           children: <Widget>[
             if (_images.length > 0)
-              Text('Photos to upload $_imagesToUpload',
-                  style: TextStyle(fontSize: 30)),
-            if (_skipCount > 0)
-              Text('Skipped Photos  $_skipCount',
-                  style: TextStyle(fontSize: 20)),
+              Text('Photos to upload $_imagesToUpload', style: TextStyle(fontSize: 30)),
+            if (_skipCount > 0) Text('Skipped Photos  $_skipCount', style: TextStyle(fontSize: 20)),
           ],
         ))); // scaffold
   } // of build
@@ -119,11 +96,9 @@ class _CameraRollPageState extends State<CameraRollPage> {
   } // thumbnails
 
   Future<ByteData> thumbnail640(MIP.Asset anImage) {
-    double scale = anImage.isLandscape
-        ? 640 / anImage.originalWidth
-        : 640 / anImage.originalHeight;
-    return anImage.requestThumbnail((anImage.originalWidth * scale).floor(),
-        (anImage.originalHeight * scale).floor());
+    double scale = anImage.isLandscape ? 640 / anImage.originalWidth : 640 / anImage.originalHeight;
+    return anImage.requestThumbnail(
+        (anImage.originalWidth * scale).floor(), (anImage.originalHeight * scale).floor());
   } // thumbnail640
 
   void uploader() async {
@@ -152,6 +127,20 @@ class _CameraRollPageState extends State<CameraRollPage> {
     });
   } // of uploader
 
+//  Future<Map<String,dynamic>> fred() {
+//    static Future<Metadata> requestMetadata(String identifier) async {
+//      Map<dynamic, dynamic> map = await _channel.invokeMethod(
+//        "requestMetadata",
+//        <String, dynamic>{
+//          "identifier": identifier,
+//        },
+//      );
+//
+//      Map<String, dynamic> metadata = Map<String, dynamic>.from(map);
+//      if (Platform.isIOS) {
+//        metadata = _normalizeMetadata(metadata);
+//      }
+//  }
   Future<bool> uploadImage(MIP.Asset anImage, DbAllOurPhotos db) async {
     try {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -166,7 +155,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
 //      print('Running on ${iosInfo.utsname.machine}');  // e.g. "iPod7,1"
       }
 //    var imageData = await anImage.requestOriginal();
-      var metaData = await anImage.requestMetadata();
+      MIP.Metadata metaData = await anImage.requestMetadata();
       AopSnap newSnap = AopSnap()
         ..fileName = anImage.name
         ..directory = '1982-01'
@@ -174,54 +163,47 @@ class _CameraRollPageState extends State<CameraRollPage> {
         ..height = anImage.originalHeight
         ..takenDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
         ..modifiedDate = dateTimeFromExif(metaData.exif.dateTimeOriginal)
-        ..latitude = GeocodingSession.calcSign(metaData.gps.gpsLatitudeRef,metaData.gps.gpsLatitude)
-        ..longitude = GeocodingSession.calcSign(metaData.gps.gpsLongitudeRef,metaData.gps.gpsLongitude)
+        ..latitude =
+            GeocodingSession.calcSign(metaData.gps.gpsLatitudeRef, metaData.gps.gpsLatitude)
+        ..longitude =
+            GeocodingSession.calcSign(metaData.gps.gpsLongitudeRef, metaData.gps.gpsLongitude)
         ..deviceName = deviceName
         ..rotation = '0' // todo support enumeration
         ..importSource = deviceName
         ..importedDate = DateTime.now();
-      bool isScanned =
-          ((metaData.device.software ?? '').toLowerCase().indexOf('scan') >= 0);
+      bool isScanned = ((metaData.device.software ?? '').toLowerCase().indexOf('scan') >= 0);
       newSnap.importSource += isScanned ? ' scanned' : ' camera roll';
 
       newSnap.originalTakenDate = newSnap.takenDate;
-      newSnap.directory =
-          formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
+      newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
       ByteData fullImageBytes = await anImage.requestOriginal();
       ByteData thumbnailBytes = await thumbnail640(anImage);
 
       newSnap.mediaLength = fullImageBytes.lengthInBytes;
 
       if (newSnap.latitude != null) {
-        String location =
-        await _geo.getLocation(newSnap.longitude, newSnap.latitude);
+        String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
         if (location != null) {
-          if (location.length > 100)
-            location = location.substring(location.length - 100);
+          if (location.length > 100) location = location.substring(location.length - 100);
           newSnap.location = location;
         }
       }
 
-      if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year>1980) {
-        if (await AopSnap.dateTimeExists(
-            newSnap.originalTakenDate, newSnap.mediaLength))
+      if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
+        if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength))
           return false;
       } else {
-        if (await AopSnap.nameExists(
-            newSnap.fileName, newSnap.mediaLength))
-          return false;
+        if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) return false;
       }
       if (newSnap.latitude != null) {
-        String location =
-        await _geo.getLocation(newSnap.longitude, newSnap.latitude);
-        if (location != null) {
-          if (location.length > 100)
-            location = location.substring(location.length - 100);
-          newSnap.location = location;
-        }
+        String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
+        newSnap.trimSetLocation(location);
       }
-      await _uploadJpg(newSnap.thumbnailURL, thumbnailBytes);
-      await _uploadJpg(newSnap.fullSizeURL, fullImageBytes);
+      String myMeta = jsonEncode(metaData.myjson);
+      await _uploadJpg(newSnap.thumbnailURL, bytes: thumbnailBytes);
+      await _uploadJpg(newSnap.fullSizeURL, bytes: fullImageBytes);
+      await _uploadJpg(newSnap.metadataURL, metaData: myMeta);
+      newSnap.metadata = myMeta;
       await newSnap.save();
       return true;
     } catch (ex) {
