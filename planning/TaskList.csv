@@ -2,20 +2,20 @@ Number,Name,Size LMS,ProgressUIDPTF,Group,Finished On
 I1,Setup Project Control Metrics,M,F,init,2019-03-29
 I2,Setup Bug Tracking,S,F,init,2019-03-29
 I3,Setup Dev/Test/Prod Databases,M,D,init,2019-04-04
-I4,Setup Dev/Test/Prod Environs,M,P,init,
+I4,Setup Dev/Test/Prod Environs,M,P,init,2019-07-14
 I5,Setup Unit Test Environment,M,F,init,2019-04-18
 I6,Experiment with Coverage metric,L,U,init,
-I7,Write-up technical architecture,S,U,init,
+I7,Write-up technical architecture,S,U,init,2019-07-14
 I8,Detail artifact List,M,U,init,
 ,,,,,
 D1,Write persistence layer,M,F,dbload,2019-04-19
 D2,Convert index.tsv to mysql,M,F,dbload,2019-05-04
 D3,Upload latest pictures from phones,L,P,dbload,
-D4,Upload latest pictures from tablets,L,P,dbload,
+D4,Upload latest pictures from tablets,L,F,dbload,2019-07-14
 D5,Import from cameras,M,P,dbload,
 D6,Import file archives of old photos,M,F,dbload,2019-05-04
 D7,Remove/Ignore duplicates,S,P,dbload,
-D8,Deduce location name from long/lat,M,P,dbload,
+D8,Deduce location name from long/lat,M,F,dbload,2019-07-14
 D9,Import file archives of old videos,M,U,dbload,
 D10,Import Facebook albums,M,U,dbload,
 ,,,,,
@@ -34,9 +34,9 @@ E1,Rank a single photo 1-5,S,F,edit,2019-06-05
 E2,Add caption and tags to a single photo,S,U,edit,
 E3,Add location name to a single photo,S,U,edit,
 E4,Change date taken of a single photo,M,U,edit,
-E5,Crop a picture with revert,L,U,edit,
+E5,Crop a picture with revert,L,D,edit,
 ,,,,,
-V1,View photo full-screen and pinch zoom,L,D,view2,
+V1,View photo full-screen and pinch zoom,L,F,view2,2019-07-14
 V2,View a list of photos as a set of tiles,L,U,view2,
 V4,Filter photos based on date/location/caption/rank/tag,L,U,view2,
 V5,Ability to auto-extend date filter based on scrolling or buttons,L,F,view2,2019-06-05
