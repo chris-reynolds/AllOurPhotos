@@ -142,6 +142,7 @@ class PhotoGridState extends State<PhotoGrid> {
             childAspectRatio: 1.0,
             //(orientation == Orientation.portrait) ? 1.0 : 1.3,
             children: [
+              if (_imageFilter.images != null)
               for (int idx = 0; idx < _imageFilter.images.length; idx++)
                 PhotoTile(
                     isSelected: isSelected(_imageFilter.images[idx]),
