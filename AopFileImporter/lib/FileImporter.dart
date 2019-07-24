@@ -2,6 +2,7 @@
  * Created by Chris on 25/09/2018.
  */
 import 'dart:io';
+import 'dart:convert';
 import 'package:path/path.dart' as Path;
 import 'package:image/image.dart';
 import './dart_common/Logger.dart' as Log;
@@ -67,31 +68,37 @@ class FileImporter {
         ..latitude = jpl.dmsToDeg(jpl.tag('GPSLatitude'), jpl.tag('GPSLatitudeRef'))
         ..longitude = jpl.dmsToDeg(jpl.tag('GPSLongitude'), jpl.tag('GPSLongitudeRef'))
         ..deviceName = jpl.cleanString(jpl.tag('Model') ?? '');
-      if (jpl.tag('DateTimeOriginal')!=null)
+      if (jpl.tag('DateTimeOriginal') != null)
         thisSnap.originalTakenDate = jpl.dateTimeFromExif(jpl.tag('DateTimeOriginal'));
+      thisSnap.takenDate = thisSnap.originalTakenDate;
+      jpl.tags.forEach((k, v) {
+        try {
+          if (v != null && v.toString() != null) {
+            int len = v.toString().length;
+            if (len > 250) {
+              Log.message('$k , $len , ');
+              jpl.tags[k] = 'removed'; //
+            }
+          }
+        } catch (ex) {
+          Log.error('metadata error $k $v  ${thisSnap.fileName}');
+        }
+      }); // of tag forEach
+      if (thisSnap.latitude == 0 && thisSnap.longitude == 0) {
+        thisSnap.latitude = null;
+        thisSnap.longitude = null;
+      }
+      thisSnap.metadata = jsonEncode(jpl.tags);
     } catch (ex) {
       Log.error('bad exif:' + ex);
       rethrow;
     }
   } // of populateSnap
 
-  Future<void> _uploadJpg(String urlString, List<int> bytes) async {
-    var postUri = Uri.parse(urlString);
-    HttpClient httpClient = HttpClient();
-    var request = await httpClient.putUrl(postUri);
-    request.add(bytes);
-    var response = await request.close();
-    httpClient.close();
-    if (response.statusCode == 200)
-      Log.message("Uploaded $urlString");
-    else
-      throw Exception('Failed to upload $urlString with $response');
-    ;
-  } // of httpPostImage
-
   Future<AopSnap> makeSnap(File imageFile) async {
     bool success = false;
     bool isDup = false;
+    bool isSaved = false;
     AopSnap thisSnap = AopSnap() // with a few defaults
       ..rotation = '0'
       ..importedDate = DateTime.now()
@@ -112,7 +119,7 @@ class FileImporter {
       if (thisImage == null) throw Exception('Failed to decode ${imageFile.path}');
       thisSnap.width = thisImage.width;
       thisSnap.height = thisImage.height;
-      await jpegLoader.extractTags(imageFile.readAsBytesSync());
+      await jpegLoader.extractTags(imageData);
       if (jpegLoader.tags != null && jpegLoader.tags.length > 0)
         populateSnapFromTags(thisSnap, jpegLoader);
       if (thisSnap.latitude != null) {
@@ -133,7 +140,7 @@ class FileImporter {
         isDup = true;
         return null;
       }
-      if (config['fix']) _uploadSnap(thisSnap, thisImage);
+      if (config['fix']) isSaved = await _updateSnap(thisSnap, thisImage, imageData);
       success = true;
     } catch (ex) {
       Log.error('Failed to make snap for ${imageFile.path}\n $ex');
@@ -141,17 +148,26 @@ class FileImporter {
     } finally {
       if (!isDup)
         Log.message('${success ? "OK" : "ERROR"} ' +
+            '${isSaved ? "Saved" : "Not Saved"} ' +
             '${formatDate(thisSnap.originalTakenDate, format: 'yyyy-mm-dd')} ${imageFile.path}  ');
     } // of try
     return thisSnap;
   } // of makeSnap
 
-  Future<bool> _uploadSnap(AopSnap newSnap, Image fullImage) async {
+  Future<bool> _updateSnap(AopSnap newSnap, Image fullImage,List<int>imageData) async {
     try {
       bool isPortrait = (fullImage.height > fullImage.width);
       Image thumbnail = copyResize(fullImage, width: isPortrait ? 480 : 640);
-      await _uploadJpg(newSnap.thumbnailURL, thumbnail.data);
-      await _uploadJpg(newSnap.fullSizeURL, fullImage.data);
+      List<int> roughThumbnail = encodeJpg(thumbnail, quality: 30);
+      File(newSnap.thumbnailURL)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(roughThumbnail, flush: true);
+      File(newSnap.fullSizeURL)
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(imageData, flush: true);
+      File(newSnap.metadataURL)
+        ..createSync(recursive: true)
+        ..writeAsStringSync(newSnap.metadata, flush: true);
       await newSnap.save();
       return true;
     } catch (ex) {

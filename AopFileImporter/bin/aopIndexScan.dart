@@ -10,6 +10,8 @@
 */
 
 import 'dart:io';
+import 'dart:convert';
+//import 'dart:typed_data';
 import 'package:image/image.dart';
 import 'package:path/path.dart' as Path;
 import '../lib/dart_common/JpegLoader.dart';
@@ -43,19 +45,24 @@ void main(List<String> arguments) async {
     dynamic r = await AopSnap.existingLocations;
     for (dynamic row in r) _geo.setLocation(row[1], row[2], row[0]);
     // get all the snaps and start checking one at a time
-    List<AopSnap> allSnaps = await snapProvider.getSome("file_name = 'IMG_0001.JPG' ");
+    List<AopSnap> allSnaps = await snapProvider.getSome("1=1"); // directory='2006-04'");
     for (int snapIx = 0; snapIx < allSnaps.length; snapIx++) {
       SnapFixer snapFixer = SnapFixer(allSnaps[snapIx]);
-      if (await snapFixer.load()) {
-        await snapFixer.fixTakenDate();
-        await snapFixer.fixLocation();
-        if (snapFixer.isDirty) {
+//      if (await snapFixer.load()) {
+//        await snapFixer.fixTakenDate();
+//        await snapFixer.fixLocation();
+//        await snapFixer.fixMetaData();
+//        if (snapFixer.isDirty) {
+//          await snapFixer.snap.save();
+//          Log.message('${snapFixer.imagePath} updated');
+//        }
+//        await snapFixer.fixThumbnail();
+//      }
+      if (snapFixer.shortenMetadata()) {
+          Log.message('${snapFixer.metadataPath} to be updated');
           await snapFixer.snap.save();
-          Log.message('${snapFixer.imagePath} updated');
-        }
-        await snapFixer.fixThumbnail();
       }
-      if (snapIx % 40 == 0) Log.message('$snapIx');
+      if (snapIx % 50 == 0) Log.message('$snapIx');
     }
     Log.message('${allSnaps.length} loaded successfully');
     Log.message('AllOurPhotos IndexScan $VERSION completed successfully ');
@@ -78,6 +85,8 @@ class SnapFixer {
   String get imagePath => Path.join(rootDir, snap.directory, snap.fileName);
 
   String get thumbnailPath => Path.join(rootDir, snap.directory, 'thumbnails', snap.fileName);
+
+  String get metadataPath => Path.join(rootDir, snap.directory, 'metadata', snap.fileName+'.json');
 
   Future<bool> load() async {
     isDirty = false;
@@ -122,6 +131,24 @@ class SnapFixer {
         return true; // nothing to do
   } // of fixLocation
 
+  Future<bool> fixMetaData() async  {
+    try {
+      if (exifTags.length>0) {
+        snap.metadata = jsonEncode(exifTags);
+        File metaFile = File(metadataPath);
+        if (!metaFile.existsSync())
+          metaFile.createSync(recursive: true);
+        metaFile.writeAsStringSync(snap.metadata);
+        isDirty = true;
+      }
+      return true;
+    } catch (ex, stack) {
+      Log.error('${imagePath} failed to fix metadata $ex /n $stack');
+      return false;
+    }
+
+  } // of fixMetaData
+
   Future<bool> fixTakenDate() async {
     try {
       DateTime newTakenDate = jpegLoader.dateTimeFromExif(exifTags['DateTime']);
@@ -157,5 +184,27 @@ class SnapFixer {
       return false;
     }
   } // of fixThumbnail
+
+  bool  shortenMetadata() {
+    bool result = false;
+    if (snap.metadata == null) return false;
+    Map<String,dynamic> tags = jsonDecode(snap.metadata);
+    tags.forEach((k,v) {
+      try {
+        if (v !=null && v.toString() != null) {
+          int len = v.toString().length;
+          if (len > 250) {
+            Log.message('$k , $len , ${snap.id} ');
+            tags[k] = 'removed'; //
+            snap.metadata = jsonEncode(tags);
+            result = true;
+          }
+        }
+      } catch(ex) {
+        Log.error('$k $v');
+      }
+    }); // of foreach tag
+    return result;
+  } // shortenMetadata
 
 } // of SnapFixer
