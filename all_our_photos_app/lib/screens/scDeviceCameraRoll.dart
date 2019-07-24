@@ -95,10 +95,11 @@ class _CameraRollPageState extends State<CameraRollPage> {
     );
   } // thumbnails
 
+
   Future<ByteData> thumbnail640(MIP.Asset anImage) {
     double scale = anImage.isLandscape ? 640 / anImage.originalWidth : 640 / anImage.originalHeight;
     return anImage.requestThumbnail(
-        (anImage.originalWidth * scale).floor(), (anImage.originalHeight * scale).floor());
+        (anImage.originalWidth * scale).floor(), (anImage.originalHeight * scale).floor(),quality: 30);
   } // thumbnail640
 
   void uploader() async {

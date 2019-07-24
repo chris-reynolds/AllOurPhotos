@@ -97,7 +97,7 @@ class DOProvider<TDO extends DomainObject> {
         return r.insertId;
       }
     } catch (ex) {
-      Log.error(ex);
+      Log.error('$ex');
       rethrow;
     }
   } // of save
