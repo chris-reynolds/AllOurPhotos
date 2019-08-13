@@ -708,6 +708,14 @@ class AopSnap extends DomainObject {
     return r;
   } // of existingLocations
 
+  static Future<List<String>> get distinctLocations async {
+    var r = await snapProvider.rawExecute('select distinct location from aopsnaps where location is not null');
+    List<String> result = [];
+    for (var row in r)
+      result.add(row[0]);
+    return result;
+  } // of existingLocations
+
   static Future<dynamic> get monthGrid async {
     var r = await snapProvider.rawExecute('select * from vwmonthgrid');
     return r;

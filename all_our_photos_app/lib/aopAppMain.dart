@@ -7,6 +7,7 @@ import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';
+import 'screens/scMetaEditor.dart';
 import 'appNavigator.dart';
 import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
@@ -18,7 +19,7 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.July14');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.Aug13');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -44,6 +45,7 @@ void main() async {
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
+      'MetaEditor':(BuildContext context)=>MetaEditorWidget(),
     },
   );
   runApp(application);

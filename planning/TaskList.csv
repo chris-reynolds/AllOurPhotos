@@ -32,8 +32,8 @@ M6,Merge/Split albums,L,F,albums,2019-06-12
 ,,,,,
 E1,Rank a single photo 1-5,S,F,edit,2019-06-05
 E2,Add caption and tags to a single photo,S,U,edit,
-E3,Add location name to a single photo,S,U,edit,
-E4,Change date taken of a single photo,M,U,edit,
+E3,Add location name to a single photo,S,F,edit,2019-08-13
+E4,Change date taken of a single photo,M,F,edit,2019-08-13
 E5,Crop a picture with revert,L,D,edit,
 ,,,,,
 V1,View photo full-screen and pinch zoom,L,F,view2,2019-07-14
