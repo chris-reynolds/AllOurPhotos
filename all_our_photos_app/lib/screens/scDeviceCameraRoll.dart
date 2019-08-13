@@ -98,7 +98,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
 
   Future<ByteData> thumbnail640(MIP.Asset anImage) {
     double scale = anImage.isLandscape ? 640 / anImage.originalWidth : 640 / anImage.originalHeight;
-    return anImage.requestThumbnail(
+    return anImage.getThumbByteData(
         (anImage.originalWidth * scale).floor(), (anImage.originalHeight * scale).floor(),quality: 30);
   } // thumbnail640
 
@@ -156,7 +156,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
 //      print('Running on ${iosInfo.utsname.machine}');  // e.g. "iPod7,1"
       }
 //    var imageData = await anImage.requestOriginal();
-      MIP.Metadata metaData = await anImage.requestMetadata();
+      MIP.Metadata metaData = await anImage.metadata;
       AopSnap newSnap = AopSnap()
         ..fileName = anImage.name
         ..directory = '1982-01'
@@ -177,7 +177,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
 
       newSnap.originalTakenDate = newSnap.takenDate;
       newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
-      ByteData fullImageBytes = await anImage.requestOriginal();
+      ByteData fullImageBytes = await anImage.getByteData(quality:100);
       ByteData thumbnailBytes = await thumbnail640(anImage);
 
       newSnap.mediaLength = fullImageBytes.lengthInBytes;

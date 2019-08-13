@@ -113,21 +113,3 @@ class _YearGridState extends State<YearGrid> {
   }
 }
 
-/*
-create view vwmonthgrid as
-select year(`taken_date`),
-	sum(if(month(taken_date)=1,1,0)) as Jan,
-	sum(if(month(taken_date)=2,1,0)) as Feb,
-	sum(if(month(taken_date)=3,1,0)) as Mar,
-	sum(if(month(taken_date)=4,1,0)) as Apr,
-	sum(if(month(taken_date)=5,1,0)) as May,
-	sum(if(month(taken_date)=6,1,0)) as Jun,
-	sum(if(month(taken_date)=7,1,0)) as Jul,
-	sum(if(month(taken_date)=8,1,0)) as Aug,
-	sum(if(month(taken_date)=9,1,0)) as Sep,
-	sum(if(month(taken_date)=10,1,0)) as Oct,
-	sum(if(month(taken_date)=11,1,0)) as Nov,
-	sum(if(month(taken_date)=12,1,0)) as `Dec`,
-	count(*) as Total from aopsnaps
-group by 1
- */
