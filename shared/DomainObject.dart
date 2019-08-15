@@ -74,6 +74,21 @@ class DOProvider<TDO extends DomainObject> {
     sqlStatements = SQLStatementFactory(tableName, columnList);
   }
 
+  Future<dynamic> queryWithReOpen(String sql) async {
+    try {
+      var r = await dbConn.query(sql);
+      return r;
+    } catch (ex) {
+      Log.error('query problem with ${ex.message}\n $sql');
+      if (ex.message.substring(0, 12) == 'Cannot write') {
+        Log.message('reconnecting to database');
+        await DbAllOurPhotos.reconnect();
+        return await dbConn.query(sql);
+      } else
+        rethrow;
+    } // of catch
+  } // of queryWithReOpen
+
   Future<int> save(TDO aDomainObject) async {
     String sql;
     try {
@@ -106,22 +121,21 @@ class DOProvider<TDO extends DomainObject> {
     var r = await dbConn.query(sqlStatements.getStatement(), [id]);
     List<TDO> results = toList(r);
     if (results.length == 0) throw Exception('id $id not found in $tableName');
-    if (results.length > 1)
-      throw Exception('id $id is duplicate in $tableName');
+    if (results.length > 1) throw Exception('id $id is duplicate in $tableName');
     return results[0];
   } //
 
   Future<List<TDO>> getWithFKey(String keyname, int keyValue) async {
     var sql = sqlStatements.getSomeStatement('$keyname=$keyValue');
-    var r = await dbConn.query(sql);
+    var r = await queryWithReOpen(sql);
     return toList(r);
   }
 
-  Future<List<TDO>> getSome(String whereClause,{String orderBy='created_on'}) async {
-    var sql = sqlStatements.getSomeStatement(whereClause,orderBy:orderBy);
+  Future<List<TDO>> getSome(String whereClause, {String orderBy = 'created_on'}) async {
+    var sql = sqlStatements.getSomeStatement(whereClause, orderBy: orderBy);
     try {
       Log.message('SQL:$sql');
-      var r = await dbConn.query(sql);
+      var r = await queryWithReOpen(sql);
       return toList(r);
     } catch (ex) {
       Log.error(ex.toString());
@@ -130,12 +144,10 @@ class DOProvider<TDO extends DomainObject> {
   }
 
   Future<bool> delete(TDO aDomainObect) async {
-    var r =
-        await dbConn.query(sqlStatements.deleteStatement(), [aDomainObect.id]);
+    var r = await dbConn.query(sqlStatements.deleteStatement(), [aDomainObect.id]);
     if (r.affectedRows == 0)
       throw Exception('Failed Delete for $tableName id=${aDomainObect.id} ');
-    else if (sqlLogging)
-      Log.message('Delete for $tableName id=${aDomainObect.id} ');
+    else if (sqlLogging) Log.message('Delete for $tableName id=${aDomainObect.id} ');
     return true;
   }
 
@@ -154,12 +166,7 @@ class DOProvider<TDO extends DomainObject> {
 } // of DOProvider
 
 class SQLStatementFactory {
-  final List<String> _lockedColumns = [
-    'id',
-    'created_on',
-    'updated_on',
-    'updated_user'
-  ];
+  final List<String> _lockedColumns = ['id', 'created_on', 'updated_on', 'updated_user'];
   final String _tableName;
   final List<String> _columnNames;
   String _placeholders;
@@ -198,8 +205,7 @@ class SQLStatementFactory {
       'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' +
       ' from $_tableName where id=?';
 
-  String getSomeStatement(String whereClause,
-          {String orderBy = 'created_on'}) =>
+  String getSomeStatement(String whereClause, {String orderBy = 'created_on'}) =>
       'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' +
       ' from $_tableName where $whereClause order by $orderBy';
 } // of SQLStatementFactory

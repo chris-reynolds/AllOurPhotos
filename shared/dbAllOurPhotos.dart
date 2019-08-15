@@ -7,7 +7,7 @@ import '../dart_common/Logger.dart' as Log;
 MySqlConnection dbConn;
 
 class DbAllOurPhotos {
-
+  static Map _lastConfig;
   Future<int> initConnection(Map config) async {
     //todo : get db connection/session parameters from local storage
     if (dbConn==null ) {
@@ -15,6 +15,7 @@ class DbAllOurPhotos {
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
           password:config['dbpassword'], db: config['dbname']));
       Log.message('Database connection = ${config["dbname"]}');
+      _lastConfig = config; // save for reconnect
     }
     return 1;
   } // future<int> forces us to use await with compile error
@@ -24,6 +25,13 @@ class DbAllOurPhotos {
     Iterable spResult = res.first.asMap().values;
     return spResult.first as int;
   } // of startSession
+  static Future<int> reconnect() async {
+    if (dbConn!=null)
+      dbConn.close();
+    dbConn = null;
+    var dbAop = DbAllOurPhotos();
+    return await dbAop.initConnection(_lastConfig);
+  }
   /*
   Future<dynamic> addImage(Media item,List<int> picContents) async {
     // Insert some data
