@@ -4,8 +4,10 @@
   Purpose: Stateful PhotoGrid widget with multi-select
 */
 
+import '../screens/scSimpleDlg.dart';
 import 'package:flutter/material.dart';
 import '../dart_common/Logger.dart' as Log;
+import '../dart_common/DateUtil.dart';
 import '../shared/aopClasses.dart';
 import '../ImageFilter.dart';
 import 'wdgImageFilter.dart';
@@ -64,8 +66,8 @@ class PhotoGridState extends State<PhotoGrid> {
       } // of switch
       double targetOffset = oldOffset * oldPicsPerRow / _picsPerRow;
       _targetOffset = targetOffset;
- //     Log.message(
- //         '=============scroll controller offset $oldOffset to $targetOffset');
+      //     Log.message(
+      //         '=============scroll controller offset $oldOffset to $targetOffset');
     });
   } // of changePicsPerRow
 
@@ -82,7 +84,7 @@ class PhotoGridState extends State<PhotoGrid> {
     super.initState();
     _imageFilter = widget._initImageFilter;
     _imageFilter.onRefresh = filterRefreshCallback;
- //   Log.message('PhotoGrid copying initFilter');
+    //   Log.message('PhotoGrid copying initFilter');
   }
 
   @override
@@ -95,6 +97,8 @@ class PhotoGridState extends State<PhotoGrid> {
       Log.message('filterRefresh triggered');
     });
   }
+
+  List<AopSnap> get onlySelectedSnaps => _imageFilter.images.where(isSelected).toList();
 
   void editorCallback(String caption, String location) {
     int updateCount = 0;
@@ -115,23 +119,34 @@ class PhotoGridState extends State<PhotoGrid> {
   @override
   Widget build(BuildContext context) {
 //    final Orientation orientation = MediaQuery.of(context).orientation;
-    _scrollController = ScrollController(
-        initialScrollOffset: _targetOffset, keepScrollOffset: false);
+    _scrollController =
+        ScrollController(initialScrollOffset: _targetOffset, keepScrollOffset: false);
 
     return new Scaffold(
       appBar: new AppBar(
         title: const Text('Grid list'),
         actions: <Widget>[
-          new IconButton(
-              icon: Icon(Icons.photo_size_select_large),
-              onPressed: changePicsPerRow),
-          new IconButton(icon: Icon(Icons.edit), onPressed: changeSelectMode),
+          if (_inSelectMode && _selectedImages != null && _selectedImages.length > 0) ...[
+            new IconButton(
+                icon: Icon(Icons.text_fields),
+                onPressed: () {
+                  handleMultiCaption(context, onlySelectedSnaps);
+                }),
+            new IconButton(
+                icon: Icon(Icons.date_range),
+                onPressed: () {
+                  handleMultiTakenDate(context, onlySelectedSnaps);
+                }),
+            new IconButton(icon: Icon(Icons.location_on), onPressed: changeSelectMode),
+          ],
+          new IconButton(icon: Icon(Icons.check_box), onPressed: changeSelectMode),
+          new IconButton(icon: Icon(Icons.photo_size_select_large), onPressed: changePicsPerRow),
         ],
       ),
       body: new Column(children: <Widget>[
         ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
         new Expanded(
-          child: new GridView.count(
+          child: GridView.count(
             controller: _scrollController,
             crossAxisCount: _picsPerRow,
             //(orientation == Orientation.portrait) ? 4 : 6,
@@ -143,29 +158,97 @@ class PhotoGridState extends State<PhotoGrid> {
             //(orientation == Orientation.portrait) ? 1.0 : 1.3,
             children: [
               if (_imageFilter.images != null)
-              for (int idx = 0; idx < _imageFilter.images.length; idx++)
-                PhotoTile(
-                    isSelected: isSelected(_imageFilter.images[idx]),
-                    snapList: _imageFilter.images,
-                    index: idx,
-                    inSelectMode: _inSelectMode,
-                    highResolution: (_picsPerRow == 1),
-                    onBannerTap: (imageFile) {
-                      setState(() {
-                        if (_inSelectMode)
-                          toggleSelected(imageFile);
-                        else {
-                          imageFile.ranking = (imageFile.ranking % 3) + 1;
-                          imageFile.save();
-                        }
-                      });
-                    }),
-
-              _inSelectMode ? ImageEditorWidget2(editorCallback) : Container(),
+                for (int idx = 0; idx < _imageFilter.images.length; idx++)
+                  PhotoTile(
+                      isSelected: isSelected(_imageFilter.images[idx]),
+                      snapList: _imageFilter.images,
+                      index: idx,
+                      inSelectMode: _inSelectMode,
+                      highResolution: (_picsPerRow == 1),
+                      onBannerTap: (imageFile) {
+                        setState(() {
+                          if (_inSelectMode)
+                            toggleSelected(imageFile);
+                          else {
+                            imageFile.ranking = (imageFile.ranking % 3) + 1;
+                            imageFile.save();
+                          }
+                        }); // setState
+                      }), // bannerTap
             ],
           ),
         ),
+        _inSelectMode ? ImageEditorWidget2(editorCallback) : Container(),
       ]), //of expanded
     ); // of column
   }
+
+  void handleMultiCaption(BuildContext context, List<AopSnap> snaps) async {
+    String value = '';
+    String errorMessage = '';
+    bool done = false;
+    while (!done) {
+      value = await showDialog(
+          context: context,
+          builder: (BuildContext context) => DgSimple('Caption for ${snaps.length} images', value,
+                  errorMessage: errorMessage, isValid: (value) async {
+                return (value.length < 10) ? 'Too short' : null;
+              }));
+      if (value == null || value == EXIT_CODE) return;
+      Log.message('new caption is: $value');
+      errorMessage = '';
+      done = true;
+      for (AopSnap snap in snaps) {
+        snap.caption = value;
+        if (snap.isValid)
+          await snap.save();
+        else {
+          errorMessage = snap.lastErrors.join('\n');
+          done = false;
+          break;
+        }
+      } // of for loop
+    } // of done loop
+  } // handleMultiCaption
+
+  void handleMultiTakenDate(BuildContext context, List<AopSnap> snaps) async {
+    String value = '';
+    String errorMessage = '';
+    bool done = false;
+    while (!done) {
+      value = await showDialog(
+          context: context,
+          builder: (BuildContext context) =>
+              DgSimple('Taken Date for ${snaps.length} images', value, errorMessage: errorMessage,
+                  isValid: (value) async {
+                try {
+                  parseDMY(value);
+                  return null;
+                } catch (ex) {
+                  return '$ex';
+                }
+              }));
+      if (value == null || value == EXIT_CODE) return;
+      try {
+        Log.message('new taken date is: $value');
+        DateTime newTakenDate = parseDMY(value);
+        errorMessage = '';
+        done = true;
+        for (AopSnap snap in snaps) {
+          snap.takenDate = newTakenDate;
+          if (snap.isValid)
+            await snap.save();
+          else {
+            errorMessage = snap.lastErrors.join('\n');
+            done = false;
+            break;
+          }
+        } // of for loop
+      } catch (ex) {
+        errorMessage = '$ex';
+        done = false;
+      }
+    } // of done loop
+  } // handleMultiTakenDate
+
 }

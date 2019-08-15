@@ -16,7 +16,7 @@ class ImageFilter {
   List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
   String _searchText = '';
   List<AopSnap> _images;
-  get images {
+  List<AopSnap> get images {
     checkImages();
     return _images;
   }

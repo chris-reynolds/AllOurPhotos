@@ -31,7 +31,7 @@ M5,Delete album,M,F,albums,2019-06-10
 M6,Merge/Split albums,L,F,albums,2019-06-12
 ,,,,,
 E1,Rank a single photo 1-5,S,F,edit,2019-06-05
-E2,Add caption and tags to a single photo,S,U,edit,
+E2,Add caption and tags to a single photo,S,P,edit,
 E3,Add location name to a single photo,S,F,edit,2019-08-13
 E4,Change date taken of a single photo,M,F,edit,2019-08-13
 E5,Crop a picture with revert,L,D,edit,
@@ -46,10 +46,10 @@ S3,Support user/device traceability,L,D,secure,
 S4,Load config from mobile local storage,S,F,secure,2019-05-11
 ,,,,,
 L4,Import scanned physical albums,S,U,scan,
-U2,Rank photos in a batch,S,U,scan,
-U4,Add caption and tags to a batch of photos,M,U,scan,
+U2,Rank photos in a batch -dont implement,S,D,scan,2019-08-13
+U4,Add caption and tags to a batch of photos,M,P,scan,
 U6,Add location name to a batch of photos,M,U,scan,
-U8,Change date take to a batch of photos,M,U,scan,
+U8,Change date take to a batch of photos,M,D,scan,2019-08-13
 U10,Apply noise filter to old photo with revert,L,U,scan,
 ,,,,,
 X1,Export photos to a stick,M,U,export,
