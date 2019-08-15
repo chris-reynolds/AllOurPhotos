@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/DateUtil.dart';
-import 'scAlbumCreateDlg.dart';
+import 'scSimpleDlg.dart';
 
 class AlbumList extends StatefulWidget {
   AlbumList({Key key}) : super(key: key);
@@ -150,7 +150,8 @@ class _AlbumListState extends State<AlbumList> {
     while (!done) {
       name = await showDialog(
           context: context,
-          builder: (BuildContext context) => DgAlbumCreate(name, errorMessage));
+          builder: (BuildContext context) => DgSimple('Album name',name, errorMessage: errorMessage));
+      if (name == null  || name == EXIT_CODE) return;
       Log.message('new name is: $name');
       AopAlbum newAlbum = AopAlbum();
       newAlbum.name = name;

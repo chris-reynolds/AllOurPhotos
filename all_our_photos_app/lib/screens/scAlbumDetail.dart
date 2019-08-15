@@ -8,7 +8,7 @@ import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
 import '../widgets/wdgSnapGrid.dart';
-import 'scAlbumCreateDlg.dart';
+import 'scSimpleDlg.dart';
 import '../dart_common/WidgetSupport.dart';
 
 class AlbumDetail extends StatefulWidget {
@@ -158,7 +158,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
       newName = await showDialog(
           context: context,
           builder: (BuildContext context) =>
-              DgAlbumCreate(argAlbum.name, errorMessage));
+              DgSimple('Album name',argAlbum.name, errorMessage: errorMessage));
       if (newName == EXIT_CODE)
         return;  // jump straight out
       Log.message('new name is: $newName');
