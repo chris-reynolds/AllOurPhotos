@@ -25,12 +25,14 @@ class DbAllOurPhotos {
     Iterable spResult = res.first.asMap().values;
     return spResult.first as int;
   } // of startSession
+
   static Future<int> reconnect() async {
     if (dbConn!=null)
       dbConn.close();
     dbConn = null;
     var dbAop = DbAllOurPhotos();
-    return await dbAop.initConnection(_lastConfig);
+    await dbAop.initConnection(_lastConfig);
+    return await dbAop.startSession(_lastConfig);
   }
   /*
   Future<dynamic> addImage(Media item,List<int> picContents) async {
