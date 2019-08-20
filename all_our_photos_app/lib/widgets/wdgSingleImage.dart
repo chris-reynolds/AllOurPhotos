@@ -180,8 +180,11 @@ class _SingleImageWidgetState extends State<SingleImageWidget> {
   @override
   void initState() {
     super.initState();
-    pvController = PhotoViewController()..outputStateStream.listen(listener);
-    Log.message('pvController setup');
+    if (pvController ==null) {
+      pvController = PhotoViewController()
+        ..outputStateStream.listen(listener);
+    }
+    Log.message('singleImage initState ${widget._snap.fileName}');
   }
 
   @override
@@ -192,7 +195,7 @@ class _SingleImageWidgetState extends State<SingleImageWidget> {
 
   void listener(PhotoViewControllerValue value) {
     scaleValue = value;
-//    Log.message('listener ${scaleValue}');
+    Log.message('listener ${scaleValue}');
     setState(() {});
   }
 

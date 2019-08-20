@@ -4,11 +4,12 @@
   Purpose: Stateful PhotoGrid widget with multi-select
 */
 
-import '../screens/scSimpleDlg.dart';
 import 'package:flutter/material.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/DateUtil.dart';
 import '../shared/aopClasses.dart';
+import '../screens/scSimpleDlg.dart';
+import '../screens/scTypeAheadDlg.dart';
 import '../ImageFilter.dart';
 import 'wdgImageFilter.dart';
 import 'ImageEditorWidget.dart';
@@ -137,7 +138,11 @@ class PhotoGridState extends State<PhotoGrid> {
                 onPressed: () {
                   handleMultiTakenDate(context, onlySelectedSnaps);
                 }),
-            new IconButton(icon: Icon(Icons.location_on), onPressed: changeSelectMode),
+            new IconButton(
+                icon: Icon(Icons.location_on),
+                onPressed: () {
+                  handleMultiLocation(context, onlySelectedSnaps);
+                }),
           ],
           new IconButton(icon: Icon(Icons.check_box), onPressed: changeSelectMode),
           new IconButton(icon: Icon(Icons.photo_size_select_large), onPressed: changePicsPerRow),
@@ -209,6 +214,7 @@ class PhotoGridState extends State<PhotoGrid> {
         }
       } // of for loop
     } // of done loop
+    setState(() {});
   } // handleMultiCaption
 
   void handleMultiTakenDate(BuildContext context, List<AopSnap> snaps) async {
@@ -249,6 +255,48 @@ class PhotoGridState extends State<PhotoGrid> {
         done = false;
       }
     } // of done loop
+    setState(() {});
   } // handleMultiTakenDate
+
+  void handleMultiLocation(BuildContext context, List<AopSnap> snaps) async {
+    String value = '';
+    String errorMessage = '';
+    bool done = false;
+    List<String> allLocations = await AopSnap.distinctLocations;
+    while (!done) {
+      value = await showDialog(
+          context: context,
+          builder: (BuildContext context) => DgTypeAhead(
+                  'Location for ${snaps.length} images', allLocations, value,
+                  errorMessage: errorMessage, isValid: (value) async {
+                try {
+                  if (value.split(',').length < 3) throw 'We need at least town,region,country';
+                  return null;
+                } catch (ex) {
+                  return '$ex';
+                }
+              }));
+      if (value == null || value == EXIT_CODE) return;
+      try {
+        Log.message('new location is: $value');
+        errorMessage = '';
+        done = true;
+        for (AopSnap snap in snaps) {
+          snap.location = value;
+          if (snap.isValid)
+            await snap.save();
+          else {
+            errorMessage = snap.lastErrors.join('\n');
+            done = false;
+            break;
+          }
+        } // of for loop
+      } catch (ex) {
+        errorMessage = '$ex';
+        done = false;
+      }
+    } // of done loop
+    setState(() {});
+  } // handleMultiLocation
 
 }
