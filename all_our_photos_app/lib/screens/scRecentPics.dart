@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:all_our_photos_app/widgets/CameraRollWidget.dart';
+import '../widgets/CameraRollWidget.dart';
 
 class Home extends StatelessWidget {
   Home(this.listType);

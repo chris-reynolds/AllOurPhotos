@@ -5,9 +5,9 @@
 */
 
 import 'package:flutter/material.dart';
-import 'package:all_our_photos_app/ImageFilter.dart';
-import 'package:all_our_photos_app/widgets/wdgTapDate.dart';
-import 'package:all_our_photos_app/dart_common/DateUtil.dart' as Utils;
+import '../ImageFilter.dart';
+import 'wdgTapDate.dart';
+import '../dart_common/DateUtil.dart' as Utils;
 
 const filterColors = <Color>[null, Colors.red, Colors.orange, Colors.green];
 

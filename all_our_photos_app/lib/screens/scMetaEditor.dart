@@ -72,8 +72,8 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
   } // of checkCaption
 
   String checkDate(String value) {
-    if (value.length < 5) value = '1/$value';
-    if (value.length < 8) value = '1/$value';
+    if (value.length < 5) value = '01/$value';
+    if (value.length < 8) value = '01/$value';
     try {
       values['taken_date'] = parseDMY(value);
       return null;

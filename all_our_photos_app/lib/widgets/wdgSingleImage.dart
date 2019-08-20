@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:convert';
-import 'dart:typed_data';
-import 'dart:ui' as Ui;
 import 'dart:io';
 import '../dart_common/Logger.dart' as Log;
 import '../shared/aopClasses.dart';
 import '../dart_common/WidgetSupport.dart';
-import 'package:http/http.dart' as Http;
-import 'package:path/path.dart' as Path;
-import '../JpegLoader.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:image/image.dart' as Image2;
-import '../appNavigator.dart';
+//import 'package:image/image.dart' as Image2;
+
 
 
 void showExif(BuildContext context, AopSnap thisSnap) {
@@ -29,7 +24,7 @@ void showExif(BuildContext context, AopSnap thisSnap) {
 
 
 void showPhoto(BuildContext context, List<AopSnap> snapList, int index) {
-  AopSnap snap = snapList[index];
+  final AopSnap snap = snapList[index];
   final bool hasMetadata = (snap.metadata != null && snap.metadata.length > 0);
   Navigator.push(context, new MaterialPageRoute<void>(builder: (BuildContext context) {
     return new Scaffold(
@@ -93,7 +88,7 @@ void showPhoto(BuildContext context, List<AopSnap> snapList, int index) {
 }
 
 class MyView extends StatelessWidget {
-  AopSnap snap;
+  final AopSnap snap;
 
   MyView(this.snap);
 
@@ -133,8 +128,8 @@ Future<List<int>> getBytes(String url) async {
 void cropMe(BuildContext context, AopSnap snap) async {
 //  PhotoView pv = photoView;
 //  NetworkImage old = pv.imageProvider;
-  List<int> oldBytes = await getBytes(snap.thumbnailURL);
-  Image2.Image yy = Image2.decodeImage(oldBytes);
+//  List<int> oldBytes = await getBytes(snap.thumbnailURL);
+//  Image2.Image yy = Image2.decodeImage(oldBytes);
   Log.message('cropme ${snap.fileName}');
 } // of cropMe
 
@@ -149,11 +144,11 @@ class SingleImageWidget extends StatefulWidget {
 
 class _SingleImageWidgetState extends State<SingleImageWidget> {
   PhotoViewControllerValue scaleValue;
-  GlobalKey _globalKey = GlobalKey();
+//  GlobalKey _globalKey = GlobalKey();
   PhotoViewController pvController;
 
   dynamic _tapdown(BuildContext context, TapDownDetails tdd, PhotoViewControllerValue pvcv) async {
-    Log.message('tap down ${pvcv}');
+    Log.message('tap down $pvcv');
     return null; // await _capturePng();
   }
 
@@ -195,15 +190,15 @@ class _SingleImageWidgetState extends State<SingleImageWidget> {
 
   void listener(PhotoViewControllerValue value) {
     scaleValue = value;
-    Log.message('listener ${scaleValue}');
+    Log.message('listener $scaleValue');
     setState(() {});
   }
 
-  BuildContext _currentBC;
+//  BuildContext _currentBC;
 
   @override
   Widget build(BuildContext context) {
-    _currentBC = context;
+//    _currentBC = context;
     photoView = PhotoView(
       key: Key('fullImage'),
       imageProvider: NetworkImage(widget._snap.fullSizeURL),

@@ -1,8 +1,7 @@
 import 'dart:async';
-//import 'dart:io';
 import 'package:mysql1/mysql1.dart';
 import '../dart_common/Logger.dart' as Log;
-//import 'package:all_our_photos_app/aopClasses.dart';
+
 
 MySqlConnection dbConn;
 
