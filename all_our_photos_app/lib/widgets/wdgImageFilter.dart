@@ -62,7 +62,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
       });
     });
     //just added this cos of Dart analysis. Not sure if it used.
-    if (widget.onRefresh != null) widget.onRefresh();
+//    if (widget.onRefresh != null) widget.onRefresh();
   } // onRefresh
 
   void onSearchTextChanged(String value) {
@@ -80,7 +80,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                 child: Text(
                   '${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' +
                       ' upto ${Utils.formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
-                  style: Theme.of(context).textTheme.display1,
+                //  style: Theme.of(context).textTheme.display1,
                 ),
                 onPressed: () {
                   setState(() {
@@ -129,7 +129,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                             _imageFilter.fromDate = changedDate;
                           });
                         }), // of TapDateWidget
-                        qText('To '),
+                        qText('upto '),
                         TapDateWidget(_imageFilter.toDate, (changedDate) {
                           setState(() {
                             _imageFilter.toDate = changedDate;

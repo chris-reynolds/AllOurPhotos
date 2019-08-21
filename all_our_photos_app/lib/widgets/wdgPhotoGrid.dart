@@ -30,7 +30,7 @@ class PhotoGridState extends State<PhotoGrid> {
   ImageFilter _imageFilter;
   double _targetOffset = 0.0;
   ScrollController _scrollController = ScrollController();
-
+  int zzz=0;
   List<String> _selectedImages = [];
 
   bool isSelected(AopSnap snap) {
@@ -50,21 +50,23 @@ class PhotoGridState extends State<PhotoGrid> {
     _selectedImages.length = 0;
   } // clearSelected
 
-  int _picsPerRow = 4; // can be toggled
+  int _picsPerRow = 3; // can be toggled
   void changePicsPerRow() {
     setState(() {
       int oldPicsPerRow = _picsPerRow;
       double oldOffset = _scrollController.offset;
-      switch (_picsPerRow) {
-        case 4:
-          _picsPerRow = 2;
-          break;
-        case 2:
-          _picsPerRow = 1;
-          break;
-        default:
-          _picsPerRow = 4;
-      } // of switch
+      if (--_picsPerRow <= 0)
+        _picsPerRow = 5;
+//      switch (_picsPerRow) {
+//        case 4:
+//          _picsPerRow = 3;
+//          break;
+//        case 2:
+//          _picsPerRow = 1;
+//          break;
+//        default:
+//          _picsPerRow = 2;
+//      } // of switch
       double targetOffset = oldOffset * oldPicsPerRow / _picsPerRow;
       _targetOffset = targetOffset;
       //     Log.message(
@@ -95,7 +97,7 @@ class PhotoGridState extends State<PhotoGrid> {
 
   void filterRefreshCallback() {
     setState(() {
-      Log.message('filterRefresh triggered');
+      Log.message('filterRefresh triggered ${++zzz}');
     });
   }
 
