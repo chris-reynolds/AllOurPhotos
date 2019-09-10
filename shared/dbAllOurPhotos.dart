@@ -13,16 +13,23 @@ class DbAllOurPhotos {
       dbConn = await MySqlConnection.connect(new ConnectionSettings(
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
           password:config['dbpassword'], db: config['dbname']));
-      Log.message('Database connection = ${config["dbname"]}');
+      Log.message('Database connected to ${config["dbhost"]} ${config["dbname"]}');
       _lastConfig = config; // save for reconnect
     }
     return 1;
   } // future<int> forces us to use await with compile error
 
   Future<int> startSession(Map config) async {
-    Results res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
-    Iterable spResult = res.first.asMap().values;
-    return spResult.first as int;
+    try {
+      Results res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
+      Iterable spResult = res.first.asMap().values;
+      int sessionid = spResult.first as int;
+      Log.message('session created with id=$sessionid');
+      return sessionid;
+    } catch(ex) {
+      throw "Failed to create aop session $ex";
+    }
+
   } // of startSession
 
   static Future<int> reconnect() async {

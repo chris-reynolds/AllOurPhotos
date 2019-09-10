@@ -8,9 +8,8 @@ import 'DomainObject.dart';
 //import 'package:image/image.dart';
 import 'package:path/path.dart' as Path;
 import '../dart_common/DateUtil.dart';
+import '../dart_common/WebFile.dart';
 
-// todo remove hardwired url
-String rootUrl = 'http://192.168.1.251:3333';
 //                                '*** End Custom Code
 
 // Domain object providers

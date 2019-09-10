@@ -5,13 +5,16 @@
 
 */
 
+import 'package:all_our_photos_app/dart_common/WebFile.dart';
 import 'package:flutter/material.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/TypeAheadTextField.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
+import '../dart_common/WidgetSupport.dart';
 import '../dart_common/DateUtil.dart';
 import '../dart_common/Logger.dart' as Log;
+import '../dart_common/WebFile.dart';
 
 class MetaEditorWidget extends StatefulWidget {
   @override
@@ -25,16 +28,28 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
   AopSnap snap;
   Map<String, dynamic> values = {};
   List<String> chips = '+,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams'.split(',');
+  WebFile chipFile;
   List<String> selectedChips;
   String currentLocationText;
   List<String> locationList = ['None'];
   TextEditingController locationTextController; // = TextEditingController(text: '');
   final _focusNode = FocusNode();
 
-  void selectChip(String caption, bool selected) async {
+  void selectChip(BuildContext context,String caption, bool selected) async {
     if (caption == '+') {
-      chips.add('fred');
-      selectedChips.add('fred');
+      String newChipText = await inputBox(context,'New Chip Text or (-text to delete a tag)');
+      if (newChipText != null && newChipText.length >0) {
+        if (newChipText.substring(0,1)=='-')  // delete item
+          chips.remove(newChipText.substring(1));
+        else if (chips.indexOf(newChipText)<0) {  // add if not already there
+          chips.add(newChipText);
+          selectedChips.add(newChipText);
+        }
+        chipFile.contents = chips.join(';');
+        if (! await saveWebFile(chipFile)){
+          showMessage(context, 'Failed to save names');
+        }
+      }
     }
     bool wasSelected = selectedChips.indexOf(caption) >= 0;
     if (selected != wasSelected) // needs changing
@@ -54,6 +69,10 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
         locationTextController.selection =
             TextSelection(baseOffset: 0, extentOffset: locationTextController.text.length);
       }
+    });
+    loadWebFile('taglist.txt','+;Annie;Ben;Josie;J+K;E+M;Reynwars').then((thisWebFile){
+      chipFile = thisWebFile; // store so we can save changes
+      chips = chipFile.contents.split(';');
     });
   }
 
@@ -124,13 +143,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(children: <Widget>[
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Caption'),
-              initialValue: values['caption'],
-              validator: checkCaption,
-              onSaved: (input) => values['caption'] = input,
-              maxLength: 60,
-            ),
+
             TypeAheadTextField(
               key: locationKey,
               focusNode: _focusNode,
@@ -180,7 +193,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
                   label: Text(labelText),
                   selected: selectedChips.indexOf(labelText) >= 0,
                   onSelected: (selected) {
-                    selectChip(labelText, selected);
+                    selectChip(context,labelText, selected);
                   },
                 );
               }).toList(),
