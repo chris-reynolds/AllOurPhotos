@@ -11,7 +11,7 @@ import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/TypeAheadTextField.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
-import '../dart_common/WidgetSupport.dart';
+import '../flutter_common/WidgetSupport.dart';
 import '../dart_common/DateUtil.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/WebFile.dart';

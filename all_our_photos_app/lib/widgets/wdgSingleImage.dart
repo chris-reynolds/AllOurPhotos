@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import '../dart_common/Logger.dart' as Log;
 import '../shared/aopClasses.dart';
-import '../dart_common/WidgetSupport.dart';
+import '../flutter_common/WidgetSupport.dart';
 import 'package:photo_view/photo_view.dart';
 //import 'package:image/image.dart' as Image2;
 

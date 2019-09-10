@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../appNavigator.dart';
 import '../dart_common/LoginStateMachine.dart';
-import '../dart_common/WidgetSupport.dart';
+import '../flutter_common/WidgetSupport.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/Config.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';

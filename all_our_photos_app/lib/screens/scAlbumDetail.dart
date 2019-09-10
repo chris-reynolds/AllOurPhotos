@@ -9,7 +9,7 @@ import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
 import '../widgets/wdgSnapGrid.dart';
 import 'scSimpleDlg.dart';
-import '../dart_common/WidgetSupport.dart';
+import '../flutter_common/WidgetSupport.dart';
 
 class AlbumDetail extends StatefulWidget {
   @override
