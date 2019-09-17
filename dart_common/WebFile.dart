@@ -15,7 +15,7 @@ class WebFile {
   String url;
   String contents = '';
 
-  WebFile._(this.url) {} // private constructor
+  WebFile._(this.url); // private constructor
 }
 
 Future<WebFile> loadWebFile(String url, String defaultValue) async {
