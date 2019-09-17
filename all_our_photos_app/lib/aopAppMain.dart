@@ -15,6 +15,7 @@ import 'dart_common/LoginStateMachine.dart';
 
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   String configFile = (await getApplicationDocumentsDirectory()).path+'/allourphotos.config.json';
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);

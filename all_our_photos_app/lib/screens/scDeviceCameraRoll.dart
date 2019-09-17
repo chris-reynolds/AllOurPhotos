@@ -200,7 +200,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
         String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
         newSnap.trimSetLocation(location);
       }
-      String myMeta = jsonEncode(metaData.myjson);
+      String myMeta = jsonEncode(metaData.myJson);
       await _uploadJpg(newSnap.thumbnailURL, bytes: thumbnailBytes);
       await _uploadJpg(newSnap.fullSizeURL, bytes: fullImageBytes);
       await _uploadJpg(newSnap.metadataURL, metaData: myMeta);
@@ -212,5 +212,6 @@ class _CameraRollPageState extends State<CameraRollPage> {
       return false;
     } // of try
   } // of uploadImage
+
 
 }
