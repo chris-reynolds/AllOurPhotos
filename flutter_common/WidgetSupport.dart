@@ -73,7 +73,7 @@ Future<bool> confirmYesNo1(BuildContext context, String question) async {
       ); // of showDialog
 }
 
-Future<String> inputBox(@required BuildContext context, @required String question) async {
+Future<String> inputBox(BuildContext context, String question) async {
 /*it shows a popup with few options which you can select, for option we
         created enums which we can use with switch statement, in this first switch
         will wait for the user to select the option which it can use with switch cases*/
