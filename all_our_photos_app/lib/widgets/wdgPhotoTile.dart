@@ -6,7 +6,6 @@
 
 import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
-import 'wdgSingleImage.dart';
 import 'wdgImageFilter.dart' show filterColors;
 import '../dart_common/DateUtil.dart';
 
@@ -41,7 +40,7 @@ class PhotoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final Widget imageWidget = new GestureDetector(
         onTap: () {
-          showPhoto(context, snapList, index);
+          Navigator.of(context).pushNamed('SinglePhoto',arguments:[snapList,index]); // weakly types params. yuk.
         },
         child: new Container(
             decoration: BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.05)),

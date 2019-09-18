@@ -122,12 +122,6 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
     if (snap == null) {
       snap = ModalRoute.of(context).settings.arguments as AopSnap;
       values = snap.toMap();
-//      values = {
-//        'caption': snap.caption,
-//        'location': snap.location,
-//        'takenDate': formatDate(snap.takenDate,format:'d/m/yyyy hh:nn:ss'),
-//        'ranking': snap.ranking
-//      };
       // remove time if it does not exist
       values['taken_date'] = formatDate(snap.takenDate, format: DATE_FORMAT);
       values['taken_date'] = values['taken_date']?.replaceAll(' 00:00:00', '');

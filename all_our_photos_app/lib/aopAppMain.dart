@@ -8,6 +8,7 @@ import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';
 import 'screens/scMetaEditor.dart';
+import 'screens/scSinglePhoto.dart';
 import 'appNavigator.dart';
 import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
@@ -47,6 +48,7 @@ void main() async {
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
       'MetaEditor':(BuildContext context)=>MetaEditorWidget(),
+      'SinglePhoto':(BuildContext context)=>SinglePhotoWidget(),
     },
   );
   runApp(application);
