@@ -137,7 +137,13 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(children: <Widget>[
-
+            TextFormField(
+              decoration: InputDecoration(labelText: 'caption'),
+              initialValue: values['caption'],
+              keyboardType: TextInputType.text,
+              validator: checkCaption,
+              maxLength: 100,
+            ),
             TypeAheadTextField(
               key: locationKey,
               focusNode: _focusNode,
