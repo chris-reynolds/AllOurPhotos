@@ -31,7 +31,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildBar(context),
-      body: SsSnapGrid(_list, this),
+      body: SsSnapGrid(_list, this,album),
 //      new ListView(
 //        padding: new EdgeInsets.symmetric(vertical: 8.0),
 //        children: <Widget>[
