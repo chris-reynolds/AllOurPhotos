@@ -21,11 +21,11 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v0.Sep10');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Sep23');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
-    debugShowCheckedModeBanner: true,
+    debugShowCheckedModeBanner: false, //true,
     theme: new ThemeData(
       primaryColor: const Color(0xFF02BB9F),
       primaryColorDark: const Color(0xFF167F67),

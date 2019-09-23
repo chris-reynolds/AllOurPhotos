@@ -31,10 +31,10 @@ M5,Delete album,M,F,albums,2019-06-10
 M6,Merge/Split albums,L,F,albums,2019-06-12
 ,,,,,
 E1,Rank a single photo 1-5,S,F,edit,2019-06-05
-E2,Add caption and tags to a single photo,S,T,edit,
+E2,Add caption and tags to a single photo,S,F,edit,2019-09-23
 E3,Add location name to a single photo,S,F,edit,2019-08-13
 E4,Change date taken of a single photo,M,F,edit,2019-08-13
-E5,Crop a picture with revert,L,D,edit,
+E5,Crop a picture with revert,L,F,edit,2019-09-23
 ,,,,,
 V1,View photo full-screen and pinch zoom,L,F,view2,2019-07-14
 V2,View a list of photos as a set of tiles,L,T,view2,2019-09-01
