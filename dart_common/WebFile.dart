@@ -6,6 +6,8 @@
 */
 import 'dart:io';
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:image/image.dart';
 import 'Config.dart';
 import 'Logger.dart' as Log;
 
@@ -37,7 +39,7 @@ Future<WebFile> loadWebFile(String url, String defaultValue) async {
     if (defaultValue == null) throw 'Failed to load ' + url;
     result.contents = defaultValue;
   } else
-    await utf8.decoder.bind(response /*5*/).forEach((x) {
+    await utf8.decoder.bind(response).forEach((x) {
       result.contents += x;
     });
   return result;
@@ -58,8 +60,7 @@ Future<bool> saveWebFile(WebFile webFile, {bool silent: true}) async {
     }
     response = await request.close();
     httpClient.close();
-    if (response.statusCode != 200)
-      throw response.reasonPhrase;
+    if (response.statusCode != 200) throw response.reasonPhrase;
   } catch (ex) {
     String errMessage = 'Failed to save ${webFile.url} with reason ${response.reasonPhrase}';
     Log.error(errMessage);
@@ -70,3 +71,41 @@ Future<bool> saveWebFile(WebFile webFile, {bool silent: true}) async {
   }
   return true;
 } // of saveWebFile
+
+Future<Image> loadWebImage(String url) async {
+  if (!url.contains('http:')) url = rootUrl + '/' + url;
+  final uri = Uri.parse(url);
+  var httpClient = HttpClient();
+  HttpClientRequest request;
+  try {
+    request = await httpClient.openUrl('GET', uri);
+  } catch (ex) {
+    Log.error(ex);
+  }
+  HttpClientResponse response = await request.close();
+//  HttpResponse responseBody = await response.transform(utf8.decoder).join();
+  //   print("Received $responseBody...");
+  httpClient.close();
+  if (response.statusCode != 200) throw 'Failed to load ' + url;
+  List<int> download = [];
+  await response.toList().then((chunks) {
+    chunks.forEach((chunk) { download.addAll(chunk); });
+  });
+  Image result = decodeImage(download);
+  return result;
+}
+
+Future<void> saveWebImage(String urlString, {Image image, String metaData}) async {
+  var postUri = Uri.parse(urlString);
+  HttpClient httpClient = HttpClient();
+  var request = await httpClient.putUrl(postUri);
+  if (image != null)
+    request.add(encodeJpg(image));
+  else if (metaData != null) request.add(utf8.encode(metaData));
+  var response = await request.close();
+  httpClient.close();
+  if (response.statusCode == 200)
+    Log.message("Uploaded $urlString");
+  else
+    throw Exception('Failed to upload $urlString with $response');
+} // of httpPostImage

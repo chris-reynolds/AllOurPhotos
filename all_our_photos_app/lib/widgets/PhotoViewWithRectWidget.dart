@@ -9,23 +9,31 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
 
+typedef CallBackWithBool(bool flag);
 
 class PhotoViewerWithRect extends StatelessWidget {
   final PhotoViewController pvc = PhotoViewController();
+  final PhotoViewScaleStateController pvcs = PhotoViewScaleStateController();
   final String url;
+  final CallBackWithBool onScale;
 
-  PhotoViewerWithRect({@required GlobalKey key,@required this.url}):super(key:key) ; // of constructor
+  PhotoViewerWithRect({@required GlobalKey key,@required this.url, @required this.onScale}):super(key:key) {
+    pvcs.outputScaleStateStream.listen((value){
+      onScale(value == PhotoViewScaleState.initial);
+    });
+
+  } // of constructor
 
   Rect currentRect(Size pictureSize) {
     // if there is no scale yet, assume the whole photo is showing
     if (pvc.scale == null)
-      return Rect.fromLTWH(0, 0, pictureSize.width, pictureSize.height);
+      return null; // Rect.fromLTWH(0, 0, pictureSize.width, pictureSize.height);
     Offset centrePoint = pvc.position;
     double scale = pvc.scale;
     RenderBox renderBox = (this.key as GlobalKey).currentContext.findRenderObject();
     Size widgetSize = renderBox?.size;
-    double leftEdge = (centrePoint.dx+0.5*widgetSize.width)/scale+pictureSize.width/2;
-    double rightEdge = (centrePoint.dx-0.5*widgetSize.width)/scale+pictureSize.width/2;
+    double leftEdge = (-centrePoint.dx+0.5*widgetSize.width)/scale+pictureSize.width/2;
+    double rightEdge = (-centrePoint.dx-0.5*widgetSize.width)/scale+pictureSize.width/2;
     double topEdge = -(centrePoint.dy+0.5*widgetSize.height)/scale+pictureSize.height/2;
     double bottomEdge = -(centrePoint.dy-0.5*widgetSize.height)/scale+pictureSize.height/2;
     // ensure inbounds if zoomed out
@@ -43,6 +51,7 @@ class PhotoViewerWithRect extends StatelessWidget {
     return PhotoView(
       imageProvider: NetworkImage(url),
       controller: pvc,
+      scaleStateController: pvcs,
     );
   } // of build
 } // of PhotoViewerWithRect

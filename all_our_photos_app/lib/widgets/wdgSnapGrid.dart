@@ -12,8 +12,8 @@ import '../dart_common/ListUtils.dart';
 class SsSnapGrid extends StatelessWidget {
   final List<AopSnap> snapList;
   final dynamic parentGrid;
-
-  SsSnapGrid(this.snapList, this.parentGrid);
+  final AopAlbum possibleParentAlbum;
+  SsSnapGrid(this.snapList, this.parentGrid, this.possibleParentAlbum);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class SsSnapGrid extends StatelessWidget {
       return Stack(children: [
         GestureDetector(
             onTap: () {
-              Navigator.of(context).pushNamed('SinglePhoto',arguments:[snapList,index]); // weakly types params. yuk.
+              Navigator.of(context).pushNamed('SinglePhoto',arguments:[snapList,index,possibleParentAlbum]); // weakly types params. yuk.
             },
             child: Hero(
                 key: Key(snap.thumbnailURL),
