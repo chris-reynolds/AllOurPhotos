@@ -32,7 +32,7 @@ void main(List<String> arguments) async {
     if (!Directory(photoRootDir).existsSync())
       throw 'photoRootDir ($photoRootDir) does not exist';
     //now connect to the database
-    rootUrl = photoRootDir;
+//    rootUrl = photoRootDir;
     await DbAllOurPhotos().initConnection(config);
     int sessionId = await DbAllOurPhotos().startSession(config);
     if (sessionId<=0)
