@@ -1,0 +1,65 @@
+/*
+  Created by chrisreynolds on 2019-09-26
+  
+  Purpose: 
+
+*/
+
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import '../authentication_state.dart';
+import '../dart_common/Config.dart';
+import '../dart_common/Logger.dart' as Log;
+import '../shared/dbAllOurPhotos.dart';
+import 'scSignin.dart';
+import 'scHome.dart';
+
+class LaunchWithLogin extends StatelessWidget {
+  final StreamController<AuthenticationState> _streamController =
+      new StreamController<AuthenticationState>();
+
+  Future<void> initConfig() async {
+    String localDocs = (await getApplicationDocumentsDirectory()).path;
+    await loadConfig(localDocs + '/aopPhoneSync.config.json');
+    Log.message('loaded config from $localDocs');
+    String extStorage = (await getExternalStorageDirectory()).path;
+    Log.message('external storage is $extStorage');
+  //  String libPath = (await getLibraryDirectory()).path;
+  //  Log.message('library is $libPath');
+  } // of initConfig
+
+  void tryLogin() async {
+    try {
+      var db = DbAllOurPhotos();
+      await db.initConnection(config);
+      await db.startSession(config);
+      _streamController.add(AuthenticationState.authenticated());
+      saveConfig();
+      Log.message('Config saved');
+    } catch (ex) {
+      Log.error('Failed to login $ex');
+      _streamController.add(AuthenticationState.failed());
+    }
+  } // of tryLogin
+
+  void tryLogout() => _streamController.add(AuthenticationState.signedOut());
+
+  @override
+  Widget build(BuildContext context) {
+    initConfig().then((xx) => tryLogin());
+    Log.message('building after tryLogin');
+    return new StreamBuilder<AuthenticationState>(
+        stream: _streamController.stream,
+//        initialData: new AuthenticationState.initial(),
+        builder: (BuildContext context, AsyncSnapshot<AuthenticationState> snapshot) {
+          final state = snapshot.data;
+          if (state == null)
+            return CircularProgressIndicator();
+          else if (state.authenticated)
+            return HomePage(tryLogout);
+          else
+            return SignInPage(/*_streamController,*/ tryLogin);
+        });
+  }
+}

@@ -689,8 +689,11 @@ class AopSnap extends DomainObject {
     DateTime endTime = taken.add(Duration(seconds: 2));
     var r = await snapProvider.rawExecute(
         'select count(*) from aopsnaps ' +
-            "where (original_taken_date between ? and ?) and (media_Length=? or file_name=?)",
+            "where (original_taken_date between ? and ? or modified_date between ? and ?) "+
+            "and (media_Length=? or file_name=?)",
         [
+          "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
           "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
           "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
           fileSize,
@@ -724,6 +727,7 @@ class AopSnap extends DomainObject {
     var r = await snapProvider
         .rawExecute("select count(*) from aopsnaps where import_source='$source'");
     for (var row in r) return row[0];
+    return -1;  // never used but required for static analysis
   } // of yearGrid
 
   String get fullSizeURL {

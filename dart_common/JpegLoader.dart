@@ -2,8 +2,7 @@
  * Created by Chris on 21/09/2018.
  */
 import 'package:exifdart/exifdart.dart' as exif;
-//import './shared/aopClasses.dart';
-import './Logger.dart' as log;
+import './Logger.dart' as Log;
 
 class JpegLoader {
   static const UNKNOWN_LONGLAT = null;
@@ -13,10 +12,15 @@ class JpegLoader {
   Future<void> extractTags(List<int> newBuffer) async {
 //    _buffer = newBuffer;
     exif.MemoryBlobReader mbr = exif.MemoryBlobReader(newBuffer);
-    tags = await exif.readExif(mbr);
+    try {
+      tags = (await exif.readExif(mbr,printDebugInfo: true))??{};
+    } catch(ex,st) {
+      Log.error('failed to extract tags $ex \n $st');
+    }
+
     if (tags.containsKey('MakerNote'))
         tags.remove('MakerNote');
-//    log.message('read tags');
+    Log.message('tags length= ${tags.length}');
   }
 
   String cleanString(String s) {
@@ -50,11 +54,14 @@ class JpegLoader {
 
 
   dynamic tag(String tagName) {
-    try {
-      return tags[tagName];
-    } catch (ex) {
-      log.message('++++++++++++++++tag $tagName not found');
-      return null;
-    }
+    dynamic result = null;
+    tagName = tagName.toLowerCase();
+      tags.forEach((key,value){
+        if (key.toLowerCase() == tagName)
+          result = value;
+      });
+      if (result == null)
+        Log.message('++++++++++++++++tag $tagName not found');
+      return result;
   }
 } // of JpegLoader

@@ -14,10 +14,16 @@ description: Android Phone Client for all our photos
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.3.0 <3.0.0"
 
 dependencies:
   image_gallery: 0.1.0
+  mysql1:  ^0.17.0+1
+  exifdart: ^0.7.0+3
+  flutter_form_builder: ^3.5.4
+  path_provider: #
+#  device_info: ^0.4.0+2
+
   flutter:
     sdk: flutter
 

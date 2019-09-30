@@ -18,6 +18,7 @@ Widget wsTextField(String promptText, {String key, double spacer, dynamic initVa
         attribute: key,
         decoration: InputDecoration(
           labelText: promptText,
+          contentPadding: EdgeInsets.fromLTRB(0, spacer ?? 12, 0, 0),
           filled: true,
         ),
         initialValue: initValue,
@@ -25,11 +26,11 @@ Widget wsTextField(String promptText, {String key, double spacer, dynamic initVa
       ));
 } // of wsText
 
-Widget wsMakeField(String fieldDef, {Map values}) {
+Widget wsMakeField(String fieldDef, {Map values,double spacer}) {
   List<String> bits = (fieldDef + ':::::').split(':');
   if (bits[1] == '') bits[1] = bits[0]; // copy key from prompt text if missing
   dynamic initValue = values[bits[1]] ?? '';
-  return wsTextField(bits[0], key: bits[1], initValue: initValue);
+  return wsTextField(bits[0], key: bits[1], spacer:spacer, initValue: initValue);
 } // of wsFieldList
 
 Map<String, dynamic> wsFormValues(FormBuilderState fbs) {

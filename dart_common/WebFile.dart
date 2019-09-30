@@ -6,7 +6,6 @@
 */
 import 'dart:io';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:image/image.dart';
 import 'Config.dart';
 import 'Logger.dart' as Log;
@@ -95,12 +94,12 @@ Future<Image> loadWebImage(String url) async {
   return result;
 }
 
-Future<void> saveWebImage(String urlString, {Image image, String metaData}) async {
+Future<void> saveWebImage(String urlString, {Image image, int quality: 100, String metaData}) async {
   var postUri = Uri.parse(urlString);
   HttpClient httpClient = HttpClient();
   var request = await httpClient.putUrl(postUri);
   if (image != null)
-    request.add(encodeJpg(image));
+    request.add(encodeJpg(image,quality: quality));
   else if (metaData != null) request.add(utf8.encode(metaData));
   var response = await request.close();
   httpClient.close();

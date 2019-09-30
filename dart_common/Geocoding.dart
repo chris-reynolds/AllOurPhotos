@@ -16,7 +16,7 @@ class GeocodingSession  {
   static double calcSign(String direction,double magnitude) {
     if (direction == null)
       return magnitude;
-    if ('SW'.indexOf(direction)>=0)
+    if ('SWsw'.indexOf(direction)>=0)
       magnitude = - magnitude;
     return magnitude;
   }
