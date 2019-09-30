@@ -182,14 +182,6 @@ class _CameraRollPageState extends State<CameraRollPage> {
 
       newSnap.mediaLength = fullImageBytes.lengthInBytes;
 
-      if (newSnap.latitude != null) {
-        String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
-        if (location != null) {
-          if (location.length > 100) location = location.substring(location.length - 100);
-          newSnap.location = location;
-        }
-      }
-
       if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
         if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength))
           return false;
