@@ -37,14 +37,13 @@ Future<WebFile> loadWebFile(String url, String defaultValue) async {
   if (response.statusCode != 200) {
     if (defaultValue == null) throw 'Failed to load ' + url;
     result.contents = defaultValue;
-  } else
-    await utf8.decoder.bind(response).forEach((x) {
+  } else await utf8.decoder.bind(response).forEach((x) {
       result.contents += x;
     });
   return result;
 }
 
-Future<bool> saveWebFile(WebFile webFile, {bool silent: true}) async {
+Future<bool> saveWebFile(WebFile webFile, {bool silent=true}) async {
   HttpClientResponse response;
   try {
     final uri = Uri.parse(webFile.url);
@@ -94,7 +93,7 @@ Future<Image> loadWebImage(String url) async {
   return result;
 }
 
-Future<void> saveWebImage(String urlString, {Image image, int quality: 100, String metaData}) async {
+Future<void> saveWebImage(String urlString, {Image image, int quality=100, String metaData}) async {
   var postUri = Uri.parse(urlString);
   HttpClient httpClient = HttpClient();
   var request = await httpClient.putUrl(postUri);

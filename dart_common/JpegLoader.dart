@@ -13,7 +13,7 @@ class JpegLoader {
 //    _buffer = newBuffer;
     exif.MemoryBlobReader mbr = exif.MemoryBlobReader(newBuffer);
     try {
-      tags = (await exif.readExif(mbr,printDebugInfo: true))??{};
+      tags = (await exif.readExif(mbr,printDebugInfo: false))??{};
     } catch(ex,st) {
       Log.error('failed to extract tags $ex \n $st');
     }
