@@ -6,6 +6,7 @@ import 'DomainObject.dart';
 
 //                                '*** Start Custom Code imports
 //import 'package:image/image.dart';
+import 'dart:math' as math;
 import 'package:path/path.dart' as Path;
 import '../dart_common/DateUtil.dart';
 import '../dart_common/WebFile.dart';
@@ -748,6 +749,13 @@ class AopSnap extends DomainObject {
     this.location = newLocation;
   } // of trimSetLocation
 
+  double get angle => (int.parse(this.rotation)??0)*math.pi/2;
+
+  void rotate(int direction) {
+    int newRotation = (int.parse(this.rotation)??0)+direction;
+    newRotation = newRotation % 4; // wrap 360
+    this.rotation = '$newRotation';
+  }
 //                                '*** End Custom Code
 } // of class snap
 
