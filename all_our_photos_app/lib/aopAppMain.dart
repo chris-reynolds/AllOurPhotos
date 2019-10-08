@@ -12,43 +12,41 @@ import 'screens/scSinglePhoto.dart';
 import 'appNavigator.dart';
 import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
-
-
+import 'flutter_common/WidgetSupport.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  String configFile = (await getApplicationDocumentsDirectory()).path+'/allourphotos.config.json';
+  String configFile = (await getApplicationDocumentsDirectory()).path + '/allourphotos.config.json';
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Sep23');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Oct08');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
-    debugShowCheckedModeBanner: false, //true,
+    debugShowCheckedModeBanner: false,
+    //true,
     theme: new ThemeData(
       primaryColor: const Color(0xFF02BB9F),
       primaryColorDark: const Color(0xFF167F67),
       accentColor: const Color(0xFFFFAD32),
       textTheme: TextTheme(
 //          body1: TextStyle(fontSize: 25.0, color: Colors.red),
-          body2: TextStyle(fontSize: 25.0, color: Colors.red)
-      ),
+          body2: TextStyle(fontSize: 25.0, color: Colors.red)),
       buttonTheme: ButtonThemeData(
-          buttonColor: Colors.greenAccent,
+        buttonColor: Colors.greenAccent,
       ),
     ),
-    home:  (loginStateMachine.loginStatus==etLoginStatus.LoggedIn)
-        ? dashboardScreen : LoginForm(),
-    routes: <String, WidgetBuilder> {
+    home: (loginStateMachine.loginStatus == etLoginStatus.LoggedIn) ? dashboardScreen : LoginForm(),
+    routes: <String, WidgetBuilder>{
 //      '/a': (BuildContext context) => GridListDemo(),
-    'home': (context) => dashboardScreen,
+      'home': (context) => dashboardScreen,
       'login': (BuildContext context) => LoginForm(),
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
-      'MetaEditor':(BuildContext context)=>MetaEditorWidget(),
-      'SinglePhoto':(BuildContext context)=>SinglePhotoWidget(),
+      'MetaEditor': (BuildContext context) => MetaEditorWidget(),
+      'SinglePhoto': (BuildContext context) => SinglePhotoWidget(),
     },
   );
   runApp(application);
@@ -109,10 +107,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           style: new TextStyle(color: const Color(0xFFFFFFFF)),
         ),
         actions: <Widget>[
-          IconButton(icon:Icon(Icons.exit_to_app),onPressed: (){
-            loginStateMachine.logout();
-            Navigator.pushNamed(context, 'login');
-          },)
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () async {
+              if (await confirmYesNo(context, 'Do really want to log out?')) {
+                loginStateMachine.logout();
+                Navigator.pushNamed(context, 'login');
+              }
+            },
+          )
         ],
       ),
       body: new PageView(
@@ -133,10 +136,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ), // sets the inactive color of the `BottomNavigationBar`
         child: new BottomNavigationBar(
           items: [
-            bottomButton('History',Icons.grid_on),
-            bottomButton('Recent Pics',Icons.camera_roll),
-            bottomButton('Albums',Icons.collections),
-            bottomButton('Testing',Icons.text_fields),
+            bottomButton('History', Icons.grid_on),
+            bottomButton('Recent Pics', Icons.camera_roll),
+            bottomButton('Albums', Icons.collections),
+            bottomButton('Testing', Icons.text_fields),
           ],
           onTap: navigationTapped,
           currentIndex: _page,
@@ -144,9 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-  BottomNavigationBarItem bottomButton(String keyText,IconData valueIcon)=>
-      BottomNavigationBarItem(
-        icon: new Icon(valueIcon),title: new Text(keyText));
+
+  BottomNavigationBarItem bottomButton(String keyText, IconData valueIcon) =>
+      BottomNavigationBarItem(icon: new Icon(valueIcon), title: new Text(keyText));
 }
-
-
