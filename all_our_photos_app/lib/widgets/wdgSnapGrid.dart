@@ -28,9 +28,12 @@ class SsSnapGrid extends StatelessWidget {
             child: Hero(
                 key: Key(snap.thumbnailURL),
                 tag: snap.fileName,
-                child: Image.network(
-                  snap.thumbnailURL,
-                  fit: BoxFit.scaleDown,
+                child: Transform.rotate(
+                  angle: snap.angle,
+                  child: Image.network(
+                    snap.thumbnailURL,
+                    fit: BoxFit.scaleDown,
+                  ),
                 ))),
         Checkbox(
           value: parentGrid.isSelected(snap.id),
