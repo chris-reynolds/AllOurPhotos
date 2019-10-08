@@ -14,7 +14,6 @@ import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../flutter_common/WidgetSupport.dart';
 
-
 class SinglePhotoWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -32,10 +31,9 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   void _initParams() {
     List params = ModalRoute.of(context).settings.arguments;
-      snapList = params[0];
+    snapList = params[0];
     _snapIndex = params[1];
-    if (params.length>2)
-      maybeCurrentAlbum = params[2];
+    if (params.length > 2) maybeCurrentAlbum = params[2];
   } // of initParams
 
   void set snapIndex(int newIndex) {
@@ -70,8 +68,20 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
               Navigator.of(context).pushNamed('MetaEditor', arguments: currentSnap);
             }),
         IconButton(
-          icon: Icon(Icons.rotate_90_degrees_ccw),
-          onPressed: null,
+          icon: Icon(Icons.rotate_left),
+          onPressed: () async {
+            currentSnap.rotate(-1);
+            await currentSnap.save();
+            setState(() {});
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.rotate_right),
+          onPressed: () async {
+            currentSnap.rotate(1);
+            await currentSnap.save();
+            setState(() {});
+          },
         ),
         IconButton(
             icon: Icon(Icons.crop),
@@ -104,10 +114,13 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     return Scaffold(
       appBar: buildAppBar(context),
       body: Center(
-        child: PhotoViewerWithRect(
-          key: pvKey,
-          url: currentSnap.fullSizeURL,
-          onScale: setIsPhotoScaled,
+        child: Transform.rotate(
+          angle: currentSnap.angle,
+          child: PhotoViewerWithRect(
+            key: pvKey,
+            url: currentSnap.fullSizeURL,
+            onScale: setIsPhotoScaled,
+          ),
         ),
       ),
     );
@@ -122,28 +135,33 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   void cropMe(BuildContext context, AopSnap snap) async {
     if (isPhotoScaled)
-      showMessage(context, 'Nothing to do. \nZoom before clicking',title:'Picture is all showing');
+      showMessage(context, 'Nothing to do. \nZoom before clicking',
+          title: 'Picture is all showing');
     else {
-      await snapCrop(context,snap,(pvKey.currentWidget as PhotoViewerWithRect).currentRect(Size(0.0+snap.width,0.0+snap.height)));
+      await snapCrop(
+          context,
+          snap,
+          (pvKey.currentWidget as PhotoViewerWithRect)
+              .currentRect(Size(0.0 + snap.width, 0.0 + snap.height)));
     }
   } // of cropMe
 
-  Future<AopSnap> snapCrop(BuildContext context,AopSnap originalSnap, Rect rect) async {
-    if (rect == null)
-      return null;
+  Future<AopSnap> snapCrop(BuildContext context, AopSnap originalSnap, Rect rect) async {
+    if (rect == null) return null;
     try {
       Im.Image originalImage = await loadWebImage(originalSnap.fullSizeURL);
       print('clipping ${originalSnap.fileName} ${originalImage.length}');
       Im.Image newFullImage = Im.copyCrop(originalImage, rect.right.round(), rect.top.round(),
-          (rect.left-rect.right).round(), (rect.bottom-rect.top).round());
-      Im.Image newThumbnail = Im.copyResize(newFullImage,width:(originalImage.width>=originalImage.height)?640:480);
-      Map buffer  = originalSnap.toMap();
+          (rect.left - rect.right).round(), (rect.bottom - rect.top).round());
+      Im.Image newThumbnail = Im.copyResize(newFullImage,
+          width: (originalImage.width >= originalImage.height) ? 640 : 480);
+      Map buffer = originalSnap.toMap();
       buffer.remove('id'); //
       var newSnap = AopSnap()..fromMap(buffer);
       // sourceMarker is used for tracking where photos came from
       String sourcerMarker = 'Crop+${originalSnap.id}';
-      newSnap.fileName = await calcNewFilenameForSnap(originalSnap,sourcerMarker);
-      Map<String,dynamic> metaMap = jsonDecode(originalSnap.metadata);
+      newSnap.fileName = await calcNewFilenameForSnap(originalSnap, sourcerMarker);
+      Map<String, dynamic> metaMap = jsonDecode(originalSnap.metadata);
       metaMap['width'] = newFullImage.width;
       metaMap['height'] = newFullImage.height;
       metaMap['cropped'] = formatDate(DateTime.now());
@@ -164,10 +182,10 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         item.albumId = maybeCurrentAlbum.id;
         item.snapId = newSnap.id;
         await item.save();
-        maybeCurrentAlbum.albumItems.then((list)=> list.add(item));
-        maybeCurrentAlbum.snaps.then((list)=> list.add(newSnap));
+        maybeCurrentAlbum.albumItems.then((list) => list.add(item));
+        maybeCurrentAlbum.snaps.then((list) => list.add(newSnap));
       }
-      showMessage(context,'Cropping to ${newSnap.fileName} completed');
+      showMessage(context, 'Cropping to ${newSnap.fileName} completed');
     } on Exception catch (ex) {
       showMessage(context, 'Failed to crop image : $ex');
     }
@@ -176,9 +194,10 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   Future<String> calcNewFilenameForSnap(AopSnap snap, String sourceMarker) async {
     int previousCrops = await AopSnap.getPreviousCropCount(sourceMarker);
     int dotPos = snap.fileName.lastIndexOf('\.');
-    if (dotPos<0)
-      throw 'Failed to get extention of ${snap.fileName}';
-    String result = snap.fileName.substring(0,dotPos)+'_cp${previousCrops+1}'+snap.fileName.substring(dotPos);
+    if (dotPos < 0) throw 'Failed to get extention of ${snap.fileName}';
+    String result = snap.fileName.substring(0, dotPos) +
+        '_cp${previousCrops + 1}' +
+        snap.fileName.substring(dotPos);
     return result;
   } // of calcNewFilenameForSnap
 

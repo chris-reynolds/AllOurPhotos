@@ -78,6 +78,7 @@ class PhotoGridState extends State<PhotoGrid> {
 
   void changeSelectMode() {
     setState(() {
+      _selectedImages = [];
       _inSelectMode = !_inSelectMode;
     });
   }
@@ -177,7 +178,7 @@ class PhotoGridState extends State<PhotoGrid> {
                           if (_inSelectMode)
                             toggleSelected(imageFile);
                           else {
-                            imageFile.ranking = (imageFile.ranking % 3) + 1;
+                            imageFile.ranking = (imageFile.ranking +1) % 3 +1;
                             imageFile.save();
                           }
                         }); // setState
