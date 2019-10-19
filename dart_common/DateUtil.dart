@@ -37,8 +37,9 @@ DateTime addMonths(DateTime dt, int value) {
 } // addMonth
 
 String formatDate(DateTime aDate, {String format = 'yyyy-mm-d'}) {
-  String _right2(String s) => s.substring(s.length - 2);
-  String n99(int value) => _right2((value + 100).toString());
+  String _right(String s,{int size:2}) => s.substring(s.length - size);
+  String n99(int value) => _right((value + 100).toString());
+  String n999(int value) => _right((value + 1000).toString(),size:3);
   String result = format;
   try {
     result = result.replaceAll('dd', n99(aDate.day));
@@ -51,6 +52,7 @@ String formatDate(DateTime aDate, {String format = 'yyyy-mm-d'}) {
     result = result.replaceAll('hh', n99(aDate.hour));
     result = result.replaceAll('nn', n99(aDate.minute));
     result = result.replaceAll('ss', n99(aDate.second));
+    result = result.replaceAll('lll', n999(aDate.millisecond));
   } catch(ex) {
     print(ex);
   }
@@ -92,3 +94,5 @@ DateTime dateTimeFromExif(String exifString) {
     return null;
   } // of try catch
 } // dateTimeFromExit
+
+String dbDate(DateTime aDate) => (aDate==null)?null:formatDate(aDate,format:'yyyy-mm-dd hh:nn:ss.lll');
