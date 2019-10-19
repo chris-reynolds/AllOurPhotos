@@ -37,13 +37,14 @@ Future<WebFile> loadWebFile(String url, String defaultValue) async {
   if (response.statusCode != 200) {
     if (defaultValue == null) throw 'Failed to load ' + url;
     result.contents = defaultValue;
-  } else await utf8.decoder.bind(response).forEach((x) {
+  } else
+    await utf8.decoder.bind(response).forEach((x) {
       result.contents += x;
     });
   return result;
 }
 
-Future<bool> saveWebFile(WebFile webFile, {bool silent=true}) async {
+Future<bool> saveWebFile(WebFile webFile, {bool silent = true}) async {
   HttpClientResponse response;
   try {
     final uri = Uri.parse(webFile.url);
@@ -87,23 +88,36 @@ Future<Image> loadWebImage(String url) async {
   if (response.statusCode != 200) throw 'Failed to load ' + url;
   List<int> download = [];
   await response.toList().then((chunks) {
-    chunks.forEach((chunk) { download.addAll(chunk); });
+    chunks.forEach((chunk) {
+      download.addAll(chunk);
+    });
   });
   Image result = decodeImage(download);
   return result;
 }
 
-Future<void> saveWebImage(String urlString, {Image image, int quality=100, String metaData}) async {
+Future<void> saveWebImage(String urlString,
+    {Image image, int quality = 100, String metaData}) async {
   var postUri = Uri.parse(urlString);
+  List<int> payLoad;
   HttpClient httpClient = HttpClient();
   var request = await httpClient.putUrl(postUri);
-  if (image != null)
-    request.add(encodeJpg(image,quality: quality));
-  else if (metaData != null) request.add(utf8.encode(metaData));
-  var response = await request.close();
-  httpClient.close();
-  if (response.statusCode == 200)
-    Log.message("Uploaded $urlString");
-  else
-    throw Exception('Failed to upload $urlString with $response');
+  if (image != null) {
+    payLoad = encodeJpg(image, quality: quality);
+    request.add(payLoad);
+  } else if (metaData != null) {
+    payLoad = utf8.encode(metaData);
+    request.add(payLoad);
+  }
+    var response = await request.close();
+    bool successfulResponse = (response.statusCode == 200);
+    await response.drain();
+    await httpClient.close();
+    if (successfulResponse)
+      Log.message("Uploaded $urlString");
+    else
+      throw Exception('Failed to upload $urlString with $response');
+  payLoad = [];  // clear in case this is the memory leak
+  response = null;
+  httpClient = null;
 } // of httpPostImage
