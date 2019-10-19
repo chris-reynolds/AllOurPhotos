@@ -38,7 +38,8 @@ class DbAllOurPhotos {
     dbConn = null;
     var dbAop = DbAllOurPhotos();
     await dbAop.initConnection(_lastConfig);
-    return await dbAop.startSession(_lastConfig);
+    await dbAop.startSession(_lastConfig);
+    return 1;
   }
   /*
   Future<dynamic> addImage(Media item,List<int> picContents) async {
