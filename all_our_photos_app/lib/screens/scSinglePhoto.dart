@@ -13,6 +13,7 @@ import 'package:image/image.dart' as Im;
 import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../flutter_common/WidgetSupport.dart';
+import '../widgets/wdgImageFilter.dart'; // only for the icons
 
 class SinglePhotoWidget extends StatefulWidget {
   @override
@@ -114,13 +115,26 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     return Scaffold(
       appBar: buildAppBar(context),
       body: Center(
-        child: Transform.rotate(
-          angle: currentSnap.angle,
-          child: PhotoViewerWithRect(
-            key: pvKey,
-            url: currentSnap.fullSizeURL,
-            onScale: setIsPhotoScaled,
-          ),
+        child: Stack(
+          children: <Widget>[
+            Transform.rotate(
+              angle: currentSnap.angle,
+              child: PhotoViewerWithRect(
+                key: pvKey,
+                url: currentSnap.fullSizeURL,
+                onScale: setIsPhotoScaled,
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),
+              Text(
+                '${currentSnap.caption??''}\n--------------\n${currentSnap.location??''}',
+                style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
+              ),
+            ]),
+          ],
         ),
       ),
     );
