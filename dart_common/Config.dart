@@ -24,8 +24,8 @@ Future<void> loadConfig([String commandLineFilename]) async {
     String configContents = File(actualFilename).readAsStringSync(encoding: utf8);
     try {
       config = jsonDecode(configContents);
-    } catch (err) {
-      throw 'Corrupt configuration file $actualFilename';
+    } catch (err,st) {
+      throw 'Corrupt configuration file $actualFilename \n $st';
     } // of catch
   }
   finalFileName = actualFilename;

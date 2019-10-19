@@ -29,8 +29,7 @@ class SyncDriver {
       ? path.substring(path.lastIndexOf('/') + 1)
       : path.substring(path.lastIndexOf('\\') + 1);
 
-  Future<List<FileSystemEntity>> loadFileList({bool allPhotos=false}) async {
-    if (allPhotos) fromDate = DateTime(1900);
+  Future<List<FileSystemEntity>> loadFileList() async {
     messageController.add('Loading from ${formatDate(fromDate)}');
     Stream<FileSystemEntity> origin = Directory(localFileRoot).list(recursive: true);
     List<FileSystemEntity> result = [];
@@ -41,13 +40,14 @@ class SyncDriver {
       // use 'continue' to jump to the end of the loop and not save this file to the list.
       if (stats.size < 8096) continue; // too small
       if (stats.modified.isBefore(fromDate)) continue;
-      if (fse.path.contains('thumbnails') ) continue;
+      if (fse.path.contains('thumbnails')) continue;
+      if (fse.path.contains('shrink_')) continue;
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
       if (['jpg', 'png'].contains(thisExt) == false) continue;
       String imageName = fileName(fse.path);
 //      Log.message('checking $imageName');
       bool alreadyExists =
-          await AopSnap.sizeOrNameAtTimeExists(stats.modified, stats.size, imageName);
+          await AopSnap.sizeOrNameOrDeviceAtTimeExists(stats.modified, stats.size, imageName, 'no');
       if (alreadyExists) continue;
       alreadyExists = await AopSnap.nameExists(imageName, stats.size);
       if (alreadyExists) continue;
@@ -81,6 +81,7 @@ class SyncDriver {
   } // of processList
 
   Future<bool> uploadImage(File thisPicFile) async {
+    //   String tagDeviceName;
     try {
       FileStat thisPicStats = thisPicFile.statSync();
       List<int> fileContents = thisPicFile.readAsBytesSync();
@@ -90,11 +91,13 @@ class SyncDriver {
       GeocodingSession _geo = GeocodingSession();
       JpegLoader jpegLoader = JpegLoader();
       await jpegLoader.extractTags(fileContents);
-      String deviceName = config['sesdevice'];
-      DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal'))??thisPicStats.modified;
+      String deviceName = jpegLoader.tag('Model') ?? config['sesdevice'];
+      DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ??
+          jpegLoader.tag('dateTime') ??
+          thisPicStats.modified;
 
-      bool alReadyExists =
-          await AopSnap.sizeOrNameAtTimeExists(takenDate, thisImage.length, imageName);
+      bool alReadyExists = await AopSnap.sizeOrNameOrDeviceAtTimeExists(
+          takenDate, thisImage.length, imageName, deviceName);
       if (alReadyExists) return false;
       AopSnap newSnap = AopSnap()
         ..fileName = imageName
@@ -115,7 +118,7 @@ class SyncDriver {
       newSnap.originalTakenDate = newSnap.takenDate;
       newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
       // checkl for duplicate
-      newSnap.mediaLength = thisImage.length;
+      newSnap.mediaLength = thisPicStats.size;
       if (jpegLoader.tag("GPSLatitudeRef") != null) {
         newSnap.latitude =
             jpegLoader.dmsToDeg(jpegLoader.tag('GPSLatitude'), jpegLoader.tag('GPSLatitudeRef'));
@@ -128,9 +131,17 @@ class SyncDriver {
       }
 
       if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
-        if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength)) return false;
+        if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength))
+          return false;
       } else {
         if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) return false;
+      }
+      // all looks good to upload but it might be a different picture with the same name and month
+      if (await newSnap.nameClashButDifferentSize()) {
+        int lastDot = newSnap.fileName.lastIndexOf('.');
+        if (lastDot < 0) throw "Cant find the extension of file name ${newSnap.fileName}";
+        newSnap.fileName =
+            newSnap.fileName.substring(0, lastDot) + 'a' + newSnap.fileName.substring(lastDot);
       }
       String myMeta = jsonEncode(jpegLoader.tags);
       Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
@@ -140,7 +151,7 @@ class SyncDriver {
       newSnap.metadata = myMeta;
       await newSnap.save();
       return true;
-    } catch (ex,st) {
+    } catch (ex, st) {
       Log.error('Failed save for ${thisPicFile.path} \n$ex \n$st');
       return false;
     } // of try
