@@ -17,10 +17,10 @@ class JpegLoader {
     } catch(ex,st) {
       Log.error('failed to extract tags $ex \n $st');
     }
-
+    mbr = null;
     if (tags.containsKey('MakerNote'))
         tags.remove('MakerNote');
-    Log.message('tags length= ${tags.length}');
+//    Log.message('tags length= ${tags.length}');
   }
 
   String cleanString(String s) {
@@ -60,8 +60,8 @@ class JpegLoader {
         if (key.toLowerCase() == tagName)
           result = value;
       });
-      if (result == null)
-        Log.message('++++++++++++++++tag $tagName not found');
+//      if (result == null)
+//        Log.message('++++++++++++++++tag $tagName not found');
       return result;
   }
 } // of JpegLoader
