@@ -9,6 +9,7 @@ import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';
 import 'screens/scMetaEditor.dart';
 import 'screens/scSinglePhoto.dart';
+import 'screens/scDBFix.dart';
 import 'appNavigator.dart';
 import 'dart_common/Config.dart';
 import 'dart_common/LoginStateMachine.dart';
@@ -20,7 +21,7 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Oct08');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Oct19');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -125,6 +126,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           CameraRollPage(),
           AlbumList(),
           SearchList(),
+          DbFixFormWidget(),
         ],
         onPageChanged: onPageChanged,
         controller: _pageController,
@@ -140,6 +142,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             bottomButton('Recent Pics', Icons.camera_roll),
             bottomButton('Albums', Icons.collections),
             bottomButton('Testing', Icons.text_fields),
+            bottomButton('Db Fix',Icons.local_hospital),
           ],
           onTap: navigationTapped,
           currentIndex: _page,
