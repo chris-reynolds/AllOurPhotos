@@ -49,7 +49,7 @@ class SyncDriver {
       String imageName = fileName(fse.path);
 //      Log.message('checking $imageName');
       bool alreadyExists =
-          await AopSnap.sizeOrNameAtTimeExists(stats.modified, stats.size, imageName);
+          await AopSnap.sizeOrNameOrDeviceAtTimeExists(stats.modified, stats.size, imageName,config['sesdevice']);
       if (alreadyExists) continue;
       Log.message('adding ${imageName} size=${stats.size} modified=${stats.modified}');
       result.add(fse);
@@ -89,7 +89,7 @@ class SyncDriver {
       GeocodingSession _geo = GeocodingSession();
       JpegLoader jpegLoader = JpegLoader();
       await jpegLoader.extractTags(fileContents);
-      String deviceName = config['sesdevice'];
+      String deviceName = jpegLoader.tag('Model') ?? config['sesdevice'];
 //      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 //
 //      if (!Platform.isIOS) {
@@ -105,7 +105,7 @@ class SyncDriver {
       DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal'));
 
       bool alReadyExists =
-          await AopSnap.sizeOrNameAtTimeExists(takenDate, thisImage.length, imageName);
+          await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, thisImage.length, imageName,deviceName);
       if (alReadyExists) return false;
       AopSnap newSnap = AopSnap()
         ..fileName = imageName
