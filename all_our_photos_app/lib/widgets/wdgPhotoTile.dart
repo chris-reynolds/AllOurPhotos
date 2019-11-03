@@ -9,7 +9,6 @@ import '../shared/aopClasses.dart';
 import 'wdgImageFilter.dart' show filterColors;
 import '../dart_common/DateUtil.dart';
 
-
 typedef void BannerTapCallback(AopSnap snap);
 
 class PhotoTile extends StatelessWidget {
@@ -46,10 +45,10 @@ class PhotoTile extends StatelessWidget {
             key: new Key(snap.thumbnailURL),
 //            tag: snap.fileName,
             child: Transform.rotate(
-              angle:snap.angle,
+              angle: snap.angle,
               child: Image.network(
-                snap.thumbnailURL,
-//              highResolution ? snap.fullSizeURL : snap.thumbnailURL,
+//                snap.thumbnailURL,
+                highResolution ? snap.fullSizeURL : snap.thumbnailURL,
                 fit: BoxFit.scaleDown,
               ),
             )));
