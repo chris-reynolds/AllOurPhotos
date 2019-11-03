@@ -14,6 +14,7 @@ import '../ImageFilter.dart';
 import 'wdgImageFilter.dart';
 import 'ImageEditorWidget.dart';
 import 'wdgPhotoTile.dart';
+import '../flutter_common/WidgetSupport.dart';
 
 class PhotoGrid extends StatefulWidget {
   final ImageFilter _initImageFilter;
@@ -30,7 +31,7 @@ class PhotoGridState extends State<PhotoGrid> {
   ImageFilter _imageFilter;
   double _targetOffset = 0.0;
   ScrollController _scrollController = ScrollController();
-  int zzz=0;
+  int zzz = 0;
   List<String> _selectedImages = [];
 
   bool isSelected(AopSnap snap) {
@@ -50,13 +51,25 @@ class PhotoGridState extends State<PhotoGrid> {
     _selectedImages.length = 0;
   } // clearSelected
 
+  void selectAll({bool repaint:true}) {
+    // Select All can Clear All
+    bool clearAll = (_selectedImages.length ==_imageFilter.images.length);
+    _selectedImages = [];
+    if (!clearAll) {
+      _imageFilter.images.forEach((AopSnap snap) {
+          _selectedImages.add(snap.fileName);
+      });
+    }
+    if (repaint)
+      setState(() {});
+  } // of selectAll
+
   int _picsPerRow = 3; // can be toggled
   void changePicsPerRow() {
     setState(() {
       int oldPicsPerRow = _picsPerRow;
       double oldOffset = _scrollController.offset;
-      if (--_picsPerRow <= 0)
-        _picsPerRow = 5;
+      if (--_picsPerRow <= 0) _picsPerRow = 5;
 //      switch (_picsPerRow) {
 //        case 4:
 //          _picsPerRow = 3;
@@ -128,20 +141,36 @@ class PhotoGridState extends State<PhotoGrid> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: const Text('Grid list'),
+        title: (!_inSelectMode)
+            ? const Text('Grid list')
+            : Row(
+                children: <Widget>[
+                  Text('Select All'),
+                  IconButton(
+                      icon: Icon(Icons.select_all),
+                      onPressed: () {
+                        selectAll();
+                      }),
+                ],
+              ),
         actions: <Widget>[
           if (_inSelectMode && _selectedImages != null && _selectedImages.length > 0) ...[
-            new IconButton(
+            IconButton(
+                icon: Icon(Icons.star_border, color: Colors.black),
+                onPressed: () {
+                  handleMultiSetGreen(context, onlySelectedSnaps);
+                }),
+            IconButton(
                 icon: Icon(Icons.text_fields),
                 onPressed: () {
                   handleMultiCaption(context, onlySelectedSnaps);
                 }),
-            new IconButton(
+            IconButton(
                 icon: Icon(Icons.date_range),
                 onPressed: () {
                   handleMultiTakenDate(context, onlySelectedSnaps);
                 }),
-            new IconButton(
+            IconButton(
                 icon: Icon(Icons.location_on),
                 onPressed: () {
                   handleMultiLocation(context, onlySelectedSnaps);
@@ -178,7 +207,7 @@ class PhotoGridState extends State<PhotoGrid> {
                           if (_inSelectMode)
                             toggleSelected(imageFile);
                           else {
-                            imageFile.ranking = (imageFile.ranking +1) % 3 +1;
+                            imageFile.ranking = (imageFile.ranking + 1) % 3 + 1;
                             imageFile.save();
                           }
                         }); // setState
@@ -301,5 +330,27 @@ class PhotoGridState extends State<PhotoGrid> {
     } // of done loop
     setState(() {});
   } // handleMultiLocation
+
+  void handleMultiSetGreen(BuildContext context, List<AopSnap> snaps) async {
+    String resultMessage = '${snaps.length} snaps updated';
+    try {
+      for (AopSnap snap in snaps) {
+        snap.ranking = 3;
+        if (snap.isValid)
+          await snap.save();
+        else {
+          resultMessage = snap.lastErrors.join('\n');
+          break;
+        }
+      } // of for loop
+    } catch (ex) {
+      resultMessage = '$ex';
+    }
+    Log.message(resultMessage);
+    showMessage(context, resultMessage);
+    setState(() {});
+  } // handleMultiSetGreen
+
+
 
 }
