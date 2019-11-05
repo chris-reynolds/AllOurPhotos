@@ -215,7 +215,7 @@ class PhotoGridState extends State<PhotoGrid> {
             ],
           ),
         ),
-        _inSelectMode ? ImageEditorWidget2(editorCallback) : Container(),
+//        _inSelectMode ? ImageEditorWidget2(editorCallback) : Container(),
       ]), //of expanded
     ); // of column
   }

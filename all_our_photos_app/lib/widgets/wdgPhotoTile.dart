@@ -37,6 +37,13 @@ class PhotoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final Widget imageWidget = new GestureDetector(
         onTap: () {
+          if (inSelectMode)
+            onBannerTap(snap);
+          else
+            Navigator.of(context).pushNamed('SinglePhoto',
+                arguments: [snapList, index]); // weakly types params. yuk.
+        },
+        onLongPress: () {
           Navigator.of(context)
               .pushNamed('SinglePhoto', arguments: [snapList, index]); // weakly types params. yuk.
         },
@@ -75,7 +82,7 @@ class PhotoTile extends StatelessWidget {
         child: imageWidget,
       );
     } else {
-      return new GridTile(
+      return GridTile(
         header: new GestureDetector(
           onTap: () {
             onBannerTap(snap);
