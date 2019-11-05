@@ -35,6 +35,11 @@ class _YearGridState extends State<YearGrid> {
   List<YearEntry> yearList = [];
   BuildContext currentContext;
 
+  int _currentYear = 0;
+  int _currentMonth = 0;
+  void setCurrent(int year,int month) {_currentYear=year; _currentMonth = month;}
+  bool isCurrent(int year,int month) => (_currentYear==year && _currentMonth == month);
+
   @override
   initState() {
     super.initState();
@@ -58,21 +63,25 @@ class _YearGridState extends State<YearGrid> {
   } // of buildYears
 
   void handleMonthClick(int yearNo, int monthNo) {
-    if (monthNo > 0) // dont navigate if clicking on yearNo
+    if (monthNo > 0) { // dont navigate if clicking on yearNo
+      setCurrent(yearNo, monthNo);
       Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) =>
                   PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo))));
+    }
   } // handleMonthClick
 
   Row yearRowBuilder(YearEntry thisYear) {
+    IconData isCurrentIcon(bool current)=> current ? Icons.ac_unit : Icons.image;
     return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Text('${thisYear.yearno}', style: gridStyles['yearNos']),
       for (int monthIx = 1; monthIx <= 12; monthIx++)
         if (thisYear.months[monthIx] > 0)
           IconButton(
-            icon: Icon(Icons.image, size: 36.0, color: Colors.amber),
+            icon: Icon(isCurrentIcon(isCurrent(thisYear.yearno,monthIx)), size: 36.0,
+                color: isCurrent(thisYear.yearno,monthIx) ? Colors.red : Colors.amber),
             tooltip: 'Todo: Maybe location info',
             onPressed: () {
               handleMonthClick(thisYear.yearno, monthIx);
