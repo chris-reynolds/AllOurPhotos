@@ -20,116 +20,160 @@ import '../dart_common/DateUtil.dart';
 
 const LAST_RUN = 'last_run';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  Function tryLogout;
+
+  HomePage(this.tryLogout) : super() {} // of constructor
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   static List<FileSystemEntity> latestFileList = [];
+  DateTime lastRunTime;
   DateTime thisRunTime;
-  final Function tryLogout;
+  bool _selectAll = false;
+  bool _inProgress = false;
   SyncDriver syncDriver;
 
+  void setInProgress(bool value) {
+    _inProgress = value;
+//    messages.add('');
+    setState(() {});
+  } // of setInProgress
+
+  String prettyDate(DateTime aDate) {
+    if (aDate.isAfter(DateTime(1900,0,0)))
+      return formatDate(aDate,format:'dd mmm yyyy');
+    else
+      return 'Never';
+  }
   StreamController<String> get messages => syncDriver.messageController;
 
-  HomePage(this.tryLogout) : super() {
-    DateTime lastRunTime;
-    try {
-      lastRunTime = DateTime.parse(config[LAST_RUN]);
-    } catch (ex) {
-      lastRunTime = DateTime(1900, 1, 1);
-    }
-    syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
-  } // of constructor
-
-  void outStandingPhotoCheck({bool allPhotos: false}) async {
-    try {
-      messages.add('loading photos...');
-      thisRunTime = DateTime.now();
-      latestFileList = await syncDriver.loadFileList(allPhotos: allPhotos);
-      messages.add('Ive got ${latestFileList.length} photos');
-    } catch (ex) {
-      latestFileList = [];
-      syncDriver.messageController.add('Error : $ex');
-    }
-  } // of outStandingPhotoCheck
+  void _toogleSelectAll() {
+    _selectAll = !_selectAll;
+    setState(() {});
+  } // _toggleSelectAll
 
   @override
   Widget build(BuildContext context) {
     Log.message('Home builder');
     return //(1==1)?ProgressForm():
         Scaffold(
-            appBar: AppBar(title: Text('AllOurPhoto Phone Upload 30Sep')),
-            body: StreamBuilder<String>(
-                stream: syncDriver.messageController.stream,
-                initialData: '',
-                builder: (BuildContext context, AsyncSnapshot<String> messageSnapshot) {
-                  return Center(
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Spacer(),
-                          Container(
-                            margin: const EdgeInsets.all(15.0),
-                            padding: const EdgeInsets.all(15.0),
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.blueAccent)
+            appBar: AppBar(title: Text('AllOurPhoto Upload 9Nov'), actions: <IconButton>[
+              IconButton(
+                icon: Icon(Icons.select_all),
+                onPressed: _toogleSelectAll,
+              ),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: widget.tryLogout,
+              ),
+            ]),
+            body: Stack(children: [
+              StreamBuilder<String>(
+                  stream: syncDriver.messageController.stream,
+                  initialData: '',
+                  builder: (BuildContext context, AsyncSnapshot<String> messageSnapshot) {
+                    Log.message('building with $_selectAll and $_inProgress');
+                    return Center(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Spacer(),
+                            Text(
+                                'Last run: ${prettyDate(lastRunTime)}   ${_selectAll ? 'but all Selected' : ''}'),
+                            Spacer(),
+
+ //                           if (!_inProgress)
+                              RaisedButton(
+                                child: Text('Check for Photos'),
+                                onPressed: () {
+                                  outStandingPhotoCheck();
+                                },
+                              ), // of raisedButton
+                            Spacer(),
+                            Container(
+                              margin: const EdgeInsets.all(15.0),
+                              padding: const EdgeInsets.all(15.0),
+                              decoration:
+                                  BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+                              child: Text(
+                                messageSnapshot.data,
+                                maxLines: 6,
+                              ),
                             ),
-                            child: Text(
-                              messageSnapshot.data,
-                              maxLines: 4,
-                            ),
-                          ),
-                          Spacer(),
-                          RaisedButton(
-                            child: Text('Check for photos'),
-                            onPressed: () {outStandingPhotoCheck(allPhotos: false);},
-                          ), // of raisedButton
-                          RaisedButton(
-                            child: Text('or Gather ALL photos'),
-                            onPressed: () {outStandingPhotoCheck(allPhotos: true);},
-                          ), // of raisedButton
-                          Spacer(),
-                          RaisedButton(
-                              child: Text('Process photos'),
-                              onPressed: () {
-                                syncDriver.processList(latestFileList);
-                                config[LAST_RUN] =
-                                    formatDate(thisRunTime, format: 'yyyy-mm-d hh:nn:ss');
-                                saveConfig(); // persist this run time so that we know how far back to go next time},
-                              }), // of raisedButton
-                          Spacer(),
-                          RaisedButton(
-                            child: Text('Sign Out'),
-                            onPressed: tryLogout,
-                          ), // of raisedButton
-                          Spacer(
-                            flex: 3,
-                          )
-                        ]),
-                  ); // of column
-                } // of builder
-                ) // of StreamBuilder
+                            Spacer(),
+                            if (latestFileList.length > 0 && !_inProgress)
+                              RaisedButton(
+                                  child: Text('Process Photos'),
+                                  onPressed: processPhotos), // of raisedButton
+
+                            Spacer(
+                              flex: 3,
+                            )
+                          ]),
+                    ); // of column
+                  } // of builder
+                  ),
+              if (_inProgress)
+                Center(
+                  child: CircularProgressIndicator(),
+                )
+            ]) // of StreamBuilder
             ); // of scaffold
   } // of build
 
-} // of class scHome
+  @override
+  void initState() {
+    try {
+      lastRunTime = DateTime.parse(config[LAST_RUN]);
+    } catch (ex) {
+      lastRunTime = DateTime(1900, 1, 1);
+      _selectAll = true;
+    }
+    syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
+    super.initState();
+  }
 
-//typedef MessageCallback = void Function(String mess);
-//typedef ProgressCallback = void Function(int sofar, int max);
-//
-//class PhoneSyncDriver {
-//  MessageCallback messCB;
-//  ProgressCallback progCB;
-//
-//  PhoneSyncDriver(this.messCB, this.progCB);
-//
-//
-//} // of PhoneSyncDriver
+  void outStandingPhotoCheck() async {
+    try {
+      messages.add('loading photos...');
+      thisRunTime = DateTime.now();
+      setInProgress(true);
+      latestFileList = await syncDriver.loadFileList(allPhotos: _selectAll);
+      messages.add('I found ${latestFileList.length} photos');
+    } catch (ex) {
+      latestFileList = [];
+      syncDriver.messageController.add('Error : $ex');
+    }
+    setInProgress(false);
+  } // of outStandingPhotoCheck
 
-class ProgressForm extends StatefulWidget {
+  void processPhotos() async {
+    try {
+      setInProgress(true);
+      messages.add('Processing in progress. Please wait...');
+      await syncDriver.processList(latestFileList);
+      config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
+      await saveConfig(); // persist this run time so that we know how far back to go next time},
+      latestFileList = [];
+    } catch (ex) {
+      syncDriver.messageController.add('Error : $ex');
+    }
+    setInProgress(false);
+  } // of processPhotos
+
+} // of _HomePageState
+
+class ProgressForm2 extends StatefulWidget {
   @override
   _ProgressFormState createState() => _ProgressFormState();
 }
 
-class _ProgressFormState extends State<ProgressForm> {
+class _ProgressFormState extends State<ProgressForm2> {
   List<Object> allImage = new List();
 
   @override
