@@ -15,9 +15,10 @@ import 'wdgImageFilter.dart';
 import 'ImageEditorWidget.dart';
 import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
+import '../dart_common/ListProvider.dart';
 
 class PhotoGrid extends StatefulWidget {
-  final ImageFilter _initImageFilter;
+  final ListProvider<AopSnap> _initImageFilter;
 
   PhotoGrid(this._initImageFilter) {
 //    Log.message('PhotoGrid constructor by filter');
@@ -28,7 +29,7 @@ class PhotoGrid extends StatefulWidget {
 }
 
 class PhotoGridState extends State<PhotoGrid> {
-  ImageFilter _imageFilter;
+  ListProvider<AopSnap> _imageFilter;
   double _targetOffset = 0.0;
   ScrollController _scrollController = ScrollController();
   int zzz = 0;
@@ -53,10 +54,10 @@ class PhotoGridState extends State<PhotoGrid> {
 
   void selectAll({bool repaint:true}) {
     // Select All can Clear All
-    bool clearAll = (_selectedImages.length ==_imageFilter.images.length);
+    bool clearAll = (_selectedImages.length ==_imageFilter.items.length);
     _selectedImages = [];
     if (!clearAll) {
-      _imageFilter.images.forEach((AopSnap snap) {
+      _imageFilter.items.forEach((AopSnap snap) {
           _selectedImages.add(snap.fileName);
       });
     }
@@ -100,7 +101,7 @@ class PhotoGridState extends State<PhotoGrid> {
   void initState() {
     super.initState();
     _imageFilter = widget._initImageFilter;
-    _imageFilter.onRefresh = filterRefreshCallback;
+    _imageFilter.onRefreshed = filterRefreshCallback;
     //   Log.message('PhotoGrid copying initFilter');
   }
 
@@ -115,14 +116,14 @@ class PhotoGridState extends State<PhotoGrid> {
     });
   }
 
-  List<AopSnap> get onlySelectedSnaps => _imageFilter.images.where(isSelected).toList();
+  List<AopSnap> get onlySelectedSnaps => _imageFilter.items.where(isSelected).toList();
 
   void editorCallback(String caption, String location) {
     int updateCount = 0;
     if (caption == '' && location == '') return;
     setState(() {
-      for (int ix = 0; ix < _imageFilter.images.length; ix++) {
-        AopSnap thisImage = _imageFilter.images[ix];
+      for (int ix = 0; ix < _imageFilter.items.length; ix++) {
+        AopSnap thisImage = _imageFilter.items[ix];
         if (isSelected(thisImage)) {
           if (caption != '') thisImage.caption = caption;
           if (location != '') thisImage.location = location;
@@ -181,6 +182,7 @@ class PhotoGridState extends State<PhotoGrid> {
         ],
       ),
       body: new Column(children: <Widget>[
+        if (_imageFilter is ImageFilter)
         ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
         new Expanded(
           child: GridView.count(
@@ -194,11 +196,11 @@ class PhotoGridState extends State<PhotoGrid> {
             childAspectRatio: 1.0,
             //(orientation == Orientation.portrait) ? 1.0 : 1.3,
             children: [
-              if (_imageFilter.images != null)
-                for (int idx = 0; idx < _imageFilter.images.length; idx++)
+              if (_imageFilter.items != null)
+                for (int idx = 0; idx < _imageFilter.items.length; idx++)
                   PhotoTile(
-                      isSelected: isSelected(_imageFilter.images[idx]),
-                      snapList: _imageFilter.images,
+                      isSelected: isSelected(_imageFilter.items[idx]),
+                      snapList: _imageFilter.items,
                       index: idx,
                       inSelectMode: _inSelectMode,
                       highResolution: (_picsPerRow == 1),

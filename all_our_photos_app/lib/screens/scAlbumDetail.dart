@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
+import '../dart_common/ListProvider.dart';
 import '../widgets/wdgSnapGrid.dart';
+import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
 
@@ -16,10 +18,14 @@ class AlbumDetail extends StatefulWidget {
   _AlbumDetailState createState() => _AlbumDetailState();
 }
 
-class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
+class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
+    implements ListProvider<AopSnap>{
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   AopAlbum argAlbum;
   List<AopSnap> _list;
+  List<AopSnap> get items => _list;
+
+  CallBack onRefreshed;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +36,8 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
         key: scaffoldKey,
         appBar: buildBar(context),
 //        body: snapGrid(context, _list, this),
-        body: SsSnapGrid(_list, this, argAlbum),
+//        body: SsSnapGrid(_list, this, argAlbum),
+        body: PhotoGrid(this),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_a_photo),
           onPressed: () => handleAddAlbumItem(context),
@@ -189,6 +196,9 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int> {
         Log.message('${_list.length} album items loaded');
       });
     });
+    // if there is a listener, let then know
+    if (onRefreshed != null)
+      this.onRefreshed();
   } // of refreshList
 
   void showSnackBar(String message) {

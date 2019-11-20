@@ -5,18 +5,19 @@
 import 'shared/aopClasses.dart';
 import 'dart_common/DateUtil.dart';
 import 'dart_common/Logger.dart' as Log;
+import 'dart_common/ListProvider.dart';
 
-typedef ImageFilterAction = void Function();
-class ImageFilter {
+
+class ImageFilter implements ListProvider<AopSnap> {
 
   DateTime _fromDate = DateTime(1900);
   DateTime _toDate = DateTime(2030);
-  ImageFilterAction onRefresh;
+  CallBack onRefreshed;
   // by default only show ranks 2 and 3
   List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
   String _searchText = '';
   List<AopSnap> _images;
-  List<AopSnap> get images {
+  List<AopSnap> get items {
     checkImages();
     return _images;
   }
@@ -25,15 +26,15 @@ class ImageFilter {
   bool get refreshRequired => _refreshRequired;
 
   // two constructors
-  ImageFilter.dateRange(this._fromDate, this._toDate,{ImageFilterAction refresh}) {
-    onRefresh = refresh;
+  ImageFilter.dateRange(this._fromDate, this._toDate,{CallBack refresh}) {
+    onRefreshed = refresh;
     print('Image Filter - Date constructor $searchText');
   } // create with dateRange
 
-  ImageFilter.yearMonth(int year,int month,{ImageFilterAction refresh}) {
+  ImageFilter.yearMonth(int year,int month,{CallBack refresh}) {
     _fromDate = DateTime(year,month,1);
     _toDate = addMonths(_fromDate,1);
-    onRefresh = refresh;
+    onRefreshed = refresh;
     print('Image Filter - yearmonth constructor $searchText');
   }  // create with yearMonth
 
@@ -69,20 +70,6 @@ class ImageFilter {
     _rank[rankNo] = value;
   } // of setRank
 
-//  bool isWanted(AopSnap thisImage) {
-//    try {
-////      if (thisImage.deletedDate != null) return false;
-//      if (!_rank[thisImage.ranking]) return false;
-//      if (thisImage.takenDate == null || thisImage.takenDate.isBefore(_fromDate)) return false;
-//      if (thisImage.takenDate == null || thisImage.takenDate.isAfter(_toDate)) return false;
-//      if (_searchText.length > 0 )
-//        if ((thisImage.caption+' '+thisImage.location+' '+
-//            thisImage.tagList).toLowerCase().indexOf(_searchText)<0) return false;
-//      return true;
-//    } catch(ex) {
-//      return true;
-//    }
-//  } // isWanted
   Future<void> checkImages() async {
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
@@ -91,8 +78,8 @@ class ImageFilter {
     _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
     Log.message('returning ${_images.length} images');
-    if (onRefresh != null)  // alert listen of changes
-      onRefresh();
+    if (onRefreshed != null)  // alert listen of changes
+      onRefreshed();
   } // of calcImages
 
   String whereClause() {
