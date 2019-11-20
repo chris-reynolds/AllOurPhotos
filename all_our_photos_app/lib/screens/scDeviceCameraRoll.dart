@@ -10,6 +10,7 @@ import '../dart_common/Logger.dart' as Log;
 import '../dart_common/Geocoding.dart';
 import '../shared/aopClasses.dart';
 import '../shared/dbAllOurPhotos.dart';
+import '../dart_common/JpegLoader.dart';
 
 class CameraRollPage extends StatefulWidget {
   @override
@@ -94,6 +95,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
       child: snapshot.hasData ? snapshot.data : Text('loading..'),
     );
   } // thumbnails
+  
 
 
   Future<ByteData> thumbnail640(MIP.Asset anImage) {
@@ -179,7 +181,9 @@ class _CameraRollPageState extends State<CameraRollPage> {
       newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
       ByteData fullImageBytes = await anImage.getByteData(quality:100);
       ByteData thumbnailBytes = await thumbnail640(anImage);
-
+      List<int> fullImageInts = fullImageBytes.buffer.asUint32List().toList();
+      JpegLoader jpegLoader = JpegLoader();
+      await jpegLoader.extractTags(fullImageInts);
       newSnap.mediaLength = fullImageBytes.lengthInBytes;
 
       if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
@@ -192,7 +196,8 @@ class _CameraRollPageState extends State<CameraRollPage> {
         String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
         newSnap.trimSetLocation(location);
       }
-      String myMeta = jsonEncode(metaData.myJson);
+//      String myMeta = jsonEncode(metaData.myJson);
+      String myMeta = jsonEncode(jpegLoader.tags);
       await _uploadJpg(newSnap.thumbnailURL, bytes: thumbnailBytes);
       await _uploadJpg(newSnap.fullSizeURL, bytes: fullImageBytes);
       await _uploadJpg(newSnap.metadataURL, metaData: myMeta);
