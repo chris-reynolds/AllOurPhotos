@@ -47,7 +47,7 @@ class PhotoViewerWithRect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Building photoViewerWithRect');
+//    print('Building photoViewerWithRect');
     return PhotoView(
       imageProvider: NetworkImage(url),
       controller: pvc,

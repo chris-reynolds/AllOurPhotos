@@ -29,6 +29,13 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   AopAlbum maybeCurrentAlbum;
   final GlobalKey pvKey = GlobalKey();
   bool isPhotoScaled = false;
+  bool _isClippingInProgress = false;
+
+  void set isClippingInProgress(bool value) {
+    setState(() {
+      _isClippingInProgress = value;
+    });
+  }
 
   void _initParams() {
     List params = ModalRoute.of(context).settings.arguments;
@@ -134,6 +141,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                 style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
               ),
             ]),
+            if (_isClippingInProgress)
+              Center(child:CircularProgressIndicator()),
           ],
         ),
       ),
@@ -152,11 +161,19 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       showMessage(context, 'Nothing to do. \nZoom before clicking',
           title: 'Picture is all showing');
     else {
-      await snapCrop(
-          context,
-          snap,
-          (pvKey.currentWidget as PhotoViewerWithRect)
-              .currentRect(Size(0.0 + snap.width, 0.0 + snap.height)));
+      try {
+        isClippingInProgress = true;
+        await snapCrop(
+            context,
+            snap,
+            (pvKey.currentWidget as PhotoViewerWithRect)
+                .currentRect(Size(0.0 + snap.width, 0.0 + snap.height)));
+      } catch(ex,stack) {
+        showMessage(context, '$ex \n $stack', title: 'Failed to clip');
+      } finally {
+        isClippingInProgress = false;
+      } // of try
+//      Navigator.pop(context,{});
     }
   } // of cropMe
 
