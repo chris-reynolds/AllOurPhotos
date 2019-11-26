@@ -277,13 +277,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.6+3"
-  multi_image_picker:
-    dependency: "direct main"
-    description:
-      name: multi_image_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "4.5.9"
   multi_server_socket:
     dependency: transitive
     description:
@@ -540,7 +533,7 @@ packages:
       name: watcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.7+12"
+    version: "0.9.7+13"
   web_socket_channel:
     dependency: transitive
     description:
@@ -564,4 +557,4 @@ packages:
     version: "2.2.0"
 sdks:
   dart: ">=2.4.0 <3.0.0"
-  flutter: ">=1.7.8 <2.0.0"
+  flutter: ">=1.6.7 <2.0.0"

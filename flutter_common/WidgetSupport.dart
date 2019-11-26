@@ -7,6 +7,16 @@ Purpose: This file provides some utilities to make Flutter less verbose
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
+
+BottomNavigationBarItem bottomButton(String keyText, IconData valueIcon) =>
+    BottomNavigationBarItem(icon: new Icon(valueIcon), title: new Text(keyText));
+
+IconButton NavIconButton(BuildContext context,String routeName, IconData valueIcon) =>
+    IconButton(icon: new Icon(valueIcon),
+        tooltip: routeName,
+        onPressed: () async {Navigator.pushNamed(context, routeName); });
+
+
 /// WSValidator typedef is used to inject validators into a form definition
 typedef wsValidator = String Function(dynamic value);
 

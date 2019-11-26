@@ -3,7 +3,8 @@ import 'package:path_provider/path_provider.dart';
 import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
-import 'screens/scDeviceCameraRoll.dart';
+
+//import 'screens/scDeviceCameraRoll.dart.tmp';
 import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';
@@ -21,7 +22,7 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Nov04');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Nov23a');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -48,6 +49,8 @@ void main() async {
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
       'MetaEditor': (BuildContext context) => MetaEditorWidget(),
       'SinglePhoto': (BuildContext context) => SinglePhotoWidget(),
+      'Db Fix': (BuildContext context) => DbFixFormWidget(),
+      'testlog': (BuildContext context) => SearchList(),
     },
   );
   runApp(application);
@@ -67,6 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   PageController _pageController;
   int _page = 0;
+  bool _debugMode = false;
 
   @override
   void initState() {
@@ -103,27 +107,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(
-          widget.title,
-          style: new TextStyle(color: const Color(0xFFFFFFFF)),
-        ),
+        title: GestureDetector(
+            child: Text(
+              widget.title,
+              style: new TextStyle(color: const Color(0xFFFFFFFF)),
+            ),
+            onDoubleTap: () {
+              setState(() {
+                _debugMode = !_debugMode;
+              });
+            }),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () async {
-              if (await confirmYesNo(context, 'Do really want to log out?')) {
-                loginStateMachine.logout();
-                Navigator.pushNamed(context, 'login');
-              }
-            },
-          )
+          if (_debugMode)
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: () async {
+                if (await confirmYesNo(context, 'Do really want to log out?')) {
+                  loginStateMachine.logout();
+                  Navigator.pushNamed(context, 'login');
+                }
+              },
+            ),
+          if (_debugMode) NavIconButton(context, 'testlog', Icons.list),
+          if (_debugMode) NavIconButton(context, 'Db Fix', Icons.local_hospital),
         ],
       ),
       body: new PageView(
         children: [
           HistoryScreen("History"),
-//          new Home("Recent Pics"),
-          CameraRollPage(),
+//          AlbumList(), //CameraRollPage(),
           AlbumList(),
           SearchList(),
           DbFixFormWidget(),
@@ -139,10 +151,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: new BottomNavigationBar(
           items: [
             bottomButton('History', Icons.grid_on),
-            bottomButton('Recent Pics', Icons.camera_roll),
+            // TODO: Restore multi-image-picker when version 4.6 resolved
+//            bottomButton('Recent Pics', Icons.camera_roll),
             bottomButton('Albums', Icons.collections),
-            bottomButton('Testing', Icons.text_fields),
-            bottomButton('Db Fix',Icons.local_hospital),
           ],
           onTap: navigationTapped,
           currentIndex: _page,
@@ -150,7 +161,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-  BottomNavigationBarItem bottomButton(String keyText, IconData valueIcon) =>
-      BottomNavigationBarItem(icon: new Icon(valueIcon), title: new Text(keyText));
 }

@@ -40,3 +40,5 @@ all_our_photos_app/lib/aopAppMain.config.json
 *.JPG
 
 all_our_photos_app/ios/Flutter/flutter_export_environment.sh
+
+*.tmp
