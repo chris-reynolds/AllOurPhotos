@@ -6,12 +6,14 @@
 */
 
 import 'package:all_our_photos_app/dart_common/WebFile.dart';
+import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/TypeAheadTextField.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
 import '../flutter_common/WidgetSupport.dart';
+import '../flutter_common/ChipController.dart';
 import '../dart_common/DateUtil.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/WebFile.dart';
@@ -27,31 +29,35 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
   GlobalKey<AutoCompleteTextFieldState<String>> locationKey = GlobalKey();
   AopSnap snap;
   Map<String, dynamic> values = {};
-  List<String> chips = '+,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams'.split(',');
+  ChipSet _baseChips;
+  ChipSet _currentChips;
+
+  /* base plus any historic in this Snap */
   WebFile chipFile;
-  List<String> selectedChips;
+  ChipSet selectedChips;
   String currentLocationText;
   List<String> locationList = ['None'];
   TextEditingController locationTextController; // = TextEditingController(text: '');
   final _focusNode = FocusNode();
 
-  void selectChip(BuildContext context,String caption, bool selected) async {
-    if (caption == '+') {
-      String newChipText = await inputBox(context,'New Chip Text or (-text to delete a tag)');
-      if (newChipText != null && newChipText.length >0) {
-        if (newChipText.substring(0,1)=='-')  // delete item
-          chips.remove(newChipText.substring(1));
-        else if (chips.indexOf(newChipText)<0) {  // add if not already there
-          chips.add(newChipText);
-          selectedChips.add(newChipText);
-        }
-        chipFile.contents = chips.join(';');
-        if (! await saveWebFile(chipFile)){
-          showMessage(context, 'Failed to save names');
-        }
+  void selectChip(BuildContext context, String caption, bool selected) async {
+    if (caption == '+' || caption == '-') {
+      String prompt = (caption == '+') ? 'Add new' : 'Remove';
+      String newChipText = await inputBox(context, '$prompt Chip Text');
+      if (newChipText != null && newChipText.length > 0) {
+        if (caption == '-') {
+          // delete item
+          _baseChips.remove(newChipText);
+          _currentChips.remove(newChipText);
+        } else // if (_baseChips.indexOf(newChipText)<0) {  // add if not already there
+          _baseChips.add(newChipText);
+        selectedChips.add(newChipText);
+      }
+      if (!await ChipController.save(_baseChips)) {
+        showMessage(context, 'Failed to save names');
       }
     }
-    bool wasSelected = selectedChips.indexOf(caption) >= 0;
+    bool wasSelected = selectedChips.contains(caption);
     if (selected != wasSelected) // needs changing
     if (selected)
       selectedChips.add(caption);
@@ -70,15 +76,17 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
             TextSelection(baseOffset: 0, extentOffset: locationTextController.text.length);
       }
     });
-    loadWebFile('taglist.txt','+;Annie;Ben;Josie;J+K;E+M;Reynwars').then((thisWebFile){
-      chipFile = thisWebFile; // store so we can save changes
-      chips = chipFile.contents.split(';');
+    ChipController.remoteLocation = 'tagList.txt';
+    ChipController.enableLogging = true;
+    ChipController.load().then((chips) {
+      _baseChips = chips;
+      setState(() {});
     });
   }
 
   void initLocations() async {
     locationList.addAll(await AopSnap.distinctLocations);
-    setState(() {});
+    //   setState(() {});
   }
 
   String checkCaption(value) {
@@ -109,7 +117,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
     if (formKey.currentState.validate()) {
       snap.caption = values['caption'];
       snap.takenDate = values['taken_date'];
-      snap.tagList = selectedChips.join('#');
+      snap.tagList = selectedChips.toString();
       snap.ranking = values['ranking'];
       snap.location = values['location'];
       await snap.save();
@@ -119,14 +127,18 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_baseChips == null)
+      return CircularProgressIndicator();
     if (snap == null) {
       snap = ModalRoute.of(context).settings.arguments as AopSnap;
       values = snap.toMap();
       // remove time if it does not exist
       values['taken_date'] = formatDate(snap.takenDate, format: DATE_FORMAT);
       values['taken_date'] = values['taken_date']?.replaceAll(' 00:00:00', '');
-      selectedChips = values['tag_list']?.split('#');
+      selectedChips = ChipSet(values['tag_list']);
     } // of initial snap assignment
+    _currentChips = _baseChips;
+    _currentChips?.addAll(selectedChips);
     locationTextController = TextEditingController(text: values['location']);
     return Scaffold(
       appBar: AppBar(
@@ -163,7 +175,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
             ),
             TextFormField(
               decoration: InputDecoration(labelText: 'Date Taken'),
-              initialValue: values['taken_date'],
+              initialValue: values['taken_date'].toString(),
               keyboardType: TextInputType.datetime,
               validator: checkDate,
               maxLength: 20,
@@ -188,12 +200,12 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
               );
             }),
             Wrap(
-              children: chips.map((labelText) {
+              children: _currentChips.chips.map((labelText) {
                 return ChoiceChip(
                   label: Text(labelText),
-                  selected: selectedChips.indexOf(labelText) >= 0,
+                  selected: selectedChips.contains(labelText),
                   onSelected: (selected) {
-                    selectChip(context,labelText, selected);
+                    selectChip(context, labelText, selected);
                   },
                 );
               }).toList(),
