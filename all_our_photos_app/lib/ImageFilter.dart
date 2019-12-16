@@ -85,7 +85,7 @@ class ImageFilter implements ListProvider<AopSnap> {
   String whereClause() {
     String result = ' taken_date between \'${formatDate(_fromDate)}\' and \'${formatDate(_toDate)}\'';
      if (searchText != '') {
-       result += "and ((location) like '%$searchText%' or caption like '%$searchText%' or file_name like '%$searchText%') ";
+       result += "and ((location) like '%$searchText%' or caption like '%$searchText%' or file_name like '%$searchText%' or device_name like '%$searchText%')";
      }
      result += ' and ranking in (';
      for (int rankNo=1;rankNo<=3;rankNo++)
