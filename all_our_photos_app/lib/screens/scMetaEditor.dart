@@ -69,7 +69,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
   @override
   void initState() {
     super.initState();
-    initLocations();
+    _initLocations();
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         locationTextController.selection =
@@ -84,12 +84,12 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
     });
   }
 
-  void initLocations() async {
+  void _initLocations() async {
     locationList.addAll(await AopSnap.distinctLocations);
     //   setState(() {});
   }
 
-  String checkCaption(value) {
+  String _checkCaption(value) {
     if (value.length > 0 && value.length < 10)
       return "Caption needs 10 characters";
     else {
@@ -98,7 +98,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
     }
   } // of checkCaption
 
-  String checkDate(String value) {
+  String _checkDate(String value) {
     if (value.length < 5) value = '01/$value';
     if (value.length < 8) value = '01/$value';
     try {
@@ -109,7 +109,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
     }
   } // of checkDate
 
-  String checkLocation(value) {
+  String _checkLocation(value) {
     return "Todo checkLocation";
   } // of checkLocation
 
@@ -153,7 +153,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
               decoration: InputDecoration(labelText: 'caption'),
               initialValue: values['caption'],
               keyboardType: TextInputType.text,
-              validator: checkCaption,
+              validator: _checkCaption,
               maxLength: 100,
             ),
             TypeAheadTextField(
@@ -177,7 +177,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
               decoration: InputDecoration(labelText: 'Date Taken'),
               initialValue: values['taken_date'].toString(),
               keyboardType: TextInputType.datetime,
-              validator: checkDate,
+              validator: _checkDate,
               maxLength: 20,
             ),
             FormField(builder: (context) {
