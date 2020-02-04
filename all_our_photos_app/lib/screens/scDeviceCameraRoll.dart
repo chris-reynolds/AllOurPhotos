@@ -20,8 +20,16 @@ class CameraRollPage extends StatefulWidget {
 class _CameraRollPageState extends State<CameraRollPage> {
   int _imagesToUpload = 0;
   int _skipCount = 0;
+  bool _uploadInProgress = false;
+  String _endText = '';
   List<MIP.Asset> _images = [];
   GeocodingSession _geo = GeocodingSession();
+
+  bool inProgress(bool newValue) {
+    setState(() {
+      _uploadInProgress = newValue;
+    });
+  }
 
   Future<void> _uploadJpg(String urlString, {ByteData bytes, String metaData}) async {
     var postUri = Uri.parse(urlString);
@@ -50,7 +58,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
               icon: Icon(Icons.add_a_photo),
               onPressed: getDeviceCameraRoll,
             ),
-            if (_images.length > 0)
+            if (_images.length > 0 && !_uploadInProgress)
               IconButton(
                 icon: Icon(Icons.file_upload),
                 onPressed: uploader,
@@ -59,15 +67,22 @@ class _CameraRollPageState extends State<CameraRollPage> {
         ),
         body: Center(
             child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             if (_images.length > 0)
               Text('Photos to upload $_imagesToUpload', style: TextStyle(fontSize: 30)),
-            if (_skipCount > 0) Text('Skipped Photos  $_skipCount', style: TextStyle(fontSize: 20)),
+            Text(' '),
+            if (_skipCount > 0  || _uploadInProgress) Text('Skipped Photos  $_skipCount', style: TextStyle(fontSize: 30)),
+            Text('  '),
+            if (_images.length > 0 && !_uploadInProgress)
+              RaisedButton(child: Text('Upload Now'), onPressed: uploader),
+            Text(_endText, style: TextStyle(fontSize: 30)),
           ],
         ))); // scaffold
   } // of build
 
   Future<void> getDeviceCameraRoll() async {
+    _endText = '';
     var images = await MIP.MultiImagePicker.pickImages(maxImages: 1000);
     setState(() {
       _images = images;
@@ -95,18 +110,19 @@ class _CameraRollPageState extends State<CameraRollPage> {
       child: snapshot.hasData ? snapshot.data : Text('loading..'),
     );
   } // thumbnails
-  
-
 
   Future<ByteData> thumbnail640(MIP.Asset anImage) {
     double scale = anImage.isLandscape ? 640 / anImage.originalWidth : 640 / anImage.originalHeight;
     return anImage.getThumbByteData(
-        (anImage.originalWidth * scale).floor(), (anImage.originalHeight * scale).floor(),quality: 30);
+        (anImage.originalWidth * scale).floor(), (anImage.originalHeight * scale).floor(),
+        quality: 30);
   } // thumbnail640
 
   void uploader() async {
     bool success;
     Log.message('uploader start');
+    _endText = 'Please wait';
+    inProgress(true);
     for (int imageIx = 0; imageIx < _images.length; imageIx++) {
       try {
         var db = DbAllOurPhotos();
@@ -127,6 +143,8 @@ class _CameraRollPageState extends State<CameraRollPage> {
     setState(() {
       _images = [];
       _imagesToUpload = 0;
+      _uploadInProgress = false;
+      _endText = 'UpLoad Finished';
     });
   } // of uploader
 
@@ -179,7 +197,7 @@ class _CameraRollPageState extends State<CameraRollPage> {
 
       newSnap.originalTakenDate = newSnap.takenDate;
       newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
-      ByteData fullImageBytes = await anImage.getByteData(quality:100);
+      ByteData fullImageBytes = await anImage.getByteData(quality: 100);
       ByteData thumbnailBytes = await thumbnail640(anImage);
       List<int> fullImageInts = fullImageBytes.buffer.asUint32List().toList();
       JpegLoader jpegLoader = JpegLoader();
@@ -209,6 +227,5 @@ class _CameraRollPageState extends State<CameraRollPage> {
       return false;
     } // of try
   } // of uploadImage
-
 
 }

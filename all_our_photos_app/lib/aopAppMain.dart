@@ -4,7 +4,7 @@ import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
 
-//import 'screens/scDeviceCameraRoll.dart.tmp';
+import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';
@@ -22,7 +22,7 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Nov23a');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Feb04');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -47,6 +47,7 @@ void main() async {
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
+      'Camera Roll': (BuildContext context) => CameraRollPage(),
       'MetaEditor': (BuildContext context) => MetaEditorWidget(),
       'SinglePhoto': (BuildContext context) => SinglePhotoWidget(),
       'Db Fix': (BuildContext context) => DbFixFormWidget(),
@@ -135,8 +136,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: new PageView(
         children: [
           HistoryScreen("History"),
-//          AlbumList(), //CameraRollPage(),
+//          AlbumList(),
           AlbumList(),
+          CameraRollPage(),
           SearchList(),
           DbFixFormWidget(),
         ],
@@ -152,8 +154,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           items: [
             bottomButton('History', Icons.grid_on),
             // TODO: Restore multi-image-picker when version 4.6 resolved
-//            bottomButton('Recent Pics', Icons.camera_roll),
             bottomButton('Albums', Icons.collections),
+            bottomButton('Camera Roll', Icons.camera_roll),
           ],
           onTap: navigationTapped,
           currentIndex: _page,
