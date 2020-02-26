@@ -22,7 +22,7 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos v1.Feb04');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos 05Feb20.v1');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -153,7 +153,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: new BottomNavigationBar(
           items: [
             bottomButton('History', Icons.grid_on),
-            // TODO: Restore multi-image-picker when version 4.6 resolved
             bottomButton('Albums', Icons.collections),
             bottomButton('Camera Roll', Icons.camera_roll),
           ],

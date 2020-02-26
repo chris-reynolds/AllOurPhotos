@@ -8,7 +8,6 @@ MySqlConnection dbConn;
 class DbAllOurPhotos {
   static Map _lastConfig;
   Future<int> initConnection(Map config) async {
-    //todo : get db connection/session parameters from local storage
     if (dbConn==null ) {
       dbConn = await MySqlConnection.connect(new ConnectionSettings(
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
