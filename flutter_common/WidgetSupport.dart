@@ -25,7 +25,7 @@ Widget wsTextField(String promptText, {String key, double spacer, dynamic initVa
       key: Key(key),
       padding: EdgeInsets.fromLTRB(0, spacer ?? 12, 0, 0),
       child: FormBuilderTextField(
-        attribute: key,
+        attribute: key, maxLines: 1,
         decoration: InputDecoration(
           labelText: promptText,
           contentPadding: EdgeInsets.fromLTRB(0, spacer ?? 12, 0, 0),
