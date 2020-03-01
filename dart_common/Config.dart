@@ -19,7 +19,7 @@ Future<void> loadConfig([String commandLineFilename]) async {
 //    actualFilename = Path.join((await getApplicationDocumentsDirectory()).path,actualFilename); todo restore
   if (!FileSystemEntity.isFileSync(actualFilename)) {
     Log.message('Invalid configuration name $actualFilename');
-    config = {'dbname':'127.0.0.1','dbport':'3306'};
+    config = {'dbname':'allourphotos_dev','dbport':'3306'};
   } else {
     String configContents = File(actualFilename).readAsStringSync(encoding: utf8);
     try {
