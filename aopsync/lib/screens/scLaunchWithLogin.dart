@@ -6,6 +6,7 @@
 */
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import '../authentication_state.dart';
@@ -21,12 +22,13 @@ class LaunchWithLogin extends StatelessWidget {
 
   Future<void> initConfig() async {
     String localDocs = (await getApplicationDocumentsDirectory()).path;
+    Log.message('localdocs from $localDocs');
+    if (!Platform.isIOS) {
+      String extStorage = (await getExternalStorageDirectory()).path;
+      Log.message('external storage is $extStorage');
+    }
     await loadConfig(localDocs + '/aopPhoneSync.config.json');
     Log.message('loaded config from $localDocs');
-    String extStorage = (await getExternalStorageDirectory()).path;
-    Log.message('external storage is $extStorage');
-  //  String libPath = (await getLibraryDirectory()).path;
-  //  Log.message('library is $libPath');
   } // of initConfig
 
   void tryLogin() async {

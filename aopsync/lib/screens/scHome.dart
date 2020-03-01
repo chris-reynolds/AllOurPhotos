@@ -10,13 +10,14 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:image_gallery/image_gallery.dart';
 
 //import 'package:path_provider/path_provider.dart';
 import '../dart_common/Config.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../SyncDriver.dart';
 import '../dart_common/DateUtil.dart';
+import '../IosGallery.dart';
+import 'MultiGallerySelectPage.dart';
 
 const LAST_RUN = 'last_run';
 
@@ -35,12 +36,19 @@ class _HomePageState extends State<HomePage> {
   DateTime thisRunTime;
   bool _selectAll = false;
   bool _inProgress = false;
+  var iosGallery = IosGallery(); // do nothing yet
   SyncDriver syncDriver;
 
+  int get photoCount {
+    if (Platform.isIOS)
+      return iosGallery.count;
+    else
+      return latestFileList.length;
+  } // of photoCount
   void setInProgress(bool value) {
-    _inProgress = value;
-//    messages.add('');
-    setState(() {});
+    setState(() {
+      _inProgress = value;
+    });
   } // of setInProgress
 
   String prettyDate(DateTime aDate) {
@@ -61,7 +69,7 @@ class _HomePageState extends State<HomePage> {
     Log.message('Home builder');
     return //(1==1)?ProgressForm():
         Scaffold(
-            appBar: AppBar(title: Text('AllOurPhoto Upload 9Nov'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AllOurPhoto Upload 28Feb'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.select_all),
                 onPressed: _toogleSelectAll,
@@ -91,6 +99,7 @@ class _HomePageState extends State<HomePage> {
                               RaisedButton(
                                 child: Text('Check for Photos'),
                                 onPressed: () {
+                                  setInProgress(true);
                                   outStandingPhotoCheck();
                                 },
                               ), // of raisedButton
@@ -106,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Spacer(),
-                            if (latestFileList.length > 0 && !_inProgress)
+                            if (photoCount > 0 && !_inProgress)
                               RaisedButton(
                                   child: Text('Process Photos'),
                                   onPressed: processPhotos), // of raisedButton
@@ -134,7 +143,9 @@ class _HomePageState extends State<HomePage> {
       lastRunTime = DateTime(1900, 1, 1);
       _selectAll = true;
     }
-    syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
+    if (!Platform.isIOS) {
+      syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
+    }
     super.initState();
   }
 
@@ -143,8 +154,12 @@ class _HomePageState extends State<HomePage> {
       messages.add('loading photos...');
       thisRunTime = DateTime.now();
       setInProgress(true);
-      latestFileList = await syncDriver.loadFileList(allPhotos: _selectAll);
-      messages.add('I found ${latestFileList.length} photos');
+      if (Platform.isIOS) {
+        await iosGallery.loadFrom(!_selectAll ? lastRunTime : DateTime(1900, 1, 1));
+      } else {
+        latestFileList = await syncDriver.loadFileList(allPhotos: _selectAll);
+      }
+      messages.add('I found ${photoCount} photos');
     } catch (ex) {
       latestFileList = [];
       syncDriver.messageController.add('Error : $ex');
@@ -156,7 +171,14 @@ class _HomePageState extends State<HomePage> {
     try {
       setInProgress(true);
       messages.add('Processing in progress. Please wait...');
-      await syncDriver.processList(latestFileList);
+      if (Platform.isIOS) {
+        for (int i=0;i<iosGallery.count;i++) {
+          GalleryItem item = await iosGallery[i];
+          print(item.safeFilename);
+        }
+      } else {
+        await syncDriver.processList(latestFileList);
+      }
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];
@@ -168,61 +190,4 @@ class _HomePageState extends State<HomePage> {
 
 } // of _HomePageState
 
-class ProgressForm2 extends StatefulWidget {
-  @override
-  _ProgressFormState createState() => _ProgressFormState();
-}
 
-class _ProgressFormState extends State<ProgressForm2> {
-  List<Object> allImage = new List();
-
-  @override
-  void initState() {
-    super.initState();
-    loadImageList();
-  }
-
-  Future<void> loadImageList() async {
-    List allImageTemp;
-    allImageTemp = await FlutterGallaryPlugin.getAllImages;
-    for (String fileName in allImageTemp) {
-      File aFile = File(fileName);
-      FileStat stat = aFile.statSync();
-      print(stat.modified);
-    }
-    setState(() {
-      this.allImage = allImageTemp;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: Text('AOP PhoneSync'),
-      ),
-      body: _buildGrid(),
-    );
-  }
-
-  Widget _buildGrid() {
-    return GridView.extent(
-        maxCrossAxisExtent: 150.0,
-        // padding: const EdgeInsets.all(4.0),
-        mainAxisSpacing: 4.0,
-        crossAxisSpacing: 4.0,
-        children: _buildGridTileList(allImage.length));
-  }
-
-  List<Container> _buildGridTileList(int count) {
-    return List<Container>.generate(
-        count,
-        (int index) => Container(
-                child: Image.file(
-              File(allImage[index].toString()),
-              width: 96.0,
-              height: 96.0,
-              fit: BoxFit.contain,
-            )));
-  }
-}
