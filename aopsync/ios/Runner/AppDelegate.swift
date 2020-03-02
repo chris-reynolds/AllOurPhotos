@@ -48,6 +48,7 @@ import Photos
              "location": location
         ])
       })
+      case "clearCollection" : result(self.clearCollection())
       case "getItemCount": result(self.getGalleryImageCount())
       case "getCountFromDate":
          NSLog("get Count from Date")
@@ -108,6 +109,11 @@ func dataForGalleryItem(index: Int, completion: @escaping (Data?, String, Int, S
         NSLog("\nFetching from \(myDate)")
         gCollection = PHAsset.fetchAssets(with: fetchOptions)
         return gCollection?.count ?? 0
+    }
+
+    func clearCollection() -> Int {
+        gCollection = nil;
+      return 1;
     }
 
 }

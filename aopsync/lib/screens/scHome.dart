@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   DateTime thisRunTime;
   bool _selectAll = false;
   bool _inProgress = false;
+  double _progressValue  = 0.0;
   var iosGallery = IosGallery(); // do nothing yet
   SyncDriver syncDriver;
 
@@ -45,15 +46,21 @@ class _HomePageState extends State<HomePage> {
     else
       return latestFileList.length;
   } // of photoCount
+
   void setInProgress(bool value) {
     setState(() {
       _inProgress = value;
     });
   } // of setInProgress
 
+  void updateProgressVar(int current,int max) {
+    setState(() {
+      _progressValue = max>0 ? current/max : 0;
+    });
+  }
   String prettyDate(DateTime aDate) {
     if (aDate.isAfter(DateTime(1900,0,0)))
-      return formatDate(aDate,format:'dd mmm yyyy');
+      return formatDate(aDate,format:'dd mmm yyyy hh:nn');
     else
       return 'Never';
   }
@@ -95,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                                 'Last run: ${prettyDate(lastRunTime)}   ${_selectAll ? 'but all Selected' : ''}'),
                             Spacer(),
 
- //                           if (!_inProgress)
+                            if (!_inProgress)
                               RaisedButton(
                                 child: Text('Check for Photos'),
                                 onPressed: () {
@@ -104,6 +111,7 @@ class _HomePageState extends State<HomePage> {
                                 },
                               ), // of raisedButton
                             Spacer(),
+                            if (messageSnapshot.data.length>0)
                             Container(
                               margin: const EdgeInsets.all(15.0),
                               padding: const EdgeInsets.all(15.0),
@@ -119,7 +127,11 @@ class _HomePageState extends State<HomePage> {
                               RaisedButton(
                                   child: Text('Process Photos'),
                                   onPressed: processPhotos), // of raisedButton
-
+                            if (_inProgress)
+                              Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: LinearProgressIndicator(value: _progressValue),
+                              ),
                             Spacer(
                               flex: 3,
                             )
@@ -143,9 +155,9 @@ class _HomePageState extends State<HomePage> {
       lastRunTime = DateTime(1900, 1, 1);
       _selectAll = true;
     }
-    if (!Platform.isIOS) {
+//    if (!Platform.isIOS) {
       syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
-    }
+//    }
     super.initState();
   }
 
@@ -159,25 +171,58 @@ class _HomePageState extends State<HomePage> {
       } else {
         latestFileList = await syncDriver.loadFileList(allPhotos: _selectAll);
       }
-      messages.add('I found ${photoCount} photos');
+      messages.add('I found $photoCount photos');
     } catch (ex) {
       latestFileList = [];
       syncDriver.messageController.add('Error : $ex');
     }
     setInProgress(false);
   } // of outStandingPhotoCheck
+  Future<void> processPhotos() async {
+    if (Platform.isIOS)
+      await processIOSImages();
+    else
+      await processFilePhotos();
+  }
 
-  void processPhotos() async {
+  Future<void> processFilePhotos() async {
     try {
       setInProgress(true);
       messages.add('Processing in progress. Please wait...');
+        await syncDriver.processList(latestFileList);
+        messages.add('File processing completed');
+      config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
+      await saveConfig(); // persist this run time so that we know how far back to go next time},
+      latestFileList = [];
+    } catch (ex) {
+      syncDriver.messageController.add('Error : $ex');
+    }
+    setInProgress(false);
+  } // of processFilePhotos
+
+  Future<void> processIOSImages() async {
+    int errCount=0,dupCount=0,upLoadCount = 0;
+    try {
+      setInProgress(true);
+      messages.add('IOS Processing in progress. Please wait...');
       if (Platform.isIOS) {
         for (int i=0;i<iosGallery.count;i++) {
           GalleryItem item = await iosGallery[i];
+          switch (await syncDriver.uploadImage(item.safeFilename, item.createdDate, item.data)) {
+            case true: upLoadCount++; break;
+            case false: errCount++; break;
+            default: dupCount++; break;
+          } // of switch
+          messages.add('Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount} '+
+              'Remaining ${iosGallery.count-i-1}');
+          updateProgressVar(i+1, iosGallery.count);
           print(item.safeFilename);
         }
+        iosGallery.clearCollection();
+        messages.add('Processing completed');
       } else {
         await syncDriver.processList(latestFileList);
+        messages.add('File processing completed');
       }
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
@@ -186,7 +231,7 @@ class _HomePageState extends State<HomePage> {
       syncDriver.messageController.add('Error : $ex');
     }
     setInProgress(false);
-  } // of processPhotos
+  } // of processIOSImages
 
 } // of _HomePageState
 

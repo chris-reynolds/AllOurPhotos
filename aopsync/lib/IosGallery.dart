@@ -6,6 +6,7 @@
 */
 
 import 'dart:typed_data';
+import 'dart_common/DateUtil.dart';
 import 'package:flutter/services.dart';
 
 
@@ -20,7 +21,9 @@ class GalleryItem {
   String get safeFilename {
     String temp = id.replaceAll('/', '_');
     temp = temp.replaceAll('\'', '-');
-    if (temp.length > 20) temp = temp.substring(temp.length - 19);
+    if (temp.length > 30 && !temp.contains('.')) {
+      temp = 'ios'+formatDate(createdDate,format:'yyyymmdd_hhnnss')+'.jpg';
+    }
     if (!temp.contains('.')) temp = temp + '.jpg';
     return temp;
   } // safe_id
@@ -42,7 +45,8 @@ class IosGallery {
     if (index < 0 || index >= count) return null;
     var channelResponse = await _channel.invokeMethod("getItem", index);
     var dict = Map<String, dynamic>.from(channelResponse);
-    var galleryItem = GalleryItem(dict['data'], dict['id'], fromSwiftDate(dict['created']));
+    var createdDate = fromSwiftDate(dict['created']);
+    var galleryItem = GalleryItem(dict['data'], dict['id'], createdDate );
     print('loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
     return galleryItem;
   }
@@ -58,5 +62,10 @@ class IosGallery {
     DateTime baseDate = DateTime(1970);
     Duration d = thisDate.difference(baseDate);
     return d.inSeconds;
+  }
+
+  void clearCollection() async {
+    count = 0;
+    await _channel.invokeMethod<int>('clearCollection');
   }
 } // of IosGallery

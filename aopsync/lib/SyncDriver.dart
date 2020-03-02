@@ -58,7 +58,7 @@ class SyncDriver {
     return result; // finished the where filter
   } // loadFileList
 
-  void processList(List<FileSystemEntity> fileList) async {
+  Future<void> processList(List<FileSystemEntity> fileList) async {
     Log.message('Start processing ${fileList.length} pictures');
     String fullPath;
     int sofar = 0;
@@ -66,7 +66,7 @@ class SyncDriver {
       try {
       sofar += 1;
         fullPath = (fse as File).path;
-        if (await uploadImage(fse as File)) {
+        if (await uploadImageFile(fse as File)) {
           Log.message('$fullPath uploaded OK');
           messageController.add('$fullPath done  ${sofar} of ${fileList.length}');
         } else {
@@ -79,12 +79,17 @@ class SyncDriver {
     messageController.add('Processed-complete');
   } // of processList
 
-  Future<bool> uploadImage(File thisPicFile) async {
+  Future<bool> uploadImageFile(File thisPicFile) async {
+    FileStat thisPicStats = thisPicFile.statSync();
+    List<int> fileContents = thisPicFile.readAsBytesSync();
+    String imageName = fileName(thisPicFile.path);
+    return await uploadImage(imageName,thisPicStats.modified,fileContents);
+  }
+    Future<bool> uploadImage(String imageName, DateTime createdDate, List<int> fileContents) async {
     try {
-      FileStat thisPicStats = thisPicFile.statSync();
-      List<int> fileContents = thisPicFile.readAsBytesSync();
       Image thisImage = decodeImage(fileContents);
-      String imageName = fileName(thisPicFile.path);
+      List<int> jpeg = encodeJpg(thisImage, quality: 100);
+      int imageSize = jpeg.length; // decode/encode seems to be the only way to get reliable length
       Log.message('uploading $imageName');
       GeocodingSession _geo = GeocodingSession();
       JpegLoader jpegLoader = JpegLoader();
@@ -102,18 +107,18 @@ class SyncDriver {
 ////      print('Running on ${iosInfo.utsname.machine}');  // e.g. "iPod7,1"
 //      }
 
-      DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal'));
+      DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ?? createdDate;
 
       bool alReadyExists =
-          await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, thisImage.length, imageName,deviceName);
-      if (alReadyExists) return false;
+          await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName,deviceName);
+      if (alReadyExists) return null;
       AopSnap newSnap = AopSnap()
         ..fileName = imageName
         ..directory = '1982-01'
         ..width = thisImage.width
         ..height = thisImage.height
         ..takenDate = takenDate
-        ..modifiedDate = thisPicStats.modified
+        ..modifiedDate = createdDate
         ..deviceName = deviceName
         ..rotation = '0' // todo support enumeration
         ..importSource = deviceName
@@ -126,7 +131,7 @@ class SyncDriver {
       newSnap.originalTakenDate = newSnap.takenDate;
       newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
       // checkl for duplicate
-      newSnap.mediaLength = thisImage.length;
+      newSnap.mediaLength = imageSize;
       if (jpegLoader.tag("GPSLatitudeRef") != null) {
         newSnap.latitude =
             jpegLoader.dmsToDeg(jpegLoader.tag('GPSLatitude'), jpegLoader.tag('GPSLatitudeRef'));
@@ -140,9 +145,10 @@ class SyncDriver {
 
       if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
         if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength))
-          return false;
+          return null;
       } else {
-        if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) return false;
+        if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength))
+          return null;
       }
       String myMeta = jsonEncode(jpegLoader.tags);
       Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
@@ -153,7 +159,7 @@ class SyncDriver {
       await newSnap.save();
       return true;
     } catch (ex) {
-      Log.error('Failed save for ${thisPicFile.path} - $ex');
+      Log.error('Failed save for ${imageName} - $ex');
       return false;
     } // of try
   } // of uploadImage
