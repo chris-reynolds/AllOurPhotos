@@ -175,9 +175,9 @@ packages:
   mysql1:
     dependency: "direct main"
     description:
-      name: mysql1
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "../../mysql1_dart"
+      relative: true
+    source: path
     version: "0.17.1"
   path:
     dependency: transitive

@@ -19,7 +19,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  mysql1:  ^0.17.0+1
+  mysql1:
+    path: ../../mysql1_dart
   exifdart: ^0.7.0+3
   flutter_form_builder: ^3.5.4
   path_provider: ^1.6.1

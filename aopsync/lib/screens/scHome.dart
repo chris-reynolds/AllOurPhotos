@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
   DateTime thisRunTime;
   bool _selectAll = false;
   bool _inProgress = false;
-  double _progressValue  = 0.0;
+  double _progressValue = 0.0;
   var iosGallery = IosGallery(); // do nothing yet
   SyncDriver syncDriver;
 
@@ -53,17 +53,19 @@ class _HomePageState extends State<HomePage> {
     });
   } // of setInProgress
 
-  void updateProgressVar(int current,int max) {
+  void updateProgressVar(int current, int max) {
     setState(() {
-      _progressValue = max>0 ? current/max : 0;
+      _progressValue = max > 0 ? current / max : 0;
     });
   }
+
   String prettyDate(DateTime aDate) {
-    if (aDate.isAfter(DateTime(1900,0,0)))
-      return formatDate(aDate,format:'dd mmm yyyy hh:nn');
+    if (aDate.isAfter(DateTime(1900, 0, 0)))
+      return formatDate(aDate, format: 'dd mmm yyyy hh:nn');
     else
       return 'Never';
   }
+
   StreamController<String> get messages => syncDriver.messageController;
 
   void _toogleSelectAll() {
@@ -76,7 +78,7 @@ class _HomePageState extends State<HomePage> {
     Log.message('Home builder');
     return //(1==1)?ProgressForm():
         Scaffold(
-            appBar: AppBar(title: Text('AllOurPhoto Upload 28Feb'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AllOurPhoto Upload 4Mar20'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.select_all),
                 onPressed: _toogleSelectAll,
@@ -111,17 +113,17 @@ class _HomePageState extends State<HomePage> {
                                 },
                               ), // of raisedButton
                             Spacer(),
-                            if (messageSnapshot.data.length>0)
-                            Container(
-                              margin: const EdgeInsets.all(15.0),
-                              padding: const EdgeInsets.all(15.0),
-                              decoration:
-                                  BoxDecoration(border: Border.all(color: Colors.blueAccent)),
-                              child: Text(
-                                messageSnapshot.data,
-                                maxLines: 6,
+                            if (messageSnapshot.data.length > 0)
+                              Container(
+                                margin: const EdgeInsets.all(15.0),
+                                padding: const EdgeInsets.all(15.0),
+                                decoration:
+                                    BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+                                child: Text(
+                                  messageSnapshot.data,
+                                  maxLines: 6,
+                                ),
                               ),
-                            ),
                             Spacer(),
                             if (photoCount > 0 && !_inProgress)
                               RaisedButton(
@@ -156,7 +158,7 @@ class _HomePageState extends State<HomePage> {
       _selectAll = true;
     }
 //    if (!Platform.isIOS) {
-      syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
+    syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
 //    }
     super.initState();
   }
@@ -178,6 +180,7 @@ class _HomePageState extends State<HomePage> {
     }
     setInProgress(false);
   } // of outStandingPhotoCheck
+
   Future<void> processPhotos() async {
     if (Platform.isIOS)
       await processIOSImages();
@@ -186,11 +189,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> processFilePhotos() async {
+    int errCount = 0, dupCount = 0, upLoadCount = 0;
     try {
       setInProgress(true);
-      messages.add('Processing in progress. Please wait...');
-        await syncDriver.processList(latestFileList);
-        messages.add('File processing completed');
+      messages.add('File Processing in progress. Please wait...');
+      for (int i = 0; i < latestFileList.length; i++) {
+        FileSystemEntity item = latestFileList[i];
+        switch (await syncDriver.uploadImageFile(item)) {
+          case true:
+            upLoadCount++;
+            break;
+          case false:
+            errCount++;
+            break;
+          default:
+            dupCount++;
+            break;
+        } // of switch
+        messages.add('Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount} ' +
+            'Remaining ${latestFileList.length - i - 1}');
+        updateProgressVar(i + 1, latestFileList.length);
+        print(item.path);
+      }
+      iosGallery.clearCollection();
+      messages.add('Processing completed');
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];
@@ -201,29 +223,30 @@ class _HomePageState extends State<HomePage> {
   } // of processFilePhotos
 
   Future<void> processIOSImages() async {
-    int errCount=0,dupCount=0,upLoadCount = 0;
+    int errCount = 0, dupCount = 0, upLoadCount = 0;
     try {
       setInProgress(true);
       messages.add('IOS Processing in progress. Please wait...');
-      if (Platform.isIOS) {
-        for (int i=0;i<iosGallery.count;i++) {
-          GalleryItem item = await iosGallery[i];
-          switch (await syncDriver.uploadImage(item.safeFilename, item.createdDate, item.data)) {
-            case true: upLoadCount++; break;
-            case false: errCount++; break;
-            default: dupCount++; break;
-          } // of switch
-          messages.add('Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount} '+
-              'Remaining ${iosGallery.count-i-1}');
-          updateProgressVar(i+1, iosGallery.count);
-          print(item.safeFilename);
-        }
-        iosGallery.clearCollection();
-        messages.add('Processing completed');
-      } else {
-        await syncDriver.processList(latestFileList);
-        messages.add('File processing completed');
+      for (int i = 0; i < iosGallery.count; i++) {
+        GalleryItem item = await iosGallery[i];
+        switch (await syncDriver.uploadImage(item.safeFilename, item.createdDate, item.data)) {
+          case true:
+            upLoadCount++;
+            break;
+          case false:
+            errCount++;
+            break;
+          default:
+            dupCount++;
+            break;
+        } // of switch
+        messages.add('Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount} ' +
+            'Remaining ${iosGallery.count - i - 1}');
+        updateProgressVar(i + 1, iosGallery.count);
+        print(item.safeFilename);
       }
+      iosGallery.clearCollection();
+      messages.add('Processing completed');
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];
@@ -234,5 +257,3 @@ class _HomePageState extends State<HomePage> {
   } // of processIOSImages
 
 } // of _HomePageState
-
-

@@ -516,6 +516,8 @@ Map<String,dynamic> toMap() {
     try {
       fld = 'fileName';
       this.fileName = row[4];
+//      if (this.fileName.contains('ios'))
+//        print('this one');
       fld = 'directory';
       this.directory = row[5];
       fld = 'takenDate';
