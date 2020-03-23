@@ -3,11 +3,14 @@
 Purpose: This will show the details of a single album
 
 */
+import 'dart:io';
 import 'package:flutter/material.dart';
+//import 'package:image/image.dart';
 import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
 import '../dart_common/ListProvider.dart';
+import '../dart_common/WebFile.dart';
 import '../widgets/wdgSnapGrid.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
@@ -55,6 +58,15 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
               icon: Icon(Icons.edit),
               onPressed: () {
                 handleRenameAlbum(context).then((xx) {
+                  setState(() {});
+                });
+              },
+            ),
+            if (Platform.isMacOS)
+            new IconButton(
+              icon: Icon(Icons.file_download),
+              onPressed: () {
+                handleDownload(context).then((xx) {
                   setState(() {});
                 });
               },
@@ -118,9 +130,24 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
     });
   } // of handleAddAlbumItem
 
-//  void handleDelete() async {
-//    // todo : await sho
-//  } // of handleDelete
+  Future<void> handleDownload(BuildContext context) async {
+    List<AopSnap> snaps = await argAlbum.snaps;
+    String dirName = '${Platform.environment['HOME']}/Downloads/';
+    String albumName = argAlbum.name.replaceAll('/','-').replaceAll('\\','-').replaceAll(' ', '');
+    if (albumName.length > 20)
+      albumName = albumName.substring(0,19);
+    dirName += albumName+'/';
+    if (!Directory(dirName).existsSync())
+      Directory(dirName).createSync();
+    // make directory in downloads
+     for (int snapIx=0; snapIx< snaps.length; snapIx++) {
+      showSnackBar('${snaps.length-snapIx} photos to download');
+      String sourceURL = snaps[snapIx].fullSizeURL;
+      List<int> imgBytes = await loadWebBinary(sourceURL);
+      File(dirName+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
+    }
+    showSnackBar('Download complete. See your downloads directory');
+  } // of handleDownload
 
   Future<void> moveToAnotherAlbum(BuildContext context) async {
     List<AopAlbum> allAlbums = await AopAlbum.all();

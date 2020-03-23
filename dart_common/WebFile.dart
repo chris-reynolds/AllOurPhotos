@@ -71,7 +71,7 @@ Future<bool> saveWebFile(WebFile webFile, {bool silent = true}) async {
   return true;
 } // of saveWebFile
 
-Future<Image> loadWebImage(String url) async {
+Future<List<int>> loadWebBinary(String url) async {
   if (!url.contains('http:')) url = rootUrl + '/' + url;
   final uri = Uri.parse(url);
   var httpClient = HttpClient();
@@ -92,9 +92,34 @@ Future<Image> loadWebImage(String url) async {
       download.addAll(chunk);
     });
   });
-  Image result = decodeImage(download);
-  return result;
-}
+  return download;
+} // of loadWebBinary
+
+Future<Image> loadWebImage(String url) async => decodeImage(await loadWebBinary(url));
+//Future<Image> loadWebImage(String url) async {
+//  if (!url.contains('http:')) url = rootUrl + '/' + url;
+//  final uri = Uri.parse(url);
+//  var httpClient = HttpClient();
+//  HttpClientRequest request;
+//  try {
+//    request = await httpClient.openUrl('GET', uri);
+//  } catch (ex) {
+//    Log.error(ex);
+//  }
+//  HttpClientResponse response = await request.close();
+////  HttpResponse responseBody = await response.transform(utf8.decoder).join();
+//  //   print("Received $responseBody...");
+//  httpClient.close();
+//  if (response.statusCode != 200) throw 'Failed to load ' + url;
+//  List<int> download = [];
+//  await response.toList().then((chunks) {
+//    chunks.forEach((chunk) {
+//      download.addAll(chunk);
+//    });
+//  });
+//  Image result = decodeImage(download);
+//  return result;
+//}
 
 Future<void> saveWebImage(String urlString,
     {Image image, int quality = 100, String metaData}) async {
