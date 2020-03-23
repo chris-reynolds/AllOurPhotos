@@ -134,7 +134,7 @@ Future<void> delete() async {
 
   Future<List<AopSnap>> get snaps async {
     return snapProvider
-        .getSome('id in (select snap_id from aopalbum_items where album_id=${this.id})');
+        .getSome('id in (select snap_id from aopalbum_items where album_id=${this.id})', orderBy: 'taken_date,id');
   } //  snaps property
 
   Future<int> addSnaps(List<int> newSnapIds) async {
