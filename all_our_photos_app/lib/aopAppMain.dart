@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
 
-import 'screens/scDeviceCameraRoll.dart';
+//import 'screens/scDeviceCameraRoll.dart';
 import 'screens/scLogin.dart';
 import 'screens/scAlbumDetail.dart';
 import 'screens/scAlbumAddPhoto.dart';
@@ -17,12 +18,16 @@ import 'dart_common/LoginStateMachine.dart';
 import 'flutter_common/WidgetSupport.dart';
 
 void main() async {
+  String configFile;
   WidgetsFlutterBinding.ensureInitialized();
-  String configFile = (await getApplicationDocumentsDirectory()).path + '/allourphotos.config.json';
+  if (Platform.isAndroid || Platform.isIOS)
+     configFile = (await getApplicationDocumentsDirectory()).path + '/allourphotos.config.json';
+  else
+    configFile = 'allourphotos.config.json';
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos 05Feb20.v1');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos 05Mar20.v1');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',
@@ -47,7 +52,7 @@ void main() async {
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
-      'Camera Roll': (BuildContext context) => CameraRollPage(),
+//      'Camera Roll': (BuildContext context) => CameraRollPage(),
       'MetaEditor': (BuildContext context) => MetaEditorWidget(),
       'SinglePhoto': (BuildContext context) => SinglePhotoWidget(),
       'Db Fix': (BuildContext context) => DbFixFormWidget(),
@@ -136,9 +141,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: new PageView(
         children: [
           HistoryScreen("History"),
-//          AlbumList(),
           AlbumList(),
-          CameraRollPage(),
+//          CameraRollPage(),
           SearchList(),
           DbFixFormWidget(),
         ],
@@ -154,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           items: [
             bottomButton('History', Icons.grid_on),
             bottomButton('Albums', Icons.collections),
-            bottomButton('Camera Roll', Icons.camera_roll),
+//            bottomButton('Camera Roll', Icons.camera_roll),
           ],
           onTap: navigationTapped,
           currentIndex: _page,
