@@ -42,3 +42,4 @@ all_our_photos_app/lib/aopAppMain.config.json
 all_our_photos_app/ios/Flutter/flutter_export_environment.sh
 
 *.tmp
+all_our_photos_app/.flutter-plugins-dependencies
