@@ -155,8 +155,9 @@ Future<void> delete() async {
     return result;
   } // of addSnaps
 
-  Future<int> removeSnaps(List<int> oldSnapIds) async {
+  Future<int> removeSnaps(List<AopSnap> oldSnaps) async {
     int result = 0;
+    List<int> oldSnapIds = idList(oldSnaps);
     List<AopAlbumItem> existingItems = await this.albumItems;
     for (AopAlbumItem thisItem in existingItems) {
       if (oldSnapIds.indexOf(thisItem.snapId) >= 0) {
