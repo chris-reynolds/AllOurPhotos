@@ -51,7 +51,14 @@ abstract class DomainObject {
     result.add(updatedUser);
     return result;
   } // to Row
+
 } // of abstract class DomainObject
+
+List<int> idList(List<DomainObject> dobjList) {
+  List<int> result = [];
+  dobjList.forEach((element) {result.add(element.id);});
+  return result;
+} // of idList
 
 class DOProvider<TDO extends DomainObject> {
   String tableName;
@@ -101,6 +108,8 @@ class DOProvider<TDO extends DomainObject> {
 //        dataFields.add(aDomainObject.updatedOn);
         var r = await dbConn.query(sql, dataFields);
         await refreshFromDb(aDomainObject);
+        if (r.affectedRows == 0)
+          throw "Failed to update item with $sql";
         return r.affectedRows;
       } else {
         // insert

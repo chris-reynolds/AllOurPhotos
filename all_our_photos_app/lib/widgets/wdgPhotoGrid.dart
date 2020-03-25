@@ -12,15 +12,18 @@ import '../screens/scSimpleDlg.dart';
 import '../screens/scTypeAheadDlg.dart';
 import '../ImageFilter.dart';
 import 'wdgImageFilter.dart';
-import 'ImageEditorWidget.dart';
+
+//import 'ImageEditorWidget.dart.xxx';
 import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../dart_common/ListProvider.dart';
+import '../dart_common/ListUtils.dart';
 
 class PhotoGrid extends StatefulWidget {
-  final ListProvider<AopSnap> _initImageFilter;
+  final SelectableListProvider<AopSnap> _initImageFilter;
+  final AopAlbum _album;
 
-  PhotoGrid(this._initImageFilter) {
+  PhotoGrid(this._initImageFilter, {AopAlbum album}) : this._album = album {
 //    Log.message('PhotoGrid constructor by filter');
   }
 
@@ -28,41 +31,24 @@ class PhotoGrid extends StatefulWidget {
   PhotoGridState createState() => new PhotoGridState();
 }
 
-class PhotoGridState extends State<PhotoGrid> {
-  ListProvider<AopSnap> _imageFilter;
+class PhotoGridState extends State<PhotoGrid> with Selection<int> {
+  SelectableListProvider<AopSnap> _imageFilter;
   double _targetOffset = 0.0;
   ScrollController _scrollController = ScrollController();
-  int zzz = 0;
-  List<String> _selectedImages = [];
 
-  bool isSelected(AopSnap snap) {
-    int idx = _selectedImages.indexOf(snap.fileName);
-    return (idx >= 0);
-  } // of isSelected
+//  int zzz = 0;
+//  List<String> _selectedImages = [];
 
-  void toggleSelected(AopSnap snap) {
-    int idx = _selectedImages.indexOf(snap.fileName);
-    if (idx < 0)
-      _selectedImages.add(snap.fileName);
-    else
-      _selectedImages.removeAt(idx);
-  } // of toggleSelected;
-
-  void clearSelected() {
-    _selectedImages.length = 0;
-  } // clearSelected
-
-  void selectAll({bool repaint:true}) {
+  void selectAll({bool repaint: true}) {
     // Select All can Clear All
-    bool clearAll = (_selectedImages.length ==_imageFilter.items.length);
-    _selectedImages = [];
+    bool clearAll = (_imageFilter.selectionList.length == _imageFilter.items.length);
+    _imageFilter.clearSelected();
     if (!clearAll) {
       _imageFilter.items.forEach((AopSnap snap) {
-          _selectedImages.add(snap.fileName);
+        _imageFilter.setSelected(snap, true);
       });
     }
-    if (repaint)
-      setState(() {});
+    if (repaint) setState(() {});
   } // of selectAll
 
   int _picsPerRow = 3; // can be toggled
@@ -71,20 +57,8 @@ class PhotoGridState extends State<PhotoGrid> {
       int oldPicsPerRow = _picsPerRow;
       double oldOffset = _scrollController.offset;
       if (--_picsPerRow <= 0) _picsPerRow = 5;
-//      switch (_picsPerRow) {
-//        case 4:
-//          _picsPerRow = 3;
-//          break;
-//        case 2:
-//          _picsPerRow = 1;
-//          break;
-//        default:
-//          _picsPerRow = 2;
-//      } // of switch
       double targetOffset = oldOffset * oldPicsPerRow / _picsPerRow;
       _targetOffset = targetOffset;
-      //     Log.message(
-      //         '=============scroll controller offset $oldOffset to $targetOffset');
     });
   } // of changePicsPerRow
 
@@ -92,7 +66,8 @@ class PhotoGridState extends State<PhotoGrid> {
 
   void changeSelectMode() {
     setState(() {
-      _selectedImages = [];
+      // todo check clearselection maybe
+      _imageFilter.clearSelected();
       _inSelectMode = !_inSelectMode;
     });
   }
@@ -112,11 +87,11 @@ class PhotoGridState extends State<PhotoGrid> {
 
   void filterRefreshCallback() {
     setState(() {
-      Log.message('filterRefresh triggered ${++zzz}');
+      Log.message('filterRefresh triggered ');
     });
   }
 
-  List<AopSnap> get onlySelectedSnaps => _imageFilter.items.where(isSelected).toList();
+//  List<AopSnap> get onlySelectedSnaps => _imageFilter.items.where(isSelected).toList();
 
   void editorCallback(String caption, String location) {
     int updateCount = 0;
@@ -124,7 +99,7 @@ class PhotoGridState extends State<PhotoGrid> {
     setState(() {
       for (int ix = 0; ix < _imageFilter.items.length; ix++) {
         AopSnap thisImage = _imageFilter.items[ix];
-        if (isSelected(thisImage)) {
+        if (_imageFilter.isSelected(thisImage)) {
           if (caption != '') thisImage.caption = caption;
           if (location != '') thisImage.location = location;
           updateCount++;
@@ -146,44 +121,61 @@ class PhotoGridState extends State<PhotoGrid> {
             ? const Text('Grid list')
             : Row(
                 children: <Widget>[
-                  Text('Select All'),
+                  //          Text('Select All'),
                   IconButton(
                       icon: Icon(Icons.select_all),
+                      tooltip: 'Select/Clear All',
                       onPressed: () {
                         selectAll();
                       }),
                 ],
               ),
         actions: <Widget>[
-          if (_inSelectMode && _selectedImages != null && _selectedImages.length > 0) ...[
+          if (_inSelectMode && _imageFilter.selectionList.length > 0) ...[
+/*            if (widget._album != null)
+              IconButton(
+                  icon: Icon(Icons.delete, color: Colors.black),
+                  onPressed: () {
+                    handleMultiRemoveFromAlbum(context, _imageFilter.selectionList);
+                  }),*/
             IconButton(
                 icon: Icon(Icons.star_border, color: Colors.black),
+                tooltip: 'Set selected images green',
                 onPressed: () {
-                  handleMultiSetGreen(context, onlySelectedSnaps);
+                  handleMultiSetGreen(context, _imageFilter.selectionList);
                 }),
             IconButton(
                 icon: Icon(Icons.text_fields),
+                tooltip: 'add a caption to selected images',
                 onPressed: () {
-                  handleMultiCaption(context, onlySelectedSnaps);
+                  handleMultiCaption(context, _imageFilter.selectionList);
                 }),
             IconButton(
                 icon: Icon(Icons.date_range),
+                tooltip: 'Change taken date for selected images',
                 onPressed: () {
-                  handleMultiTakenDate(context, onlySelectedSnaps);
+                  handleMultiTakenDate(context, _imageFilter.selectionList);
                 }),
             IconButton(
                 icon: Icon(Icons.location_on),
+                tooltip: 'Change location for selected images',
                 onPressed: () {
-                  handleMultiLocation(context, onlySelectedSnaps);
+                  handleMultiLocation(context, _imageFilter.selectionList);
                 }),
           ],
-          new IconButton(icon: Icon(Icons.check_box), onPressed: changeSelectMode),
-          new IconButton(icon: Icon(Icons.photo_size_select_large), onPressed: changePicsPerRow),
+          IconButton(
+              icon: Icon(Icons.check_box),
+              tooltip: 'Selection Mode on/off',
+              onPressed: changeSelectMode),
+          IconButton(
+              icon: Icon(Icons.photo_size_select_large),
+              tooltip: 'Change no of photos per line',
+              onPressed: changePicsPerRow),
         ],
       ),
       body: new Column(children: <Widget>[
         if (_imageFilter is ImageFilter)
-        ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
+          ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
         new Expanded(
           child: GridView.count(
             controller: _scrollController,
@@ -199,7 +191,7 @@ class PhotoGridState extends State<PhotoGrid> {
               if (_imageFilter.items != null)
                 for (int idx = 0; idx < _imageFilter.items.length; idx++)
                   PhotoTile(
-                      isSelected: isSelected(_imageFilter.items[idx]),
+                      isSelected: _imageFilter.isSelected(_imageFilter.items[idx]),
                       snapList: _imageFilter.items,
                       index: idx,
                       inSelectMode: _inSelectMode,
@@ -207,7 +199,9 @@ class PhotoGridState extends State<PhotoGrid> {
                       onBannerTap: (imageFile) {
                         setState(() {
                           if (_inSelectMode)
-                            toggleSelected(imageFile);
+                            _imageFilter.setSelected(_imageFilter.items[idx],
+                                !_imageFilter.isSelected(_imageFilter.items[idx]));
+                          //                     toggleSelected(imageFile);
                           else {
                             imageFile.ranking = (imageFile.ranking + 1) % 3 + 1;
                             imageFile.save();
@@ -226,13 +220,15 @@ class PhotoGridState extends State<PhotoGrid> {
     String value = '';
     String errorMessage = '';
     bool done = false;
+    if (snaps.length>0)  // use first caption as default
+      value = snaps[0].caption ?? '';
     while (!done) {
       value = await showDialog(
           context: context,
           builder: (BuildContext context) => DgSimple('Caption for ${snaps.length} images', value,
-                  errorMessage: errorMessage, isValid: (value) async {
+                  errorMessage: errorMessage, /*isValid: (value) async {
                 return (value.length < 10) ? 'Too short' : null;
-              }));
+              }) */));
       if (value == null || value == EXIT_CODE) return;
       Log.message('new caption is: $value');
       errorMessage = '';
@@ -353,6 +349,18 @@ class PhotoGridState extends State<PhotoGrid> {
     setState(() {});
   } // handleMultiSetGreen
 
+/*  void handleMultiRemoveFromAlbum(BuildContext  context, List<AopSnap> selectedSnaps) async {
+    try {
+      List<int> snapIds = [];
+      for (AopSnap snap in selectedSnaps)
+        snapIds.add(snap.id);
+      int result = await widget._album.removeSnaps(snapIds);
+      showMessage(context,'$result items removed from album');
 
+    } catch(ex) {
+      showMessage(context, 'Error: ${ex}');
+    }
+    setState(() {});
+  } // of handleMultiRemoveFromAlbum*/
 
 }

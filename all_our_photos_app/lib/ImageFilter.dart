@@ -1,3 +1,5 @@
+import 'package:all_our_photos_app/dart_common/ListUtils.dart';
+
 /**
  * Created by Chris on 13/10/2018.
  */
@@ -8,7 +10,7 @@ import 'dart_common/Logger.dart' as Log;
 import 'dart_common/ListProvider.dart';
 
 
-class ImageFilter implements ListProvider<AopSnap> {
+class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopSnap> {
 
   DateTime _fromDate = DateTime(1900);
   DateTime _toDate = DateTime(2030);
@@ -34,6 +36,7 @@ class ImageFilter implements ListProvider<AopSnap> {
   ImageFilter.yearMonth(int year,int month,{CallBack refresh}) {
     _fromDate = DateTime(year,month,1);
     _toDate = addMonths(_fromDate,1);
+    _toDate = _toDate.subtract(Duration(seconds: 1));
     onRefreshed = refresh;
     print('Image Filter - yearmonth constructor $searchText');
   }  // create with yearMonth
@@ -83,7 +86,7 @@ class ImageFilter implements ListProvider<AopSnap> {
   } // of calcImages
 
   String whereClause() {
-    String result = ' taken_date between \'${formatDate(_fromDate)}\' and \'${formatDate(_toDate)}\'';
+    String result = ' taken_date between \'${dbDate(_fromDate)}\' and \'${dbDate(_toDate)}\'';
      if (searchText != '') {
        result += "and ((location) like '%$searchText%' or caption like '%$searchText%' or file_name like '%$searchText%' or device_name like '%$searchText%')";
      }

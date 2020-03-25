@@ -69,7 +69,7 @@ class _YearGridState extends State<YearGrid> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo)))).then((value)
+                  PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo),album: null))).then((value)
                   {setState(() {});}
                   );
     }

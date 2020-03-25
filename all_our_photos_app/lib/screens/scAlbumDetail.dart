@@ -4,6 +4,7 @@ Purpose: This will show the details of a single album
 
 */
 import 'dart:io';
+import 'package:all_our_photos_app/shared/DomainObject.dart';
 import 'package:flutter/material.dart';
 //import 'package:image/image.dart';
 import '../shared/aopClasses.dart';
@@ -21,8 +22,8 @@ class AlbumDetail extends StatefulWidget {
   _AlbumDetailState createState() => _AlbumDetailState();
 }
 
-class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
-    implements ListProvider<AopSnap>{
+class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
+    implements SelectableListProvider<AopSnap>{
   final scaffoldKey = new GlobalKey<ScaffoldState>();
   AopAlbum argAlbum;
   List<AopSnap> _list;
@@ -40,7 +41,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
         appBar: buildBar(context),
 //        body: snapGrid(context, _list, this),
 //        body: SsSnapGrid(_list, this, argAlbum),
-        body: PhotoGrid(this),
+        body: PhotoGrid(this,album: argAlbum),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_a_photo),
           onPressed: () => handleAddAlbumItem(context),
@@ -65,6 +66,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
             if (Platform.isMacOS)
             new IconButton(
               icon: Icon(Icons.file_download),
+              tooltip: 'Export album to downloads folder',
               onPressed: () {
                 handleDownload(context).then((xx) {
                   setState(() {});
@@ -168,8 +170,9 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
       // now we need to move the items before the optional delete
       int counter = 0;
       List<AopAlbumItem> oldItems = await argAlbum.albumItems;
+      List<int> selectedIds = idList(this.selectionList);
       for (AopAlbumItem albumItem in oldItems) {
-        if (isSelected(albumItem.snapId)) {
+        if (selectedIds.indexOf(albumItem.snapId)>=0) {
           albumItem.albumId = newAlbum.id;
           if (await albumItem.save() >0)
             counter++;
@@ -238,9 +241,9 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<int>
     return Column(children: [
       ListTile(
         leading: Checkbox(
-          value: isSelected(snap.id),
+          value: isSelected(snap),
           onChanged: (value) {
-            setSelected(snap.id, value);
+            setSelected(snap, value);
             setState(() {});
           },
         ), // of checkbox
