@@ -4,6 +4,7 @@
   Purpose: Stateful PhotoGrid widget with multi-select
 */
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/DateUtil.dart';
@@ -18,6 +19,7 @@ import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../dart_common/ListProvider.dart';
 import '../dart_common/ListUtils.dart';
+import '../dart_common/WebFile.dart';
 
 class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
@@ -132,12 +134,22 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
               ),
         actions: <Widget>[
           if (_inSelectMode && _imageFilter.selectionList.length > 0) ...[
-/*            if (widget._album != null)
+            if (Platform.isMacOS)
+              new IconButton(
+                icon: Icon(Icons.file_download),
+                tooltip: 'Export album to downloads folder',
+                onPressed: () {
+                  handleDownload(context,_imageFilter.selectionList).then((xx) {
+                    setState(() {});
+                  });
+                },
+              ),
+            if (widget._album != null)
               IconButton(
                   icon: Icon(Icons.delete, color: Colors.black),
                   onPressed: () {
                     handleMultiRemoveFromAlbum(context, _imageFilter.selectionList);
-                  }),*/
+                  }),
             IconButton(
                 icon: Icon(Icons.star_border, color: Colors.black),
                 tooltip: 'Set selected images green',
@@ -349,18 +361,34 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     setState(() {});
   } // handleMultiSetGreen
 
-/*  void handleMultiRemoveFromAlbum(BuildContext  context, List<AopSnap> selectedSnaps) async {
+  void handleMultiRemoveFromAlbum(BuildContext  context, List<AopSnap> selectedSnaps) async {
     try {
-      List<int> snapIds = [];
-      for (AopSnap snap in selectedSnaps)
-        snapIds.add(snap.id);
-      int result = await widget._album.removeSnaps(snapIds);
+      int result = await widget._album.removeSnaps(selectedSnaps);
       showMessage(context,'$result items removed from album');
-
     } catch(ex) {
       showMessage(context, 'Error: ${ex}');
     }
     setState(() {});
   } // of handleMultiRemoveFromAlbum*/
 
+  Future<void> handleDownload(BuildContext context,List<AopSnap> selectedSnaps) async {
+    String dirName = '${Platform.environment['HOME']}/Downloads/';
+    String albumName = 'AllOurPhotos';
+    if (widget._album != null) {
+      albumName = widget._album.name.replaceAll('/', '-').replaceAll('\\', '-').replaceAll(' ', '');
+    }
+    if (albumName.length > 20)
+      albumName = albumName.substring(0,19);
+    dirName += albumName+'/';
+    if (!Directory(dirName).existsSync())
+      Directory(dirName).createSync();
+    // make directory in downloads
+    for (int snapIx=0; snapIx< selectedSnaps.length; snapIx++) {
+//      showMessage(context,'${selectedSnaps.length-snapIx} photos to download');
+      String sourceURL = selectedSnaps[snapIx].fullSizeURL;
+      List<int> imgBytes = await loadWebBinary(sourceURL);
+      File(dirName+selectedSnaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
+    }
+    showMessage(context,'Download complete. See your $dirName directory');
+  } // of handleDownload
 }
