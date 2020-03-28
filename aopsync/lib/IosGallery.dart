@@ -37,7 +37,7 @@ class IosGallery {
   final _channel = MethodChannel("/gallery");
 
   Future<void> loadFrom(startDate) async {
-    this.startDate = startDate;
+    this.startDate = startDate.add(Duration(hours:-13));// todo: get the time zone as IosGallery uses utc dates
     count = await _channel.invokeMethod<int>("getCountFromDate", toSwiftDate(startDate));
   }
 

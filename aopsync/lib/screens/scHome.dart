@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> {
     Log.message('Home builder');
     return //(1==1)?ProgressForm():
         Scaffold(
-            appBar: AppBar(title: Text('AllOurPhoto Upload 4Mar20'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AllOurPhoto Upload 28Mar20'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.select_all),
                 onPressed: _toogleSelectAll,
