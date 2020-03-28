@@ -23,12 +23,12 @@ import Photos
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     DispatchQueue.main.async {
-      NSLog("\nimage count is: \(self.getGalleryImageCount())")
+/*      NSLog("\nimage count is: \(self.getGalleryImageCount())")
       self.dataForGalleryItem(index: 0) { (data, id, created, location) in
         if let data = data {
           NSLog("\nfirst data: \(data) \(id) \(created) \(location)")
         }
-      }
+      } */
     }
 
     GeneratedPluginRegistrant.register(with: self)

@@ -36,8 +36,10 @@ class IosGallery {
   int count = 0;
   final _channel = MethodChannel("/gallery");
 
-  Future<void> loadFrom(startDate) async {
-    this.startDate = startDate.add(Duration(hours:-13));// todo: get the time zone as IosGallery uses utc dates
+  Future<void> loadFrom(DateTime startDate) async {
+    startDate = startDate.add(Duration(hours:-48));// todo: get the time zone as IosGallery uses utc dates
+    print('IOS Gallery querying from ${dbDate(startDate)}');
+    this.startDate = startDate;
     count = await _channel.invokeMethod<int>("getCountFromDate", toSwiftDate(startDate));
   }
 
