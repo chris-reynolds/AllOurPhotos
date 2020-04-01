@@ -76,9 +76,9 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   Future<void> checkImages() async {
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
-    _images = await snapProvider.getSome(whereClause(),orderBy: 'taken_date');
+    _images = await snapProvider.getSome(whereClause(),orderBy: 'taken_date,caption'); //todo: reverse order
     // todo check ascending or descending date sort
-    _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
+ //   _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
     Log.message('returning ${_images.length} images');
     if (onRefreshed != null)  // alert listen of changes
@@ -88,7 +88,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   String whereClause() {
     String result = ' taken_date between \'${dbDate(_fromDate)}\' and \'${dbDate(_toDate)}\'';
      if (searchText != '') {
-       result += "and ((location) like '%$searchText%' or caption like '%$searchText%' or file_name like '%$searchText%' or device_name like '%$searchText%')";
+       result += "and ((location) like '%$searchText%' or caption like '%$searchText%' or file_name like '%$searchText%' or device_name like '%$searchText%' or tag_list like '%$searchText%')";
      }
      result += ' and ranking in (';
      for (int rankNo=1;rankNo<=3;rankNo++)
