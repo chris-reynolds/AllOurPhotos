@@ -85,7 +85,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
       if (yearNo == null) yearNo = DateTime.now().year;
       DateTime startDate = DateTime(yearNo, 1, 1);
       imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
-      imgFilter.toDate = addMonths(startDate, 3);
+      imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds:-1));
       Log.message('Album assigned');
       imgFilter.setRank(2, false);
       refreshList();
@@ -116,7 +116,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
 
   void setQuarter(int quarter) {
     imgFilter.fromDate = DateTime(yearNo, 3 * quarter + 1, 1);
-    imgFilter.toDate = addMonths(imgFilter.fromDate, 3);
+    imgFilter.toDate = addMonths(imgFilter.fromDate, 3).add(Duration(seconds:-1));;
     refreshList();
   } // of setQuarter
 

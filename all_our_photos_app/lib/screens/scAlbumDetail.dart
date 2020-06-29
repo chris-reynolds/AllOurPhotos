@@ -12,6 +12,7 @@ import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
 import '../dart_common/ListProvider.dart';
 import '../dart_common/WebFile.dart';
+import '../dart_common/DateUtil.dart';
 import '../widgets/wdgSnapGrid.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
@@ -146,7 +147,8 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       showSnackBar('${snaps.length-snapIx} photos to download');
       String sourceURL = snaps[snapIx].fullSizeURL;
       List<int> imgBytes = await loadWebBinary(sourceURL);
-      File(dirName+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
+      String prefix = formatDate(snaps[snapIx].takenDate)+'-';
+      File(dirName+prefix+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
     showSnackBar('Download complete. See your downloads directory');
   } // of handleDownload

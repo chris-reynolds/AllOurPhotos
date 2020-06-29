@@ -27,7 +27,7 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos 2Apr20.v1');
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos 7Apr20.v3');
 //  Widget loginScreen = LoginForm();
   application = new MaterialApp(
     title: 'All Our Photos',

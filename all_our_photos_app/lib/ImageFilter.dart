@@ -87,7 +87,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   } // of calcImages
 
   String whereClause() {
-    String result = ' taken_date between \'${dbDate(_fromDate)}\' and \'${dbDate(_toDate)}\'';
+    String result = ' taken_date between \'${dbDate(_fromDate)}\' and \'${dbDate(_toDate.add(Duration(seconds:-1)))}\'';
      if (searchText != '') {
        result += "and ((location) like '%$searchText%' or caption like '%$searchText%' or file_name like '%$searchText%' or device_name like '%$searchText%' or tag_list like '%$searchText%')";
      }
