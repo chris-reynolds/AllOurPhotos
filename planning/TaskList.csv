@@ -1,61 +1,39 @@
 Number,Name,Size LMS,ProgressUIDPTF,Group,Finished On
-I1,Setup Project Control Metrics,M,F,init,2019-03-29
-I2,Setup Bug Tracking,S,F,init,2019-03-29
-I3,Setup Dev/Test/Prod Databases,M,D,init,2019-04-04
-I4,Setup Dev/Test/Prod Environs,M,P,init,2019-07-14
-I5,Setup Unit Test Environment,M,F,init,2019-04-18
-I6,Experiment with Coverage metric – not this time,L,F,init,2019-09-08
-I7,Write-up technical architecture,S,U,init,2019-07-14
-I8,Detail artifact List – not this time,M,F,init,2019-09-08
-,,,,,
-D1,Write persistence layer,M,F,dbload,2019-04-19
-D2,Convert index.tsv to mysql,M,F,dbload,2019-05-04
-D3,Upload latest pictures from phones,L,P,dbload,
-D4,Upload latest pictures from tablets,L,F,dbload,2019-07-14
-D5,Import from cameras,M,P,dbload,
-D6,Import file archives of old photos,M,F,dbload,2019-05-04
-D7,Remove/Ignore duplicates,S,P,dbload,
-D8,Deduce location name from long/lat,M,F,dbload,2019-07-14
-D9,Import file archives of old videos,M,U,dbload,
+D5,Use aopSync to import from cameras,M,U,dbload,
+D11,Clean Josie Ben and Alan photos,M,U,dbload,
+D12,Deduce location and long/lat from caption,M,U,dbload,
+D9,Import file archives of old videos in aopSync,M,U,dbload,
 D10,Import Facebook albums,M,U,dbload,
+D7,Remove/Ignore duplicates – smart resize and hash,L,U,dbload,
 ,,,,,
-V1,View months as a scrollable grid,L,F,view1,2019-05-16
-V2,View a list of photos as a full-width list,L,F,view1,2019-06-02
-V3,View the year/month grid,S,F,view1,2019-05-11
 ,,,,,
-M1,Create album,S,F,albums,2019-05-26
-M2,Add one or more photos to an album,M,F,albums,2019-06-02
-M3,Remove one or more photos from an album,S,F,albums,2019-06-02
-M4,View album names with filter,M,F,albums,2019-05-26
-M5,Delete album,M,F,albums,2019-06-10
-M6,Merge/Split albums,L,F,albums,2019-06-12
+M5,Fix Delete album,M,U,albums,
+M7,Fix Merge/Split albums,L,U,albums,
+M8,Fix remove photo from album,M,U,albums,
+M9,Show a slideshow,M,U,albums,
 ,,,,,
-E1,Rank a single photo 1-5,S,F,edit,2019-06-05
-E2,Add caption and tags to a single photo,S,F,edit,2019-09-23
-E3,Add location name to a single photo,S,F,edit,2019-08-13
-E4,Change date taken of a single photo,M,F,edit,2019-08-13
-E5,Crop a picture with revert,L,F,edit,2019-09-23
+E6,Rank a single photo 1-5 during view,S,U,edit,
+E7,Add new location name to a single photo,M,U,edit,
+E8,Add new location name to a batch,S,U,edit,
+E9,Crop a picture from Xaiomi  or maybe landscape,L,U,edit,
+E10,Multi-select non-destructive chips with tri-chip,M,U,edit,
+E11,Non-update immediate error message,M,U,edit,
 ,,,,,
-V1,View photo full-screen and pinch zoom,L,F,view2,2019-07-14
-V2,View a list of photos as a set of tiles,L,T,view2,2019-09-01
-V4,Filter photos based on date/location/caption/rank/tag,L,T,view2,2019-09-01
-V5,Ability to auto-extend date filter based on scrolling or buttons,L,F,view2,2019-06-05
+V6,Walk thru months with up/down,S,U,view,
+V7,Tidy tiles to avoid overlap,M,U,view,
+V8,Support videos,L,U,view,
+V9,General Search screen,M,U,view,
+V10,Colour progress on yearly grid,M,U,view,
+V11,Hover hint on yearly grid,M,U,view,
+V12,,,,,
 ,,,,,
-S2,Protect Database with session logic,M,F,secure,2019-05-11
-S3,Support user/device traceability,L,F,secure,2910-08-20
-S4,Load config from mobile local storage,S,F,secure,2019-05-11
+P1,Make year/grid work on android phones,L,U,platform,
+P2,Make Aop work in web browser,L,U,platform,
+P3,Roll Aop as stand-alone app,L,U,platform,
+P4,Move sql to server-side,L,U,platform,
 ,,,,,
-L4,Import scanned physical albums,S,U,scan,
-U2,Rank photos in a batch -dont implement,S,F,scan,2019-08-13
-U4,Add caption and tags to a batch of photos,M,T,scan,2019-09-01
-U6,Add location name to a batch of photos,M,F,scan,2019-08-20
-U8,Change date take to a batch of photos,M,D,scan,2019-08-13
-U10,Apply noise filter to old photo with revert,L,U,scan,
+Y1,Apply noise filter to old photo with revert,L,U,Clean,
 ,,,,,
-X1,Export photos to a stick – not this time,M,F,export,2019-09-08
-X2,Export photos to an Ipad,L,U,export,
-X2,Export photo-index to an Ipad,L,U,export,
-X3,Make AllOurPhotos server independant,L,U,export,
 ,,,,,
 ,Random Notes here,,,,
 ,and here,,,,

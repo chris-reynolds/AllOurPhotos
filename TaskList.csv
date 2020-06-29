@@ -1,0 +1,61 @@
+Number,Name,Size LMS,ProgressUIDPTF,Group,Finished On
+I1,Setup Project Control Metrics,M,F,init,2019-03-29
+I2,Setup Bug Tracking,S,F,init,2019-03-29
+I3,Setup Dev/Test/Prod Databases,M,D,init,2019-04-04
+I4,Setup Dev/Test/Prod Environs,M,P,init,2019-07-14
+I5,Setup Unit Test Environment,M,F,init,2019-04-18
+I6,Experiment with Coverage metric – not this time,L,F,init,2019-09-08
+I7,Write-up technical architecture,S,U,init,2019-07-14
+I8,Detail artifact List – not this time,M,F,init,2019-09-08
+,,,,,
+D1,Write persistence layer,M,F,dbload,2019-04-19
+D2,Convert index.tsv to mysql,M,F,dbload,2019-05-04
+D3,Upload latest pictures from phones,L,P,dbload,
+D4,Upload latest pictures from tablets,L,F,dbload,2019-07-14
+D5,Import from cameras,M,P,dbload,
+D6,Import file archives of old photos,M,F,dbload,2019-05-04
+D7,Remove/Ignore duplicates,S,P,dbload,
+D8,Deduce location name from long/lat,M,F,dbload,2019-07-14
+D9,Import file archives of old videos,M,U,dbload,
+D10,Import Facebook albums,M,U,dbload,
+,,,,,
+V1,View months as a scrollable grid,L,F,view1,2019-05-16
+V2,View a list of photos as a full-width list,L,F,view1,2019-06-02
+V3,View the year/month grid,S,F,view1,2019-05-11
+,,,,,
+M1,Create album,S,F,albums,2019-05-26
+M2,Add one or more photos to an album,M,F,albums,2019-06-02
+M3,Remove one or more photos from an album,S,F,albums,2019-06-02
+M4,View album names with filter,M,F,albums,2019-05-26
+M5,Delete album,M,F,albums,2019-06-10
+M6,Merge/Split albums,L,F,albums,2019-06-12
+,,,,,
+E1,Rank a single photo 1-5,S,F,edit,2019-06-05
+E2,Add caption and tags to a single photo,S,F,edit,2019-09-23
+E3,Add location name to a single photo,S,F,edit,2019-08-13
+E4,Change date taken of a single photo,M,F,edit,2019-08-13
+E5,Crop a picture with revert,L,F,edit,2019-09-23
+,,,,,
+V1,View photo full-screen and pinch zoom,L,F,view2,2019-07-14
+V2,View a list of photos as a set of tiles,L,T,view2,2019-09-01
+V4,Filter photos based on date/location/caption/rank/tag,L,T,view2,2019-09-01
+V5,Ability to auto-extend date filter based on scrolling or buttons,L,F,view2,2019-06-05
+,,,,,
+S2,Protect Database with session logic,M,F,secure,2019-05-11
+S3,Support user/device traceability,L,F,secure,2910-08-20
+S4,Load config from mobile local storage,S,F,secure,2019-05-11
+,,,,,
+L4,Import scanned physical albums,S,U,scan,
+U2,Rank photos in a batch -dont implement,S,F,scan,2019-08-13
+U4,Add caption and tags to a batch of photos,M,T,scan,2019-09-01
+U6,Add location name to a batch of photos,M,F,scan,2019-08-20
+U8,Change date take to a batch of photos,M,D,scan,2019-08-13
+U10,Apply noise filter to old photo with revert,L,U,scan,
+,,,,,
+X1,Export photos to a stick – not this time,M,F,export,2019-09-08
+X2,Export photos to an Ipad,L,U,export,
+X2,Export photo-index to an Ipad,L,U,export,
+X3,Make AllOurPhotos server independant,L,U,export,
+,,,,,
+,Random Notes here,,,,
+,and here,,,,

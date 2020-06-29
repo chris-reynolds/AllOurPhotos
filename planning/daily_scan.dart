@@ -7,8 +7,8 @@ Date: 29th March 2019
 import 'dart:io';
 
 final String DELIMITER = ',';
-final DateTime STARTDATE = DateTime(2019,4,1);
-final DateTime ENDDATE = DateTime(2019,10,1);
+final DateTime STARTDATE = DateTime(2020,4,1);
+final DateTime ENDDATE = DateTime(2020,7,1);
 final int PROJECTDURATION = ENDDATE.difference(STARTDATE).inDays;
 
 
