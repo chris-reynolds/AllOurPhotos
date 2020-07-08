@@ -104,5 +104,12 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
     _toDate = _toDate.add(Duration(days:days));
     _refreshRequired = true;
   } //
+
+  void moveMonth(int increment) {
+    _fromDate = addMonths(_fromDate, increment);
+    _toDate = addMonths(_toDate, increment);
+    _refreshRequired = true;
+  } // of moveMonth
+
 } // of ImageFilter
 

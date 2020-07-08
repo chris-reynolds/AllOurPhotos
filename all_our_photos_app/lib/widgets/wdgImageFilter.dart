@@ -54,6 +54,12 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
     });
   } // of toggleRank
 
+  void onMonthMove(int increment) async {
+    _imageFilter.moveMonth(increment);
+    await _imageFilter.checkImages();
+    setState(() {});
+  } // on MonthMove
+
   void onRefresh() {
     _imageFilter.searchText = textController.value.text;
     _imageFilter.checkImages().then((dummy) {
@@ -76,17 +82,24 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
 //    print('building ImageFilter with changeMode=$changeMode and refreshRequired=${_imageFilter.refreshRequired}');
     return new Center(
         child: !changeMode
-            ? FlatButton(
-                child: Text(
-                  '${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' +
-                      ' upto ${Utils.formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
-                //  style: Theme.of(context).textTheme.display1,
-                ),
-                onPressed: () {
-                  setState(() {
-                    if (changeMode == false) changeMode = true;
-                  }); // of setState
-                }, // of onPressed
+            ? Row(
+                children: [
+                  IconButton(icon: Icon(Icons.chevron_left),onPressed: (){onMonthMove(-1);},tooltip: 'Back 1 month', iconSize: 36,),
+                  Text(
+                    '  Filter : ${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' +
+                        ' upto ${Utils.formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
+                  ),
+                  IconButton(icon: Icon(Icons.chevron_right),onPressed: (){onMonthMove(1);},tooltip: 'Advance 1 month',iconSize: 36,),
+                  Expanded(child: Text('')),
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () {
+                      setState(() {
+                        if (changeMode == false) changeMode = true;
+                      }); // of setState
+                    }, // of onPressed
+                  ),
+                ],
               )
             : new Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -140,8 +153,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               IconButton(
-                                  icon: Icon(Icons.refresh, size: 40.0),
-                                  onPressed: onRefresh),
+                                  icon: Icon(Icons.refresh, size: 40.0), onPressed: onRefresh),
                             ],
                           ),
                         )
