@@ -10,6 +10,7 @@ import '../dart_common/WebFile.dart';
 import '../widgets/PhotoViewWithRectWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as Im;
+import '../JpegLoader.dart';
 import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../flutter_common/WidgetSupport.dart';
@@ -101,12 +102,17 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           onSelected: (String result) {
             if (result == 'exif') {
               showExif(context, currentSnap);
-            }
+            } else if (result == 'exif-thumb') showThumbnailExif(context, currentSnap);
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
               value: 'exif',
               child: Text('exif Data'),
+              enabled: (currentSnap.metadata != null),
+            ),
+            PopupMenuItem<String>(
+              value: 'exif-thumb',
+              child: Text('exif Data thumbnail'),
               enabled: (currentSnap.metadata != null),
             ),
           ],
@@ -132,17 +138,14 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                 onScale: setIsPhotoScaled,
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),
+            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),
               Text(
-                '${currentSnap.caption??''}\n--------------\n${currentSnap.location??''}',
+                '${currentSnap.caption ?? ''}\n--------------\n${currentSnap.location ?? ''}',
                 style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
               ),
             ]),
-            if (_isClippingInProgress)
-              Center(child:CircularProgressIndicator()),
+            if (_isClippingInProgress) Center(child: CircularProgressIndicator()),
           ],
         ),
       ),
@@ -168,7 +171,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
             snap,
             (pvKey.currentWidget as PhotoViewerWithRect)
                 .currentRect(Size(0.0 + snap.width, 0.0 + snap.height)));
-      } catch(ex,stack) {
+      } catch (ex, stack) {
         showMessage(context, '$ex \n $stack', title: 'Failed to clip');
       } finally {
         isClippingInProgress = false;
@@ -238,6 +241,20 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     String tagResult = '';
     tags.forEach((k, v) => tagResult += '$k = $v \n');
     showMessage(context, tagResult, title: 'Exif for ${thisSnap.fileName}');
+  } // of showExif
+
+  void showThumbnailExif(BuildContext context, AopSnap thisSnap) async {
+    Navigator.of(context);
+    List<int> fileContents = await loadWebBinary(thisSnap.thumbnailURL);
+    JpegLoader jpegLoader = JpegLoader();
+    await jpegLoader.loadBuffer(fileContents);
+    Map<String, dynamic> tags = jpegLoader.tags;
+    String tagResult = '';
+    if (tags == null)
+      tagResult = 'NO EXIF DATA';
+    else
+      tags.forEach((k, v) => tagResult += '$k = $v \n');
+    showMessage(context, tagResult, title: 'Exif for Thumbnail of ${thisSnap.fileName}');
   } // of showExif
 
 }
