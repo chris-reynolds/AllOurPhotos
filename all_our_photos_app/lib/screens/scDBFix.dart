@@ -12,6 +12,7 @@ import 'package:image/image.dart' as IM;
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/DateUtil.dart';
 import '../dart_common/WebFile.dart';
+import '../dart_common/ImageUploader.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class DbFixFormWidget extends StatefulWidget {
@@ -25,7 +26,7 @@ typedef SnapProcessor = Function(AopSnap snap);
 
 class DbFixFormWidgetState extends State<DbFixFormWidget> {
   bool inProgress = false;
-  String runType = '';
+  String runType = '----';
   String groupQuery;
   String detailQuery;
   SnapProcessor snapProcessor;
@@ -45,7 +46,9 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     runType = 'Restore Taken Date from metaData';
     if (await confirmYesNo(context, runType)) {
       groupQuery =
-          'select distinct directory from aopsnaps where ${(inputWhere.isNotEmpty) ? inputWhere : '1=1'} order by 1';
+      'select distinct directory from aopsnaps where ${(inputWhere.isNotEmpty)
+          ? inputWhere
+          : '1=1'} order by 1';
       detailQuery = "directory='GROUP'";
       await processGroups(fixSingleTakenDate);
     }
@@ -58,7 +61,10 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     if (origDateStr != null)
       try {
         DateTime origDate = dateTimeFromExif(origDateStr);
-        int secsDiff = origDate.difference(snap.takenDate).inSeconds.abs();
+        int secsDiff = origDate
+            .difference(snap.takenDate)
+            .inSeconds
+            .abs();
         if (secsDiff > 120) {
           // acouple of minuts is not rounding
           Log.message('taken date needs fixing*** ${snap.ranking}');
@@ -78,7 +84,8 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     }
     runType = 'Fix Thumbnail for orientation 6';
     if (await confirmYesNo(context, runType)) {
-      fullWhere = ' (metadata like \'%Orientation":6%\' or metadata like \'%Orientation":8%\') and device_name like \'%$inputWhere%\' ';
+      fullWhere =
+      ' (metadata like \'%Orientation":6%\' or metadata like \'%Orientation":8%\') and device_name like \'%$inputWhere%\' ';
       groupQuery = 'select distinct directory from aopsnaps where $fullWhere order by 1';
       detailQuery = "directory='GROUP' ";
       await processGroups(fixSingleThumbnail);
@@ -89,9 +96,11 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     Log.message('Processing ${snap.fileName}');
     dynamic meta = jsonDecode(snap.metadata ?? '{}');
     try {
-      IM.Image  fullPic = await loadWebImage(snap.fullSizeURL);
-      IM.Image thumbnail = IM.copyResize(fullPic,width:480); // you know it is portrait from orientation
-      await saveWebImage(snap.thumbnailURL,image:thumbnail,quality: 50);
+      IM.Image fullPic = await loadWebImage(snap.fullSizeURL);
+      IM.Image thumbnail = makeThumbnail(fullPic);
+//      IM.Image thumbnail = IM.copyResize( fullPic, width: 480); // you know it is portrait from orientation
+      await saveWebImage(snap.thumbnailURL, image: thumbnail, quality: 50);
+      Log.message(' to fix ${snap.thumbnailURL}');
     } catch (ex) {
       Log.error('Failed to fix thumbnail $ex');
     }
@@ -100,7 +109,8 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
   Future<void> processGroups(SnapProcessor snapFn) async {
     var r = await snapProvider.rawExecute(groupQuery);
     groups = [];
-    for (var row in r) groups.add(row[0]);
+    for (var row in r)
+      groups.add(row[0]);
     snapList = [];
     snapIdx = 0;
     groupIdx = -1; // it is going to be incremented and we want to start at zero
@@ -137,40 +147,47 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: AppBar(
+        title: Text('DB Fix'),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.date_range), onPressed: fixTakenDateDriver),
           IconButton(icon: Icon(Icons.thumb_up), onPressed: fixThumbnailDriver),
         ],
       ),
-      body: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(runType, style: Theme.of(context).textTheme.headline),
-              Spacer(),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'filter',
-                ),
-                onChanged: (txt) => inputWhere = txt,
-              ),
-              if (groupIdx >= 0)
-                Text(
-                  '$currentGroupName',
-                  style: Theme.of(context).textTheme.display1,
-                ),
-              if (currentSnap != null)
-                Text('${currentSnap.fileName}  - $snapIdx of ${snapList.length}',
-                    style: Theme.of(context).textTheme.display1),
-            ],
-          ), //front column
+      body:
+      Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Text(runType, style: Theme
+              .of(context)
+              .textTheme
+              .headline4),
+          //Spacer(),
+          TextField(
+            decoration: InputDecoration(
+              labelText: 'filter',
+            ),
+            onChanged: (txt) => inputWhere = txt,
+          ),
+          if (groupIdx >= 0)
+            Text(
+              '$currentGroupName',
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyText1,
+            ),
+          if (currentSnap != null)
+            Text('${currentSnap.fileName}  - $snapIdx of ${snapList.length}',
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyText1),
           if (inProgress)
             Center(
               child: CircularProgressIndicator(),
             )
         ],
-      ),
+      ), //front column
     );
   }
 }
