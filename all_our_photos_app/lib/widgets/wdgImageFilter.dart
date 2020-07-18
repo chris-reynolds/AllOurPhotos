@@ -84,12 +84,12 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
         child: !changeMode
             ? Row(
                 children: [
-                  IconButton(icon: Icon(Icons.chevron_left),onPressed: (){onMonthMove(-1);},tooltip: 'Back 1 month', iconSize: 36,),
+                  IconButton(icon: Icon(Icons.first_page),onPressed: (){onMonthMove(-1);},tooltip: 'Back 1 month', iconSize: 36,),
                   Text(
                     '  Filter : ${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' +
                         ' upto ${Utils.formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
                   ),
-                  IconButton(icon: Icon(Icons.chevron_right),onPressed: (){onMonthMove(1);},tooltip: 'Advance 1 month',iconSize: 36,),
+                  IconButton(icon: Icon(Icons.last_page),onPressed: (){onMonthMove(1);},tooltip: 'Advance 1 month',iconSize: 36,),
                   Expanded(child: Text('')),
                   IconButton(
                     icon: Icon(Icons.edit),
