@@ -2,16 +2,30 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e413bc1-e4ef-443f-94c5-6633750ec397" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/operations/operational_setup.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/markdown-navigator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/markdown-navigator.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/markdown-navigator/profiles_settings.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/nev.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nev.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/.flutter-plugins-dependencies" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/.flutter-plugins-dependencies" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/android/app/src/main/java/com/example/all_our_photos_app/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/android/app/src/main/java/com/example/all_our_photos_app/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/ios/Flutter/flutter_export_environment.sh" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/ios/Flutter/flutter_export_environment.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/lib/screens/scDBFix.dart" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/lib/screens/scDBFix.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/lib/screens/scSinglePhoto.dart" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/lib/screens/scSinglePhoto.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/lib/widgets/wdgImageFilter.dart" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/lib/widgets/wdgImageFilter.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_our_photos_app/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/all_our_photos_app/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aopsync/ios/Podfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/aopsync/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/aopsync/ios/Podfile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aopsync/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/aopsync/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aopsync/lib/SyncDriver.dart" beforeDir="false" afterPath="$PROJECT_DIR$/aopsync/lib/SyncDriver.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aopsync/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/aopsync/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aopsync/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/aopsync/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/aopsync/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/aopsync/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dart_common/ImageUploader.dart" beforeDir="false" afterPath="$PROJECT_DIR$/dart_common/ImageUploader.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/flutter_common/WidgetSupport.dart" beforeDir="false" afterPath="$PROJECT_DIR$/flutter_common/WidgetSupport.dart" afterDir="false" />
     </list>
-    <ignored path="$PROJECT_DIR$/.tmp/" />
-    <ignored path="$PROJECT_DIR$/temp/" />
-    <ignored path="$PROJECT_DIR$/tmp/" />
-    <ignored path=".idea/workspace.xml" />
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,24 +34,6 @@
   <component name="DefaultGradleProjectSettings">
     <option name="testRunner" value="GRADLE" />
     <option name="delegatedBuild" value="true" />
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/operations/operational_setup.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="180">
-                <caret line="12" selection-start-line="12" selection-end-line="12" />
-              </first_editor>
-              <second_editor>
-                <markdownNavigatorState />
-              </second_editor>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -106,63 +102,6 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/server/blah/ormconfig.json" />
-        <option value="$PROJECT_DIR$/server/blah/src/entity/User.ts" />
-        <option value="$PROJECT_DIR$/server/src/aopDomainModel.ts" />
-        <option value="$PROJECT_DIR$/server/build/ormconfig.json" />
-        <option value="$PROJECT_DIR$/server/src/tsconfig.json" />
-        <option value="$PROJECT_DIR$/server/build/imageUploader.js" />
-        <option value="$PROJECT_DIR$/server/src/catalogue.ts" />
-        <option value="$PROJECT_DIR$/server/src/fileStore.ts" />
-        <option value="$PROJECT_DIR$/server/src/databaseStore.ts" />
-        <option value="$PROJECT_DIR$/server/src/imageUploader.ts" />
-        <option value="$PROJECT_DIR$/server/tsconfig.json" />
-        <option value="$PROJECT_DIR$/test/aopConfigTest.json" />
-        <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/server/src/dbPhoto.ts" />
-        <option value="$PROJECT_DIR$/server/src/entity/Album.ts" />
-        <option value="$PROJECT_DIR$/server/package.json" />
-        <option value="$PROJECT_DIR$/server/src/sqlBuilderTests.ts" />
-        <option value="$PROJECT_DIR$/server/src/sqlBuilder.ts" />
-        <option value="$PROJECT_DIR$/server/src/entity/User.ts" />
-        <option value="$PROJECT_DIR$/server/src/entity/Image.ts" />
-        <option value="$PROJECT_DIR$/server/src/async-mysql.ts" />
-        <option value="$PROJECT_DIR$/server/src/dbMysql.ts" />
-        <option value="$PROJECT_DIR$/server/src/dbPhotos.ts" />
-        <option value="$PROJECT_DIR$/server/src/aopServerMain.ts" />
-        <option value="$PROJECT_DIR$/server/src/aopServerMainTests.ts" />
-        <option value="$PROJECT_DIR$/server/src/aopModel.ts" />
-        <option value="$PROJECT_DIR$/test/aopConfig.json" />
-        <option value="$PROJECT_DIR$/server/src/ImageUploader.ts" />
-        <option value="$PROJECT_DIR$/test/testUpload.html" />
-        <option value="$PROJECT_DIR$/server/testPages/testUpload.html" />
-        <option value="$PROJECT_DIR$/server/build/aopConfig.json" />
-        <option value="$PROJECT_DIR$/server/src/jpegHelper.ts" />
-        <option value="$PROJECT_DIR$/server/src/imgCatalog.ts" />
-        <option value="$PROJECT_DIR$/client/src/main.js" />
-        <option value="$PROJECT_DIR$/client/src/pages/Home.vue" />
-        <option value="$PROJECT_DIR$/client/package.json" />
-        <option value="$PROJECT_DIR$/client/src/components/MyFooter.vue" />
-        <option value="$PROJECT_DIR$/client/src/components/MyMenu.vue" />
-        <option value="$PROJECT_DIR$/client/src/layouts/Main.vue" />
-        <option value="$PROJECT_DIR$/server/src/aopWebServer.ts" />
-        <option value="$PROJECT_DIR$/client/ourPhotos.css" />
-        <option value="$PROJECT_DIR$/client/index.html" />
-        <option value="$PROJECT_DIR$/client/src/components/MyHeader.vue" />
-        <option value="$PROJECT_DIR$/client/src/components/ModalPicture.vue" />
-        <option value="$PROJECT_DIR$/client/src/components/PhotoGrid.vue" />
-        <option value="$PROJECT_DIR$/client/src/pages/Calendar.vue" />
-        <option value="$PROJECT_DIR$/client/src/components/DataService.vue" />
-        <option value="$PROJECT_DIR$/client/src/components/MyEditor.vue" />
-        <option value="$PROJECT_DIR$/client/src/components/PhotoCell.vue" />
-        <option value="$PROJECT_DIR$/planning/daily_scan.dart" />
-        <option value="$PROJECT_DIR$/operations/operational_setup.md" />
-      </list>
-    </option>
-  </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsFlowSettings">
@@ -192,6 +131,7 @@
     <option name="width" value="1567" />
     <option name="height" value="768" />
   </component>
+  <component name="ProjectId" id="1ei4C5s8nqgtP3J7ynel64hxvIx" />
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
       <profile-state>
@@ -214,35 +154,10 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
-  <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="operations" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="AllOurPhotos" type="b2602c69:ProjectViewProjectNode" />
-              <item name="AllOurPhotos" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
-    </panes>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
@@ -278,18 +193,6 @@
       <recent name="C:\projects\OurPhotos\nev\testdata\2017-08" />
       <recent name="C:\projects\OurPhotos\nev\client2\src" />
     </key>
-  </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
   </component>
   <component name="RunManager">
     <configuration name="Attach to node" type="ChromiumRemoteDebugType" factoryName="Chromium Remote" port="64958">
@@ -417,65 +320,6 @@
   <component name="TimeTrackingManager">
     <option name="totallyTimeSpent" value="463523000" />
   </component>
-  <component name="ToolWindowManager">
-    <frame x="78" y="132" width="1567" height="768" extended-state="0" />
-    <layout>
-      <window_info id="Project" order="0" sideWeight="0.48243558" visible="true" weight="0.22163935" />
-      <window_info id="Structure" order="1" weight="0.25" />
-      <window_info id="npm" order="2" sideWeight="0.5175644" side_tool="true" weight="0.2766129" />
-      <window_info id="Favorites" order="3" side_tool="true" />
-      <window_info id="Image Layers" order="4" />
-      <window_info id="Designer" order="5" />
-      <window_info id="Capture Tool" order="6" />
-      <window_info id="Resources Explorer" order="7" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32821077" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.46285337" weight="0.22169812" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.5225806" weight="0.45754716" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="7" sideWeight="0.48983607" side_tool="true" visible="true" weight="0.32924962" />
-      <window_info anchor="bottom" id="TypeScript" order="8" sideWeight="0.49459785" visible="true" weight="0.32861635" />
-      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.425" weight="0.3233909" />
-      <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
-      <window_info anchor="bottom" id="REST Client" order="11" weight="0.3288835" />
-      <window_info anchor="bottom" id="Version Control" order="12" sideWeight="0.48790324" weight="0.3265306" />
-      <window_info anchor="bottom" id="Flutter Performance" order="13" side_tool="true" />
-      <window_info anchor="bottom" id="Dart Analysis" order="14" sideWeight="0.51016396" visible="true" weight="0.32924962" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Theme Preview" order="3" />
-      <window_info anchor="right" id="Flutter Inspector" order="4" />
-      <window_info anchor="right" id="Capture Analysis" order="5" />
-      <window_info anchor="right" id="Palette&#9;" order="6" />
-      <window_info anchor="right" id="Flutter Outline" order="7" />
-      <window_info anchor="right" id="WIFI ADB ULTIMATE" order="8" />
-    </layout>
-    <layout-to-restore>
-      <window_info id="Project" order="0" sideWeight="0.48243558" visible="true" weight="0.27580646" />
-      <window_info id="Structure" order="1" weight="0.25" />
-      <window_info id="npm" order="2" sideWeight="0.5175644" side_tool="true" weight="0.2766129" />
-      <window_info id="Favorites" order="3" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32861635" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.48711756" weight="0.14397496" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.5516129" visible="true" weight="0.46467817" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.4483871" side_tool="true" visible="true" weight="0.46467817" />
-      <window_info anchor="bottom" id="TypeScript" order="8" sideWeight="0.49459785" weight="0.3292683" />
-      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.425" weight="0.3233909" />
-      <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
-      <window_info anchor="bottom" id="REST Client" order="11" weight="0.3288835" />
-      <window_info anchor="bottom" id="Version Control" order="12" sideWeight="0.48790324" weight="0.3265306" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-    </layout-to-restore>
-  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
@@ -519,80 +363,5 @@
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/server/build/dbPhoto.js" />
-    <entry file="file://$PROJECT_DIR$/server/package.json" />
-    <entry file="file://$PROJECT_DIR$/server/src/sqlBuilderTests.ts" />
-    <entry file="file://$PROJECT_DIR$/server/node_modules/async-mysql/package.json" />
-    <entry file="file://$PROJECT_DIR$/server/node_modules/async-mysql/src/main.js" />
-    <entry file="file://$PROJECT_DIR$/server/src/sqlBuilder.ts" />
-    <entry file="file://$PROJECT_DIR$/server/node_modules/mysql/index.js" />
-    <entry file="file://$PROJECT_DIR$/server/build/aopWebServer.js" />
-    <entry file="file://$PROJECT_DIR$/server/src/dbPhotos.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/dbMysql.ts" />
-    <entry file="file://$PROJECT_DIR$/server/node_modules/@types/mysql/index.d.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/entity/Album.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/entity/User.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/entity/Image.ts" />
-    <entry file="file://$PROJECT_DIR$/server/build/imageUploader.js" />
-    <entry file="file://$PROJECT_DIR$/server/src/ImageUploader.ts" />
-    <entry file="file://$PROJECT_DIR$/test/testUpload.html" />
-    <entry file="file://$PROJECT_DIR$/server/build/aopConfig.json" />
-    <entry file="file://$PROJECT_DIR$/server/node_modules/piexifjs/piexif.js" />
-    <entry file="file://$PROJECT_DIR$/client/src/fixtures.js" />
-    <entry file="file://$PROJECT_DIR$/client/src/classes.js" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/VLink.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/main.js" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/PhotoGridxxx.vue" />
-    <entry file="file://$PROJECT_DIR$/client/package.json" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyFooter.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/pages/Home.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/layouts/Main.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyMenu.vue" />
-    <entry file="file://$PROJECT_DIR$/client/ourPhotos.css" />
-    <entry file="file://$PROJECT_DIR$/client/index.html" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyHeader.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/pages/Calendar.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/PhotoGrid.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/PhotoCell.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/MyEditor.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/DataService.vue" />
-    <entry file="file://$PROJECT_DIR$/client/src/components/ModalPicture.vue" />
-    <entry file="file://$PROJECT_DIR$/server/src/aopModel.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/async-mysql.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/fsUtils.ts" />
-    <entry file="file://$PROJECT_DIR$/test/aopConfig.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="11" selection-start-line="1" selection-start-column="11" selection-end-line="1" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aopWebServer.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/imgCatalog.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/jpegHelper.ts" />
-    <entry file="file://$PROJECT_DIR$/server/testPages/testUpload.html" />
-    <entry file="file://$PROJECT_DIR$/server/src/aopServerMain.ts" />
-    <entry file="file://$PROJECT_DIR$/server/src/aopServerMainTests.ts" />
-    <entry file="file://$PROJECT_DIR$/planning/daily_scan.dart">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="2" selection-start-column="2" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/operations/operational_setup.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="180">
-            <caret line="12" selection-start-line="12" selection-end-line="12" />
-          </first_editor>
-          <second_editor>
-            <markdownNavigatorState />
-          </second_editor>
-        </state>
-      </provider>
-    </entry>
   </component>
 </project>
