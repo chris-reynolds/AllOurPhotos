@@ -31,9 +31,8 @@ class SyncDriver {
       ? path.substring(path.lastIndexOf('/') + 1)
       : path.substring(path.lastIndexOf('\\') + 1);
 
-  Future<List<FileSystemEntity>> loadFileList({bool allPhotos:false}) async {
-    if (allPhotos)
-      fromDate = DateTime(1900);
+  Future<List<FileSystemEntity>> loadFileList({bool allPhotos: false}) async {
+    if (allPhotos) fromDate = DateTime(1900);
     messageController.add('Loading from ${formatDate(fromDate)}');
     Stream<FileSystemEntity> origin = Directory(localFileRoot).list(recursive: true);
     List<FileSystemEntity> result = [];
@@ -48,8 +47,8 @@ class SyncDriver {
       if (['jpg', 'png'].indexOf(thisExt) < 0) continue;
       String imageName = fileName(fse.path);
 //      Log.message('checking $imageName');
-      bool alreadyExists =
-          await AopSnap.sizeOrNameOrDeviceAtTimeExists(stats.modified, stats.size, imageName,config['sesdevice']);
+      bool alreadyExists = await AopSnap.sizeOrNameOrDeviceAtTimeExists(
+          stats.modified, stats.size, imageName, config['sesdevice']);
       if (alreadyExists) continue;
       Log.message('adding ${imageName} size=${stats.size} modified=${stats.modified}');
       result.add(fse);
@@ -64,7 +63,7 @@ class SyncDriver {
     int sofar = 0;
     for (FileSystemEntity fse in fileList)
       try {
-      sofar += 1;
+        sofar += 1;
         fullPath = (fse as File).path;
         if (await uploadImageFile(fse as File)) {
           Log.message('$fullPath uploaded OK');
@@ -83,9 +82,10 @@ class SyncDriver {
     FileStat thisPicStats = thisPicFile.statSync();
     List<int> fileContents = thisPicFile.readAsBytesSync();
     String imageName = fileName(thisPicFile.path);
-    return await uploadImage(imageName,thisPicStats.modified,fileContents);
+    return await uploadImage(imageName, thisPicStats.modified, fileContents);
   }
-    Future<bool> uploadImage(String imageName, DateTime createdDate, List<int> fileContents) async {
+
+  Future<bool> uploadImage(String imageName, DateTime createdDate, List<int> fileContents) async {
     try {
       Image thisImage = decodeImage(fileContents);
       List<int> jpeg = encodeJpg(thisImage, quality: 100);
@@ -110,7 +110,7 @@ class SyncDriver {
       DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ?? createdDate;
 
       bool alReadyExists =
-          await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName,deviceName);
+          await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName, deviceName);
       if (alReadyExists) return null;
       AopSnap newSnap = AopSnap()
         ..fileName = imageName
@@ -147,8 +147,7 @@ class SyncDriver {
         if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength))
           return null;
       } else {
-        if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength))
-          return null;
+        if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) return null;
       }
       String myMeta = jsonEncode(jpegLoader.tags);
       Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
