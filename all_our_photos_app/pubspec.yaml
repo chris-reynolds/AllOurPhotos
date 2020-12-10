@@ -18,13 +18,15 @@ dependencies:
   exifdart:
   mysql1:
     path: ../../mysql1_dart
-  multi_image_picker: ^4.6.0
-  flutter_form_builder: ^3.11.3
+#  multi_image_picker: ^4.6.0
+  flutter_form_builder: ^3.14.0-alpha
   device_info: ^0.4.0+1
   path_provider: ^1.1.0
   photo_view: ^0.4.0
   autocomplete_textfield: ^1.7.3
   flutter_chips_input: ^1.9.0-dev.1
+  aopcommon:
+    path: ../../aop/aopcommon
   #  flutter_staggered_grid_view: ^0.2.7
 #  extended_image: ^0.5.3
 #  image_picker:
@@ -42,10 +44,6 @@ dev_dependencies:
   test: ^1.0.0
   flutter_launcher_icons: ^0.7.5
 
-flutter_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/album1_icon.svg"
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 

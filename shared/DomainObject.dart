@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'package:aopcommon/aopcommon.dart';
 import './dbAllOurPhotos.dart';
-import '../dart_common/Logger.dart' as Log;
+
 
 bool sqlLogging = false;
 
@@ -86,9 +87,9 @@ class DOProvider<TDO extends DomainObject> {
       var r = await dbConn.query(sql);
       return r;
     } catch (ex) {
-      Log.error('query problem with ${ex.message}\n $sql');
+      log.error('query problem with ${ex.message}\n $sql');
       if (ex.message.substring(0, 12) == 'Cannot write') {
-        Log.message('reconnecting to database');
+        log.message('reconnecting to database');
         await DbAllOurPhotos.reconnect();
         return await dbConn.query(sql);
       } else
@@ -103,7 +104,7 @@ class DOProvider<TDO extends DomainObject> {
       if (aDomainObject.id != null && aDomainObject.id > 0) {
         // then update
         sql = sqlStatements.updateStatement();
-        if (sqlLogging) Log.message('save sql : $sql');
+        if (sqlLogging) log.message('save sql : $sql');
         dataFields.add(aDomainObject.id);
 //        dataFields.add(aDomainObject.updatedOn);
         var r = await dbConn.query(sql, dataFields);
@@ -114,14 +115,14 @@ class DOProvider<TDO extends DomainObject> {
       } else {
         // insert
         sql = sqlStatements.insertStatement();
-        if (sqlLogging) Log.message('save sql : $sql');
+        if (sqlLogging) log.message('save sql : $sql');
         var r = await dbConn.query(sql, dataFields);
         aDomainObject.id = r.insertId;
         await refreshFromDb(aDomainObject);
         return r.insertId;
       }
     } catch (ex) {
-      Log.error('$ex');
+      log.error('$ex');
       rethrow;
     }
   } // of save
@@ -143,11 +144,11 @@ class DOProvider<TDO extends DomainObject> {
   Future<List<TDO>> getSome(String whereClause, {String orderBy = 'created_on'}) async {
     var sql = sqlStatements.getSomeStatement(whereClause, orderBy: orderBy);
     try {
-      Log.message('SQL:$sql');
+      log.message('SQL:$sql');
       var r = await queryWithReOpen(sql);
       return toList(r);
     } catch (ex) {
-      Log.error(ex.toString());
+      log.error(ex.toString());
       rethrow;
     }
   }
@@ -156,7 +157,7 @@ class DOProvider<TDO extends DomainObject> {
     var r = await dbConn.query(sqlStatements.deleteStatement(), [aDomainObect.id]);
     if (r.affectedRows == 0)
       throw Exception('Failed Delete for $tableName id=${aDomainObect.id} ');
-    else if (sqlLogging) Log.message('Delete for $tableName id=${aDomainObect.id} ');
+    else if (sqlLogging) log.message('Delete for $tableName id=${aDomainObect.id} ');
     return true;
   }
 

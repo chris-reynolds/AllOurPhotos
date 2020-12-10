@@ -7,10 +7,10 @@ import 'DomainObject.dart';
 //import 'package:image/image.dart';
 import 'dart:math' as math;
 import 'package:path/path.dart' as Path;
-import '../dart_common/DateUtil.dart';
-import '../dart_common/DateUtil.dart';
-import '../dart_common/WebFile.dart';
+import 'package:aopcommon/aopcommon.dart';
+//import '../utils/WebFile.dart';
 
+String rootUrl = 'xxxx';
 //                                '*** End Custom Code
 
 // Domain object providers

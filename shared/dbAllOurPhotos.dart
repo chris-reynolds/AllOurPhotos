@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:mysql1/mysql1.dart';
-import '../dart_common/Logger.dart' as Log;
+import 'package:aopcommon/aopcommon.dart';
 
 
 MySqlConnection dbConn;
@@ -12,7 +12,7 @@ class DbAllOurPhotos {
       dbConn = await MySqlConnection.connect(new ConnectionSettings(
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
           password:config['dbpassword'], db: config['dbname']));
-      Log.message('Database connected to ${config["dbhost"]} ${config["dbname"]}');
+      log.message('Database connected to ${config["dbhost"]} ${config["dbname"]}');
       _lastConfig = config; // save for reconnect
     }
     return 1;
@@ -23,7 +23,7 @@ class DbAllOurPhotos {
       Results res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
       Iterable spResult = res.first.asMap().values;
       int sessionid = spResult.first as int;
-      Log.message('session created with id=$sessionid');
+      log.message('session created with id=$sessionid');
       return sessionid;
     } catch(ex) {
       throw "Failed to create aop session $ex";

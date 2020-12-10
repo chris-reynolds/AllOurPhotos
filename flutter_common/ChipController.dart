@@ -6,9 +6,8 @@
 */
 
 import 'package:flutter/material.dart';
-
-import '../dart_common/Logger.dart' as Log;
-import '../dart_common/WebFile.dart';
+import 'package:aopcommon/aopcommon.dart';
+import '../utils/WebFile.dart';
 
 final String DEFAULT_CHIPS = "+,-,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams";
 String remoteUrl;
@@ -26,7 +25,7 @@ class ChipSet {
       chips = s.split(DELIM).toSet();
     }
     if (logging) {
-      Log.message('${chips.length} chips from ($s)');
+      log.message('${chips.length} chips from ($s)');
     }
   }
 
@@ -83,7 +82,7 @@ abstract class ChipController {
     remoteChipFile.contents = chips.toString();
     bool result = await saveWebFile(remoteChipFile, silent: true);
     if (logging) {
-      Log.message('Saving (${remoteChipFile.contents}) to ${remoteChipFile.url} result=$result');
+      log.message('Saving (${remoteChipFile.contents}) to ${remoteChipFile.url} result=$result');
     }
     return result;
   } // of save

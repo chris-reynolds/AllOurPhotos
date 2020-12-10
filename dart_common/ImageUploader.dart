@@ -17,6 +17,17 @@ String _fileName(String path) => (path.lastIndexOf('/') > 0)
     ? path.substring(path.lastIndexOf('/') + 1)
     : path.substring(path.lastIndexOf('\\') + 1);
 
+
+Image makeThumbnail(Image fromImage) {
+  bool isWider = fromImage.width>fromImage.height;
+  if (fromImage.exif.hasOrientation && (fromImage.exif.orientation==6 || fromImage.exif.orientation==8))
+    isWider = !isWider;
+  Image toImage = copyResize(fromImage,width:isWider?640:480);
+  // now strip some exif
+  Image threeImage = Image.fromBytes(toImage.width, toImage.height,toImage.data);
+  return threeImage;
+} // make thumbnail
+
 Future<bool> uploadFile(File thisPicFile) async {
   FileStat thisPicStats = thisPicFile.statSync();
   List<int> fileContents = thisPicFile.readAsBytesSync();
@@ -87,7 +98,7 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
           newSnap.fileName.substring(0, lastDot) + 'a' + newSnap.fileName.substring(lastDot);
     }
     String myMeta = jsonEncode(jpegLoader.tags);
-    Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
+    Image thumbnail =  makeThumbnail(thisImage); //copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
     await saveWebImage(newSnap.thumbnailURL, image: thumbnail, quality: 50);
     await saveWebImage(newSnap.fullSizeURL, image: thisImage);
     await saveWebImage(newSnap.metadataURL, metaData: myMeta);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'shared/aopClasses.dart' as AopClasses;
 import 'screens/scAlbumList.dart';
 import 'screens/scHistory.dart';
 import 'screens/scTesting.dart';
@@ -27,8 +28,8 @@ void main() async {
   await loadConfig(configFile);
   loginStateMachine = LoginStateMachine(config);
   await loginStateMachine.initState();
-  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos 7Jul20.v1');
-//  Widget loginScreen = LoginForm();
+  Widget dashboardScreen = DashboardScreen(title: 'All Our Photos 11Dec20.v1');
+  AopClasses.rootUrl = 'http://${config["dbhost"]}:3333';
   application = new MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: false,
@@ -47,7 +48,8 @@ void main() async {
     home: (loginStateMachine.loginStatus == etLoginStatus.LoggedIn) ? dashboardScreen : LoginForm(),
     routes: <String, WidgetBuilder>{
 //      '/a': (BuildContext context) => GridListDemo(),
-      'home': (context) => dashboardScreen,
+      'home': (context) {   AopClasses.rootUrl = 'http://${config["dbhost"]}:3333';
+                            return dashboardScreen;} ,
       'login': (BuildContext context) => LoginForm(),
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
@@ -82,6 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _pageController = new PageController();
+    AopClasses.rootUrl = 'http://${config["dbhost"]}:3333';
     // loadTop will callback when completed
 //    loadTop(() {
 //      initTimer();
@@ -134,8 +137,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 }
               },
             ),
-          if (_debugMode) NavIconButton(context, 'testlog', Icons.list),
-          if (_debugMode) NavIconButton(context, 'Db Fix', Icons.local_hospital),
+          if (_debugMode) navIconButton(context, 'testlog', Icons.list),
+          if (_debugMode) navIconButton(context, 'Db Fixs', Icons.local_hospital),
         ],
       ),
       body: new PageView(

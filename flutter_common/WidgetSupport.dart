@@ -4,14 +4,29 @@ Created by chris reynolds on 2019-05-09
 Purpose: This file provides some utilities to make Flutter less verbose
 
 */
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
+class AssetWidget extends StatelessWidget {
+  final String name;
+  final double size;
+  final Color color;
+  AssetWidget(this.name,{this.size=50,this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return ImageIcon(
+      AssetImage('assets/$name'),
+      size: size, color:color??Theme.of(context).accentColor,
+    );
+  } // of build
+} // of AssetWidget
 
 BottomNavigationBarItem bottomButton(String keyText, IconData valueIcon) =>
-    BottomNavigationBarItem(icon: new Icon(valueIcon), title: new Text(keyText));
+    BottomNavigationBarItem(icon: new Icon(valueIcon), label: keyText);
 
-IconButton NavIconButton(BuildContext context,String routeName, IconData valueIcon) =>
+IconButton navIconButton(BuildContext context,String routeName, IconData valueIcon) =>
     IconButton(icon: new Icon(valueIcon),
         tooltip: routeName,
         onPressed: () async {Navigator.pushNamed(context, routeName); });
@@ -111,7 +126,7 @@ Future<String> inputBox(BuildContext context, String question) async {
 }
 
 Future<bool> confirmYesNo(BuildContext context, String question, {String description = ''}) async {
-  TextStyle myStyle = Theme.of(context).textTheme.body2;
+  TextStyle myStyle = Theme.of(context).textTheme.bodyText1;
   return showDialog<bool>(
     context: context,
     barrierDismissible: false, // user must tap button!
@@ -156,7 +171,7 @@ Future<bool> confirmYesNo(BuildContext context, String question, {String descrip
 } // OF ConfirmYesNo
 
 Future<void> showMessage(BuildContext context, String message, {String title}) async {
-  TextStyle myStyle = Theme.of(context).textTheme.body2;
+  TextStyle myStyle = Theme.of(context).textTheme.bodyText1;
   return showDialog<bool>(
     context: context,
     barrierDismissible: false, // user must tap button!
