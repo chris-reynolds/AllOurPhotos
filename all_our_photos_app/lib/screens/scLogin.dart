@@ -25,9 +25,10 @@ class _LoginFormState extends State<LoginForm> {
   var _loginFormKey = GlobalKey<FormBuilderState>();
   String _messageText = '';
   Map<String, dynamic> fieldValues = {
-    'dbhost': '192.168.1.251',
+    'dbhost': '192.168.1.195',
     'dbport': '3306',
-    'sesdevice': 'fffff'
+    'dbuser': 'photos',
+    'sesdevice': 'sim'
   };
 
   _LoginFormState() : super() {
