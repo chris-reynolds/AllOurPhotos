@@ -88,45 +88,6 @@ Future processRequest(HttpRequest request) async {
         ..write('Goodbyte from the server');
       response.close();
       exit(0); // server abort
-    } else if (request.uri.path == '/aoptop') {
-      List<FileSystemEntity> rootSubdirectories =
-          Directory(config['fileserver_root']).listSync()
-            ..retainWhere((fse) => FileSystemEntity.isDirectorySync(fse.path));
-      String currentDirList = '~';
-      for (FileSystemEntity fse in rootSubdirectories) {
-        String subDirectoryName = path.split(fse.path).removeLast();
-        currentDirList = currentDirList + subDirectoryName + '~';
-      }
-      response
-        ..headers.contentType = ContentType('text', 'plain')
-        ..write(currentDirList);
-      response.close();
-    } else if (request.uri.path == '/aoptop.full') {
-      print(DateTime.now());
-      response..headers.contentType = ContentType('text', 'plain');
-      if (_topCache.length == 0) {
-        // first timer
-        List<FileSystemEntity> rootSubdirectories =
-            Directory(config['fileserver_root']).listSync()
-              ..retainWhere(
-                  (fse) => FileSystemEntity.isDirectorySync(fse.path));
-        print('loading cache ${DateTime.now()}');
-        for (FileSystemEntity fse in rootSubdirectories) {
-          String subDirectoryName = path.split(fse.path).removeLast();
-          _topCache.add('\n=Directory $subDirectoryName\n');
-          var indexFile = File(path.join(
-              config['fileserver_root'], subDirectoryName, 'index.tsv'));
-          try {
-            _topCache.add(indexFile.readAsStringSync());
-          } catch (ex) {
-            print('badness $ex');
-          }
-        }
-        print(DateTime.now());
-      }
-      response.write(_topCache.join(''));
-      response.close();
-      print(DateTime.now());
     } else if (permissionDenied) {
       // failed security check
       response
@@ -172,65 +133,10 @@ Future processRequest(HttpRequest request) async {
         HttpStatus.methodNotAllowed, 'Invalid method${request.method}');
 } // of process request
 
-/*
-void serveDirectory(Directory dir, HttpRequest request) async {
-  HttpResponse response = request.response;
-  var dirStats = dir.statSync();
-  String rootPath = config['fileserver_root'];
-  String currentURL = '';
-  // local function to get from file back to url
-  String pathToURL(String path) {
-    if (path.length>=rootPath.length  && path.substring(0,rootPath.length)==rootPath) {
-      String result = path.substring(rootPath.length).replaceAll('\\', '/');
-      if (result.length >2 && result.substring(0,3) == '/./')  // noise from virtualDirecotry ??
-        result = result.substring(2);
-      return result;
-    } else
-      return 'BADPATH='+path;
-  } // of pathToURL
-//    if (request.headers.ifModifiedSince != null &&
-//        !dirStats.modified.isAfter(request.headers.ifModifiedSince)) {
-//      response.statusCode = HttpStatus.notModified;
-//      response.close();
-//      return;
-//    }
-    response.headers.contentType = new ContentType('text', 'tab-separated-values');
-    response.headers.set(HttpHeaders.lastModifiedHeader, dirStats.modified);
-//    var path = Uri.decodeComponent(request.uri.path);
-    response.writeln('name\tmodified:d\tsize:i\tfolder:b');
 
-    void addLine(String name, String modified, var size, bool folder) {
-      size ??= "-";
-      modified ??= "";
-      String entry = '${name}\t${modified}\t${size}\t${folder}';
-      print(entry);
-      response.writeln(entry);
-    }
-    void addFileSystemEntity(FileSystemEntity entity) {
-      var stat = entity.statSync();
-      String newURL = pathToURL(Path.dirname(entity.path));
-      String fileName = Path.basename(entity.path);
-      if (newURL == '/.') return; // skip pointer to current directory
-      if (newURL != currentURL) {  // insert directory lines on change of directory
-        currentURL = newURL;
-        response.writeln(); // add blankline as visual separator
-        addLine(currentURL,stat.modified.toString(),-1,true);
-      }
-      if (entity is File)
-        addLine(fileName, stat.modified.toString(), stat.size, false);
-       else if (entity is Directory)
-        addLine(fileName, stat.modified.toString(), null, true);
-    } // of addFileSystemEntity
-    var dirList = await dir.list(recursive: true, followLinks: true).toList();
-    for (FileSystemEntity fse in dirList) {addFileSystemEntity(fse);}
-
-    response.close();
-    print('close');
-}
-*/
 Future<Map> loadConfig(String filename) async {
   if (!FileSystemEntity.isFileSync(filename))
-    throw 'Invalid configuration filename';
+    throw 'Invalid configuration filename ($filename)';
   else {
     String configContents = File(filename).readAsStringSync(encoding: utf8);
     try {
