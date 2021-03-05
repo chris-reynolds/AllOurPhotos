@@ -10,7 +10,7 @@ import 'package:path/path.dart' as Path;
 import 'package:aopcommon/aopcommon.dart';
 //import '../utils/WebFile.dart';
 
-String rootUrl = 'xxxx';
+String get rootUrl => 'http://${config["dbhost"]}:3333';
 //                                '*** End Custom Code
 
 // Domain object providers
@@ -639,6 +639,21 @@ Future<void> delete() async {
           "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
           "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
           fileSize
+        ]);
+    var values = r.first.values;
+    return values[0] > 0;
+  } // of dateTimeExists
+
+  static Future<bool> nameSameDayExists(DateTime taken, String filename) async {
+    DateTime startTime = taken.add(Duration(days: -2));
+    DateTime endTime = taken.add(Duration(days: 2));
+    var r = await snapProvider.rawExecute(
+        'select count(*) from aopsnaps ' +
+            "where (original_taken_date between ? and ?) and file_name=?",
+        [
+          "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          filename
         ]);
     var values = r.first.values;
     return values[0] > 0;
