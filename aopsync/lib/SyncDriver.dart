@@ -10,15 +10,10 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:meta/meta.dart';
 import 'package:image/image.dart';
-
+import 'package:aopcommon/aopcommon.dart';
 // import 'package:device_info/device_info.dart';
 import 'shared/aopClasses.dart';
-import 'dart_common/Logger.dart' as Log;
-import 'dart_common/Config.dart';
-import 'dart_common/JpegLoader.dart';
-import 'dart_common/Geocoding.dart';
-import 'dart_common/DateUtil.dart';
-import 'dart_common/WebFile.dart';
+
 
 class SyncDriver {
   String localFileRoot;
@@ -36,6 +31,7 @@ class SyncDriver {
     messageController.add('Loading from ${formatDate(fromDate)}');
     Stream<FileSystemEntity> origin = Directory(localFileRoot).list(recursive: true);
     List<FileSystemEntity> result = [];
+    List<DateTime> resultDates = [];  // parallel array for sorting
     int totalChecked = 0;
     await for (var fse in origin) {
       totalChecked += 1;
@@ -47,18 +43,30 @@ class SyncDriver {
       if (['jpg', 'png'].indexOf(thisExt) < 0) continue;
       String imageName = fileName(fse.path);
 //      Log.message('checking $imageName');
-      bool alreadyExists = await AopSnap.sizeOrNameOrDeviceAtTimeExists(
-          stats.modified, stats.size, imageName, config['sesdevice']);
+      bool alreadyExists = await AopSnap.nameSameDayExists(stats.modified, imageName );
       if (alreadyExists) continue;
-      Log.message('adding ${imageName} size=${stats.size} modified=${stats.modified}');
+      log.message('adding ${imageName} size=${stats.size} modified=${stats.modified}');
       result.add(fse);
+      resultDates.add(stats.modified); //
     }
-    Log.message('Found ${result.length} new pictures, skipped ${totalChecked - result.length}');
+    messageController.add('sorting');
+    DateTime swapDate;
+    FileSystemEntity swapFse;
+    for (int i=0; i<result.length; i++) {
+      for (int j=i+1; j<result.length;j++) {
+        if (resultDates[i].isAfter(resultDates[j])) {
+          swapDate= resultDates[i]; resultDates[i]=resultDates[j]; resultDates[j]=swapDate;
+          swapFse = result[i]; result[i]=result[j]; result[j]=swapFse;
+        }
+      }
+    }
+    messageController.add('Sorted ${result.length}');
+    log.message('Found ${result.length} new pictures, skipped ${totalChecked - result.length}');
     return result; // finished the where filter
   } // loadFileList
 
-  Future<void> processList(List<FileSystemEntity> fileList) async {
-    Log.message('Start processing ${fileList.length} pictures');
+  Future<void> processListxxx(List<FileSystemEntity> fileList) async {
+    log.message('Start processing ${fileList.length} pictures');
     String fullPath;
     int sofar = 0;
     for (FileSystemEntity fse in fileList)
@@ -66,17 +74,17 @@ class SyncDriver {
         sofar += 1;
         fullPath = (fse as File).path;
         if (await uploadImageFile(fse as File)) {
-          Log.message('$fullPath uploaded OK');
+          log.message('$fullPath uploaded OK');
           messageController.add('$fullPath done  ${sofar} of ${fileList.length}');
         } else {
-          Log.message('Skipped  upload $fullPath ');
+          log.message('Skipped  upload $fullPath ');
           messageController.add('Skipped $fullPath ${sofar} of ${fileList.length}');
         }
       } catch (ex) {
-        Log.error('Failed to upload $fullPath with $ex');
+        log.error('Failed to upload $fullPath with $ex');
       }
     messageController.add('Processed-complete');
-  } // of processList
+  } // of processListxxx
 
   Future<bool> uploadImageFile(File thisPicFile) async {
     FileStat thisPicStats = thisPicFile.statSync();
@@ -87,13 +95,20 @@ class SyncDriver {
 
   Future<bool> uploadImage(String imageName, DateTime createdDate, List<int> fileContents) async {
     try {
+      log.message('Start processing $imageName ------------------------------------------');
+      if (await AopSnap.sizeOrNameOrDeviceAtTimeExists(createdDate, 0, imageName, 'vvvgnv')) {
+        log.message('fast dup check - true');
+        return null;
+      }
       Image thisImage = decodeImage(fileContents);
+      log.message('decoded');
       List<int> jpeg = encodeJpg(thisImage, quality: 100);
       int imageSize = jpeg.length; // decode/encode seems to be the only way to get reliable length
-      Log.message('uploading $imageName');
+      log.message('encoded $imageName');
       GeocodingSession _geo = GeocodingSession();
       JpegLoader jpegLoader = JpegLoader();
       await jpegLoader.extractTags(fileContents);
+      log.message('extracted tags $imageName');
       String deviceName = jpegLoader.tag('Model') ?? config['sesdevice'];
 //      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 //
@@ -108,57 +123,72 @@ class SyncDriver {
 //      }
 
       DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ?? createdDate;
-
+      log.message('check for dup-1');
       bool alReadyExists =
           await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName, deviceName);
-      if (alReadyExists) return null;
-      AopSnap newSnap = AopSnap()
-        ..fileName = imageName
-        ..directory = '1982-01'
-        ..width = thisImage.width
-        ..height = thisImage.height
-        ..takenDate = takenDate
-        ..modifiedDate = createdDate
-        ..deviceName = deviceName
-        ..rotation = '0' // todo support enumeration
-        ..importSource = deviceName
-        ..importedDate = DateTime.now();
-
-      bool isScanned =
-          ((jpegLoader.tag('device.software') ?? '').toLowerCase().indexOf('scan') >= 0);
-      newSnap.importSource += isScanned ? ' scanned' : ' camera roll';
-
-      newSnap.originalTakenDate = newSnap.takenDate;
-      newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
-      // checkl for duplicate
-      newSnap.mediaLength = imageSize;
-      if (jpegLoader.tag("GPSLatitudeRef") != null) {
-        newSnap.latitude =
-            jpegLoader.dmsToDeg(jpegLoader.tag('GPSLatitude'), jpegLoader.tag('GPSLatitudeRef'));
-        newSnap.longitude =
-            jpegLoader.dmsToDeg(jpegLoader.tag('GPSLongitude'), jpegLoader.tag('GPSLongitudeRef'));
+      if (alReadyExists) {
+        log.message('sizeOrNameOrDeviceAtTimeExists');
+        return null;
       }
-      if (newSnap.latitude != null) {
-        String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
-        if (location != null) newSnap.trimSetLocation(location);
-      }
+        AopSnap newSnap = AopSnap()
+          ..fileName = imageName
+          ..directory = '1982-01'
+          ..width = thisImage.width
+          ..height = thisImage.height
+          ..takenDate = takenDate
+          ..modifiedDate = createdDate
+          ..deviceName = deviceName
+          ..rotation = '0' // todo support enumeration
+          ..importSource = deviceName
+          ..importedDate = DateTime.now();
 
-      if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
-        if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength))
-          return null;
-      } else {
-        if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) return null;
-      }
-      String myMeta = jsonEncode(jpegLoader.tags);
-      Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
-      await saveWebImage(newSnap.thumbnailURL, image: thumbnail, quality: 50);
-      await saveWebImage(newSnap.fullSizeURL, image: thisImage);
-      await saveWebImage(newSnap.metadataURL, metaData: myMeta);
-      newSnap.metadata = myMeta;
-      await newSnap.save();
+        bool isScanned =
+        ((jpegLoader.tag('device.software') ?? '').toLowerCase().indexOf('scan') >= 0);
+        newSnap.importSource += isScanned ? ' scanned' : ' camera roll';
+
+        newSnap.originalTakenDate = newSnap.takenDate;
+        newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
+        // checkl for duplicate
+        newSnap.mediaLength = imageSize;
+        if (jpegLoader.tag("GPSLatitudeRef") != null) {
+          newSnap.latitude =
+              jpegLoader.dmsToDeg(jpegLoader.tag('GPSLatitude'), jpegLoader.tag('GPSLatitudeRef'));
+          newSnap.longitude =
+              jpegLoader.dmsToDeg(jpegLoader.tag('GPSLongitude'), jpegLoader.tag('GPSLongitudeRef'));
+        }
+        if (newSnap.latitude != null) {
+          String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
+          if (location != null) newSnap.trimSetLocation(location);
+          log.message('found location : ${newSnap.location}');
+        }
+
+        if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
+          if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength)) {
+            log.message('duplicate dateTime+length');
+            return null;
+          }
+        }
+          if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) {
+            log.message('duplicate name+length');
+            return null;
+          }
+         String myMeta = jsonEncode(jpegLoader.tags);
+        Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
+        log.message('made thumbnail');
+        await saveWebImage(newSnap.thumbnailURL, image: thumbnail, quality: 50);
+        log.message('-> thumbnail');
+        await saveWebImage(newSnap.fullSizeURL, image: thisImage);
+        log.message('-> full image');
+        await saveWebImage(newSnap.metadataURL, metaData: myMeta);
+        log.message('-> meta');
+        newSnap.metadata = myMeta;
+        await newSnap.save();
+      log.message('-> database');
+
       return true;
-    } catch (ex) {
-      Log.error('Failed save for ${imageName} - $ex');
+
+    } catch (ex,st) {
+      log.error('Failed save for ${imageName} - $ex \n$st\n\n');
       return false;
     } // of try
   } // of uploadImage
