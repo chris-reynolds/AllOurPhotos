@@ -20,11 +20,14 @@ dependencies:
   flutter:
     sdk: flutter
   mysql1:
-    path: ../../mysql1_dart
+    path: ../../my_pub_dev/mysql1_dart
+  aopcommon:
+    path: ../../aop/aopcommon
   exifdart: ^0.7.0+3
   path_provider: ^1.6.1
-  flutter_form_builder: ^3.11.3
-  flutter_chips_input: ^1.9.0-dev.1
+  flutter_form_builder:
+#    path: ../../my_pub_dev/flutter_form_builder-4.0.2
+  flutter_chips_input: ^1.9.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -75,3 +78,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+launch_icon:
+  source: assets/sync.jpg
+  target:
+    - ios/Runner/*/app_icon*.png
+    - macos/Runner/*/app_icon*.png
+    - web/icons/Icon*.png
+    - web/favicon.png
+    - android/*/ic_launcher*.png
