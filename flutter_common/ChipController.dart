@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import '../utils/WebFile.dart';
+//import '../utils/WebFile.dart';
 
 final String DEFAULT_CHIPS = "+,-,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams";
 String remoteUrl;

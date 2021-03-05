@@ -9,9 +9,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../authentication_state.dart';
-import '../dart_common/Config.dart';
-import '../dart_common/Logger.dart' as Log;
 import '../shared/dbAllOurPhotos.dart';
 import 'scSignin.dart';
 import 'scHome.dart';
@@ -22,13 +21,13 @@ class LaunchWithLogin extends StatelessWidget {
 
   Future<void> initConfig() async {
     String localDocs = (await getApplicationDocumentsDirectory()).path;
-    Log.message('localdocs from $localDocs');
-    if (!Platform.isIOS) {
+    log.message('localdocs from $localDocs');
+    if (Platform.isAndroid) {
       String extStorage = (await getExternalStorageDirectory()).path;
-      Log.message('external storage is $extStorage');
+      log.message('external storage is $extStorage');
     }
     await loadConfig(localDocs + '/aopPhoneSync.config.json');
-    Log.message('loaded config from $localDocs');
+    log.message('loaded config from $localDocs');
   } // of initConfig
 
   void tryLogin() async {
@@ -38,9 +37,9 @@ class LaunchWithLogin extends StatelessWidget {
       await db.startSession(config);
       _streamController.add(AuthenticationState.authenticated());
       saveConfig();
-      Log.message('Config saved');
+      log.message('Config saved');
     } catch (ex) {
-      Log.error('Failed to login $ex');
+      log.error('Failed to login $ex');
       _streamController.add(AuthenticationState.failed());
     }
   } // of tryLogin
@@ -50,7 +49,7 @@ class LaunchWithLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initConfig().then((xx) => tryLogin());
-    Log.message('building after tryLogin');
+    log.message('building after tryLogin');
     return new StreamBuilder<AuthenticationState>(
         stream: _streamController.stream,
 //        initialData: new AuthenticationState.initial(),

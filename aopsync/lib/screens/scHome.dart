@@ -10,20 +10,18 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:aopcommon/aopcommon.dart';
 
-//import 'package:path_provider/path_provider.dart';
-import '../dart_common/Config.dart';
-import '../dart_common/Logger.dart' as Log;
 import '../SyncDriver.dart';
-import '../dart_common/DateUtil.dart';
 import '../IosGallery.dart';
-import 'MultiGallerySelectPage.dart';
+import 'scLogger.dart';
+
+//import 'MultiGallerySelectPage.dart';
 
 const LAST_RUN = 'last_run';
 
 class HomePage extends StatefulWidget {
   Function tryLogout;
-
   HomePage(this.tryLogout) : super() {} // of constructor
 
   @override
@@ -73,15 +71,22 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   } // _toggleSelectAll
 
+  void _showLogger(BuildContext context) {
+     Navigator.push(context, MaterialPageRoute(builder:(context)=>LoggerList(),fullscreenDialog: true));
+  }
   @override
   Widget build(BuildContext context) {
-    Log.message('Home builder');
+    log.message('Home builder');
     return //(1==1)?ProgressForm():
         Scaffold(
-            appBar: AppBar(title: Text('AllOurPhoto Upload 28Mar20'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AllOurPhoto Upload 5Mar21'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.select_all),
                 onPressed: _toogleSelectAll,
+              ),
+              IconButton(
+                icon: Icon(Icons.list),
+                onPressed: ()=>_showLogger(context),
               ),
               IconButton(
                 icon: Icon(Icons.close),
@@ -93,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                   stream: syncDriver.messageController.stream,
                   initialData: '',
                   builder: (BuildContext context, AsyncSnapshot<String> messageSnapshot) {
-                    Log.message('building with $_selectAll and $_inProgress');
+                    log.message('building with $_selectAll and $_inProgress');
                     return Center(
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -136,7 +141,8 @@ class _HomePageState extends State<HomePage> {
                               ),
                             Spacer(
                               flex: 3,
-                            )
+                            ),
+
                           ]),
                     ); // of column
                   } // of builder
@@ -212,7 +218,7 @@ class _HomePageState extends State<HomePage> {
         print(item.path);
       }
       iosGallery.clearCollection();
-      messages.add('Processing completed');
+      messages.add('Processing completed \n Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount}');
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];

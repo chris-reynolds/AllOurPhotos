@@ -4,12 +4,14 @@
   Purpose: 
 
 */
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import '../dart_common/Config.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../flutter_common/WidgetSupport.dart';
+import 'scLogger.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import '../dart_common/Logger.dart' as Log;
+
 
 
 class SignInPage extends StatelessWidget {
@@ -21,10 +23,14 @@ class SignInPage extends StatelessWidget {
 
   signIn() async {
     var formValueMap = wsFormValues(_loginFormKey.currentState); // _loginFormKey.currentState;
-    Log.message('my form state $formValueMap');
+    log.message('my form state $formValueMap');
     config.addAll(formValueMap);
     loginCallback();
-  Log.message('just executed login callback');
+  log.message('just executed login callback');
+  }
+
+  void _showLogger(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder:(context)=>LoggerList(),fullscreenDialog: true));
   }
 
   List<Widget> registerLoginWidgets() {
@@ -36,11 +42,12 @@ class SignInPage extends StatelessWidget {
       'DB Password:dbpassword',
       'User name:sesuser',
       'Password:sespassword',
-      'Web Root:webroot',
-      "Web Port:webport",
+//      'Web Root:webroot',
+//      "Web Port:webport",
       'Device:sesdevice',
-      'Local Directory:lcldirectory',
     ];
+    if (!Platform.isIOS)
+      fields.add('Local Directory:lcldirectory');
     return fields.map((thisFieldDef) => wsMakeField(thisFieldDef, values: config, spacer: 1)).toList();
   }
 
@@ -48,7 +55,12 @@ class SignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sign in3')),
+      appBar: AppBar(title: Text('Sign in'),actions:[
+        IconButton(
+          icon: Icon(Icons.list),
+          onPressed: ()=>_showLogger(context),
+        ),
+      ]),
       body: SafeArea(
         child: FormBuilder(
 //          onChanged: handleFormChanged,

@@ -4,11 +4,11 @@ import 'package:path/path.dart' as Path;
 import 'Logger.dart' as Log;
 
 Map<String,dynamic> config = {};
-String finalFileName;
+String finalFileName = 'Unassigned';
 
 
 
-Future<void> loadConfig([String commandLineFilename]) async {
+Future<void> loadConfig([String? commandLineFilename]) async {
 //  String os = Platform.operatingSystem;
   String programName = Platform.script.toFilePath();
   String defaultName = programName.replaceAll('\.dart', '\.config\.json'); //.substring(5);

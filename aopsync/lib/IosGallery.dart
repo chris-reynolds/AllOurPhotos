@@ -6,7 +6,7 @@
 */
 
 import 'dart:typed_data';
-import 'dart_common/DateUtil.dart';
+import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/services.dart';
 
 
@@ -68,6 +68,6 @@ class IosGallery {
 
   void clearCollection() async {
     count = 0;
-    await _channel.invokeMethod<int>('clearCollection');
+//    await _channel.invokeMethod<int>('clearCollection');
   }
 } // of IosGallery
