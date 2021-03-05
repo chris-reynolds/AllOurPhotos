@@ -45,5 +45,7 @@
 	<string>Access library to sync with AllOurPhotos</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Access camera maybe to sync with AllOurPhotos</string>
+	<key>NSAllowsArbitraryLoads</key>
+    <true/>
 </dict>
 </plist>
