@@ -6,7 +6,8 @@ Purpose: This file provides some utilities to make Flutter less verbose
 */
 
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+
+// import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class AssetWidget extends StatelessWidget {
   final String name;
@@ -35,12 +36,19 @@ IconButton navIconButton(BuildContext context,String routeName, IconData valueIc
 /// WSValidator typedef is used to inject validators into a form definition
 typedef wsValidator = String Function(dynamic value);
 
+
+class MyFormState extends FormState {
+  @override
+  final Set<FormFieldState<dynamic>> _fields = <FormFieldState<dynamic>>{};
+  Set<FormFieldState<dynamic>> get fields => _fields;
+}
+
 Widget wsTextField(String promptText, {String key, double spacer, dynamic initValue}) {
   return Container(
       key: Key(key),
       padding: EdgeInsets.fromLTRB(0, spacer ?? 12, 0, 0),
-      child: FormBuilderTextField(
-        attribute: key, maxLines: 1,
+      child: TextFormField(
+        key: Key(key), maxLines: 1,
         decoration: InputDecoration(
           labelText: promptText,
           contentPadding: EdgeInsets.fromLTRB(0, spacer ?? 12, 0, 0),
@@ -58,10 +66,10 @@ Widget wsMakeField(String fieldDef, {Map values,double spacer}) {
   return wsTextField(bits[0], key: bits[1], spacer:spacer, initValue: initValue);
 } // of wsFieldList
 
-Map<String, dynamic> wsFormValues(FormBuilderState fbs) {
+Map<String, dynamic> wsFormValues(MyFormState fbs) {
   Map<String, dynamic> result = {};
-  fbs.fields.forEach((name, state) {
-    result[name] = state.currentState.value;
+  fbs.fields.forEach((fieldState) {
+    result[fieldState.widget.key.toString()] = fieldState.value;
   });
   return result;
 } // wsFormValues
