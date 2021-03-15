@@ -10,13 +10,14 @@ import 'package:flutter/widgets.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../flutter_common/WidgetSupport.dart';
 import 'scLogger.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+
+//import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 
 
 class SignInPage extends StatelessWidget {
 //  final StreamController<AuthenticationState> _streamController;
-  final _loginFormKey = GlobalKey<FormBuilderState>();
+  final _loginFormKey = GlobalKey<FormState>();
   final Function loginCallback;
 
   SignInPage(/*this._streamController,*/this.loginCallback) ;
@@ -62,7 +63,7 @@ class SignInPage extends StatelessWidget {
         ),
       ]),
       body: SafeArea(
-        child: FormBuilder(
+        child: Form(
 //          onChanged: handleFormChanged,
           key: _loginFormKey,
           child: ListView(
