@@ -11,4 +11,4 @@ PRODUCT_NAME = aopsync
 PRODUCT_BUNDLE_IDENTIFIER = kiwi.retired.aopsync
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2020 kiwi.retired. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2021 kiwi.retired. All rights reserved.
