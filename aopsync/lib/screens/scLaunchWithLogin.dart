@@ -30,7 +30,7 @@ class LaunchWithLogin extends StatelessWidget {
     log.message('loaded config from $localDocs');
   } // of initConfig
 
-  void tryLogin() async {
+  Future<void> tryLogin() async {
     try {
       var db = DbAllOurPhotos();
       await db.initConnection(config);
