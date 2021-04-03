@@ -8,7 +8,7 @@ String finalFileName = 'Unassigned';
 
 
 
-Future<void> loadConfig([String? commandLineFilename]) async {
+Future<void> loadConfig([String commandLineFilename]) async {
 //  String os = Platform.operatingSystem;
   String programName = Platform.script.toFilePath();
   String defaultName = programName.replaceAll('\.dart', '\.config\.json'); //.substring(5);

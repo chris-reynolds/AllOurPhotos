@@ -10,7 +10,7 @@ description: A flutter project to manage all our photos.
 version: 20.04.23
 
 environment:
-  sdk: ">=2.2.2 <4.0.0"
+  sdk: ">=2.11.0 <3.0.0"
 
 dependencies:
   http:
@@ -19,8 +19,8 @@ dependencies:
   mysql1:
     path: ../../my_pub_dev/mysql1_dart
 #  multi_image_picker: ^4.6.0
-  flutter_form_builder:
-    path: ../../my_pub_dev/flutter_form_builder-4.0.2
+#  flutter_form_builder:
+#    path: ../../my_pub_dev/flutter_form_builder-4.0.2
   device_info: ^0.4.0+1
   path_provider: ^1.1.0
   photo_view: ^0.4.0
