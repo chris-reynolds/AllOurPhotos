@@ -123,14 +123,33 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
+    double yPos = 0;
     if (snapList == null) _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList[_snapIndex];
     return Scaffold(
       appBar: buildAppBar(context),
-      body: Center(
-        child: Stack(
+      body: GestureDetector(
+        onVerticalDragStart: (cursorPos)=> yPos = cursorPos.localPosition.direction,
+        onVerticalDragUpdate: (cursorPos) {
+          if (cursorPos.delta.dy >100 )
+            snapIndex = _snapIndex+1;
+          else if (cursorPos.delta.dy <-100   )
+            snapIndex = _snapIndex - 1;
+          print('onVerticalDragUpdate $_snapIndex ${cursorPos.delta.dy}');
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Transform.rotate(
+            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),
+              Text(
+                '${currentSnap.caption ?? ''}\n${currentSnap.location ?? ''}',
+                style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
+              ),
+            ]),
+            Expanded(
+                flex: 1,
+                child: Transform.rotate(
               angle: currentSnap.angle,
               child: PhotoViewerWithRect(
                 key: pvKey,
@@ -138,17 +157,12 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                 onScale: setIsPhotoScaled,
               ),
             ),
-            Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),
-              Text(
-                '${currentSnap.caption ?? ''}\n--------------\n${currentSnap.location ?? ''}',
-                style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
-              ),
-            ]),
+            ),
             if (_isClippingInProgress) Center(child: CircularProgressIndicator()),
           ],
         ),
-      ),
+      )
+
     );
   } // of build
 
