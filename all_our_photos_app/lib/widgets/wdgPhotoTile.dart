@@ -48,13 +48,11 @@ class PhotoTile extends StatelessWidget {
               .pushNamed('SinglePhoto', arguments: [snapList, index]); // weakly types params. yuk.
         },
         child: new Container(
-            decoration: BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.05)),
+            decoration: BoxDecoration(color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
             key: new Key(snap.thumbnailURL),
-//            tag: snap.fileName,
             child: Transform.rotate(
               angle: snap.angle,
               child: Image.network(
-//                snap.thumbnailURL,
                 highResolution ? snap.fullSizeURL : snap.thumbnailURL,
                 fit: BoxFit.scaleDown,
               ),
@@ -63,7 +61,7 @@ class PhotoTile extends StatelessWidget {
     final IconData icon = Icons.star;
     final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
     String descriptor =
-        '${formatDate(snap.takenDate, format: 'dmmm yy')} ${snap.caption ?? snap.location ?? ""}';
+        '${formatDate(snap.takenDate, format: 'dmmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
@@ -73,8 +71,9 @@ class PhotoTile extends StatelessWidget {
             onBannerTap(snap);
           },
           child: new GridTileBar(
+            backgroundColor: Colors.lime.shade50,
               title: Text(descriptor, style: TextStyle(color: Colors.black)),
-              //subtitle: (snap.location != null) ? Text(snap.location??'') : Container(),
+              subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black)) ,
               trailing: Row(children: [
                 new Icon(icon, color: filterColors[snap.ranking], size: 40.0),
               ])),
@@ -88,8 +87,9 @@ class PhotoTile extends StatelessWidget {
             onBannerTap(snap);
           },
           child: new GridTileBar(
-//            backgroundColor: isSelected ? Colors.black45 :Colors.black26,
+            backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
             title: Text(descriptor, style: TextStyle(color: Colors.black)),
+            subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black)) ,
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
             trailing: new Icon(iconSelect, color: Colors.black),
           ),
