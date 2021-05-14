@@ -105,12 +105,31 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Spacer(),
-                            Text(
-                                'Last run: ${prettyDate(lastRunTime)}   ${_selectAll ? 'but all Selected' : ''}'),
+
+                            Padding(
+                              padding: const EdgeInsets.all(50.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(child: Icon(Icons.chevron_left),onPressed: (){moveDate(-30);},),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(child: Icon(Icons.chevron_left_rounded),onPressed: (){moveDate(-1);},),
+                                  ),
+                                  Text(
+                                      'Last run: ${prettyDate(lastRunTime)}   ${_selectAll ? 'but all Selected' : ''}'),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(child: Icon(Icons.chevron_right_rounded),onPressed: (){moveDate(1);},),
+                                  ),
+                                  ElevatedButton(child: Icon(Icons.double_arrow),onPressed: (){moveDate(30);},),
+                                ],
+                              ),
+                            ),
                             Spacer(),
 
                             if (!_inProgress)
-                              RaisedButton(
+                              ElevatedButton(
                                 child: Text('Check for Photos'),
                                 onPressed: () {
                                   setInProgress(true);
@@ -131,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             Spacer(),
                             if (photoCount > 0 && !_inProgress)
-                              RaisedButton(
+                              ElevatedButton(
                                   child: Text('Process Photos'),
                                   onPressed: processPhotos), // of raisedButton
                             if (_inProgress)
@@ -168,7 +187,11 @@ class _HomePageState extends State<HomePage> {
 //    }
     super.initState();
   }
-
+  void moveDate(int direction) {
+    setState(() {
+      lastRunTime = lastRunTime.add(Duration(days:direction));
+    });
+  }
   void outStandingPhotoCheck() async {
     try {
       messages.add('loading photos...');
