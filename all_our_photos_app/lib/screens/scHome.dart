@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'scAlbumList.dart';
-import 'scHistory.dart';
 import 'scTesting.dart';
 import 'scDBFix.dart';
+import '../widgets/wdgYearGrid.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -78,7 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: new PageView(
         children: [
-          HistoryScreen("History"),
+//          HistoryScreen("History"),
+          YearGrid(),
           AlbumList(),
           SearchList(),
           DbFixFormWidget(),
