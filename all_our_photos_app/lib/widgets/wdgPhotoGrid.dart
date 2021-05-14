@@ -21,6 +21,7 @@ import '../dart_common/ListProvider.dart';
 import '../dart_common/ListUtils.dart';
 import '../dart_common/WebFile.dart';
 
+
 class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
   final AopAlbum _album;
@@ -38,8 +39,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   double _targetOffset = 0.0;
   ScrollController _scrollController = ScrollController();
 
-//  int zzz = 0;
-//  List<String> _selectedImages = [];
+
 
   void selectAll({bool repaint: true}) {
     // Select All can Clear All
@@ -53,12 +53,14 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     if (repaint) setState(() {});
   } // of selectAll
 
-  int _picsPerRow = 3; // can be toggled
+  int _picsPerRow = -1; // can be toggled
+  int _maxPicsPerRow = 5;
+
   void changePicsPerRow() {
     setState(() {
       int oldPicsPerRow = _picsPerRow;
       double oldOffset = _scrollController.offset;
-      if (--_picsPerRow <= 0) _picsPerRow = 5;
+      if (--_picsPerRow <= 0) _picsPerRow = _maxPicsPerRow;
       double targetOffset = oldOffset * oldPicsPerRow / _picsPerRow;
       _targetOffset = targetOffset;
     });
@@ -116,7 +118,10 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 //    final Orientation orientation = MediaQuery.of(context).orientation;
     _scrollController =
         ScrollController(initialScrollOffset: _targetOffset, keepScrollOffset: false);
-
+    if (_picsPerRow == -1) {
+      _picsPerRow = Platform.isMacOS ? 5: 3;
+      _maxPicsPerRow = Platform.isMacOS ? 10:5;
+    }
     return new Scaffold(
       appBar: new AppBar(
         title: (!_inSelectMode)
@@ -137,7 +142,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
             if (Platform.isMacOS)
               new IconButton(
                 icon: Icon(Icons.file_download),
-                tooltip: 'Export album to downloads folder',
+                tooltip: 'Export photo(s) to downloads folder',
                 onPressed: () {
                   handleDownload(context,_imageFilter.selectionList).then((xx) {
                     setState(() {});
