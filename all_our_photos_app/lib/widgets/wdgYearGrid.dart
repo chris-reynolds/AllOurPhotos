@@ -84,7 +84,7 @@ class _YearGridState extends State<YearGrid> {
           IconButton(
             icon: Icon(isCurrentIcon(isCurrent(thisYear.yearno,monthIx)), size: 36.0,
                 color: isCurrent(thisYear.yearno,monthIx) ? Colors.red : Colors.amber),
-            tooltip: 'Todo: Maybe location info',
+            // tooltip: 'Todo: Maybe location info',
             onPressed: () {
               handleMonthClick(thisYear.yearno, monthIx);
             },
