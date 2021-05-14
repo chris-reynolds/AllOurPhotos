@@ -92,7 +92,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                   IconButton(icon: Icon(Icons.last_page),onPressed: (){onMonthMove(1);},tooltip: 'Advance 1 month',iconSize: 36,),
                   Expanded(child: Text('')),
                   IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: Icon(Icons.search),
                     onPressed: () {
                       setState(() {
                         if (changeMode == false) changeMode = true;
