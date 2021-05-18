@@ -18,6 +18,7 @@ import 'shared/aopClasses.dart';
 class SyncDriver {
   String localFileRoot;
   DateTime fromDate;
+  GeocodingSession _geo = GeocodingSession();
   StreamController<String> messageController = StreamController<String>();
 
   SyncDriver({@required this.localFileRoot, this.fromDate});
@@ -25,31 +26,38 @@ class SyncDriver {
   String fileName(String path) => (path.lastIndexOf('/') > 0)
       ? path.substring(path.lastIndexOf('/') + 1)
       : path.substring(path.lastIndexOf('\\') + 1);
-
-  Future<List<FileSystemEntity>> loadFileList({bool allPhotos: false}) async {
-    if (allPhotos) fromDate = DateTime(1900);
-    messageController.add('Loading from ${formatDate(fromDate)}');
+  
+  Future<List<FileSystemEntity>> loadFileList(DateTime fromDate) async {
+//    if (allPhotos) fromDate = DateTime(1900);
+    logAndDisplay('Loading from ${formatDate(fromDate)}');
     Stream<FileSystemEntity> origin = Directory(localFileRoot).list(recursive: true);
     List<FileSystemEntity> result = [];
     List<DateTime> resultDates = [];  // parallel array for sorting
     int totalChecked = 0;
+    int priorImages = 0;
     await for (var fse in origin) {
-      totalChecked += 1;
       FileStat stats = fse.statSync();
       // use 'continue' to jump to the end of the loop and not save this file to the list.
-      if (stats.modified.isBefore(fromDate)) continue;
+      if (stats.modified.isBefore(fromDate)) {
+        priorImages += 1;
+        continue;
+      }
+      totalChecked += 1;
       if (fse.path.indexOf('thumbnails') >= 0) continue;
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
       if (['jpg', 'png'].indexOf(thisExt) < 0) continue;
       String imageName = fileName(fse.path);
 //      Log.message('checking $imageName');
       bool alreadyExists = await AopSnap.nameSameDayExists(stats.modified, imageName );
-      if (alreadyExists) continue;
-      log.message('adding ${imageName} size=${stats.size} modified=${stats.modified}');
+      if (alreadyExists) {
+        log.message('skipping $imageName size=${stats.size} modified=${stats.modified}');
+        continue;
+      }
+      log.message('adding $imageName size=${stats.size} modified=${stats.modified}');
       result.add(fse);
-      resultDates.add(stats.modified); //
-    }
-    messageController.add('sorting');
+      resultDates.add(stats.modified);
+    } //
+    logAndDisplay('Sorting ${result.length}');
     DateTime swapDate;
     FileSystemEntity swapFse;
     for (int i=0; i<result.length; i++) {
@@ -60,31 +68,17 @@ class SyncDriver {
         }
       }
     }
-    messageController.add('Sorted ${result.length}');
-    log.message('Found ${result.length} new pictures, skipped ${totalChecked - result.length}');
+    logAndDisplay('Sorted ${result.length}');
+    log.message('Found ${result.length} new pictures, skipped ${totalChecked - result.length}. Prior images=$priorImages ');
     return result; // finished the where filter
   } // loadFileList
 
-  Future<void> processListxxx(List<FileSystemEntity> fileList) async {
-    log.message('Start processing ${fileList.length} pictures');
-    String fullPath;
-    int sofar = 0;
-    for (FileSystemEntity fse in fileList)
-      try {
-        sofar += 1;
-        fullPath = (fse as File).path;
-        if (await uploadImageFile(fse as File)) {
-          log.message('$fullPath uploaded OK');
-          messageController.add('$fullPath done  ${sofar} of ${fileList.length}');
-        } else {
-          log.message('Skipped  upload $fullPath ');
-          messageController.add('Skipped $fullPath ${sofar} of ${fileList.length}');
-        }
-      } catch (ex) {
-        log.error('Failed to upload $fullPath with $ex');
-      }
-    messageController.add('Processed-complete');
-  } // of processListxxx
+  
+  void logAndDisplay(String message) {
+    messageController.add(message);
+    log.message(message);
+  } // of logAndDisplay
+  
 
   Future<bool> uploadImageFile(File thisPicFile) async {
     FileStat thisPicStats = thisPicFile.statSync();
@@ -105,7 +99,6 @@ class SyncDriver {
       List<int> jpeg = encodeJpg(thisImage, quality: 100);
       int imageSize = jpeg.length; // decode/encode seems to be the only way to get reliable length
       log.message('encoded $imageName');
-      GeocodingSession _geo = GeocodingSession();
       JpegLoader jpegLoader = JpegLoader();
       await jpegLoader.extractTags(fileContents);
       log.message('extracted tags $imageName');
@@ -188,7 +181,7 @@ class SyncDriver {
       return true;
 
     } catch (ex,st) {
-      log.error('Failed save for ${imageName} - $ex \n$st\n\n');
+      log.error('Failed save for $imageName - $ex \n$st\n\n');
       return false;
     } // of try
   } // of uploadImage

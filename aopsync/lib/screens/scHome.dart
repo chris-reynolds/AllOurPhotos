@@ -76,10 +76,10 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
-    log.message('Home builder');
+ //   log.message('Home builder');
     return //(1==1)?ProgressForm():
         Scaffold(
-            appBar: AppBar(title: Text('AllOurPhoto Upload 5Mar21'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AOP Sync 18May21'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.select_all),
                 onPressed: _toogleSelectAll,
@@ -98,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                   stream: syncDriver.messageController.stream,
                   initialData: '',
                   builder: (BuildContext context, AsyncSnapshot<String> messageSnapshot) {
-                    log.message('building with $_selectAll and $_inProgress');
+                   // log.message('building inprogress $_inProgress');
                     return Center(
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -106,26 +106,17 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Spacer(),
 
-                            Padding(
-                              padding: const EdgeInsets.all(50.0),
-                              child: Row(
+                            Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ElevatedButton(child: Icon(Icons.chevron_left),onPressed: (){moveDate(-30);},),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: ElevatedButton(child: Icon(Icons.chevron_left_rounded),onPressed: (){moveDate(-1);},),
-                                  ),
-                                  Text(
-                                      'Last run: ${prettyDate(lastRunTime)}   ${_selectAll ? 'but all Selected' : ''}'),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: ElevatedButton(child: Icon(Icons.chevron_right_rounded),onPressed: (){moveDate(1);},),
-                                  ),
-                                  ElevatedButton(child: Icon(Icons.double_arrow),onPressed: (){moveDate(30);},),
+                                  dateAdjustmentArrow(Icons.chevron_left,-30),
+                                  dateAdjustmentArrow(Icons.chevron_left,-1),
+                                  dateAdjustmentArrow(Icons.chevron_right,1),
+                                  dateAdjustmentArrow(Icons.double_arrow,30),
                                 ],
                               ),
-                            ),
+                            Text(
+                                'Last run: ${prettyDate(lastRunTime)}   ${_selectAll ? 'but all Selected' : ''}'),
                             Spacer(),
 
                             if (!_inProgress)
@@ -174,6 +165,16 @@ class _HomePageState extends State<HomePage> {
             ); // of scaffold
   } // of build
 
+  Widget dateAdjustmentArrow(IconData iconData,int days) {
+    return ButtonTheme(
+      minWidth: 50.0,
+      height: 100.0,
+      child: ElevatedButton(
+        onPressed: () {moveDate(days);},
+        child: Icon(iconData),
+      ),
+    );
+  }
   @override
   void initState() {
     try {
@@ -200,7 +201,8 @@ class _HomePageState extends State<HomePage> {
       if (Platform.isIOS) {
         await iosGallery.loadFrom(!_selectAll ? lastRunTime : DateTime(1900, 1, 1));
       } else {
-        latestFileList = await syncDriver.loadFileList(allPhotos: _selectAll);
+        syncDriver.fromDate = lastRunTime;
+        latestFileList = await syncDriver.loadFileList(!_selectAll ? lastRunTime : DateTime(1900, 1, 1));
       }
       messages.add('I found $photoCount photos');
     } catch (ex) {
@@ -245,6 +247,7 @@ class _HomePageState extends State<HomePage> {
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];
+      log.save();
     } catch (ex) {
       syncDriver.messageController.add('Error : $ex');
     }

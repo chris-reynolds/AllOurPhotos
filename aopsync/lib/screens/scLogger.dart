@@ -5,6 +5,7 @@
 
 */
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:aopcommon/aopcommon.dart';
 
 
@@ -96,6 +97,11 @@ class _LoggerListState extends State<LoggerList> {
               setState(() {
                 _list = [];
               });
+            },),
+          new IconButton(icon: Icon(Icons.copy),
+            iconSize: 30,
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text:_list.join('\n')));
             },),
           new IconButton(icon: actionIcon, onPressed: () {
             setState(() {

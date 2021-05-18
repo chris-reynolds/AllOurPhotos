@@ -32,10 +32,15 @@ class LaunchWithLogin extends StatelessWidget {
 
   Future<void> tryLogin() async {
     try {
+      String logFilename = '${(await getApplicationDocumentsDirectory()).path}/aopSync.log';
+      log.logFilename = logFilename;
+      if (File(logFilename).existsSync()) await log.load();  //only load if it exists;
+      log.message('----------------------- Application Started ------------------------');
       var db = DbAllOurPhotos();
       await db.initConnection(config);
       await db.startSession(config);
       _streamController.add(AuthenticationState.authenticated());
+
       saveConfig();
       log.message('Config saved');
     } catch (ex) {
