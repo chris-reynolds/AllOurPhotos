@@ -21,8 +21,8 @@ import 'scLogger.dart';
 const LAST_RUN = 'last_run';
 
 class HomePage extends StatefulWidget {
-  Function tryLogout;
-  HomePage(this.tryLogout) : super() {} // of constructor
+  final Function tryLogout;
+  HomePage(this.tryLogout) : super(); // of constructor
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -32,8 +32,9 @@ class _HomePageState extends State<HomePage> {
   static List<FileSystemEntity> latestFileList = [];
   DateTime lastRunTime;
   DateTime thisRunTime;
-  bool _selectAll = false;
+  int _selectAll = 0;   // 0=normal, 1= show buttons, 2 = fix date
   bool _inProgress = false;
+  bool _hasWebServer = false;
   double _progressValue = 0.0;
   var iosGallery = IosGallery(); // do nothing yet
   SyncDriver syncDriver;
@@ -67,7 +68,7 @@ class _HomePageState extends State<HomePage> {
   StreamController<String> get messages => syncDriver.messageController;
 
   void _toogleSelectAll() {
-    _selectAll = !_selectAll;
+    _selectAll = (_selectAll+1) % 3;  //rotate around 0,1,2,
     setState(() {});
   } // _toggleSelectAll
 
@@ -76,8 +77,7 @@ class _HomePageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
- //   log.message('Home builder');
-    return //(1==1)?ProgressForm():
+    return
         Scaffold(
             appBar: AppBar(title: Text('AOP Sync 18May21'), actions: <IconButton>[
               IconButton(
@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Spacer(),
 
-                            Row(
+                            if (_selectAll==1) Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   dateAdjustmentArrow(Icons.chevron_left,-30),
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             Text(
-                                'Last run: ${prettyDate(lastRunTime)}   ${_selectAll ? 'but all Selected' : ''}'),
+                                'Last run: ${prettyDate(lastRunTime)}   ${_selectAll==2 ? 'but all Selected' : ''}'),
                             Spacer(),
 
                             if (!_inProgress)
@@ -140,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             Spacer(),
-                            if (photoCount > 0 && !_inProgress)
+                            if (photoCount > 0 && !_inProgress && _hasWebServer)
                               ElevatedButton(
                                   child: Text('Process Photos'),
                                   onPressed: processPhotos), // of raisedButton
@@ -181,8 +181,9 @@ class _HomePageState extends State<HomePage> {
       lastRunTime = DateTime.parse(config[LAST_RUN]);
     } catch (ex) {
       lastRunTime = DateTime(1900, 1, 1);
-      _selectAll = true;
+      _selectAll = 1;  // show arrows
     }
+    WebFile.hasWebServer.then((result){_hasWebServer=result;});
 //    if (!Platform.isIOS) {
     syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
 //    }
@@ -199,12 +200,12 @@ class _HomePageState extends State<HomePage> {
       thisRunTime = DateTime.now();
       setInProgress(true);
       if (Platform.isIOS) {
-        await iosGallery.loadFrom(!_selectAll ? lastRunTime : DateTime(1900, 1, 1));
+        await iosGallery.loadFrom((_selectAll!=2) ? lastRunTime : DateTime(1900, 1, 1));
       } else {
         syncDriver.fromDate = lastRunTime;
-        latestFileList = await syncDriver.loadFileList(!_selectAll ? lastRunTime : DateTime(1900, 1, 1));
+        latestFileList = await syncDriver.loadFileList((_selectAll!=2) ? lastRunTime : DateTime(1900, 1, 1));
       }
-      messages.add('I found $photoCount photos');
+      messages.add('I found $photoCount photos  ${_hasWebServer?"":" BUT NO SERVER"}');
     } catch (ex) {
       latestFileList = [];
       syncDriver.messageController.add('Error : $ex');
@@ -237,13 +238,13 @@ class _HomePageState extends State<HomePage> {
             dupCount++;
             break;
         } // of switch
-        messages.add('Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount} ' +
-            'Remaining ${latestFileList.length - i - 1}');
+        messages.add('Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
+            '\nRemaining ${latestFileList.length - i - 1}');
         updateProgressVar(i + 1, latestFileList.length);
         print(item.path);
       }
       iosGallery.clearCollection();
-      messages.add('Processing completed \n Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount}');
+      messages.add('Processing completed \n Uploaded $upLoadCount \n Errors $errCount \n Dups $dupCount');
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];
@@ -272,8 +273,8 @@ class _HomePageState extends State<HomePage> {
             dupCount++;
             break;
         } // of switch
-        messages.add('Uploaded ${upLoadCount} Errors ${errCount} Dups ${dupCount} ' +
-            'Remaining ${iosGallery.count - i - 1}');
+        messages.add('Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
+            '\nRemaining ${iosGallery.count - i - 1}');
         updateProgressVar(i + 1, iosGallery.count);
         print(item.safeFilename);
       }

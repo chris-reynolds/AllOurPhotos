@@ -53,26 +53,6 @@ class SignInPage extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(builder:(context)=>LoggerList(),fullscreenDialog: true));
   }
 
-//   List<Widget> registerLoginWidgets() {
-//     List<String> fieldDefs = [
-//       'DB Host:dbhost',
-//       'DB Port:dbport',
-//       'Database:dbname',
-//       'DB User:dbuser',
-//       'DB Password:dbpassword',
-//       'User name:sesuser',
-//       'Password:sespassword',
-// //      'Web Root:webroot',
-// //      "Web Port:webport",
-//       'Device:sesdevice',
-//     ];
-//     if (!Platform.isIOS)
-//       fieldDefs.add('Local Directory:lcldirectory');
-//     _fieldSet = WsFieldSet(fieldDefs,values: config, spacer:1);
-//     return fieldDefs.map((thisFieldDef) => wsMakeField(thisFieldDef, values: config, spacer: 1)).toList();
-//   }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
