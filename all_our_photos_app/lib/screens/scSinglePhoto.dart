@@ -5,6 +5,7 @@
 */
 
 import 'dart:convert';
+import '../utils/ExportPic.dart';
 import '../dart_common/DateUtil.dart';
 import '../dart_common/WebFile.dart';
 import '../widgets/PhotoViewWithRectWidget.dart';
@@ -93,6 +94,16 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           },
         ),
         IconButton(
+          icon: Icon(Icons.download_outlined),
+          onPressed: () async {
+            if (
+            await ExportPic.save(currentSnap.fullSizeURL, currentSnap.fileName, 'AllOurPhotos'))
+              showMessage(context, 'Downloaded');
+            else
+              showMessage(context, 'Download failed');
+          },
+        ),
+        IconButton(
             icon: Icon(Icons.crop),
             onPressed: () {
               cropMe(context, currentSnap);
@@ -123,7 +134,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double yPos = 0;
+    double yPos;
     if (snapList == null) _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList[_snapIndex];
     return Scaffold(
@@ -132,7 +143,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         onVerticalDragStart: (cursorPos)=> yPos = cursorPos.localPosition.direction,
         onVerticalDragUpdate: (cursorPos) {
           if (cursorPos.delta.dy >100 )
-            snapIndex = _snapIndex+1;
+            snapIndex = _snapIndex + 1;
           else if (cursorPos.delta.dy <-100   )
             snapIndex = _snapIndex - 1;
           print('onVerticalDragUpdate $_snapIndex ${cursorPos.delta.dy}');

@@ -17,6 +17,7 @@ import '../widgets/wdgSnapGrid.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
+import '../utils/ExportPic.dart';
 
 class AlbumDetail extends StatefulWidget {
   @override
@@ -64,7 +65,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
                 });
               },
             ),
-            if (Platform.isMacOS)
+//            if (Platform.isMacOS)
             new IconButton(
               icon: Icon(Icons.file_download),
               tooltip: 'Export album to downloads folder',
@@ -134,7 +135,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   } // of handleAddAlbumItem
 
   Future<void> handleDownload(BuildContext context) async {
-    List<AopSnap> snaps = await argAlbum.snaps;
+    List<AopSnap> snaps = selectionList;
     String dirName = '${Platform.environment['HOME']}/Downloads/';
     String albumName = argAlbum.name.replaceAll('/','-').replaceAll('\\','-').replaceAll(' ', '');
     if (albumName.length > 20)
@@ -143,14 +144,17 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     if (!Directory(dirName).existsSync())
       Directory(dirName).createSync();
     // make directory in downloads
+    int errors = 0;
      for (int snapIx=0; snapIx< snaps.length; snapIx++) {
       showSnackBar('${snaps.length-snapIx} photos to download');
       String sourceURL = snaps[snapIx].fullSizeURL;
-      List<int> imgBytes = await loadWebBinary(sourceURL);
-      String prefix = formatDate(snaps[snapIx].takenDate)+'-';
-      File(dirName+prefix+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
+      if (!await ExportPic.save(sourceURL,snaps[snapIx].fileName,albumName))
+        errors += 1;
+//      List<int> imgBytes = await loadWebBinary(sourceURL);
+//      String prefix = formatDate(snaps[snapIx].takenDate)+'-';
+//      File(dirName+prefix+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
-    showSnackBar('Download complete. See your downloads directory');
+    showSnackBar('Download complete. There were $errors errors.');
   } // of handleDownload
 
   Future<void> moveToAnotherAlbum(BuildContext context) async {

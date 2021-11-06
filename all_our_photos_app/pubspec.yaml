@@ -14,22 +14,25 @@ environment:
 
 dependencies:
   http:
-  image:
+  image: ^3.0.2
+  image_gallery_saver: ^1.6.9
+  dio: ^4.0.0
+  permission_handler: ^8.1.4+1
   exifdart:
   mysql1:
     path: ../../my_pub_dev/mysql1_dart
 #  multi_image_picker: ^4.6.0
 #  flutter_form_builder:
 #    path: ../../my_pub_dev/flutter_form_builder-4.0.2
-  device_info: ^0.4.0+1
-  path_provider: ^1.1.0
-  photo_view: ^0.4.0
+  device_info: ^2.0.2
+  path_provider: ^2.0.2
+  photo_view: ^0.12.0
   autocomplete_textfield: ^1.7.3
   flutter_chips_input: ^1.9.0-dev.1
   aopcommon:
     path: ../../aop/aopcommon
   #  flutter_staggered_grid_view: ^0.2.7
-#  extended_image: ^0.5.3
+#  extended_image: ^0.5.3q
 #  image_picker:
 #  google_sign_in:
   flutter:
@@ -37,13 +40,13 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
+  cupertino_icons: ^1.0.3
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  test: ^1.0.0
-  flutter_launcher_icons: ^0.7.5
+#  flutter_test:
+#    sdk: flutter
+  test: ^1.17.10
+#  flutter_launcher_icons: ^1.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
