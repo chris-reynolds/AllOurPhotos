@@ -8,7 +8,7 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 11Apr21.v1';
+const VERSION = 'All Our Photos 2Nov21.v1';
 
 void main() {
 
@@ -17,11 +17,19 @@ void main() {
     debugShowCheckedModeBanner: false,
     //showSemanticsDebugger: true,
     theme: new ThemeData(
+      fontFamily: 'Helvetica', //'Helvetica',
       primaryColor: const Color(0xFF02BB9F),
       primaryColorDark: const Color(0xFF167F67),
       accentColor: const Color(0xFFFFAD32),
       textTheme: TextTheme(
-          bodyText1: TextStyle(fontSize: 25.0, color: Colors.red)),
+          bodyText1: TextStyle(fontSize: 25.0, color: Colors.red,fontFamily:'Helvetica'),
+          bodyText2: TextStyle(fontFamily: 'Helvetica'),
+        subtitle1: TextStyle(fontFamily: 'Helvetica'),
+        subtitle2: TextStyle(fontFamily: 'Helvetica'),
+        caption: TextStyle(fontFamily: 'Helvetica'),
+        button: TextStyle(fontFamily: 'Helvetica'),
+        overline: TextStyle(fontFamily: 'Helvetica'),
+      ),
       buttonTheme: ButtonThemeData(
         buttonColor: Colors.greenAccent,
       ),

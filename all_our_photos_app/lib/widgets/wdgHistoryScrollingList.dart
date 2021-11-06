@@ -12,7 +12,7 @@ class HistoryScrollingList extends StatelessWidget {
           children: <Widget>[
             new Text(
               listType,
-              style: Theme.of(context).textTheme.display1,
+              style: Theme.of(context).textTheme.bodyText1,
             ),
           ],
         ),

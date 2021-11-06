@@ -45,7 +45,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
   } // initState
 
   Widget qText(String s) {
-    return Text(s, style: Theme.of(context).textTheme.body2);
+    return Text(s, style: Theme.of(context).textTheme.bodyText2);
   } // of Text2
 
   void toggleRank(int rankNo) {
@@ -111,7 +111,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                         child: TextField(
                       controller: textController,
 //                  onChanged: onSearchTextChanged,
-                      style: Theme.of(context).textTheme.body2,
+                      style: Theme.of(context).textTheme.bodyText2,
                     )),
                     qText('Rank:'),
                     IconButton(

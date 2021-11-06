@@ -50,7 +50,7 @@ class TapDateWidgetState extends State<TapDateWidget> {
     return new FlatButton(
       child: Text('(${Utils.formatDate(_date,format:'d-mmm-yy')})',
       // TODO : work out how to decorate theme styles with underscore
-      style: Theme.of(context).textTheme.body2.apply(decoration: TextDecoration.underline)),
+      style: Theme.of(context).textTheme.bodyText2.apply(decoration: TextDecoration.underline)),
       onPressed: () { popupDatePicker(context); },
     );
   } // of build

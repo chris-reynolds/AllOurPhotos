@@ -61,7 +61,7 @@ class PhotoTile extends StatelessWidget {
     final IconData icon = Icons.star;
     final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
     String descriptor =
-        '${formatDate(snap.takenDate, format: 'dmmm yy')} ${snap.deviceName} ';
+        '> ${formatDate(snap.takenDate, format: 'dmmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
@@ -72,8 +72,8 @@ class PhotoTile extends StatelessWidget {
           },
           child: new GridTileBar(
             backgroundColor: Colors.lime.shade50,
-              title: Text(descriptor, style: TextStyle(color: Colors.black)),
-              subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black)) ,
+              title: Text(descriptor, style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')),
+              subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')) ,
               trailing: Row(children: [
                 new Icon(icon, color: filterColors[snap.ranking], size: 40.0),
               ])),
@@ -88,8 +88,8 @@ class PhotoTile extends StatelessWidget {
           },
           child: new GridTileBar(
             backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
-            title: Text(descriptor, style: TextStyle(color: Colors.black)),
-            subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black)) ,
+            title: Text(descriptor, style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')),
+            subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')) ,
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
             trailing: new Icon(iconSelect, color: Colors.black),
           ),

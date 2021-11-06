@@ -80,7 +80,7 @@ class _DgSimpleState extends State<DgSimple> {
         ),
         Text(
           errorMessage,
-          style: Theme.of(context).textTheme.body2,
+          style: Theme.of(context).textTheme.bodyText2,
           maxLines: 3,
         ),
       ],
