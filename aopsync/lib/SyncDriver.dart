@@ -47,7 +47,7 @@ class SyncDriver {
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
       if (['jpg', 'png'].indexOf(thisExt) < 0) continue;
       String imageName = fileName(fse.path);
-//      Log.message('checking $imageName');
+      //log.message('checking $imageName');
       bool alreadyExists = await AopSnap.nameSameDayExists(stats.modified, imageName );
       if (alreadyExists) {
         log.message('skipping $imageName size=${stats.size} modified=${stats.modified}');
