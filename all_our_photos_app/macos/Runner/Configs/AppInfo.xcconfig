@@ -11,4 +11,4 @@ PRODUCT_NAME = all_our_photos_app
 PRODUCT_BUNDLE_IDENTIFIER = kiwi.retired.allOurPhotosApp
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2020 kiwi.retired. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2021 kiwi.retired. All rights reserved.
