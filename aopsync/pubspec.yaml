@@ -94,3 +94,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+launch_icon:
+  source: assets/aopsync_launch.png
+  target:
+    - ios/Runner/*/app_icon*.png
+    - ios/Runner/*/Icon-App-*.png
+    - macos/Runner/*/app_icon*.png
+    - web/icons/Icon*.png
+    - web/favicon.png
+    - android/*/ic_launcher*.png
