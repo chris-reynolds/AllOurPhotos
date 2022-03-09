@@ -9,6 +9,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../authentication_state.dart';
 import '../shared/dbAllOurPhotos.dart';
@@ -18,7 +19,7 @@ import 'scHome.dart';
 class LaunchWithLogin extends StatelessWidget {
   final StreamController<AuthenticationState> _streamController =
       new StreamController<AuthenticationState>();
-
+  PermissionStatus storagePermission;
   Future<void> initConfig() async {
     String localDocs = (await getApplicationDocumentsDirectory()).path;
     log.message('localdocs from $localDocs');
@@ -28,6 +29,14 @@ class LaunchWithLogin extends StatelessWidget {
     }
     await loadConfig(localDocs + '/aopPhoneSync.config.json');
     log.message('loaded config from $localDocs');
+    //var photostatus = await Permission.photos.status;
+    if (Platform.isAndroid || Platform.isIOS) {
+      storagePermission = await Permission.storage.request();
+      if (storagePermission.isDenied)
+        log.error('No storage permission!!!!!!!!!!!');
+    }
+    //var networkstatus = await Permission.manageExternalStorage.status;
+    //log.message('$photostatus +++ $networkstatus');
   } // of initConfig
 
   Future<void> tryLogin() async {
@@ -42,7 +51,6 @@ class LaunchWithLogin extends StatelessWidget {
       _streamController.add(AuthenticationState.authenticated());
 
       saveConfig();
-      log.message('Config saved');
     } catch (ex) {
       log.error('Failed to login $ex');
       _streamController.add(AuthenticationState.failed());
