@@ -94,6 +94,7 @@ class _LoggerListState extends State<LoggerList> {
             iconSize: 30,
             onPressed: () {
               log.clear();
+              log.save();
               setState(() {
                 _list = [];
               });
