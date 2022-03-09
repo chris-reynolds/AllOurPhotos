@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
   static List<FileSystemEntity> latestFileList = [];
   DateTime lastRunTime;
   DateTime thisRunTime;
-  int _selectAll = 0;   // 0=normal, 1= show buttons, 2 = fix date
   bool _inProgress = false;
   bool _hasWebServer = false;
   double _progressValue = 0.0;
@@ -67,11 +66,6 @@ class _HomePageState extends State<HomePage> {
 
   StreamController<String> get messages => syncDriver.messageController;
 
-  void _toogleSelectAll() {
-    _selectAll = (_selectAll+1) % 3;  //rotate around 0,1,2,
-    setState(() {});
-  } // _toggleSelectAll
-
   void _showLogger(BuildContext context) {
      Navigator.push(context, MaterialPageRoute(builder:(context)=>LoggerList(),fullscreenDialog: true));
   }
@@ -79,11 +73,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return
         Scaffold(
-            appBar: AppBar(title: Text('AOP Sync 05Jul21'), actions: <IconButton>[
-              IconButton(
-                icon: Icon(Icons.select_all),
-                onPressed: _toogleSelectAll,
-              ),
+            appBar: AppBar(title: Text('AOP Sync 06Mar22'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.list),
                 onPressed: ()=>_showLogger(context),
@@ -101,23 +91,28 @@ class _HomePageState extends State<HomePage> {
                    // log.message('building inprogress $_inProgress');
                     return Center(
                       child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Spacer(),
-
-                            if (_selectAll==1) Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  dateAdjustmentArrow(Icons.chevron_left,-30),
-                                  dateAdjustmentArrow(Icons.chevron_left,-1),
-                                  dateAdjustmentArrow(Icons.chevron_right,1),
-                                  dateAdjustmentArrow(Icons.double_arrow,30),
-                                ],
-                              ),
-                            Text(
-                                'Last run: ${prettyDate(lastRunTime)}   ${_selectAll==2 ? 'but all Selected' : ''}'),
+                            Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Spacer(flex:3),
+                                    dateAdjustmentArrow('<Y',-365),
+                                    dateAdjustmentArrow('<M',-30),
+                                    dateAdjustmentArrow('<D',-1),
+                                    dateAdjustmentArrow('>D',1),
+                                    dateAdjustmentArrow('>M',30),
+                                    dateAdjustmentArrow('>Y',365),
+                                    const Spacer(flex:3),
+                                  ],
+                                ),
                             Spacer(),
+                            Text(
+                                'Last run: ${prettyDate(lastRunTime)}  '),
+                            Spacer(flex:3),
 
                             if (!_inProgress)
                               ElevatedButton(
@@ -165,23 +160,34 @@ class _HomePageState extends State<HomePage> {
             ); // of scaffold
   } // of build
 
-  Widget dateAdjustmentArrow(IconData iconData,int days) {
-    return ButtonTheme(
-      minWidth: 50.0,
-      height: 100.0,
-      child: ElevatedButton(
+  Widget dateAdjustmentArrow(String label,int days) {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: TextButton(
+        style: ButtonStyle(// padding:MaterialStateProperty.all(EdgeInsets.zero),
+          visualDensity: VisualDensity.compact,), //fixedSize: MaterialStateProperty.all(Size(50,18))),
         onPressed: () {moveDate(days);},
-        child: Icon(iconData),
+        child: Text(label,), //Icon(iconData),
       ),
     );
   }
+  // Widget dateAdjustmentArrow(String label,int days) {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(2.0),
+  //       child: ElevatedButton(
+  //         style: ButtonStyle(// padding:MaterialStateProperty.all(EdgeInsets.zero),
+  //             visualDensity: VisualDensity.compact,), //fixedSize: MaterialStateProperty.all(Size(50,18))),
+  //         onPressed: () {moveDate(days);},
+  //         child: Text(label,), //Icon(iconData),
+  //       ),
+  //   );
+  // }
   @override
   void initState() {
     try {
       lastRunTime = DateTime.parse(config[LAST_RUN]);
     } catch (ex) {
-      lastRunTime = DateTime(1900, 1, 1);
-      _selectAll = 1;  // show arrows
+      lastRunTime = DateTime(1930, 1, 1);
     }
     WebFile.hasWebServer.then((result){_hasWebServer=result;});
 //    if (!Platform.isIOS) {
@@ -200,10 +206,10 @@ class _HomePageState extends State<HomePage> {
       thisRunTime = DateTime.now();
       setInProgress(true);
       if (Platform.isIOS) {
-        await iosGallery.loadFrom((_selectAll!=2) ? lastRunTime : DateTime(1900, 1, 1));
+        await iosGallery.loadFrom(lastRunTime);
       } else {
         syncDriver.fromDate = lastRunTime;
-        latestFileList = await syncDriver.loadFileList((_selectAll!=2) ? lastRunTime : DateTime(1900, 1, 1));
+        latestFileList = await syncDriver.loadFileList(lastRunTime);
       }
       messages.add('I found $photoCount photos  ${_hasWebServer?"":" BUT NO SERVER"}');
     } catch (ex) {
