@@ -143,13 +143,13 @@ class SyncDriver {
         newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
         // checkl for duplicate
         newSnap.mediaLength = imageSize;
-        if (jpegLoader.tag("GPSLatitudeRef") != null) {
+        if (jpegLoader.tag("GPSLatitudeRef") != "null") {
           newSnap.latitude =
               jpegLoader.dmsToDeg(jpegLoader.tag('GPSLatitude'), jpegLoader.tag('GPSLatitudeRef'));
           newSnap.longitude =
               jpegLoader.dmsToDeg(jpegLoader.tag('GPSLongitude'), jpegLoader.tag('GPSLongitudeRef'));
         }
-        if (newSnap.latitude != null) {
+        if (newSnap.latitude != null && newSnap.latitude.abs()>1e-6) {
           String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
           if (location != null) newSnap.trimSetLocation(location);
           log.message('found location : ${newSnap.location}');
@@ -165,7 +165,8 @@ class SyncDriver {
             log.message('duplicate name+length');
             return null;
           }
-         String myMeta = jsonEncode(jpegLoader.tags);
+        jpegLoader.cleanTags();
+        String myMeta = jsonEncode(jpegLoader.tags);
         Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
         log.message('made thumbnail');
         await saveWebImage(newSnap.thumbnailURL, image: thumbnail, quality: 50);
