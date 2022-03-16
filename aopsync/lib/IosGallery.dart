@@ -4,10 +4,12 @@
   Purpose: This tries to encapsulate the IOGallery as a list with a start date
 
 */
-
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/services.dart';
+import 'package:photo_manager/photo_manager.dart' as PM;
+
 
 
 
@@ -15,8 +17,8 @@ class GalleryItem {
   Uint8List data;
   String id;
   DateTime createdDate;
-
-  GalleryItem(this.data, this.id, this.createdDate);
+  JpegLoader loader;
+  GalleryItem(this.data, this.id, this.createdDate, this.loader);
 
   String get safeFilename {
     String temp = id.replaceAll('/', '_');
@@ -27,29 +29,45 @@ class GalleryItem {
     if (!temp.contains('.')) temp = temp + '.jpg';
     return temp;
   } // safe_id
+
 }
 
 class IosGallery {
   DateTime startDate;
   String error = '';
+  JpegLoader _jpegLoader = JpegLoader();
   bool _isLoaded = false;
-  int count = 0;
-  final _channel = MethodChannel("/gallery");
+  List<PM.AssetEntity> _items = [];
+  int get count => _items.length;
+
 
   Future<void> loadFrom(DateTime startDate) async {
     startDate = startDate.add(Duration(hours:-48));// todo: get the time zone as IosGallery uses utc dates
     print('IOS Gallery querying from ${dbDate(startDate)}');
+    // startDate = DateTime.now();
     this.startDate = startDate;
-    count = await _channel.invokeMethod<int>("getCountFromDate", toSwiftDate(startDate));
+    var dateFilter = PM.FilterOptionGroup(createTimeCond: PM.DateTimeCond(min:startDate,max:DateTime.now()));
+    PM.AssetPathEntity root = (await PM.PhotoManager.getAssetPathList(onlyAll: true,
+        filterOption: dateFilter))[0];
+    _items = await root.getAssetListRange(start: 0, end: root.assetCount);
+
   }
 
   Future<GalleryItem> operator [](int index) async {
     if (index < 0 || index >= count) return null;
-    var channelResponse = await _channel.invokeMethod("getItem", index);
-    var dict = Map<String, dynamic>.from(channelResponse);
-    var createdDate = fromSwiftDate(dict['created']);
-    var galleryItem = GalleryItem(dict['data'], dict['id'], createdDate );
+    PM.AssetEntity item = _items[index];
+    var ff= await item.originFile;
+    var ff2 = await ff.readAsBytes();
+    var jpegLoader = JpegLoader();
+    await jpegLoader.extractTags(ff2 );
+    print('tags = ${jpegLoader.tags.length}');
+    var jpegBytes = await item.thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height));
+    var createdDate = fromSwiftDate(item.createDateSecond);
+    var galleryItem = GalleryItem(jpegBytes, item.id, createdDate,jpegLoader);
     print('loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
+    var file = await item.file;
+    if (Platform.isIOS && file.existsSync())  // IOS picture file is temporary
+      file.deleteSync();
     return galleryItem;
   }
 
@@ -67,7 +85,12 @@ class IosGallery {
   }
 
   void clearCollection() async {
-    count = 0;
+    for (var item in _items) {
+      var file = await item.file;
+      if (file.existsSync())
+        file.deleteSync();
+    }
+    _items = [];
 //    await _channel.invokeMethod<int>('clearCollection');
   }
 } // of IosGallery

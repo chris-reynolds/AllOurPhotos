@@ -87,7 +87,7 @@ class SyncDriver {
     return await uploadImage(imageName, thisPicStats.modified, fileContents);
   }
 
-  Future<bool> uploadImage(String imageName, DateTime createdDate, List<int> fileContents) async {
+  Future<bool> uploadImage(String imageName, DateTime createdDate, List<int> fileContents, {JpegLoader jpegLoader}) async {
     try {
       log.message('Start processing $imageName ------------------------------------------');
       if (await AopSnap.sizeOrNameOrDeviceAtTimeExists(createdDate, 0, imageName, 'vvvgnv')) {
@@ -99,10 +99,14 @@ class SyncDriver {
       List<int> jpeg = encodeJpg(thisImage, quality: 100);
       int imageSize = jpeg.length; // decode/encode seems to be the only way to get reliable length
       log.message('encoded $imageName');
-      JpegLoader jpegLoader = JpegLoader();
-      await jpegLoader.extractTags(fileContents);
+      if (jpegLoader==null)
+        jpegLoader = JpegLoader();
+//      JpegLoader jpegLoader = loader ?? JpegLoader();
+      if (jpegLoader.tags.isEmpty)   // IOS should have preped these earlier
+        jpegLoader.extractTags(fileContents);
       log.message('extracted tags $imageName');
-      String deviceName = jpegLoader.tag('Model') ?? config['sesdevice'];
+      String deviceName = jpegLoader.tag('Model')  ?? config['sesdevice'];
+      String importSource = config['sesdevice'] ?? jpegLoader.tag('Model');
 //      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 //
 //      if (!Platform.isIOS) {
@@ -132,12 +136,11 @@ class SyncDriver {
           ..modifiedDate = createdDate
           ..deviceName = deviceName
           ..rotation = '0' // todo support enumeration
-          ..importSource = deviceName
+          ..importSource = importSource
           ..importedDate = DateTime.now();
 
-        bool isScanned =
-        ((jpegLoader.tag('device.software') ?? '').toLowerCase().indexOf('scan') >= 0);
-        newSnap.importSource += isScanned ? ' scanned' : ' camera roll';
+        if ((jpegLoader.tag('device.software') ?? '').toLowerCase().indexOf('scan') >= 0)
+          newSnap.importSource += ' scanned';
 
         newSnap.originalTakenDate = newSnap.takenDate;
         newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
