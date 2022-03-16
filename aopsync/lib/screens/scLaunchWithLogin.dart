@@ -18,7 +18,7 @@ import 'scHome.dart';
 
 class LaunchWithLogin extends StatelessWidget {
   final StreamController<AuthenticationState> _streamController =
-      new StreamController<AuthenticationState>();
+      StreamController<AuthenticationState>();
   PermissionStatus storagePermission;
   Future<void> initConfig() async {
     String localDocs = (await getApplicationDocumentsDirectory()).path;
@@ -27,7 +27,7 @@ class LaunchWithLogin extends StatelessWidget {
       String extStorage = (await getExternalStorageDirectory()).path;
       log.message('external storage is $extStorage');
     }
-    await loadConfig(localDocs + '/aopPhoneSync.config.json');
+    await loadConfig(localDocs + '/aopSync.config.json');
     log.message('loaded config from $localDocs');
     //var photostatus = await Permission.photos.status;
     if (Platform.isAndroid || Platform.isIOS) {
@@ -57,23 +57,27 @@ class LaunchWithLogin extends StatelessWidget {
     }
   } // of tryLogin
 
-  void tryLogout() => _streamController.add(AuthenticationState.signedOut());
-
-  @override
-  Widget build(BuildContext context) {
-    initConfig().then((xx) => tryLogin());
-    log.message('building after tryLogin');
-    return new StreamBuilder<AuthenticationState>(
-        stream: _streamController.stream,
-//        initialData: new AuthenticationState.initial(),
-        builder: (BuildContext context, AsyncSnapshot<AuthenticationState> snapshot) {
-          final state = snapshot.data;
-          if (state == null)
-            return CircularProgressIndicator();
-          else if (state.authenticated)
-            return HomePage(tryLogout);
-          else
-            return SignInPage(/*_streamController,*/ tryLogin);
-        });
+  void tryLogout() {
+    DbAllOurPhotos().close();
+    _streamController.add(AuthenticationState.signedOut());
   }
-}
+
+    @override
+    Widget build(BuildContext context) {
+      initConfig().then((xx) => tryLogin());
+      log.message('building after tryLogin');
+      return new StreamBuilder<AuthenticationState>(
+          stream: _streamController.stream,
+//        initialData: new AuthenticationState.initial(),
+          builder: (BuildContext context, AsyncSnapshot<AuthenticationState> snapshot) {
+            final state = snapshot.data;
+            if (state == null)
+              return CircularProgressIndicator();
+            else if (state.authenticated)
+              return HomePage(tryLogout);
+            else
+              return SignInPage(/*_streamController,*/ tryLogin);
+          });
+    }
+  }
+
