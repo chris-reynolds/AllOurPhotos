@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return
         Scaffold(
-            appBar: AppBar(title: Text('AOP Sync 06Mar22'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AOP Sync 12Mar22'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.list),
                 onPressed: ()=>_showLogger(context),
@@ -228,6 +228,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> processFilePhotos() async {
     int errCount = 0, dupCount = 0, upLoadCount = 0;
+    String progressMessage = '';
     try {
       setInProgress(true);
       messages.add('File Processing in progress. Please wait...');
@@ -244,13 +245,14 @@ class _HomePageState extends State<HomePage> {
             dupCount++;
             break;
         } // of switch
-        messages.add('Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
-            '\nRemaining ${latestFileList.length - i - 1}');
+        progressMessage = 'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
+            '\nRemaining ${latestFileList.length - i - 1}';
+        messages.add(progressMessage);
         updateProgressVar(i + 1, latestFileList.length);
         print(item.path);
       }
       iosGallery.clearCollection();
-      messages.add('Processing completed \n Uploaded $upLoadCount \n Errors $errCount \n Dups $dupCount');
+      messages.add('$progressMessage \n\nProcessing completed');
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];
@@ -263,12 +265,13 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> processIOSImages() async {
     int errCount = 0, dupCount = 0, upLoadCount = 0;
+    String progressMessage = '';
     try {
       setInProgress(true);
       messages.add('IOS Processing in progress. Please wait...');
       for (int i = 0; i < iosGallery.count; i++) {
         GalleryItem item = await iosGallery[i];
-        switch (await syncDriver.uploadImage(item.safeFilename, item.createdDate, item.data)) {
+        switch (await syncDriver.uploadImage(item.safeFilename, item.createdDate, item.data, jpegLoader: item.loader)) {
           case true:
             upLoadCount++;
             break;
@@ -279,13 +282,14 @@ class _HomePageState extends State<HomePage> {
             dupCount++;
             break;
         } // of switch
-        messages.add('Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
-            '\nRemaining ${iosGallery.count - i - 1}');
+        progressMessage = 'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
+            '\nRemaining ${iosGallery.count - i - 1}';
+        messages.add(progressMessage);
         updateProgressVar(i + 1, iosGallery.count);
         print(item.safeFilename);
       }
       iosGallery.clearCollection();
-      messages.add('Processing completed');
+      messages.add('$progressMessage \n\nProcessing completed');
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       await saveConfig(); // persist this run time so that we know how far back to go next time},
       latestFileList = [];
