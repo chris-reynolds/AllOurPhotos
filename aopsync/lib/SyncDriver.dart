@@ -36,6 +36,8 @@ class SyncDriver {
     int totalChecked = 0;
     int priorImages = 0;
     await for (var fse in origin) {
+      String imageName = fileName(fse.path);
+      if (imageName.startsWith('\.'))   continue;  // skip all that start with .
       FileStat stats = fse.statSync();
       // use 'continue' to jump to the end of the loop and not save this file to the list.
       if (stats.modified.isBefore(fromDate)) {
@@ -46,7 +48,6 @@ class SyncDriver {
       if (fse.path.indexOf('thumbnails') >= 0) continue;
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
       if (['jpg', 'png'].indexOf(thisExt) < 0) continue;
-      String imageName = fileName(fse.path);
       //log.message('checking $imageName');
       bool alreadyExists = await AopSnap.nameSameDayExists(stats.modified, imageName );
       if (alreadyExists) {
