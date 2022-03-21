@@ -73,13 +73,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return
         Scaffold(
-            appBar: AppBar(title: Text('AOP Sync 12Mar22'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AOP Sync 17Mar22'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.list),
                 onPressed: ()=>_showLogger(context),
               ),
               IconButton(
-                icon: Icon(Icons.close),
+                icon: Icon(Icons.exit_to_app),
                 onPressed: widget.tryLogout,
               ),
             ]),
