@@ -36,6 +36,8 @@ DateTime addMonths(DateTime dt, int value) {
   }
 } // addMonth
 
+DateTime monthEnd(DateTime dt) => DateTime(dt.year,dt.month,daysInMonth(dt.year, dt.month), 23, 59,59);
+
 String formatDate(DateTime aDate, {String format = 'yyyy-mm-d'}) {
   String _right(String s,{int size:2}) => s.substring(s.length - size);
   String n99(int value) => _right((value + 100).toString());

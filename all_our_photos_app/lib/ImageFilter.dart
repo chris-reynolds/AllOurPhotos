@@ -35,7 +35,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
 
   ImageFilter.yearMonth(int year,int month,{CallBack refresh}) {
     _fromDate = DateTime(year,month,1);
-    _toDate = addMonths(_fromDate,1);
+    _toDate = monthEnd(_fromDate);
     _toDate = _toDate.subtract(Duration(seconds: 1));
     onRefreshed = refresh;
     print('Image Filter - yearmonth constructor $searchText');
@@ -107,7 +107,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
 
   void moveMonth(int increment) {
     _fromDate = addMonths(_fromDate, increment);
-    _toDate = addMonths(_toDate, increment);
+    _toDate = monthEnd(_fromDate);
     _refreshRequired = true;
   } // of moveMonth
 
