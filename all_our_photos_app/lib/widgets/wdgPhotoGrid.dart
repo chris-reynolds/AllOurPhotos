@@ -26,8 +26,11 @@ import '../dart_common/WebFile.dart';
 class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
   final AopAlbum _album;
+  CallBack _refreshNow;
 
-  PhotoGrid(this._initImageFilter, {AopAlbum album}) : this._album = album {
+  PhotoGrid(this._initImageFilter, {AopAlbum album, CallBack refreshNow})
+      : this._album = album,
+        this._refreshNow = refreshNow {
 //    Log.message('PhotoGrid constructor by filter');
   }
 
@@ -82,6 +85,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     super.initState();
     _imageFilter = widget._initImageFilter;
     _imageFilter.onRefreshed = filterRefreshCallback;
+    _inSelectMode = (widget._album != null); // album always starts in select mode
     //   Log.message('PhotoGrid copying initFilter');
   }
 
@@ -120,7 +124,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     _scrollController =
         ScrollController(initialScrollOffset: _targetOffset, keepScrollOffset: false);
     if (_picsPerRow == -1) {
-      _picsPerRow = Platform.isMacOS ? 5: 3;
+      _picsPerRow = Platform.isMacOS ? 5: 2;
       _maxPicsPerRow = Platform.isMacOS ? 10:5;
     }
     return new Scaffold(
@@ -152,12 +156,12 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
               ),
             if (widget._album != null)
               IconButton(
-                  icon: Icon(Icons.delete, color: Colors.black),
-                  onPressed: () {
-                    handleMultiRemoveFromAlbum(context, _imageFilter.selectionList);
+                  icon: Icon(Icons.delete),
+                  onPressed: () async {
+                    await handleMultiRemoveFromAlbum(context, widget._album,_imageFilter.selectionList);
                   }),
             IconButton(
-                icon: Icon(Icons.star_border, color: Colors.black),
+                icon: Icon(Icons.star_border),
                 tooltip: 'Set selected images green',
                 onPressed: () {
                   handleMultiSetGreen(context, _imageFilter.selectionList);
@@ -181,7 +185,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   handleMultiLocation(context, _imageFilter.selectionList);
                 }),
           ],
-          IconButton(
+          if (widget._album == null )IconButton(
               icon: Icon(Icons.check_box),
               tooltip: 'Selection Mode on/off',
               onPressed: changeSelectMode),
@@ -203,7 +207,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
             crossAxisSpacing: 4.0,
 
             padding: const EdgeInsets.all(4.0),
-            childAspectRatio: 1.0,
+            childAspectRatio: 1.1,
             //(orientation == Orientation.portrait) ? 1.0 : 1.3,
             children: [
               if (_imageFilter.items != null)
@@ -367,10 +371,29 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     setState(() {});
   } // handleMultiSetGreen
 
-  void handleMultiRemoveFromAlbum(BuildContext  context, List<AopSnap> selectedSnaps) async {
+  void handleMultiRemoveFromAlbum(BuildContext  context, AopAlbum argAlbum, List<AopSnap> selectedSnaps) async {
     try {
-      int result = await widget._album.removeSnaps(selectedSnaps);
-      showMessage(context,'$result items removed from album');
+      bool deleteAlbum = false;
+      String message = '';
+      if (selectedSnaps == null  || selectedSnaps.length==0) return; // nothing to delete
+      if ( (await argAlbum.albumItems).length == selectedSnaps.length) {
+        if (await confirmYesNo(context, 'Delete album',
+            description: 'All photos for this album have been\n selected for deletion'))
+          deleteAlbum = true;
+      }
+      int count = await argAlbum.removeSnaps(selectedSnaps);
+      if (widget._refreshNow !=null)
+          await widget._refreshNow();
+      clearSelected();
+      setState(() {});
+      message = "$count photos removed\n";
+      if (deleteAlbum) {
+        argAlbum.delete();
+        message += 'Album deleted';
+
+        Navigator.pop(context);
+      }
+      showMessage(context, message);
     } catch(ex) {
       showMessage(context, 'Error: ${ex}');
     }

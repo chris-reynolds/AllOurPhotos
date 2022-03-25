@@ -27,12 +27,15 @@ class AlbumDetail extends StatefulWidget {
 class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     implements SelectableListProvider<AopSnap>{
   final scaffoldKey = new GlobalKey<ScaffoldState>();
+
   AopAlbum argAlbum;
   List<AopSnap> _list;
   List<AopSnap> get items => _list;
 
   CallBack onRefreshed;
-
+  void refreshNow() async {
+    _list = await argAlbum.snaps;
+  }
   @override
   Widget build(BuildContext context) {
     if (argAlbum == null)
@@ -43,7 +46,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
         appBar: buildBar(context),
 //        body: snapGrid(context, _list, this),
 //        body: SsSnapGrid(_list, this, argAlbum),
-        body: PhotoGrid(this,album: argAlbum),
+        body: PhotoGrid(this,album: argAlbum, refreshNow: refreshNow),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_a_photo),
           onPressed: () => handleAddAlbumItem(context),
@@ -85,24 +88,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
               onPressed: () {moveToAnotherAlbum(context);}),
           IconButton(
               icon: Icon(Icons.delete),
-              onPressed: () async {
-                bool deleteAlbum = false;
-                if (_list.length == selectionList.length) {
-                  if (await confirmYesNo(context, 'Delete album',
-                      description: 'All photos for this album have been\n selected for deletion'))
-                    deleteAlbum = true;
-                }
-                argAlbum.removeSnaps(selectionList).then((count) {
-                  clearSelected();
-                  refreshList();
-                  showSnackBar("$count photos removed");
-                  if (deleteAlbum) {
-                    argAlbum.delete();
-                    showSnackBar('Album deleted');
-                    Navigator.pop(context);
-                  }
-                });
-              }),
+              onPressed: () async {handleDelete(context);}),
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
@@ -124,7 +110,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   void handleAddAlbumItem(BuildContext context) {
     Navigator.pushNamed(context, 'AlbumItemCreate', arguments: argAlbum)
         .then((selectedSnaps) {
-      List<int> snapIds = selectedSnaps;
+      List<int> snapIds = selectedSnaps ?? [];
       Log.message('${snapIds.length} snaps returned');
       argAlbum.addSnaps(snapIds).then((count) {
         clearSelected();
@@ -133,6 +119,25 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       });
     });
   } // of handleAddAlbumItem
+
+  Future<void> handleDelete(BuildContext context) async {
+    bool deleteAlbum = false;
+    if (selectionList == null) return; // nothing to delete
+    if (_list.length == selectionList.length) {
+      if (await confirmYesNo(context, 'Delete album',
+          description: 'All photos for this album have been\n selected for deletion'))
+        deleteAlbum = true;
+    }
+    int count = await argAlbum.removeSnaps(selectionList);
+    clearSelected();
+    refreshList();
+    showSnackBar("$count photos removed");
+    if (deleteAlbum) {
+      argAlbum.delete();
+      showSnackBar('Album deleted');
+      Navigator.pop(context);
+    }
+  } // of handleDelete
 
   Future<void> handleDownload(BuildContext context) async {
     List<AopSnap> snaps = selectionList;

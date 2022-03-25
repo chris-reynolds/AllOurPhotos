@@ -22,6 +22,7 @@ class _AlbumListState extends State<AlbumList> {
   );
   final key = new GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = new TextEditingController();
+  var _scrollController = ScrollController();
   List<AopAlbum> _list = [];
   bool _isSearching;
   String _searchText = "";
@@ -53,6 +54,7 @@ class _AlbumListState extends State<AlbumList> {
     AopAlbum.all().then((newList) {
       setState(() {
         _list = newList;
+        //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         Log.message('${_list.length} albums loaded');
       });
     });
@@ -63,10 +65,14 @@ class _AlbumListState extends State<AlbumList> {
     return new Scaffold(
       key: key,
       appBar: buildBar(context),
-      body: new ListView(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
-        children: _isSearching ? _buildAlbumList() : _buildList(),
-      ),
+      body: SingleChildScrollView(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(8.0),
+          child: new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _isSearching ? _buildAlbumList() : _buildList(),
+          ),
+        ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add), onPressed: () => handleAddAlbum(context)),
     );
@@ -135,7 +141,7 @@ class _AlbumListState extends State<AlbumList> {
         color: Colors.white,
       );
       this.appBarTitle = new Text(
-        "Search Sample",
+        "Search Albums",
         style: new TextStyle(color: Colors.white),
       );
       _isSearching = false;
@@ -161,6 +167,7 @@ class _AlbumListState extends State<AlbumList> {
         try {
           await newAlbum.save();
           refreshList();
+          Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum);
           done = true;
         } catch (ex) {
           errorMessage = ex.message;
@@ -178,9 +185,10 @@ class ChildItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new ListTile(
-        title: new Text(this.album.name),
-        onTap: () =>
+    return TextButton(
+    //    contentPadding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
+        child: new Text(this.album.name,style:Theme.of(context).textTheme.headline5),
+        onPressed: () =>
             Navigator.pushNamed(context, 'AlbumDetail', arguments: this.album));
   }
 }

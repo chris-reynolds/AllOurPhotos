@@ -11,6 +11,7 @@ import '../dart_common/DateUtil.dart';
 
 typedef void BannerTapCallback(AopSnap snap);
 
+const double HEADER_OFFSET = 50;
 class PhotoTile extends StatelessWidget {
   PhotoTile(
       {Key key,
@@ -35,7 +36,7 @@ class PhotoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget imageWidget = new GestureDetector(
+    final Widget imageWidget = GestureDetector(
         onTap: () {
           if (inSelectMode)
             onBannerTap(snap);
@@ -47,16 +48,19 @@ class PhotoTile extends StatelessWidget {
           Navigator.of(context)
               .pushNamed('SinglePhoto', arguments: [snapList, index]); // weakly types params. yuk.
         },
-        child: new Container(
-            decoration: BoxDecoration(color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
-            key: new Key(snap.thumbnailURL),
-            child: Transform.rotate(
-              angle: snap.angle,
-              child: Image.network(
-                highResolution ? snap.fullSizeURL : snap.thumbnailURL,
-                fit: BoxFit.scaleDown,
-              ),
-            )));
+        child: Padding(
+          padding: const EdgeInsets.only(top:HEADER_OFFSET),
+          child: Container(
+              decoration: BoxDecoration(color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
+              key: Key(snap.thumbnailURL),
+              child: Transform.rotate(
+                angle: snap.angle,
+                child: Image.network(
+                  highResolution ? snap.fullSizeURL : snap.thumbnailURL,
+                  fit: BoxFit.scaleDown,
+                ),
+              )),
+        ));
 
     final IconData icon = Icons.star;
     final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
@@ -66,12 +70,13 @@ class PhotoTile extends StatelessWidget {
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
       return new GridTile(
+
         header: new GestureDetector(
           onTap: () {
             onBannerTap(snap);
           },
           child: new GridTileBar(
-            backgroundColor: Colors.lime.shade50,
+            //backgroundColor: Colors.lime.shade50,
               title: Text(descriptor, style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')),
               subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')) ,
               trailing: Row(children: [
@@ -87,7 +92,7 @@ class PhotoTile extends StatelessWidget {
             onBannerTap(snap);
           },
           child: new GridTileBar(
-            backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
+       //     backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
             title: Text(descriptor, style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')),
             subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')) ,
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
