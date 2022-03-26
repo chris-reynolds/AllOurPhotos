@@ -20,22 +20,22 @@ import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../dart_common/ListProvider.dart';
 import '../dart_common/ListUtils.dart';
-import '../dart_common/WebFile.dart';
+// import '../dart_common/WebFile.dart';
 
 
 class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
   final AopAlbum _album;
-  CallBack _refreshNow;
+  final CallBack _refreshNow;
 
   PhotoGrid(this._initImageFilter, {AopAlbum album, CallBack refreshNow})
-      : this._album = album,
-        this._refreshNow = refreshNow {
+      : _album = album,
+        _refreshNow = refreshNow {
 //    Log.message('PhotoGrid constructor by filter');
   }
 
   @override
-  PhotoGridState createState() => new PhotoGridState();
+  PhotoGridState createState() => PhotoGridState();
 }
 
 class PhotoGridState extends State<PhotoGrid> with Selection<int> {
@@ -45,7 +45,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 
 
 
-  void selectAll({bool repaint: true}) {
+  void selectAll({bool repaint= true}) {
     // Select All can Clear All
     bool clearAll = (_imageFilter.selectionList.length == _imageFilter.items.length);
     _imageFilter.clearSelected();
@@ -74,7 +74,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 
   void changeSelectMode() {
     setState(() {
-      // todo check clearselection maybe
+      // todo check clear selection maybe
       _imageFilter.clearSelected();
       _inSelectMode = !_inSelectMode;
     });
@@ -127,8 +127,8 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       _picsPerRow = Platform.isMacOS ? 5: 2;
       _maxPicsPerRow = Platform.isMacOS ? 10:5;
     }
-    return new Scaffold(
-      appBar: new AppBar(
+    return Scaffold(
+      appBar: AppBar(
         title: (!_inSelectMode)
             ? const Text('Grid list')
             : Row(
@@ -143,9 +143,9 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                 ],
               ),
         actions: <Widget>[
-          if (_inSelectMode && _imageFilter.selectionList.length > 0) ...[
+          if (_inSelectMode && _imageFilter.selectionList.isNotEmpty) ...[
  //           if (Platform.isMacOS)
-              new IconButton(
+              IconButton(
                 icon: Icon(Icons.file_download),
                 tooltip: 'Export photo(s) to downloads folder',
                 onPressed: () {
@@ -157,11 +157,12 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
             if (widget._album != null)
               IconButton(
                   icon: Icon(Icons.delete),
-                  onPressed: () async {
-                    await handleMultiRemoveFromAlbum(context, widget._album,_imageFilter.selectionList);
+                  tooltip: 'Remove selected photos from album',
+                  onPressed: () {
+                    handleMultiRemoveFromAlbum(context, widget._album,_imageFilter.selectionList);
                   }),
             IconButton(
-                icon: Icon(Icons.star_border),
+                icon: Icon(Icons.star,color:Colors.green),
                 tooltip: 'Set selected images green',
                 onPressed: () {
                   handleMultiSetGreen(context, _imageFilter.selectionList);
@@ -185,7 +186,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   handleMultiLocation(context, _imageFilter.selectionList);
                 }),
           ],
-          if (widget._album == null )IconButton(
+          IconButton(
               icon: Icon(Icons.check_box),
               tooltip: 'Selection Mode on/off',
               onPressed: changeSelectMode),
@@ -195,10 +196,10 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
               onPressed: changePicsPerRow),
         ],
       ),
-      body: new Column(children: <Widget>[
+      body: Column(children: <Widget>[
         if (_imageFilter is ImageFilter)
           ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
-        new Expanded(
+          Expanded(
           child: GridView.count(
             controller: _scrollController,
             crossAxisCount: _picsPerRow,
@@ -242,15 +243,14 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     String value = '';
     String errorMessage = '';
     bool done = false;
-    if (snaps.length>0)  // use first caption as default
+    if (snaps.isNotEmpty)  // use first caption as default
       value = snaps[0].caption ?? '';
     while (!done) {
       value = await showDialog(
           context: context,
           builder: (BuildContext context) => DgSimple('Caption for ${snaps.length} images', value,
-                  errorMessage: errorMessage, /*isValid: (value) async {
-                return (value.length < 10) ? 'Too short' : null;
-              }) */));
+                  errorMessage: errorMessage, )
+      );
       if (value == null || value == EXIT_CODE) return;
       Log.message('new caption is: $value');
       errorMessage = '';
@@ -352,7 +352,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   } // handleMultiLocation
 
   void handleMultiSetGreen(BuildContext context, List<AopSnap> snaps) async {
-    String resultMessage = '${snaps.length} snaps updated';
+    String resultMessage = '${snaps.length} snaps updated to green';
     try {
       for (AopSnap snap in snaps) {
         snap.ranking = 3;
@@ -375,7 +375,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     try {
       bool deleteAlbum = false;
       String message = '';
-      if (selectedSnaps == null  || selectedSnaps.length==0) return; // nothing to delete
+      if (selectedSnaps == null  || selectedSnaps.isEmpty) return; // nothing to delete
       if ( (await argAlbum.albumItems).length == selectedSnaps.length) {
         if (await confirmYesNo(context, 'Delete album',
             description: 'All photos for this album have been\n selected for deletion'))
@@ -383,7 +383,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       }
       int count = await argAlbum.removeSnaps(selectedSnaps);
       if (widget._refreshNow !=null)
-          await widget._refreshNow();
+          widget._refreshNow();
       clearSelected();
       setState(() {});
       message = "$count photos removed\n";
@@ -395,7 +395,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       }
       showMessage(context, message);
     } catch(ex) {
-      showMessage(context, 'Error: ${ex}');
+      showMessage(context, 'Error: $ex');
     }
     setState(() {});
   } // of handleMultiRemoveFromAlbum*/

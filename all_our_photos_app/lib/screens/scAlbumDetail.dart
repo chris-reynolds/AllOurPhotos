@@ -1,4 +1,4 @@
-/*Created by chrisreynolds on 2019-05-24
+/*Created by chris reynolds on 2019-05-24
 
 Purpose: This will show the details of a single album
 
@@ -11,9 +11,9 @@ import '../shared/aopClasses.dart';
 import '../dart_common/Logger.dart' as Log;
 import '../dart_common/ListUtils.dart';
 import '../dart_common/ListProvider.dart';
-import '../dart_common/WebFile.dart';
-import '../dart_common/DateUtil.dart';
-import '../widgets/wdgSnapGrid.dart';
+//import '../dart_common/WebFile.dart';
+//import '../dart_common/DateUtil.dart';
+//import '../widgets/wdgSnapGrid.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
@@ -26,13 +26,17 @@ class AlbumDetail extends StatefulWidget {
 
 class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     implements SelectableListProvider<AopSnap>{
-  final scaffoldKey = new GlobalKey<ScaffoldState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
 
   AopAlbum argAlbum;
   List<AopSnap> _list;
+
+  @override
   List<AopSnap> get items => _list;
 
+  @override
   CallBack onRefreshed;
+
   void refreshNow() async {
     _list = await argAlbum.snaps;
   }
@@ -41,7 +45,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     if (argAlbum == null)
       return Text('Loading...');
     else
-      return new Scaffold(
+      return Scaffold(
         key: scaffoldKey,
         appBar: buildBar(context),
 //        body: snapGrid(context, _list, this),
@@ -55,12 +59,12 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   } // of build
 
   Widget buildBar(BuildContext context) {
-    if (selectionList.length == 0)
-      return new AppBar(
+    if (selectionList.isEmpty)
+      return AppBar(
           centerTitle: true,
-          title: Text('${argAlbum.name}'),
+          title: Text(argAlbum.name),
           actions: <Widget>[
-            new IconButton(
+            IconButton(
               icon: Icon(Icons.edit),
               onPressed: () {
                 handleRenameAlbum(context).then((xx) {
@@ -69,7 +73,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
               },
             ),
 //            if (Platform.isMacOS)
-            new IconButton(
+            IconButton(
               icon: Icon(Icons.file_download),
               tooltip: 'Export album to downloads folder',
               onPressed: () {
@@ -181,9 +185,9 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       // now we need to move the items before the optional delete
       int counter = 0;
       List<AopAlbumItem> oldItems = await argAlbum.albumItems;
-      List<int> selectedIds = idList(this.selectionList);
+      List<int> selectedIds = idList(selectionList);
       for (AopAlbumItem albumItem in oldItems) {
-        if (selectedIds.indexOf(albumItem.snapId)>=0) {
+        if (selectedIds.contains(albumItem.snapId)) {
           albumItem.albumId = newAlbum.id;
           if (await albumItem.save() >0)
             counter++;
@@ -239,7 +243,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     });
     // if there is a listener, let then know
     if (onRefreshed != null)
-      this.onRefreshed();
+      onRefreshed();
   } // of refreshList
 
   void showSnackBar(String message) {
@@ -258,7 +262,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
             setState(() {});
           },
         ), // of checkbox
-        title: Text('${snap.caption}'),
+        title: Text(snap.caption),
       ),
       Image.network(snap.thumbnailURL),
     ]);
