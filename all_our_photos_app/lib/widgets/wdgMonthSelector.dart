@@ -28,8 +28,8 @@ class _MonthSelectorState extends State<MonthSelector> {
     return Row(
       children: <Widget>[
         for (int i = 0; i < 4; i++)
-          FlatButton(
-              padding: EdgeInsets.all(0),
+          TextButton(
+              //padding: EdgeInsets.all(0),
               child: Text(_monthNames[i]),
               onPressed: () {
                 setState(() {
@@ -38,7 +38,9 @@ class _MonthSelectorState extends State<MonthSelector> {
                 if (widget.onPressed != null)
                   widget.onPressed(i);
               },
-              color: _monthList[i] ? Colors.greenAccent : Colors.amber),
+              style: TextButton.styleFrom(
+              backgroundColor: _monthList[i] ? Colors.greenAccent : Colors.amber)
+          )
       ], // of children
     ); // of Row
   } // of build

@@ -47,7 +47,7 @@ class TapDateWidgetState extends State<TapDateWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new FlatButton(
+    return new TextButton(
       child: Text('(${Utils.formatDate(_date,format:'d-mmm-yy')})',
       // TODO : work out how to decorate theme styles with underscore
       style: Theme.of(context).textTheme.bodyText2.apply(decoration: TextDecoration.underline)),

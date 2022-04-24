@@ -182,7 +182,7 @@ Future<bool> confirmYesNo(BuildContext context, String question, {String descrip
           ),
         ),
         actions: <Widget>[
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(
               Icons.check,
               color: myStyle.color,
@@ -195,7 +195,7 @@ Future<bool> confirmYesNo(BuildContext context, String question, {String descrip
               Navigator.pop(context, true);
             },
           ),
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(
               Icons.close,
               color: myStyle.color,
@@ -227,7 +227,7 @@ Future<void> showMessage(BuildContext context, String message, {String title}) a
           ),
         ),
         actions: <Widget>[
-          FlatButton.icon(
+          TextButton.icon(
             icon: Icon(
               Icons.close,
               color: myStyle.color,

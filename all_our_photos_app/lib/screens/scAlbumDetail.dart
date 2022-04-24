@@ -119,7 +119,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       argAlbum.addSnaps(snapIds).then((count) {
         clearSelected();
         refreshList();
-        showSnackBar("$count photos added");
+        showSnackBar("$count photos added",context);
       });
     });
   } // of handleAddAlbumItem
@@ -135,10 +135,10 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     int count = await argAlbum.removeSnaps(selectionList);
     clearSelected();
     refreshList();
-    showSnackBar("$count photos removed");
+    showSnackBar("$count photos removed",context);
     if (deleteAlbum) {
       argAlbum.delete();
-      showSnackBar('Album deleted');
+      showSnackBar('Album deleted',context);
       Navigator.pop(context);
     }
   } // of handleDelete
@@ -155,7 +155,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     // make directory in downloads
     int errors = 0;
      for (int snapIx=0; snapIx< snaps.length; snapIx++) {
-      showSnackBar('${snaps.length-snapIx} photos to download');
+      showSnackBar('${snaps.length-snapIx} photos to download',context);
       String sourceURL = snaps[snapIx].fullSizeURL;
       if (!await ExportPic.save(sourceURL,snaps[snapIx].fileName,albumName))
         errors += 1;
@@ -163,7 +163,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
 //      String prefix = formatDate(snaps[snapIx].takenDate)+'-';
 //      File(dirName+prefix+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
-    showSnackBar('Download complete. There were $errors errors.');
+    showSnackBar('Download complete. There were $errors errors.',context);
   } // of handleDownload
 
   Future<void> moveToAnotherAlbum(BuildContext context) async {
@@ -171,9 +171,9 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     AopAlbum newAlbum = await showSelectDialog<AopAlbum>(context,
         'Move to another album','Album', allAlbums, (AopAlbum album)=>album.name);
     if (newAlbum == null)
-      showSnackBar('Move abandoned');
+      showSnackBar('Move abandoned',context);
     else if (newAlbum.id == argAlbum.id)
-      showSnackBar('You cant move to the same album');
+      showSnackBar('You cant move to the same album',context);
     else {
       // check if everything is moving
       bool deleteAlbum = false;
@@ -193,7 +193,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
             counter++;
         } // match
       } // of search loop
-      showSnackBar('$counter photos moved to (${newAlbum.name})');
+      showSnackBar('$counter photos moved to (${newAlbum.name})',context);
       if (deleteAlbum) {
         await argAlbum.delete();
         Navigator.pop(context);
@@ -246,8 +246,8 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       onRefreshed();
   } // of refreshList
 
-  void showSnackBar(String message) {
-    scaffoldKey.currentState
+  void showSnackBar(String message, BuildContext context) {
+    ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
   } // of showSnackBar

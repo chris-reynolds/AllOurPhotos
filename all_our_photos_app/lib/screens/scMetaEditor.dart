@@ -214,7 +214,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                RaisedButton.icon(
+                TextButton.icon(
                     icon: Icon(Icons.save),
                     onPressed: () {
                       _submit(context);
