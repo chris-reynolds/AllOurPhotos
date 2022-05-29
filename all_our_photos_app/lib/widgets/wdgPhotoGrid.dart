@@ -225,9 +225,13 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                             _imageFilter.setSelected(_imageFilter.items[idx],
                                 !_imageFilter.isSelected(_imageFilter.items[idx]));
                           //                     toggleSelected(imageFile);
-                          else {
-                            imageFile.ranking = (imageFile.ranking + 1) % 3 + 1;
+                          else try {
+                            int newRanking = (imageFile.ranking + 1) % 3 + 1;
+                            imageFile.ranking = newRanking;
                             imageFile.save();
+                            if (imageFile.ranking != newRanking) throw "Failed to save new ranking???";
+                          } catch(e) {
+                            showMessage( context, e);
                           }
                         }); // setState
                       }), // bannerTap

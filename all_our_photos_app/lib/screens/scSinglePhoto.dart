@@ -46,6 +46,19 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     if (params.length > 2) maybeCurrentAlbum = params[2];
   } // of initParams
 
+  void _changeRanking(BuildContext context)  {
+    currentSnap.ranking = (currentSnap.ranking + 1) % 3 + 1;
+    _saveWithError(context);
+  } // of changeRanking
+
+  void _saveWithError(BuildContext context) async {
+    try {
+      await currentSnap.save();
+    } catch(e) {
+      showMessage(context,e);
+    }
+    setState((){});
+  }
   void set snapIndex(int newIndex) {
     if (newIndex >= 0 && newIndex < snapList.length)
       setState(() {
@@ -81,16 +94,14 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           icon: Icon(Icons.rotate_left),
           onPressed: () async {
             currentSnap.rotate(-1);
-            await currentSnap.save();
-            setState(() {});
+            _saveWithError(context);
           },
         ),
         IconButton(
           icon: Icon(Icons.rotate_right),
           onPressed: () async {
             currentSnap.rotate(1);
-            await currentSnap.save();
-            setState(() {});
+            _saveWithError(context);
           },
         ),
         IconButton(
@@ -152,7 +163,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),
+              IconButton(onPressed: (){_changeRanking(context);},
+                  icon: Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),),
               Text(
                 '${currentSnap.caption ?? ''}\n${currentSnap.location ?? ''}',
                 style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
