@@ -53,6 +53,7 @@ class _AlbumListState extends State<AlbumList> {
   void refreshList() {
     AopAlbum.all().then((newList) {
       setState(() {
+        newList.sort((AopAlbum a,AopAlbum b) => b.name.compareTo(a.name));
         _list = newList;
         //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         Log.message('${_list.length} albums loaded');
@@ -66,13 +67,13 @@ class _AlbumListState extends State<AlbumList> {
       key: key,
       appBar: buildBar(context),
       body: SingleChildScrollView(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(8.0),
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _isSearching ? _buildAlbumList() : _buildList(),
+            controller: _scrollController,
+            padding: const EdgeInsets.all(8.0),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _isSearching ? _buildAlbumList() : _buildList(),
+            ),
           ),
-        ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add), onPressed: () => handleAddAlbum(context)),
     );
@@ -185,10 +186,14 @@ class ChildItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-    //    contentPadding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
-        child: new Text(this.album.name,style:Theme.of(context).textTheme.headline5),
-        onPressed: () =>
-            Navigator.pushNamed(context, 'AlbumDetail', arguments: this.album));
+    return Row(
+      children: [
+        TextButton(
+            //padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
+            child: new Text(this.album.name,style:Theme.of(context).textTheme.headline6),
+            onPressed: () =>
+                Navigator.pushNamed(context, 'AlbumDetail', arguments: this.album)),
+      ],
+    );
   }
 }
