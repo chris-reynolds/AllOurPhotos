@@ -5,24 +5,24 @@ import '../dart_common/DateUtil.dart';
 import 'scSimpleDlg.dart';
 
 class AlbumList extends StatefulWidget {
-  AlbumList({Key key}) : super(key: key);
+  const AlbumList({Key key}) : super(key: key);
 
   @override
-  _AlbumListState createState() => new _AlbumListState();
+  _AlbumListState createState() => _AlbumListState();
 }
 
 class _AlbumListState extends State<AlbumList> {
-  Widget appBarTitle = new Text(
+  Widget appBarTitle = Text(
     "Search Albums",
-    style: new TextStyle(color: Colors.white),
+    style: TextStyle(color: Colors.white),
   );
-  Icon actionIcon = new Icon(
+  Icon actionIcon = Icon(
     Icons.search,
     color: Colors.white,
   );
-  final key = new GlobalKey<ScaffoldState>();
-  final TextEditingController _searchQuery = new TextEditingController();
-  var _scrollController = ScrollController();
+  final key = GlobalKey<ScaffoldState>();
+  final TextEditingController _searchQuery = TextEditingController();
+  final _scrollController = ScrollController();
   List<AopAlbum> _list = [];
   bool _isSearching;
   String _searchText = "";
@@ -63,13 +63,13 @@ class _AlbumListState extends State<AlbumList> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       key: key,
       appBar: buildBar(context),
       body: SingleChildScrollView(
             controller: _scrollController,
             padding: const EdgeInsets.all(8.0),
-            child: new Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: _isSearching ? _buildAlbumList() : _buildList(),
             ),
@@ -80,44 +80,44 @@ class _AlbumListState extends State<AlbumList> {
   }
 
   List<ChildItem> _buildList() {
-    return _list.map((album) => new ChildItem(album)).toList();
+    return _list.map((album) => ChildItem(album)).toList();
   }
 
   List<ChildItem> _buildAlbumList() {
     if (_searchText.isEmpty) {
-      return _list.map((album) => new ChildItem(album)).toList();
+      return _list.map((album) => ChildItem(album)).toList();
     } else {
-      List<AopAlbum> _searchList = List();
+      List<AopAlbum> _searchList = [];
       for (int i = 0; i < _list.length; i++) {
         String name = _list.elementAt(i).name;
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
           _searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => new ChildItem(contact)).toList();
+      return _searchList.map((contact) => ChildItem(contact)).toList();
     }
   }
 
   Widget buildBar(BuildContext context) {
-    return new AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
-      new IconButton(
+    return AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
+     IconButton(
         icon: actionIcon,
         onPressed: () {
           setState(() {
-            if (this.actionIcon.icon == Icons.search) {
-              this.actionIcon = new Icon(
+            if (actionIcon.icon == Icons.search) {
+              actionIcon =Icon(
                 Icons.close,
                 color: Colors.white,
               );
-              this.appBarTitle = new TextField(
+              appBarTitle =TextField(
                 controller: _searchQuery,
-                style: new TextStyle(
+                style:TextStyle(
                   color: Colors.white,
                 ),
-                decoration: new InputDecoration(
-                    prefixIcon: new Icon(Icons.search, color: Colors.white),
+                decoration:InputDecoration(
+                    prefixIcon:Icon(Icons.search, color: Colors.white),
                     hintText: "Search...",
-                    hintStyle: new TextStyle(color: Colors.white)),
+                    hintStyle:TextStyle(color: Colors.white)),
               );
               _handleSearchStart();
             } else {
@@ -137,13 +137,13 @@ class _AlbumListState extends State<AlbumList> {
 
   void _handleSearchEnd() {
     setState(() {
-      this.actionIcon = new Icon(
+      actionIcon =Icon(
         Icons.search,
         color: Colors.white,
       );
-      this.appBarTitle = new Text(
+      appBarTitle =Text(
         "Search Albums",
-        style: new TextStyle(color: Colors.white),
+        style:TextStyle(color: Colors.white),
       );
       _isSearching = false;
       _searchQuery.clear();
@@ -182,7 +182,7 @@ class _AlbumListState extends State<AlbumList> {
 class ChildItem extends StatelessWidget {
   final AopAlbum album;
 
-  ChildItem(this.album);
+  const ChildItem(this.album,{Key key}):super(key:key);
 
   @override
   Widget build(BuildContext context) {
@@ -190,9 +190,9 @@ class ChildItem extends StatelessWidget {
       children: [
         TextButton(
             //padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
-            child: new Text(this.album.name,style:Theme.of(context).textTheme.headline6),
+            child:Text(album.name,style:Theme.of(context).textTheme.headline6),
             onPressed: () =>
-                Navigator.pushNamed(context, 'AlbumDetail', arguments: this.album)),
+                Navigator.pushNamed(context, 'AlbumDetail', arguments: album)),
       ],
     );
   }
