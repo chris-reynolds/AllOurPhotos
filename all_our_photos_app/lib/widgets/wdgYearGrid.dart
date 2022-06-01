@@ -7,6 +7,7 @@ import '../ImageFilter.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import '../dart_common/Logger.dart' as log;
 import '../shared/aopClasses.dart';
+import '../MonthlyStatus.dart';
 
 // Note there is a blank month name in entry 0 for the year column
 final List<String> monthNames =
@@ -43,9 +44,11 @@ class _YearGridState extends State<YearGrid> {
   @override
   initState() {
     super.initState();
+    MonthlyStatus.init().then((x){
     buildYears().then((newYearList) {
-      setState(() => yearList = newYearList);
-    }); // of then
+        setState(() => yearList = newYearList);
+      }); // of then
+    });
   } // of initState
 
   Future<List<YearEntry>> buildYears() async {
@@ -75,15 +78,17 @@ class _YearGridState extends State<YearGrid> {
     }
   } // handleMonthClick
 
+  Color monthProgressColor(int yearNo,int monthNo) {
+    return MonthlyStatus.read(yearNo,monthNo) ? Colors.blue : Colors.amber; // todo
+  }
   Row yearRowBuilder(YearEntry thisYear) {
-    IconData isCurrentIcon(bool current)=> current ? Icons.ac_unit : Icons.image;
     return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Text('${thisYear.yearno}', style: gridStyles['yearNos']),
       for (int monthIx = 1; monthIx <= 12; monthIx++)
         if (thisYear.months[monthIx] > 0)
           IconButton(
-            icon: Icon(isCurrentIcon(isCurrent(thisYear.yearno,monthIx)), size: 36.0,
-                color: isCurrent(thisYear.yearno,monthIx) ? Colors.red : Colors.amber),
+            icon: Icon(isCurrent(thisYear.yearno,monthIx)?Icons.ac_unit:MonthlyStatus.icon(thisYear.yearno, monthIx), size: 36.0,
+                color: monthProgressColor(thisYear.yearno, monthIx)),
             // tooltip: 'Todo: Maybe location info',
             onPressed: () {
               handleMonthClick(thisYear.yearno, monthIx);

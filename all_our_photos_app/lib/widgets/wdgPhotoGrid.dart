@@ -4,6 +4,7 @@
   Purpose: Stateful PhotoGrid widget with multi-select
 */
 
+import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart' as PathProvider;
@@ -20,7 +21,7 @@ import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../dart_common/ListProvider.dart';
 import '../dart_common/ListUtils.dart';
-// import '../dart_common/WebFile.dart';
+import '../MonthlyStatus.dart';
 
 
 class PhotoGrid extends StatefulWidget {
@@ -72,6 +73,28 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 
   bool _inSelectMode = false;
 
+  void changeMonthlyStatus() {
+    if (_imageFilter is ImageFilter) {
+      DateTime startDate = (_imageFilter as ImageFilter).fromDate;
+      int yearNo = startDate.year;
+      int monthNo = startDate.month;
+      bool currentStatus = MonthlyStatus.read(yearNo, monthNo);
+      MonthlyStatus.write(yearNo, monthNo, !currentStatus);
+      print('switched $currentStatus');
+      setState((){});
+    }
+  }
+
+  IconData calcMonthlyStatusIcon() {
+    DateTime startDate = (_imageFilter as ImageFilter).fromDate;
+    int yearNo = startDate.year;
+    int monthNo = startDate.month;
+    bool currentStatus = MonthlyStatus.read(yearNo, monthNo);
+    if (currentStatus)
+      return Icons.done_outline_sharp;
+    else
+      return Icons.question_mark;
+  }
   void changeSelectMode() {
     setState(() {
       // todo check clear selection maybe
@@ -186,6 +209,11 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   handleMultiLocation(context, _imageFilter.selectionList);
                 }),
           ],
+          if (widget._album == null)  // only for monthly grid
+            IconButton(
+              icon: Icon(calcMonthlyStatusIcon()),
+              tooltip: 'Mark Month as Done',
+              onPressed: changeMonthlyStatus),
           IconButton(
               icon: Icon(Icons.check_box),
               tooltip: 'Selection Mode on/off',
