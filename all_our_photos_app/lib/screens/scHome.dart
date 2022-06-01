@@ -87,12 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onPageChanged: onPageChanged,
         controller: _pageController,
       ),
-      bottomNavigationBar: new Theme(
-        data: Theme.of(context).copyWith(
-          // sets the background color of the `BottomNavigationBar`
-          canvasColor: const Color(0xFF167F67),
-        ), // sets the inactive color of the `BottomNavigationBar`
-        child: new BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
           items: [
             bottomButton('History', Icons.grid_on),
             bottomButton('Albums', Icons.collections),
@@ -101,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: navigationTapped,
           currentIndex: _page,
         ),
-      ),
     );
   }
 }
