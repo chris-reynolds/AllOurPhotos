@@ -9,6 +9,7 @@ import '../shared/aopClasses.dart';
 import 'wdgImageFilter.dart' show filterColors;
 import '../dart_common/DateUtil.dart';
 
+
 typedef void BannerTapCallback(AopSnap snap);
 
 const double HEADER_OFFSET = 50;
@@ -65,7 +66,7 @@ class PhotoTile extends StatelessWidget {
     final IconData icon = Icons.star;
     final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
     String descriptor =
-        '> ${formatDate(snap.takenDate, format: 'dmmm yy')} ${snap.deviceName} ';
+        '${formatDate(snap.takenDate, format: 'd mmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
