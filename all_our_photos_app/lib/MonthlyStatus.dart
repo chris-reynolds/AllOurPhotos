@@ -26,14 +26,16 @@ class MonthlyStatus {
     return _monthlyStatus[yearNo*100+monthNo].contains(currentUser);
   }
   static void write(int yearNo,int monthNo,bool newValue) {
-    String stored = _monthlyStatus[yearNo * 100 + monthNo];
-    bool oldValue = stored.contains(currentUser);
-    if (oldValue == newValue) return; // nothing to change
-    if (oldValue) stored = stored.replaceAll(currentUser, '');
-    if (newValue) stored += currentUser;
-    _monthlyStatus[yearNo * 100 + monthNo] = stored;
-    _monthlyStatus.save().then((success) {
-      if (!success) throw 'failed to write monthly progress';
+    _monthlyStatus.load().then((x){
+      String stored = _monthlyStatus[yearNo * 100 + monthNo];
+      bool oldValue = stored.contains(currentUser);
+      if (oldValue == newValue) return; // nothing to change
+      if (oldValue) stored = stored.replaceAll(currentUser, '');
+      if (newValue) stored += currentUser;
+      _monthlyStatus[yearNo * 100 + monthNo] = stored;
+      _monthlyStatus.save().then((success) {
+        if (!success) throw 'failed to write monthly progress';
+      });
     });
   } // write
 

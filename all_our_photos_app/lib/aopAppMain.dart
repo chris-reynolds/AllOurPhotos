@@ -8,7 +8,7 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 1Jun22.v1';
+const VERSION = 'All Our Photos 2Jun22.v1';
 
 void main() {
 
