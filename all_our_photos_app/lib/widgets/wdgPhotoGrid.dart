@@ -79,9 +79,10 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       int yearNo = startDate.year;
       int monthNo = startDate.month;
       bool currentStatus = MonthlyStatus.read(yearNo, monthNo);
-      MonthlyStatus.write(yearNo, monthNo, !currentStatus);
-      print('switched $currentStatus');
-      setState((){});
+      MonthlyStatus.write(yearNo, monthNo, !currentStatus).then((x){
+        print('switched month to ${!currentStatus}');
+        setState((){});
+      });
     }
   }
 
