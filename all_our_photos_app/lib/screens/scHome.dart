@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       appBar: new AppBar(
         title: GestureDetector(
             child: Text(

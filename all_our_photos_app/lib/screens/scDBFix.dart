@@ -5,13 +5,15 @@
 */
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:all_our_photos_app/shared/aopClasses.dart';
+import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as IM;
 import '../dart_common/Logger.dart' as Log;
-import '../dart_common/DateUtil.dart';
-import '../dart_common/WebFile.dart';
+//import '../dart_common/DateUtil.dart';
+//import '../dart_common/WebFile.dart';
 import '../dart_common/ImageUploader.dart';
 import '../flutter_common/WidgetSupport.dart';
 
@@ -106,6 +108,85 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     }
   } // of fixSingleThumbnail
 
+  Future<void> importMacAlbums(BuildContext context) async {
+    const PHOTOID_SQL = "select id from aopsnaps where metadata like '%xxxx%'";
+    String filename='';
+    var jpegLoader = JpegLoader();
+    try {
+      Directory importDir = Directory('/Users/chrisreynolds/Desktop/projects/AllOurPhotos/photos_albums/janets_albums');
+      var fseList = importDir.listSync();
+      fseList.sort((f1,f2)=> f1.path.compareTo(f2.path));
+      var workList = [];
+      for (var fse in fseList) {
+        filename = fse.path.split('/').last;
+        var delimPos = filename.indexOf(' - ');
+        assert(delimPos>0,'no delimiter');
+        var album = filename.substring(0,delimPos).trimRight();
+        List<int> contents = File(fse.path).readAsBytesSync();
+        await jpegLoader.extractTags(contents);
+        var dto = jpegLoader.tags['DateTimeOriginal']??jpegLoader.tags['DateTime'];
+        if (dto!=null) {
+          var photoList = await snapProvider.rawExecute(PHOTOID_SQL.replaceAll('xxxx', dto));
+          var photoId = -1;
+          if (photoList!=null && photoList.isNotEmpty)
+            photoId = photoList.first['id'];
+          var item = {
+            'name': filename,
+            'album': album,
+            'dto': dto,
+            'photoid': photoId,
+            'count': photoList.length ?? 0,
+            'path': fse.path
+          };
+          workList.add(item);
+          Log.message('$item');
+        } else
+          Log.message('skipped $filename lacked date');
+      }
+      var currentAlbum = '';
+      var albumId = -1;
+      for (var item in workList) {
+        String thisAlbum = item['album'];
+        if (currentAlbum!=item['album']) {
+          var albumList = await albumProvider.rawExecute('select * from aopalbums where name like \'%$thisAlbum%\'');
+          if (albumList.isEmpty) {
+            Log.message('!!!!!!! CREATE ALBUM $thisAlbum');
+            currentAlbum = thisAlbum;
+            var newAlbum = AopAlbum()
+              ..name = '2025 $thisAlbum';
+            var result = await newAlbum.save();
+            if (result>0)
+              albumId = result;
+            else
+              throw 'bad result on album save $result';
+          } else
+            albumId = albumList.first['id'];
+        } // of newAlbum
+        int photoId = item['photoid'];
+        var existingItems = await albumItemProvider.rawExecute('select * from aopalbum_items where album_id=$albumId and snap_id=$photoId');
+        if (existingItems.isEmpty  && albumId>0 && photoId>0) {
+          Log.message('creating ${item['name']}');
+          var albumItem = AopAlbumItem()
+            ..snapId = photoId
+            ..albumId = albumId;
+          var result = await albumItem.save();
+          if (result<=0)
+            log.error('cant save item');
+          else
+            log.message('created');
+        } // make new albumItem
+        else
+          Log.message('skip ${item['name']}');
+      }  // of item loop
+      Log.message('Length is ${workList.length}');
+      filename = 'done2';
+      throw 'not implemented';
+    } catch(e,s) {
+      //Log.error('Exception: $e\n$s\n');
+      showMessage(context, 'Exception: $e\n$s\n $filename ');
+    }
+  }
+
   Future<void> processGroups(SnapProcessor snapFn) async {
     var r = await snapProvider.rawExecute(groupQuery);
     groups = [];
@@ -151,6 +232,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
         actions: <Widget>[
           IconButton(icon: Icon(Icons.date_range), onPressed: fixTakenDateDriver),
           IconButton(icon: Icon(Icons.thumb_up), onPressed: fixThumbnailDriver),
+          IconButton(icon: Icon(Icons.photo_album), onPressed: (){importMacAlbums(context);}),
         ],
       ),
       body:

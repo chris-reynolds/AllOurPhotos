@@ -118,7 +118,7 @@ Future<int> save({bool validate:true}) async {
   if (isValid) {
     return await albumProvider.save(this);
   } else {
-	throw Exception("Failed to save");
+	throw Exception("Failed to save\n${lastErrors.join('\n')}");
   } 
 } // of save
 
@@ -266,7 +266,7 @@ Future<int> save({bool validate:true}) async {
   if (isValid) {
     return await albumItemProvider.save(this);
   } else {
-	throw Exception("Failed to save");
+	throw Exception("Failed to save\n${lastErrors.join('\n')}");
   } 
 } // of save
 
@@ -373,7 +373,7 @@ Future<int> save({bool validate:true}) async {
   if (isValid) {
     return await sessionProvider.save(this);
   } else {
-	throw Exception("Failed to save");
+	throw Exception("Failed to save\n${lastErrors.join('\n')}");
   } 
 } // of save
 
@@ -601,7 +601,7 @@ Future<int> save({bool validate:true}) async {
   if (isValid) {
     return await snapProvider.save(this);
   } else {
-	throw Exception("Failed to save");
+	throw Exception("Failed to save\n${lastErrors.join('\n')}");
   } 
 } // of save
 
@@ -826,7 +826,7 @@ Future<int> save({bool validate:true}) async {
   if (isValid) {
     return await userProvider.save(this);
   } else {
-	throw Exception("Failed to save");
+	throw Exception("Failed to save\n${lastErrors.join('\n')}");
   } 
 } // of save
 

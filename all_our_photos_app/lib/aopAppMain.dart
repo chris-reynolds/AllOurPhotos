@@ -8,7 +8,7 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 6Jun22.v2';
+const VERSION = 'All Our Photos 7Jun22.v1';
 
 void main() {
 
@@ -42,7 +42,7 @@ void main() {
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),
       'MetaEditor': (BuildContext context) => MetaEditorWidget(),
       'SinglePhoto': (BuildContext context) => SinglePhotoWidget(),
-      'Db Fix': (BuildContext context) => DbFixFormWidget(),
+      'Db Fixs': (BuildContext context) => DbFixFormWidget(),
       'testlog': (BuildContext context) => SearchList(),
     },
   );
