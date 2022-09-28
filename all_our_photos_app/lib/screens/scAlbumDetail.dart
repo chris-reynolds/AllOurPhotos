@@ -4,6 +4,7 @@ Purpose: This will show the details of a single album
 
 */
 import 'dart:io';
+import 'package:all_our_photos_app/dart_common/LoginStateMachine.dart';
 import 'package:all_our_photos_app/shared/DomainObject.dart';
 import 'package:flutter/material.dart';
 //import 'package:image/image.dart';
@@ -59,7 +60,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   } // of build
 
   Widget buildBar(BuildContext context) {
-    if (selectionList.isEmpty)
+ //   if (selectionList.isEmpty)
       return AppBar(
           centerTitle: true,
           title: Text(argAlbum.name),
@@ -73,6 +74,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
               },
             ),
 //            if (Platform.isMacOS)
+          if (items!=null && items.isNotEmpty)
             IconButton(
               icon: Icon(Icons.file_download),
               tooltip: 'Export album to downloads folder',
@@ -82,25 +84,26 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
                 });
               },
             ),
+
           ]);
-    else
-      return AppBar(
-        title: Text('${selectionList.length} items selected'),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.redo),
-              onPressed: () {moveToAnotherAlbum(context);}),
-          IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () async {handleDelete(context);}),
-          IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                clearSelected();
-                refreshList();
-              }),
-        ],
-      );
+    // else
+    //   return AppBar(
+    //     title: Text('${selectionList.length} items selected'),
+    //     actions: <Widget>[
+    //       IconButton(
+    //           icon: Icon(Icons.redo),
+    //           onPressed: () {moveToAnotherAlbum(context);}),
+    //       // IconButton(
+    //       //     icon: Icon(Icons.delete),
+    //       //     onPressed: () async {await handleDelete(context);}),
+    //       IconButton(
+    //           icon: Icon(Icons.close),
+    //           onPressed: () {
+    //             clearSelected();
+    //             refreshList();
+    //           }),
+    //     ],
+    //   );
   }
 
 
@@ -124,24 +127,27 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     });
   } // of handleAddAlbumItem
 
-  Future<void> handleDelete(BuildContext context) async {
-    bool deleteAlbum = false;
-    if (selectionList == null) return; // nothing to delete
-    if (_list.length == selectionList.length) {
-      if (await confirmYesNo(context, 'Delete album',
-          description: 'All photos for this album have been\n selected for deletion'))
-        deleteAlbum = true;
-    }
-    int count = await argAlbum.removeSnaps(selectionList);
-    clearSelected();
-    refreshList();
-    showSnackBar("$count photos removed",context);
-    if (deleteAlbum) {
-      argAlbum.delete();
-      showSnackBar('Album deleted',context);
-      Navigator.pop(context);
-    }
-  } // of handleDelete
+  // Future<void> handleDelete(BuildContext context) async {
+  //   bool deleteAlbum = false;
+  //   if (selectionList == null) return; // nothing to delete
+  //   if (_list.length == selectionList.length) {
+  //     if (await confirmYesNo(context, 'Delete album?',
+  //         description: 'All photos for this album have been\n selected for deletion'))
+  //       deleteAlbum = true;
+  //   }
+  //   int count = await argAlbum.removeSnaps(selectionList);
+  //   showSnackBar("$count photos removed",context);
+  //   if (deleteAlbum) {
+  //     showSnackBar('Album deleted',context);
+  //     print('album delete');
+  //     var fred = await argAlbum.delete();
+  //     print('now pop');
+  //     Navigator.pop(context,true);
+  //   } else {
+  //     clearSelected();
+  //     refreshList();
+  //   }
+  // } // of handleDelete
 
   Future<void> handleDownload(BuildContext context) async {
     List<AopSnap> snaps = selectionList;
@@ -178,7 +184,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       // check if everything is moving
       bool deleteAlbum = false;
       if (_list.length == selectionList.length) {
-        if (await confirmYesNo(context, 'Delete album',
+        if (await confirmYesNo(context, 'Delete album after move',
             description: 'All photos for this album have been\n selected for deletion'))
           deleteAlbum = true;
       }
@@ -196,7 +202,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       showSnackBar('$counter photos moved to (${newAlbum.name})',context);
       if (deleteAlbum) {
         await argAlbum.delete();
-        Navigator.pop(context);
+        Navigator.pop(context,true);
       } else
         refreshList();
     } // ok to move
@@ -247,9 +253,9 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   } // of refreshList
 
   void showSnackBar(String message, BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+//    ScaffoldMessenger.of(context)
+//      ..removeCurrentSnackBar()
+//      ..showSnackBar(SnackBar(content: Text(message)));
   } // of showSnackBar
 
   Widget snapTile(AopSnap snap) {

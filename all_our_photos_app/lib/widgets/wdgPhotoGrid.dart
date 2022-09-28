@@ -404,33 +404,36 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     setState(() {});
   } // handleMultiSetGreen
 
+  // includes album delete  --- WARNING NOT IN THE RIGHT PLACE AT ALL
   void handleMultiRemoveFromAlbum(BuildContext  context, AopAlbum argAlbum, List<AopSnap> selectedSnaps) async {
     try {
       bool deleteAlbum = false;
       String message = '';
       if (selectedSnaps == null  || selectedSnaps.isEmpty) return; // nothing to delete
       if ( (await argAlbum.albumItems).length == selectedSnaps.length) {
-        if (await confirmYesNo(context, 'Delete album',
+        if (await confirmYesNo(context, 'Delete this album',
             description: 'All photos for this album have been\n selected for deletion'))
           deleteAlbum = true;
       }
       int count = await argAlbum.removeSnaps(selectedSnaps);
-      if (widget._refreshNow !=null)
-          widget._refreshNow();
-      clearSelected();
-      setState(() {});
       message = "$count photos removed\n";
       if (deleteAlbum) {
-        argAlbum.delete();
+        await argAlbum.delete();
         message += 'Album deleted';
-
-        Navigator.pop(context);
+        //;
+        Log.message('popping from grid after delete album');
+        await showMessage(context, message);
+        Navigator.pop(context,true);
+      } else {
+        await showMessage(context, message);
+        if (widget._refreshNow !=null)
+          widget._refreshNow();
+        clearSelected();
+        setState(() {});
       }
-      showMessage(context, message);
     } catch(ex) {
       showMessage(context, 'Error: $ex');
     }
-    setState(() {});
   } // of handleMultiRemoveFromAlbum*/
 
   Future<void> handleDownload(BuildContext context,List<AopSnap> selectedSnaps) async {
