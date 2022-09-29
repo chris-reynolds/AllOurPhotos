@@ -1,0 +1,15 @@
+name: shrink2album
+description: Convert shrink files to AOP albums.
+version: 1.0.0
+# homepage: https://www.example.com
+
+environment:
+  sdk: '>=2.09.0 <3.0.0'
+
+dependencies:
+  mysql1:
+    path: ../../my_pub_dev/mysql1_dart
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.16.0
