@@ -123,7 +123,7 @@ Future<int> save({bool validate:true}) async {
 } // of save
 
 Future<void> delete() async {
-  return albumProvider.delete(this);
+  return await albumProvider.delete(this);
 } // of delete
 
 

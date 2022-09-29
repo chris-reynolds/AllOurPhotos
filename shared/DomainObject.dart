@@ -3,7 +3,7 @@ import 'package:aopcommon/aopcommon.dart';
 import './dbAllOurPhotos.dart';
 
 
-bool sqlLogging = false;
+bool sqlLogging = true;
 
 abstract class DomainObject {
   DomainObject({Map<String, dynamic> data});

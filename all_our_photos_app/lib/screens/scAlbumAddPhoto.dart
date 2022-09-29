@@ -43,12 +43,13 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
             onPressed: setQuarter,
           ),
           IconButton(
-              icon: Icon(Icons.arrow_downward), onPressed: extendEndDate),
+              icon: Icon(Icons.timelapse), onPressed: extendEndDate,tooltip: 'Extend a month',),
           IconButton(
               icon: Icon(
                 imgFilter.getRank(2) ? Icons.star : Icons.star_border,
                 color: Colors.orange,
               ),
+              tooltip: imgFilter.getRank(2)?'Hide amber photos':'Show amber photos',
               onPressed: () {
                 imgFilter.setRank(2, !imgFilter.getRank(2)); // toggle.
                 refreshList();
@@ -60,14 +61,14 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
         title: Text('${this.selectionList.length} items selected'),
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.arrow_downward), onPressed: extendEndDate),
-          IconButton(
               icon: Icon(Icons.check),
+              tooltip: 'Add selection to album',
               onPressed: () {
                 saveSelectedToAlbum(context);
               }),
           IconButton(
-              icon: Icon(Icons.close),
+              icon: Icon(Icons.undo),
+              tooltip: 'Clear selection',
               onPressed: () {
                 this.clearSelected();
                 setState(() {});
