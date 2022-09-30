@@ -11,7 +11,6 @@ server/src/sample_upload.ts
 tmp/
 temp/
 .idea/workspace.xml
-.idea/workspace.xml
 *.ldb
 deleted/*
 all_our_photos_app/client_id.json
@@ -48,3 +47,4 @@ all_our_photos_app/lib/generated_plugin_registrant.dart
 aopsync/ios/Flutter/.last_build_id
 *.lock
 all_our_photos_app/ios/Flutter/Flutter.podspec
+josie_export/*.jpg
