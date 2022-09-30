@@ -46,7 +46,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     if (params.length > 2) maybeCurrentAlbum = params[2];
   } // of initParams
 
-  void _changeRanking(BuildContext context)  {
+  void _changeRanking(BuildContext context) {
     currentSnap.ranking = (currentSnap.ranking + 1) % 3 + 1;
     _saveWithError(context);
   } // of changeRanking
@@ -54,11 +54,12 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   void _saveWithError(BuildContext context) async {
     try {
       await currentSnap.save();
-    } catch(e) {
-      showMessage(context,e);
+    } catch (e) {
+      showMessage(context, e);
     }
-    setState((){});
+    setState(() {});
   }
+
   void set snapIndex(int newIndex) {
     if (newIndex >= 0 && newIndex < snapList.length)
       setState(() {
@@ -87,9 +88,9 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   }),
         IconButton(
             icon: Icon(Icons.edit),
-            onPressed: ()  async {
-              var result = await Navigator.pushNamed(context,'MetaEditor', arguments: currentSnap);
-              setState(() {});  //force repaint on return
+            onPressed: () async {
+              var result = await Navigator.pushNamed(context, 'MetaEditor', arguments: currentSnap);
+              setState(() {}); //force repaint on return
             }),
         IconButton(
           icon: Icon(Icons.rotate_left),
@@ -108,8 +109,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         IconButton(
           icon: Icon(Icons.download_outlined),
           onPressed: () async {
-            if (
-            await ExportPic.save(currentSnap.fullSizeURL, currentSnap.fileName, 'AllOurPhotos'))
+            if (await ExportPic.save(currentSnap.fullSizeURL, currentSnap.fileName, 'AllOurPhotos'))
               showMessage(context, 'Downloaded');
             else
               showMessage(context, 'Download failed');
@@ -150,44 +150,54 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     if (snapList == null) _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList[_snapIndex];
     return Scaffold(
-      appBar: buildAppBar(context),
-      body: GestureDetector(
-        onVerticalDragStart: (cursorPos)=> yPos = cursorPos.localPosition.direction,
-        onVerticalDragUpdate: (cursorPos) {
-          if (cursorPos.delta.dy >100 )
-            snapIndex = _snapIndex + 1;
-          else if (cursorPos.delta.dy <-100   )
-            snapIndex = _snapIndex - 1;
-          print('onVerticalDragUpdate $_snapIndex ${cursorPos.delta.dy}');
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              IconButton(onPressed: (){_changeRanking(context);},
-                  icon: Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),),
-              Text(
-                '${currentSnap.caption ?? ''}\n${currentSnap.location ?? ''}',
-                style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
-              ),
-            ]),
-            Expanded(
+        appBar: buildAppBar(context),
+        body: GestureDetector(
+          onVerticalDragStart: (cursorPos) => yPos = cursorPos.localPosition.direction,
+          onVerticalDragUpdate: (cursorPos) {
+            if (cursorPos.delta.dy > 100)
+              snapIndex = _snapIndex + 1;
+            else if (cursorPos.delta.dy < -100) snapIndex = _snapIndex - 1;
+            print('onVerticalDragUpdate $_snapIndex ${cursorPos.delta.dy}');
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                IconButton(
+                  onPressed: () {
+                    _changeRanking(context);
+                  },
+                  icon: Icon(Icons.star, color: filterColors[currentSnap.ranking], size: 40.0),
+                ),
+                Text(
+                  '${currentSnap.caption ?? ''}\n${currentSnap.location ?? ''}',
+                  style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
+                ),
+              ]),
+              Expanded(
                 flex: 1,
-                child: Transform.rotate(
-              angle: currentSnap.angle,
-              child: PhotoViewerWithRect(
-                key: pvKey,
-                url: currentSnap.fullSizeURL,
-                onScale: setIsPhotoScaled,
-              ),
-            ),
-            ),
-            if (_isClippingInProgress) Center(child: CircularProgressIndicator()),
-          ],
-        ),
-      )
-
-    );
+                child: GestureDetector(
+                  onVerticalDragEnd: (dragDetails){
+                    if (dragDetails.primaryVelocity < 0) { // swipe up
+                      if (_snapIndex<snapList.length-1) snapIndex=_snapIndex+1;
+                    } else if (dragDetails.primaryVelocity > 0) { // swipe down
+                      if (_snapIndex>0) snapIndex = _snapIndex-1;
+                    }
+                  },
+                  child: Transform.rotate(
+                    angle: currentSnap.angle,
+                    child: PhotoViewerWithRect(
+                      key: pvKey,
+                      url: currentSnap.fullSizeURL,
+                      onScale: setIsPhotoScaled,
+                    ), // of PhotoViewerWithRect
+                  ), // of Transform
+                ), // of GestureDetector
+              ), // of Expanded
+              if (_isClippingInProgress) Center(child: CircularProgressIndicator()),
+            ],
+          ),
+        ));
   } // of build
 
   void setIsPhotoScaled(bool value) {
@@ -294,5 +304,4 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       tags.forEach((k, v) => tagResult += '$k = $v \n');
     showMessage(context, tagResult, title: 'Exif for Thumbnail of ${thisSnap.fileName}');
   } // of showExif
-
 }
