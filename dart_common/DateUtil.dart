@@ -3,8 +3,8 @@
 
   Purpose: Date utilities
 */
-
-const _daysInMonth = const [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+import 'Logger.dart' as Log;
+final _daysInMonth = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 final _monthNames = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
 int _iMin(int x, int y) => (x < y) ? x : y;
 
@@ -28,10 +28,10 @@ DateTime addMonths(DateTime dt, int value) {
   }
   var newDay = _iMin(dt.day, daysInMonth(newYear, newMonth));
   if (dt.isUtc) {
-    return new DateTime.utc(newYear, newMonth, newDay, dt.hour, dt.minute,
+    return DateTime.utc(newYear, newMonth, newDay, dt.hour, dt.minute,
         dt.second, dt.millisecond, dt.microsecond);
   } else {
-    return new DateTime(newYear, newMonth, newDay, dt.hour, dt.minute,
+    return DateTime(newYear, newMonth, newDay, dt.hour, dt.minute,
         dt.second, dt.millisecond, dt.microsecond);
   }
 } // addMonth
@@ -39,9 +39,9 @@ DateTime addMonths(DateTime dt, int value) {
 DateTime monthEnd(DateTime dt) => DateTime(dt.year,dt.month,daysInMonth(dt.year, dt.month), 23, 59,59);
 
 String formatDate(DateTime aDate, {String format = 'yyyy-mm-d'}) {
-  String _right(String s,{int size:2}) => s.substring(s.length - size);
-  String n99(int value) => _right((value + 100).toString());
-  String n999(int value) => _right((value + 1000).toString(),size:3);
+  String right(String s,{int size:2}) => s.substring(s.length - size);
+  String n99(int value) => right((value + 100).toString());
+  String n999(int value) => right((value + 1000).toString(),size:3);
   String result = format;
   try {
     result = result.replaceAll('dd', n99(aDate.day));
@@ -56,7 +56,7 @@ String formatDate(DateTime aDate, {String format = 'yyyy-mm-d'}) {
     result = result.replaceAll('ss', n99(aDate.second));
     result = result.replaceAll('lll', n999(aDate.millisecond));
   } catch(ex) {
-    print(ex);
+    Log.error('DateUtils:$ex');
   }
   return result;
 

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:convert' show jsonDecode, utf8, jsonEncode;
-import 'package:path/path.dart' as Path;
+
 import 'Logger.dart' as Log;
 
 Map<String,dynamic> config = {};
@@ -11,9 +11,10 @@ String finalFileName = 'Unassigned';
 Future<void> loadConfig([String commandLineFilename]) async {
 //  String os = Platform.operatingSystem;
   String programName = Platform.script.toFilePath();
-  String defaultName = programName.replaceAll('\.dart', '\.config\.json'); //.substring(5);
-  defaultName = defaultName.replaceAll('\.aot', '\.config\.json');
-  defaultName = Path.basename(defaultName);
+  String defaultName = programName.replaceAll('.dart', '.config.json'); //.substring(5);
+  defaultName = defaultName.replaceAll('.aot', '.config.json');
+  final bits = defaultName.split(Platform.pathSeparator);
+  defaultName = bits[bits.length-1];  //get the text after the last separator
   String actualFilename = commandLineFilename ?? defaultName;
 //  if (Path.dirname(actualFilename)=='.')
 //    actualFilename = Path.join((await getApplicationDocumentsDirectory()).path,actualFilename); todo restore

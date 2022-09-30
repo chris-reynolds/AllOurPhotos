@@ -14,11 +14,13 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
 
   DateTime _fromDate = DateTime(1900);
   DateTime _toDate = DateTime(2030);
+  @override
   CallBack onRefreshed;
   // by default only show ranks 2 and 3
-  List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
+  final List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
   String _searchText = '';
   List<AopSnap> _images;
+  @override
   List<AopSnap> get items {
     checkImages();
     return _images;
@@ -77,7 +79,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
     _images = await snapProvider.getSome(whereClause(),orderBy: 'taken_date,id'); //todo: reverse order
-    this.clearSelected();
+    clearSelected();
     // todo check ascending or descending date sort
  //   _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;

@@ -1,4 +1,4 @@
-/**
+/*
  * Created by Chris on 21/09/2018.
  */
 import 'package:exifdart/exifdart.dart' as exif;
@@ -29,15 +29,14 @@ class JpegLoader {
      for (int ix in [2,1,0]) {
        result = result / 60 + (dms[ix].numerator / dms[ix].denominator);
      }
-     if ('sSwW'.indexOf(direction)>=0)
+     if ('sSwW'.contains(direction))
        result = -result;
      return result;
    } // of dmsToDeg
 
    static DateTime dateTimeFromExif(String exifString)  {
      try {
-       String tmp = exifString.substring(0,4)+'-'+exifString.substring(5,7)+
-           '-'+exifString.substring(8);
+       String tmp = '${exifString.substring(0,4)}-${exifString.substring(5,7)}-${exifString.substring(8)}';
        return DateTime.parse(tmp);
      } catch(ex) {
        return null;
