@@ -164,7 +164,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
               return locationList
                   .where((String location)=> location.toLowerCase()
                   .contains(textEditingValue.text.toLowerCase()));
-              }, initialValue: values['location'],
+              }, initialValue: TextEditingValue(text:values['location']),
               onSelected: (v){
               values['location']=v;},
             ),
