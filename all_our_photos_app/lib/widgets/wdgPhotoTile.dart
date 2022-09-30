@@ -9,10 +9,10 @@ import '../shared/aopClasses.dart';
 import 'wdgImageFilter.dart' show filterColors;
 import '../dart_common/DateUtil.dart';
 
-
 typedef void BannerTapCallback(AopSnap snap);
 
 const double HEADER_OFFSET = 50;
+
 class PhotoTile extends StatelessWidget {
   PhotoTile(
       {Key key,
@@ -21,7 +21,8 @@ class PhotoTile extends StatelessWidget {
       @required this.isSelected,
       @required this.inSelectMode,
       @required this.highResolution,
-      @required this.onBannerTap})
+      @required this.onBannerTap,
+      @required this.onBannerLongPress})
       : assert(isSelected != null),
         assert(inSelectMode != null),
         assert(onBannerTap != null),
@@ -32,25 +33,31 @@ class PhotoTile extends StatelessWidget {
   final bool inSelectMode;
   final bool highResolution;
   final BannerTapCallback onBannerTap; // User taps on the photo's header or footer.
+  final BannerTapCallback onBannerLongPress;
 
   AopSnap get snap => snapList[index];
 
   @override
   Widget build(BuildContext context) {
     final Widget imageWidget = GestureDetector(
-        onTap: () {
+        onTap: () async {
           if (inSelectMode)
             onBannerTap(snap);
-          else
-            Navigator.of(context).pushNamed('SinglePhoto',
+          else {
+            await Navigator.pushNamed(context, 'SinglePhoto',
                 arguments: [snapList, index]); // weakly types params. yuk.
+          }
         },
-        onLongPress: () {
-          Navigator.of(context)
-              .pushNamed('SinglePhoto', arguments: [snapList, index]); // weakly types params. yuk.
+        onDoubleTap: () {
+          if (inSelectMode)
+            onBannerLongPress(snap);
+        },
+        onLongPress: () async {
+          await Navigator.pushNamed(context, 'SinglePhoto',
+              arguments: [snapList, index]); // weakly types params. yuk.
         },
         child: Padding(
-          padding: const EdgeInsets.only(top:HEADER_OFFSET),
+          padding: const EdgeInsets.only(top: HEADER_OFFSET),
           child: Container(
               decoration: BoxDecoration(color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
               key: Key(snap.thumbnailURL),
@@ -65,21 +72,21 @@ class PhotoTile extends StatelessWidget {
 
     final IconData icon = Icons.star;
     final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
-    String descriptor =
-        '${formatDate(snap.takenDate, format: 'd mmm yy')} ${snap.deviceName} ';
+    String descriptor = '${formatDate(snap.takenDate, format: 'd mmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
       return new GridTile(
-
         header: new GestureDetector(
           onTap: () {
             onBannerTap(snap);
           },
           child: new GridTileBar(
-            //backgroundColor: Colors.lime.shade50,
-              title: Text(descriptor, style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')),
-              subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')) ,
+              //backgroundColor: Colors.lime.shade50,
+              title:
+                  Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+              subtitle: Text(snap.caption ?? snap.location ?? '',
+                  style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               trailing: Row(children: [
                 new Icon(icon, color: filterColors[snap.ranking], size: 40.0),
               ])),
@@ -92,10 +99,14 @@ class PhotoTile extends StatelessWidget {
           onTap: () {
             onBannerTap(snap);
           },
+          onDoubleTap: () {
+            onBannerLongPress(snap);
+          },
           child: new GridTileBar(
-       //     backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
-            title: Text(descriptor, style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')),
-            subtitle: Text(snap.caption?? snap.location??'', style: TextStyle(color: Colors.black,fontFamily: 'Helvetica')) ,
+            //     backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
+            title: Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+            subtitle: Text(snap.caption ?? snap.location ?? '',
+                style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
             trailing: new Icon(iconSelect, color: Colors.black),
           ),

@@ -16,13 +16,13 @@ import '../screens/scTypeAheadDlg.dart';
 import '../ImageFilter.dart';
 import 'wdgImageFilter.dart';
 import '../utils/ExportPic.dart';
+
 //import 'ImageEditorWidget.dart.xxx';
 import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../dart_common/ListProvider.dart';
 import '../dart_common/ListUtils.dart';
 import '../MonthlyStatus.dart';
-
 
 class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
@@ -44,9 +44,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   double _targetOffset = 0.0;
   ScrollController _scrollController = ScrollController();
 
-
-
-  void selectAll({bool repaint= true}) {
+  void selectAll({bool repaint = true}) {
     // Select All can Clear All
     bool clearAll = (_imageFilter.selectionList.length == _imageFilter.items.length);
     _imageFilter.clearSelected();
@@ -79,9 +77,9 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       int yearNo = startDate.year;
       int monthNo = startDate.month;
       bool currentStatus = MonthlyStatus.read(yearNo, monthNo);
-      MonthlyStatus.write(yearNo, monthNo, !currentStatus).then((x){
+      MonthlyStatus.write(yearNo, monthNo, !currentStatus).then((x) {
         print('switched month to ${!currentStatus}');
-        setState((){});
+        setState(() {});
       });
     }
   }
@@ -96,6 +94,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     else
       return Icons.question_mark;
   }
+
   void changeSelectMode() {
     setState(() {
       // todo check clear selection maybe
@@ -148,8 +147,8 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     _scrollController =
         ScrollController(initialScrollOffset: _targetOffset, keepScrollOffset: false);
     if (_picsPerRow == -1) {
-      _picsPerRow = Platform.isMacOS ? 5: 2;
-      _maxPicsPerRow = Platform.isMacOS ? 10:5;
+      _picsPerRow = Platform.isMacOS ? 5 : 2;
+      _maxPicsPerRow = Platform.isMacOS ? 10 : 5;
     }
     return Scaffold(
       appBar: AppBar(
@@ -168,25 +167,25 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
               ),
         actions: <Widget>[
           if (_inSelectMode && _imageFilter.selectionList.isNotEmpty) ...[
- //           if (Platform.isMacOS)
-              IconButton(
-                icon: Icon(Icons.file_download),
-                tooltip: 'Export photo(s) to downloads folder',
-                onPressed: () {
-                  handleDownload(context,_imageFilter.selectionList).then((xx) {
-                    setState(() {});
-                  });
-                },
-              ),
+            //           if (Platform.isMacOS)
+            IconButton(
+              icon: Icon(Icons.file_download),
+              tooltip: 'Export photo(s) to downloads folder',
+              onPressed: () {
+                handleDownload(context, _imageFilter.selectionList).then((xx) {
+                  setState(() {});
+                });
+              },
+            ),
             if (widget._album != null)
               IconButton(
                   icon: Icon(Icons.delete),
                   tooltip: 'Remove selected photos from album',
                   onPressed: () {
-                    handleMultiRemoveFromAlbum(context, widget._album,_imageFilter.selectionList);
+                    handleMultiRemoveFromAlbum(context, widget._album, _imageFilter.selectionList);
                   }),
             IconButton(
-                icon: Icon(Icons.star,color:Colors.green),
+                icon: Icon(Icons.star, color: Colors.green),
                 tooltip: 'Set selected images green',
                 onPressed: () {
                   handleMultiSetGreen(context, _imageFilter.selectionList);
@@ -210,11 +209,11 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   handleMultiLocation(context, _imageFilter.selectionList);
                 }),
           ],
-          if (widget._album == null)  // only for monthly grid
+          if (widget._album == null) // only for monthly grid
             IconButton(
-              icon: Icon(calcMonthlyStatusIcon()),
-              tooltip: 'Mark Month as Done',
-              onPressed: changeMonthlyStatus),
+                icon: Icon(calcMonthlyStatusIcon()),
+                tooltip: 'Mark Month as Done',
+                onPressed: changeMonthlyStatus),
           IconButton(
               icon: Icon(Icons.check_box),
               tooltip: 'Selection Mode on/off',
@@ -228,7 +227,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       body: Column(children: <Widget>[
         if (_imageFilter is ImageFilter)
           ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
-          Expanded(
+        Expanded(
           child: GridView.count(
             controller: _scrollController,
             crossAxisCount: _picsPerRow,
@@ -254,16 +253,31 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                             _imageFilter.setSelected(_imageFilter.items[idx],
                                 !_imageFilter.isSelected(_imageFilter.items[idx]));
                           //                     toggleSelected(imageFile);
-                          else try {
-                            int newRanking = (imageFile.ranking + 1) % 3 + 1;
-                            imageFile.ranking = newRanking;
-                            imageFile.save();
-                            if (imageFile.ranking != newRanking) throw "Failed to save new ranking???";
-                          } catch(e) {
-                            showMessage( context, e);
-                          }
+                          else
+                            try {
+                              int newRanking = (imageFile.ranking + 1) % 3 + 1;
+                              imageFile.ranking = newRanking;
+                              imageFile.save();
+                              if (imageFile.ranking != newRanking)
+                                throw "Failed to save new ranking???";
+                            } catch (e) {
+                              showMessage(context, e);
+                            }
                         }); // setState
-                      }), // bannerTap
+                      },
+                      // of bannerTap
+                      onBannerLongPress: (imageFile) {
+                        int endIndex = -1; // find where we are in the grid
+                        for (int ix = 0; ix < _imageFilter.items.length && endIndex==-1; ix++) {
+                          if (_imageFilter.items[ix].id == imageFile.id) endIndex = ix;
+                        }
+                        // now loop back selecting until start or already selected
+                        for (int ix = endIndex; ix >= 0; ix--) {
+                          if (_imageFilter.isSelected(_imageFilter.items[ix])) break;
+                          _imageFilter.setSelected(_imageFilter.items[ix], true);
+                        }
+                        setState(() {});
+                      }),
             ],
           ),
         ),
@@ -276,14 +290,16 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     String value = '';
     String errorMessage = '';
     bool done = false;
-    if (snaps.isNotEmpty)  // use first caption as default
+    if (snaps.isNotEmpty) // use first caption as default
       value = snaps[0].caption ?? '';
     while (!done) {
       value = await showDialog(
           context: context,
-          builder: (BuildContext context) => DgSimple('Caption for ${snaps.length} images', value,
-                  errorMessage: errorMessage, )
-      );
+          builder: (BuildContext context) => DgSimple(
+                'Caption for ${snaps.length} images',
+                value,
+                errorMessage: errorMessage,
+              ));
       if (value == null || value == EXIT_CODE) return;
       Log.message('new caption is: $value');
       errorMessage = '';
@@ -405,12 +421,13 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   } // handleMultiSetGreen
 
   // includes album delete  --- WARNING NOT IN THE RIGHT PLACE AT ALL
-  void handleMultiRemoveFromAlbum(BuildContext  context, AopAlbum argAlbum, List<AopSnap> selectedSnaps) async {
+  void handleMultiRemoveFromAlbum(
+      BuildContext context, AopAlbum argAlbum, List<AopSnap> selectedSnaps) async {
     try {
       bool deleteAlbum = false;
       String message = '';
-      if (selectedSnaps == null  || selectedSnaps.isEmpty) return; // nothing to delete
-      if ( (await argAlbum.albumItems).length == selectedSnaps.length) {
+      if (selectedSnaps == null || selectedSnaps.isEmpty) return; // nothing to delete
+      if ((await argAlbum.albumItems).length == selectedSnaps.length) {
         if (await confirmYesNo(context, 'Delete this album',
             description: 'All photos for this album have been\n selected for deletion'))
           deleteAlbum = true;
@@ -423,41 +440,37 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         //;
         Log.message('popping from grid after delete album');
         await showMessage(context, message);
-        Navigator.pop(context,true);
+        Navigator.pop(context, true);
       } else {
         await showMessage(context, message);
-        if (widget._refreshNow !=null)
-          widget._refreshNow();
+        if (widget._refreshNow != null) widget._refreshNow();
         clearSelected();
         setState(() {});
       }
-    } catch(ex) {
+    } catch (ex) {
       showMessage(context, 'Error: $ex');
     }
   } // of handleMultiRemoveFromAlbum*/
 
-  Future<void> handleDownload(BuildContext context,List<AopSnap> selectedSnaps) async {
+  Future<void> handleDownload(BuildContext context, List<AopSnap> selectedSnaps) async {
 //    String dirName = '${Platform.environment['HOME']}/Downloads/';
     String dirName = (await PathProvider.getApplicationDocumentsDirectory()).path;
     String albumName = 'AllOurPhotos';
     if (widget._album != null) {
       albumName = widget._album.name.replaceAll('/', '-').replaceAll('\\', '-').replaceAll(' ', '');
     }
-    if (albumName.length > 20)
-      albumName = albumName.substring(0,19);
-    dirName += '/'+albumName+'/';
-    if (!Directory(dirName).existsSync())
-      Directory(dirName).createSync();
+    if (albumName.length > 20) albumName = albumName.substring(0, 19);
+    dirName += '/' + albumName + '/';
+    if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
     // make directory in downloads
     int errors = 0;
-    for (int snapIx=0; snapIx< selectedSnaps.length; snapIx++) {
+    for (int snapIx = 0; snapIx < selectedSnaps.length; snapIx++) {
 //      showMessage(context,'${selectedSnaps.length-snapIx} photos to download');
       String sourceURL = selectedSnaps[snapIx].fullSizeURL;
-      if (!await ExportPic.save(sourceURL,selectedSnaps[snapIx].fileName,albumName))
-        errors += 1;
+      if (!await ExportPic.save(sourceURL, selectedSnaps[snapIx].fileName, albumName)) errors += 1;
 //      List<int> imgBytes = await loadWebBinary(sourceURL);
 //      File(dirName+selectedSnaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
-    showMessage(context,'Download complete. There were $errors errors.');
+    showMessage(context, 'Download complete. There were $errors errors.');
   } // of handleDownload
 }
