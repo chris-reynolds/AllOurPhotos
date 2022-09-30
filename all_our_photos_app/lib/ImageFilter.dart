@@ -30,7 +30,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   // two constructors
   ImageFilter.dateRange(this._fromDate, this._toDate,{CallBack refresh}) {
     onRefreshed = refresh;
-    print('Image Filter - Date constructor $searchText');
+    Log.message('Image Filter - Date constructor $searchText');
   } // create with dateRange
 
   ImageFilter.yearMonth(int year,int month,{CallBack refresh}) {
@@ -38,12 +38,12 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
     _toDate = monthEnd(_fromDate);
     _toDate = _toDate.subtract(Duration(seconds: 1));
     onRefreshed = refresh;
-    print('Image Filter - yearmonth constructor $searchText');
+    Log.message('Image Filter - yearmonth constructor $searchText');
   }  // create with yearMonth
 
   ImageFilter.searchText(String searchText) {
     this.searchText = searchText;  // force lowercase
-    print('Image Filter - Search Text constructor $searchText');
+    Log.message('Image Filter - Search Text constructor $searchText');
   }
 
   get fromDate => _fromDate;
@@ -63,7 +63,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   set searchText(String value) {
     _searchText = value.toLowerCase();
     _refreshRequired = true;
-    print('searchText set to ($_searchText)');
+    Log.message('searchText set to ($_searchText)');
   }
   bool getRank(int rankNo) => _rank[rankNo];
 

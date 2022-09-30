@@ -8,15 +8,15 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 7Jun22.v2';
+const VERSION = 'All Our Photos 30Sep22.v1';
 
 void main() {
 
-  MaterialApp application = new MaterialApp(
+  MaterialApp application = MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: false,
     //showSemanticsDebugger: true,
-    theme: new ThemeData(
+    theme: ThemeData(
       fontFamily: 'Helvetica', //'Helvetica',
       primaryColor: const Color(0xFF02BB9F),
       primaryColorDark: const Color(0xFF167F67),

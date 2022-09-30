@@ -4,9 +4,7 @@ Purpose: This is a popup dialog that will allow the user to select a value from 
 
 */
 import 'package:flutter/material.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import '../dart_common/Logger.dart' as Log;
-import '../widgets/TypeAheadTextField.dart';
 import 'scSimpleDlg.dart';
 
 class DgTypeAhead extends StatefulWidget {
@@ -29,7 +27,7 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
   String title;
   List<String> options;
   String errorMessage;
-  GlobalKey<AutoCompleteTextFieldState<String>> textKey = GlobalKey();
+
 
   _DgTypeAheadState(this.title, this.options, this.value, this.errorMessage) : super();
 
@@ -38,7 +36,7 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
       errorMessage = await widget.isValid(_nameController.text);
     else
       errorMessage = null;
-    if (value != EXIT_CODE && errorMessage !=null && errorMessage.length > 0)
+    if (value != EXIT_CODE && errorMessage !=null && errorMessage.isNotEmpty)
       setState(() {});
     else
       Navigator.pop(context, value);
@@ -80,7 +78,8 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
         ],
       ),
       children: <Widget>[
-        TypeAheadTextField(
+
+/*        TypeAheadTextField(
           key: textKey,
           decoration: new InputDecoration(labelText: 'Location Lookup', errorText: ''),
           controller: _nameController,
@@ -97,7 +96,7 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
                 }
               }),
         ),
-
+*/
       ],
     );
   } // of build

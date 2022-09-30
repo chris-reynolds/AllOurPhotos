@@ -87,8 +87,9 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   }),
         IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () {
-              Navigator.of(context).pushNamed('MetaEditor', arguments: currentSnap);
+            onPressed: ()  async {
+              var result = await Navigator.pushNamed(context,'MetaEditor', arguments: currentSnap);
+              setState(() {});  //force repaint on return
             }),
         IconButton(
           icon: Icon(Icons.rotate_left),

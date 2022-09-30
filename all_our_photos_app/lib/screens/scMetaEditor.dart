@@ -1,5 +1,5 @@
 /*
-  Created by chrisreynolds on 2019-08-09
+  Created by chris reynolds on 2019-08-09
   
   Purpose: This allows you to change the details of an image including location and caption
 
@@ -8,25 +8,22 @@
 import 'package:all_our_photos_app/dart_common/WebFile.dart';
 import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import '../shared/aopClasses.dart';
-import '../widgets/TypeAheadTextField.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
 import '../flutter_common/WidgetSupport.dart';
-import '../flutter_common/ChipController.dart';
 import '../dart_common/DateUtil.dart';
-import '../dart_common/Logger.dart' as Log;
-import '../dart_common/WebFile.dart';
+
 
 class MetaEditorWidget extends StatefulWidget {
+  const MetaEditorWidget({Key key}) : super(key: key);
+
   @override
-  _MetaEditorWidgetState createState() => _MetaEditorWidgetState();
+  MetaEditorWidgetState createState() => MetaEditorWidgetState();
 }
 
-class _MetaEditorWidgetState extends State<MetaEditorWidget> {
+class MetaEditorWidgetState extends State<MetaEditorWidget> {
   static const String DATE_FORMAT = 'd/m/yyyy hh:nn:ss';
   var formKey = GlobalKey<FormState>();
-  GlobalKey<AutoCompleteTextFieldState<String>> locationKey = GlobalKey();
   AopSnap snap;
   Map<String, dynamic> values = {};
   ChipSet _baseChips;
@@ -37,14 +34,12 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
   ChipSet selectedChips;
   String currentLocationText;
   List<String> locationList = ['None'];
-  TextEditingController locationTextController; // = TextEditingController(text: '');
-  final _focusNode = FocusNode();
 
   void selectChip(BuildContext context, String caption, bool selected) async {
     if (caption == '+' || caption == '-') {
       String prompt = (caption == '+') ? 'Add new' : 'Remove';
       String newChipText = await inputBox(context, '$prompt Chip Text');
-      if (newChipText != null && newChipText.length > 0) {
+      if (newChipText != null && newChipText.isNotEmpty) {
         if (caption == '-') {
           // delete item
           _baseChips.remove(newChipText);
@@ -53,9 +48,9 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
           _baseChips.add(newChipText);
         selectedChips.add(newChipText);
       }
-      if (!await ChipController.save(_baseChips)) {
-        showMessage(context, 'Failed to save names');
-      }
+      ChipController.save(_baseChips).then((result){
+        if (!result)  showMessage(context, 'Failed to save names');
+      });
     }
     bool wasSelected = selectedChips.contains(caption);
     if (selected != wasSelected) // needs changing
@@ -70,12 +65,6 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
   void initState() {
     super.initState();
     _initLocations();
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
-        locationTextController.selection =
-            TextSelection(baseOffset: 0, extentOffset: locationTextController.text.length);
-      }
-    });
     ChipController.remoteLocation = 'tagList.txt';
     ChipController.enableLogging = true;
     ChipController.load().then((chips) {
@@ -90,8 +79,8 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
   }
 
   String _checkCaption(value) {
-    if (value.length > 0 && value.length < 10)
-      return "Caption needs 10 characters";
+    if (value.length > 0 && value.length < 4)
+      return "Caption needs at least 4 characters";
     else {
       values['caption'] = value;
       return null;
@@ -109,9 +98,6 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
     }
   } // of checkDate
 
-  String _checkLocation(value) {
-    return "Todo checkLocation";
-  } // of checkLocation
 
   void _submit(BuildContext context) async {
     if (formKey.currentState.validate()) {
@@ -120,8 +106,10 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
       snap.tagList = selectedChips.toString();
       snap.ranking = values['ranking'];
       snap.location = values['location'];
-      await snap.save();
-      Navigator.pop(context);
+      await snap.save().then((result){
+        // todo check save result
+        Navigator.pop(context);
+      });
     }
   } // of _submit
 
@@ -139,7 +127,6 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
     } // of initial snap assignment
     _currentChips = _baseChips;
     _currentChips?.addAll(selectedChips);
-    locationTextController = TextEditingController(text: values['location']);
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit ${snap.fileName}'),
@@ -156,7 +143,7 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
               validator: _checkCaption,
               maxLength: 100,
             ),
-            TypeAheadTextField(
+            /*TypeAheadTextField(
               key: locationKey,
               focusNode: _focusNode,
               decoration: new InputDecoration(labelText: 'Location Lookup', errorText: ''),
@@ -172,6 +159,14 @@ class _MetaEditorWidgetState extends State<MetaEditorWidget> {
                   Log.message('location ==== $text');
                 }
               }),
+            ), */
+            Autocomplete<String>(optionsBuilder: (TextEditingValue textEditingValue) {
+              return locationList
+                  .where((String location)=> location.toLowerCase()
+                  .contains(textEditingValue.text.toLowerCase()));
+              }, initialValue: values['location'],
+              onSelected: (v){
+              values['location']=v;},
             ),
             TextFormField(
               decoration: InputDecoration(labelText: 'Date Taken'),
