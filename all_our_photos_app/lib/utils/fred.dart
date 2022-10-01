@@ -4,7 +4,7 @@ import 'package:mysql1/mysql1.dart';
 
 Future main() async {
   // Open a connection (testdb should already exist)
-  final conn = await MySqlConnection.connect(new ConnectionSettings(
+  final conn = await MySqlConnection.connect(ConnectionSettings(
       host: '192.168.1.251', port: 3306, user: 'photos', password:'photos00', db: 'allourphotos'));
 
   List<int> picContents = [49,50,51,52];

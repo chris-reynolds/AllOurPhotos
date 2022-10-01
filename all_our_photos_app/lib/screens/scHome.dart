@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'scAlbumList.dart';
 import 'scTesting.dart';
@@ -7,12 +6,12 @@ import '../widgets/wdgYearGrid.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key, this.title, this.logoutFn}) : super(key: key);
+  const HomeScreen({Key key, this.title, this.logoutFn}) : super(key: key);
   final Function logoutFn;
   final String title;
 
   @override
-  _HomeScreenState createState() => new _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -25,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = new PageController();
+    _pageController = PageController();
   }
 
   @override
@@ -44,18 +43,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void onPageChanged(int page) {
     setState(() {
-      this._page = page;
+      _page = page;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new AppBar(
+      appBar: AppBar(
         title: GestureDetector(
             child: Text(
               widget.title,
-              style: new TextStyle(color: const Color(0xFFFFFFFF)),
+              style: TextStyle(color: const Color(0xFFFFFFFF)),
             ),
             onDoubleTap: () {
               setState(() {
@@ -76,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
           if (_debugMode) navIconButton(context, 'Db Fixs', Icons.local_hospital),
         ],
       ),
-      body: new PageView(
+      body: PageView(
+        onPageChanged: onPageChanged,
+        controller: _pageController,
         children: [
 //          HistoryScreen("History"),
           YearGrid(),
@@ -84,8 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
           SearchList(),
           DbFixFormWidget(),
         ],
-        onPageChanged: onPageChanged,
-        controller: _pageController,
       ),
       bottomNavigationBar: BottomNavigationBar(
           items: [

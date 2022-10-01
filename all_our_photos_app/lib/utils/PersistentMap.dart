@@ -5,10 +5,9 @@
 
 */
 import './WebFile.dart';
-import 'dart:convert' show jsonDecode, utf8, jsonEncode;
 
 class PersistentMap {
-  String _url;
+  final String _url;
   WebFile _webFile;
   final _contents = <int,String>{};
 

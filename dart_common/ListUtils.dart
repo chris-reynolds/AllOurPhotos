@@ -6,7 +6,7 @@
 */
 
 mixin Selection<T> {
-  List<T> _selectionlist = [];
+  final List<T> _selectionlist = [];
   bool isSelected(T dObj) {
     int idx = _selectionlist.indexOf(dObj);
     return (idx>=0);

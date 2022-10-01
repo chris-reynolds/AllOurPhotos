@@ -20,7 +20,7 @@ import '../flutter_common/WidgetSupport.dart';
 class DbFixFormWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return new DbFixFormWidgetState();
+    return DbFixFormWidgetState();
   }
 }
 
@@ -215,9 +215,9 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
       }
       String thisWhereClause = detailQuery.replaceAll('GROUP', currentGroupName);
       if (fullWhere.isNotEmpty)
-        thisWhereClause += ' and ' + fullWhere;
+        thisWhereClause += ' and $fullWhere';
       else if (inputWhere.isNotEmpty)
-        thisWhereClause += ' and ' + inputWhere;
+        thisWhereClause += ' and $inputWhere';
       snapList = await snapProvider.getSome(thisWhereClause, orderBy: 'id');
       snapIdx = 0;
     }
@@ -226,7 +226,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text('DB Fix'),
         actions: <Widget>[
@@ -242,7 +242,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
           Text(runType, style: Theme
               .of(context)
               .textTheme
-              .headline4),
+              .headlineMedium),
           //Spacer(),
           TextField(
             decoration: InputDecoration(
@@ -252,18 +252,18 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
           ),
           if (groupIdx >= 0)
             Text(
-              '$currentGroupName',
+              currentGroupName,
               style: Theme
                   .of(context)
                   .textTheme
-                  .bodyText1,
+                  .bodyLarge,
             ),
           if (currentSnap != null)
             Text('${currentSnap.fileName}  - $snapIdx of ${snapList.length}',
                 style: Theme
                     .of(context)
                     .textTheme
-                    .bodyText1),
+                    .bodyLarge),
           if (inProgress)
             Center(
               child: CircularProgressIndicator(),

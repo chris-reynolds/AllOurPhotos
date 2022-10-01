@@ -9,12 +9,12 @@ import '../shared/aopClasses.dart';
 import 'wdgImageFilter.dart' show filterColors;
 import '../dart_common/DateUtil.dart';
 
-typedef void BannerTapCallback(AopSnap snap);
+typedef BannerTapCallback = void Function(AopSnap snap);
 
 const double HEADER_OFFSET = 50;
 
 class PhotoTile extends StatelessWidget {
-  PhotoTile(
+  const PhotoTile(
       {Key key,
       @required this.snapList,
       @required this.index,
@@ -70,45 +70,45 @@ class PhotoTile extends StatelessWidget {
               )),
         ));
 
-    final IconData icon = Icons.star;
+    const IconData icon = Icons.star;
     final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
     String descriptor = '${formatDate(snap.takenDate, format: 'd mmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
-      return new GridTile(
-        header: new GestureDetector(
+      return GridTile(
+        header: GestureDetector(
           onTap: () {
             onBannerTap(snap);
           },
-          child: new GridTileBar(
+          child: GridTileBar(
               //backgroundColor: Colors.lime.shade50,
               title:
                   Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               subtitle: Text(snap.caption ?? snap.location ?? '',
                   style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               trailing: Row(children: [
-                new Icon(icon, color: filterColors[snap.ranking], size: 40.0),
+                Icon(icon, color: filterColors[snap.ranking], size: 40.0),
               ])),
         ),
         child: imageWidget,
       );
     } else {
       return GridTile(
-        header: new GestureDetector(
+        header: GestureDetector(
           onTap: () {
             onBannerTap(snap);
           },
           onDoubleTap: () {
             onBannerLongPress(snap);
           },
-          child: new GridTileBar(
+          child: GridTileBar(
             //     backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
             title: Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
             subtitle: Text(snap.caption ?? snap.location ?? '',
                 style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
-            trailing: new Icon(iconSelect, color: Colors.black),
+            trailing: Icon(iconSelect, color: Colors.black),
           ),
         ),
         child: imageWidget,

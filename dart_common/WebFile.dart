@@ -20,7 +20,7 @@ class WebFile {
 }
 
 Future<WebFile> loadWebFile(String url, String defaultValue) async {
-  if (!url.contains('http:')) url = rootUrl + '/' + url;
+  if (!url.contains('http:')) url = '$rootUrl/$url';
   final uri = Uri.parse(url);
   var httpClient = HttpClient();
   HttpClientRequest request;
@@ -35,7 +35,7 @@ Future<WebFile> loadWebFile(String url, String defaultValue) async {
   httpClient.close();
   WebFile result = WebFile._(url);
   if (response.statusCode != 200) {
-    if (defaultValue == null) throw 'Failed to load ' + url;
+    if (defaultValue == null) throw 'Failed to load $url';
     result.contents = defaultValue;
   } else
     await utf8.decoder.bind(response).forEach((x) {
@@ -72,7 +72,7 @@ Future<bool> saveWebFile(WebFile webFile, {bool silent = true}) async {
 } // of saveWebFile
 
 Future<List<int>> loadWebBinary(String url) async {
-  if (!url.contains('http:')) url = rootUrl + '/' + url;
+  if (!url.contains('http:')) url = '$rootUrl/$url';
   final uri = Uri.parse(url);
   var httpClient = HttpClient();
   HttpClientRequest request;
@@ -85,12 +85,12 @@ Future<List<int>> loadWebBinary(String url) async {
 //  HttpResponse responseBody = await response.transform(utf8.decoder).join();
   //   print("Received $responseBody...");
   httpClient.close();
-  if (response.statusCode != 200) throw 'Failed to load ' + url;
+  if (response.statusCode != 200) throw 'Failed to load $url';
   List<int> download = [];
   await response.toList().then((chunks) {
-    chunks.forEach((chunk) {
+    for (var chunk in chunks) {
       download.addAll(chunk);
-    });
+    }
   });
   return download;
 } // of loadWebBinary
@@ -137,7 +137,7 @@ Future<void> saveWebImage(String urlString,
     var response = await request.close();
     bool successfulResponse = (response.statusCode == 200);
     await response.drain();
-    await httpClient.close();
+    httpClient.close();
     if (successfulResponse)
       Log.message("Uploaded $urlString");
     else

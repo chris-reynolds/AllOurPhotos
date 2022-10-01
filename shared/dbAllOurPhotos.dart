@@ -9,7 +9,7 @@ class DbAllOurPhotos {
   static Map _lastConfig;
   Future<int> initConnection(Map config) async {
     if (dbConn==null ) {
-      dbConn = await MySqlConnection.connect(new ConnectionSettings(
+      dbConn = await MySqlConnection.connect(ConnectionSettings(
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
           password:config['dbpassword'], db: config['dbname']));
       log.message('Database connected to ${config["dbhost"]} ${config["dbname"]}');

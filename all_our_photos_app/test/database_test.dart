@@ -1,13 +1,11 @@
-/**
- * Created by Chris on 14/09/2018.
- * *
- * unit testing for the database layer
- */
+/// Created by Chris on 14/09/2018.
+/// *
+/// unit testing for the database layer
 
 import 'package:test/test.dart';
-import '../lib/shared/dbAllOurPhotos.dart';
-import '../lib/shared/aopClasses.dart';
-import '../lib/dart_common/Config.dart';
+import 'package:all_our_photos_app/shared/dbAllOurPhotos.dart';
+import 'package:all_our_photos_app/shared/aopClasses.dart';
+import 'package:all_our_photos_app/dart_common/Config.dart';
 import 'dart:io' as Io;
 
 
@@ -81,7 +79,7 @@ void main() {
 //      Io.File testFile = Io.File('${testDataDirectory.path}/test.jpg');
 //      List<int> contents = testFile.readAsBytesSync();
       AopSnap snap = AopSnap();
-      snap.directory = '${testDataDirectory.path}';
+      snap.directory = testDataDirectory.path;
       snap.fileName = 'test.jpg';
       snap.importSource = 'test script';
       int insertId = await snap.save();
@@ -93,7 +91,9 @@ void main() {
       List<AopAlbum> testAlbums = await albumProvider.getSome('name like "test%"');
       for (var testAlbum in testAlbums) {
         List<AopAlbumItem> items = await testAlbum.albumItems;
-        items.forEach((item) async => await item.delete());
+        for (var item in items) {
+          await item.delete();
+        }
         await testAlbum.delete();
       }
     }); // of Clean All albums test

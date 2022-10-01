@@ -43,11 +43,11 @@ class AopAlbum extends DomainObject {
 
 
 //Associations
-  Future<List<AopAlbumItem>> get albumItems async => albumItemProvider.getWithFKey('album_id',this.id);
+  Future<List<AopAlbumItem>> get albumItems async => albumItemProvider.getWithFKey('album_id',id);
   Future<AopUser> get user async => userProvider.get(_userId);
-	int get userId => this._userId;
+	int get userId => _userId;
 	set userId(int newId) {
-	  this._userId = newId;
+	  _userId = newId;
 	} // of userId
 
 //maker function for the provider
@@ -55,51 +55,55 @@ static AopAlbum maker() {
   return AopAlbum();
 } 
 // To/From Map for persistence
-void fromMap(Map<String,dynamic> map) {
-  this.id = map['id'];
-  this.createdOn = map['created_on'];
-  this.updatedOn = map['updated_on'];
-  this.updatedUser = map['updated_user'];
-  this.name = map['name']; 
-  this.description = map['description']; 
-  this.firstDate = map['first_date']; 
-  this.lastDate = map['last_date']; 
-  this._userId = map['userid'];
+@override
+  void fromMap(Map<String,dynamic> map) {
+  id = map['id'];
+  createdOn = map['created_on'];
+  updatedOn = map['updated_on'];
+  updatedUser = map['updated_user'];
+  name = map['name']; 
+  description = map['description']; 
+  firstDate = map['first_date']; 
+  lastDate = map['last_date']; 
+  _userId = map['userid'];
 }  // fromMap 
 
-Map<String,dynamic> toMap() {
+@override
+  Map<String,dynamic> toMap() {
   Map<String,dynamic> result = {};
-  result['id'] = this.id;
-  result['created_on'] = this.createdOn;
-  result['updated_on'] = this.updatedOn;
-  result['updated_user'] = this.updatedUser;
-  result['name'] = this.name; 
-  result['description'] = this.description; 
-  result['first_date'] = this.firstDate; 
-  result['last_date'] = this.lastDate; 
-  result['userid'] = this._userId;
+  result['id'] = id;
+  result['created_on'] = createdOn;
+  result['updated_on'] = updatedOn;
+  result['updated_user'] = updatedUser;
+  result['name'] = name; 
+  result['description'] = description; 
+  result['first_date'] = firstDate; 
+  result['last_date'] = lastDate; 
+  result['userid'] = _userId;
   return result;
 }  // fromMap 
 
+  @override
   void fromRow(dynamic row) {
     String fld;
 	super.fromRow(row);
     try {
       fld = 'name';
-      this.name = row[4];
+      name = row[4];
       fld = 'description';
-      this.description = row[5];
+      description = row[5];
       fld = 'firstDate';
-      this.firstDate = row[6];
+      firstDate = row[6];
       fld = 'lastDate';
-      this.lastDate = row[7];
+      lastDate = row[7];
       fld = '_userId';
-      this._userId = row[8]; 
+      _userId = row[8]; 
     } catch (ex) {
-      throw Exception('Failed to assign field $fld : '+ex.toString());
+      throw Exception('Failed to assign field $fld : $ex');
     }
   }  // from Row
 
+  @override
   List<dynamic> toRow({bool insert=false}) {
 	var result = [];
 	if (insert)
@@ -112,7 +116,7 @@ Map<String,dynamic> toMap() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate:true}) async {
+Future<int> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -134,18 +138,18 @@ Future<void> delete() async {
 
   Future<List<AopSnap>> get snaps async {
     return snapProvider
-        .getSome('id in (select snap_id from aopalbum_items where album_id=${this.id})', orderBy: 'taken_date,caption,id');
+        .getSome('id in (select snap_id from aopalbum_items where album_id=$id)', orderBy: 'taken_date,caption,id');
   } //  snaps property
 
   Future<int> addSnaps(List<int> newSnapIds) async {
     int result = 0;
-    List<AopAlbumItem> existingItems = await this.albumItems;
+    List<AopAlbumItem> existingItems = await albumItems;
     for (int newId in newSnapIds) {
       bool found = false;
       for (AopAlbumItem item in existingItems) if (item.snapId == newId) found = true;
       if (!found) {
         AopAlbumItem newItem = AopAlbumItem();
-        newItem.albumId = this.id;
+        newItem.albumId = id;
         newItem.snapId = newId;
         await newItem.save();
         existingItems.add(newItem);
@@ -158,9 +162,9 @@ Future<void> delete() async {
   Future<int> removeSnaps(List<AopSnap> oldSnaps) async {
     int result = 0;
     List<int> oldSnapIds = idList(oldSnaps);
-    List<AopAlbumItem> existingItems = await this.albumItems;
+    List<AopAlbumItem> existingItems = await albumItems;
     for (AopAlbumItem thisItem in existingItems) {
-      if (oldSnapIds.indexOf(thisItem.snapId) >= 0) {
+      if (oldSnapIds.contains(thisItem.snapId)) {
         await thisItem.delete();
         result += 1;
       }
@@ -203,14 +207,14 @@ class AopAlbumItem extends DomainObject {
 
 //Associations
   Future<AopAlbum> get album async => albumProvider.get(_albumId);
-	int get albumId => this._albumId;
+	int get albumId => _albumId;
 	set albumId(int newId) {
-	  this._albumId = newId;
+	  _albumId = newId;
 	} // of albumId
   Future<AopSnap> get snap async => snapProvider.get(_snapId);
-	int get snapId => this._snapId;
+	int get snapId => _snapId;
 	set snapId(int newId) {
-	  this._snapId = newId;
+	  _snapId = newId;
 	} // of snapId
 
 //maker function for the provider
@@ -218,39 +222,43 @@ static AopAlbumItem maker() {
   return AopAlbumItem();
 } 
 // To/From Map for persistence
-void fromMap(Map<String,dynamic> map) {
-  this.id = map['id'];
-  this.createdOn = map['created_on'];
-  this.updatedOn = map['updated_on'];
-  this.updatedUser = map['updated_user'];
-  this._albumId = map['albumid'];
-  this._snapId = map['snapid'];
+@override
+  void fromMap(Map<String,dynamic> map) {
+  id = map['id'];
+  createdOn = map['created_on'];
+  updatedOn = map['updated_on'];
+  updatedUser = map['updated_user'];
+  _albumId = map['albumid'];
+  _snapId = map['snapid'];
 }  // fromMap 
 
-Map<String,dynamic> toMap() {
+@override
+  Map<String,dynamic> toMap() {
   Map<String,dynamic> result = {};
-  result['id'] = this.id;
-  result['created_on'] = this.createdOn;
-  result['updated_on'] = this.updatedOn;
-  result['updated_user'] = this.updatedUser;
-  result['albumid'] = this._albumId;
-  result['snapid'] = this._snapId;
+  result['id'] = id;
+  result['created_on'] = createdOn;
+  result['updated_on'] = updatedOn;
+  result['updated_user'] = updatedUser;
+  result['albumid'] = _albumId;
+  result['snapid'] = _snapId;
   return result;
 }  // fromMap 
 
+  @override
   void fromRow(dynamic row) {
     String fld;
 	super.fromRow(row);
     try {
       fld = '_albumId';
-      this._albumId = row[4]; 
+      _albumId = row[4]; 
       fld = '_snapId';
-      this._snapId = row[5]; 
+      _snapId = row[5]; 
     } catch (ex) {
-      throw Exception('Failed to assign field $fld : '+ex.toString());
+      throw Exception('Failed to assign field $fld : $ex');
     }
   }  // from Row
 
+  @override
   List<dynamic> toRow({bool insert=false}) {
 	var result = [];
 	if (insert)
@@ -260,7 +268,7 @@ Map<String,dynamic> toMap() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate:true}) async {
+Future<int> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -303,11 +311,11 @@ class AopSession extends DomainObject {
 
 
 //Associations
-  Future<List<AopSnap>> get snaps async => snapProvider.getWithFKey('session_id',this.id);
+  Future<List<AopSnap>> get snaps async => snapProvider.getWithFKey('session_id',id);
   Future<AopUser> get user async => userProvider.get(_userId);
-	int get userId => this._userId;
+	int get userId => _userId;
 	set userId(int newId) {
-	  this._userId = newId;
+	  _userId = newId;
 	} // of userId
 
 //maker function for the provider
@@ -315,47 +323,51 @@ static AopSession maker() {
   return AopSession();
 } 
 // To/From Map for persistence
-void fromMap(Map<String,dynamic> map) {
-  this.id = map['id'];
-  this.createdOn = map['created_on'];
-  this.updatedOn = map['updated_on'];
-  this.updatedUser = map['updated_user'];
-  this.startDate = map['start_date']; 
-  this.endDate = map['end_date']; 
-  this.source = map['source']; 
-  this._userId = map['userid'];
+@override
+  void fromMap(Map<String,dynamic> map) {
+  id = map['id'];
+  createdOn = map['created_on'];
+  updatedOn = map['updated_on'];
+  updatedUser = map['updated_user'];
+  startDate = map['start_date']; 
+  endDate = map['end_date']; 
+  source = map['source']; 
+  _userId = map['userid'];
 }  // fromMap 
 
-Map<String,dynamic> toMap() {
+@override
+  Map<String,dynamic> toMap() {
   Map<String,dynamic> result = {};
-  result['id'] = this.id;
-  result['created_on'] = this.createdOn;
-  result['updated_on'] = this.updatedOn;
-  result['updated_user'] = this.updatedUser;
-  result['start_date'] = this.startDate; 
-  result['end_date'] = this.endDate; 
-  result['source'] = this.source; 
-  result['userid'] = this._userId;
+  result['id'] = id;
+  result['created_on'] = createdOn;
+  result['updated_on'] = updatedOn;
+  result['updated_user'] = updatedUser;
+  result['start_date'] = startDate; 
+  result['end_date'] = endDate; 
+  result['source'] = source; 
+  result['userid'] = _userId;
   return result;
 }  // fromMap 
 
+  @override
   void fromRow(dynamic row) {
     String fld;
 	super.fromRow(row);
     try {
       fld = 'startDate';
-      this.startDate = row[4];
+      startDate = row[4];
       fld = 'endDate';
-      this.endDate = row[5];
+      endDate = row[5];
       fld = 'source';
-      this.source = row[6];
+      source = row[6];
       fld = '_userId';
-      this._userId = row[7]; 
+      _userId = row[7]; 
     } catch (ex) {
-      throw Exception('Failed to assign field $fld : '+ex.toString());
+      throw Exception('Failed to assign field $fld : $ex');
     }
   }  // from Row
 
+  @override
   List<dynamic> toRow({bool insert=false}) {
 	var result = [];
 	if (insert)
@@ -367,7 +379,7 @@ Map<String,dynamic> toMap() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate:true}) async {
+Future<int> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -423,27 +435,27 @@ class AopSnap extends DomainObject {
   if (data != null)
     fromMap(data);
 //                                '*** Start Custom Code snap.create
-    if (ranking == null) ranking = 2;
-    if (mediaType == null) mediaType = 'jpg';
-    if (caption == null) caption = '';
-    if (deviceName == null) deviceName = '';
-    if (rotation == null) rotation = '0';
-    if (tagList == null) tagList = '';
+    ranking ??= 2;
+    mediaType ??= 'jpg';
+    caption ??= '';
+    deviceName ??= '';
+    rotation ??= '0';
+    tagList ??= '';
 //                                '*** End Custom Code
   } // of constructor 
 
 
 //Associations
-  Future<List<AopAlbumItem>> get albumItems async => albumItemProvider.getWithFKey('snap_id',this.id);
+  Future<List<AopAlbumItem>> get albumItems async => albumItemProvider.getWithFKey('snap_id',id);
   Future<AopSession> get session async => sessionProvider.get(_sessionId);
-	int get sessionId => this._sessionId;
+	int get sessionId => _sessionId;
 	set sessionId(int newId) {
-	  this._sessionId = newId;
+	  _sessionId = newId;
 	} // of sessionId
   Future<AopUser> get user async => userProvider.get(_userId);
-	int get userId => this._userId;
+	int get userId => _userId;
 	set userId(int newId) {
-	  this._userId = newId;
+	  _userId = newId;
 	} // of userId
 
 //maker function for the provider
@@ -451,121 +463,125 @@ static AopSnap maker() {
   return AopSnap();
 } 
 // To/From Map for persistence
-void fromMap(Map<String,dynamic> map) {
-  this.id = map['id'];
-  this.createdOn = map['created_on'];
-  this.updatedOn = map['updated_on'];
-  this.updatedUser = map['updated_user'];
-  this.fileName = map['file_name']; 
-  this.directory = map['directory']; 
-  this.takenDate = map['taken_date']; 
-  this.originalTakenDate = map['original_taken_date']; 
-  this.modifiedDate = map['modified_date']; 
-  this.deviceName = map['device_name']; 
-  this.caption = map['caption']; 
-  this.ranking = map['ranking']; 
-  this.longitude = map['longitude']; 
-  this.latitude = map['latitude']; 
-  this.width = map['width']; 
-  this.height = map['height']; 
-  this.location = map['location']; 
-  this.rotation = map['rotation']; 
-  this.importSource = map['import_source']; 
-  this.mediaType = map['media_type']; 
-  this.importedDate = map['imported_date']; 
-  this.mediaLength = map['media_length']; 
-  this.tagList = map['tag_list']; 
-  this.metadata = map['metadata']; 
-  this._sessionId = map['sessionid'];
-  this._userId = map['userid'];
+@override
+  void fromMap(Map<String,dynamic> map) {
+  id = map['id'];
+  createdOn = map['created_on'];
+  updatedOn = map['updated_on'];
+  updatedUser = map['updated_user'];
+  fileName = map['file_name']; 
+  directory = map['directory']; 
+  takenDate = map['taken_date']; 
+  originalTakenDate = map['original_taken_date']; 
+  modifiedDate = map['modified_date']; 
+  deviceName = map['device_name']; 
+  caption = map['caption']; 
+  ranking = map['ranking']; 
+  longitude = map['longitude']; 
+  latitude = map['latitude']; 
+  width = map['width']; 
+  height = map['height']; 
+  location = map['location']; 
+  rotation = map['rotation']; 
+  importSource = map['import_source']; 
+  mediaType = map['media_type']; 
+  importedDate = map['imported_date']; 
+  mediaLength = map['media_length']; 
+  tagList = map['tag_list']; 
+  metadata = map['metadata']; 
+  _sessionId = map['sessionid'];
+  _userId = map['userid'];
 }  // fromMap 
 
-Map<String,dynamic> toMap() {
+@override
+  Map<String,dynamic> toMap() {
   Map<String,dynamic> result = {};
-  result['id'] = this.id;
-  result['created_on'] = this.createdOn;
-  result['updated_on'] = this.updatedOn;
-  result['updated_user'] = this.updatedUser;
-  result['file_name'] = this.fileName; 
-  result['directory'] = this.directory; 
-  result['taken_date'] = this.takenDate; 
-  result['original_taken_date'] = this.originalTakenDate; 
-  result['modified_date'] = this.modifiedDate; 
-  result['device_name'] = this.deviceName; 
-  result['caption'] = this.caption; 
-  result['ranking'] = this.ranking; 
-  result['longitude'] = this.longitude; 
-  result['latitude'] = this.latitude; 
-  result['width'] = this.width; 
-  result['height'] = this.height; 
-  result['location'] = this.location; 
-  result['rotation'] = this.rotation; 
-  result['import_source'] = this.importSource; 
-  result['media_type'] = this.mediaType; 
-  result['imported_date'] = this.importedDate; 
-  result['media_length'] = this.mediaLength; 
-  result['tag_list'] = this.tagList; 
-  result['metadata'] = this.metadata; 
-  result['sessionid'] = this._sessionId;
-  result['userid'] = this._userId;
+  result['id'] = id;
+  result['created_on'] = createdOn;
+  result['updated_on'] = updatedOn;
+  result['updated_user'] = updatedUser;
+  result['file_name'] = fileName; 
+  result['directory'] = directory; 
+  result['taken_date'] = takenDate; 
+  result['original_taken_date'] = originalTakenDate; 
+  result['modified_date'] = modifiedDate; 
+  result['device_name'] = deviceName; 
+  result['caption'] = caption; 
+  result['ranking'] = ranking; 
+  result['longitude'] = longitude; 
+  result['latitude'] = latitude; 
+  result['width'] = width; 
+  result['height'] = height; 
+  result['location'] = location; 
+  result['rotation'] = rotation; 
+  result['import_source'] = importSource; 
+  result['media_type'] = mediaType; 
+  result['imported_date'] = importedDate; 
+  result['media_length'] = mediaLength; 
+  result['tag_list'] = tagList; 
+  result['metadata'] = metadata; 
+  result['sessionid'] = _sessionId;
+  result['userid'] = _userId;
   return result;
 }  // fromMap 
 
+  @override
   void fromRow(dynamic row) {
     String fld;
 	super.fromRow(row);
     try {
       fld = 'fileName';
-      this.fileName = row[4];
+      fileName = row[4];
 //      if (this.fileName.contains('ios'))
 //        print('this one');
       fld = 'directory';
-      this.directory = row[5];
+      directory = row[5];
       fld = 'takenDate';
-      this.takenDate = row[6];
+      takenDate = row[6];
       fld = 'originalTakenDate';
-      this.originalTakenDate = row[7];
+      originalTakenDate = row[7];
       fld = 'modifiedDate';
-      this.modifiedDate = row[8];
+      modifiedDate = row[8];
       fld = 'deviceName';
-      this.deviceName = row[9];
+      deviceName = row[9];
       fld = 'caption';
-      this.caption = row[10];
+      caption = row[10];
       fld = 'ranking';
-      this.ranking = row[11];
+      ranking = row[11];
       fld = 'longitude';
-      this.longitude = row[12];
+      longitude = row[12];
       fld = 'latitude';
-      this.latitude = row[13];
+      latitude = row[13];
       fld = 'width';
-      this.width = row[14];
+      width = row[14];
       fld = 'height';
-      this.height = row[15];
+      height = row[15];
       fld = 'location';
-      this.location = row[16];
+      location = row[16];
       fld = 'rotation';
-      this.rotation = row[17];
+      rotation = row[17];
       fld = 'importSource';
-      this.importSource = row[18];
+      importSource = row[18];
       fld = 'mediaType';
-      this.mediaType = row[19];
+      mediaType = row[19];
       fld = 'importedDate';
-      this.importedDate = row[20];
+      importedDate = row[20];
       fld = 'mediaLength';
-      this.mediaLength = row[21];
+      mediaLength = row[21];
       fld = 'tagList';
-      this.tagList = row[22];
+      tagList = row[22];
       fld = 'metadata';
-      this.metadata = row[23];
+      metadata = row[23];
       fld = '_sessionId';
-      this._sessionId = row[24]; 
+      _sessionId = row[24]; 
       fld = '_userId';
-      this._userId = row[25]; 
+      _userId = row[25]; 
     } catch (ex) {
-      throw Exception('Failed to assign field $fld : '+ex.toString());
+      throw Exception('Failed to assign field $fld : $ex');
     }
   }  // from Row
 
+  @override
   List<dynamic> toRow({bool insert=false}) {
 	var result = [];
 	if (insert)
@@ -595,7 +611,7 @@ Map<String,dynamic> toMap() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate:true}) async {
+Future<int> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -615,7 +631,7 @@ Future<void> delete() async {
   static Future<bool> nameExists(String path, int fileSize) async {
     String fileName = Path.basename(path);
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' + 'where file_name=? and media_Length=?',
+        'select count(*) from aopsnaps ' 'where file_name=? and media_Length=?',
         [fileName, fileSize]);
     var values = r.first.values;
     return values[0] > 0;
@@ -623,8 +639,8 @@ Future<void> delete() async {
 
   Future<bool> nameClashButDifferentSize() async {
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' + 'where directory=? and file_name=? and media_Length<>?',
-        [this.directory, this.fileName, this.mediaLength]);
+        'select count(*) from aopsnaps ' 'where directory=? and file_name=? and media_Length<>?',
+        [directory, fileName, mediaLength]);
     var values = r.first.values;
     return values[0] > 0;
   } // of nameClashButDifferentSize
@@ -633,11 +649,10 @@ Future<void> delete() async {
     DateTime startTime = taken.add(Duration(seconds: -2));
     DateTime endTime = taken.add(Duration(seconds: 2));
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' +
-            "where (original_taken_date between ? and ?) and media_Length=?",
+        'select count(*) from aopsnaps ' "where (original_taken_date between ? and ?) and media_Length=?",
         [
-          "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
-          "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          (formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')),
+          (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
           fileSize
         ]);
     var values = r.first.values;
@@ -648,11 +663,10 @@ Future<void> delete() async {
     DateTime startTime = taken.add(Duration(days: -2));
     DateTime endTime = taken.add(Duration(days: 2));
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' +
-            "where (original_taken_date between ? and ?) and file_name=?",
+        'select count(*) from aopsnaps ' "where (original_taken_date between ? and ?) and file_name=?",
         [
-          "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
-          "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          (formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')),
+          (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
           filename
         ]);
     var values = r.first.values;
@@ -664,14 +678,12 @@ Future<void> delete() async {
     DateTime startTime = taken.add(Duration(seconds: -2));
     DateTime endTime = taken.add(Duration(seconds: 2));
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' +
-            "where (original_taken_date between ? and ? or modified_date between ? and ?) " +
-            "and (media_Length=? or file_name=? or device_name=?)",
+        'select count(*) from aopsnaps ' "where (original_taken_date between ? and ? or modified_date between ? and ?) " "and (media_Length=? or file_name=? or device_name=?)",
         [
-          "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
-          "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
-          "${formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')}",
-          "${formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')}",
+          (formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')),
+          (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
+          (formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')),
+          (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
           fileSize,
           filename,
           deviceName
@@ -681,9 +693,7 @@ Future<void> delete() async {
   } // of sizeOrNameAtTimeExists
 
   static Future<dynamic> get existingLocations async {
-    var r = await snapProvider.rawExecute('select location,avg(longitude) as lng, ' +
-        'avg(latitude) as lon from aopsnaps where latitude ' +
-        'is not null and location is not null group by 1');
+    var r = await snapProvider.rawExecute('select location,avg(longitude) as lng, avg(latitude) as lon from aopsnaps where latitude is not null and location is not null group by 1');
     return r;
   } // of existingLocations
 
@@ -722,15 +732,15 @@ Future<void> delete() async {
   void trimSetLocation(String newLocation) {
     if (newLocation != null && newLocation.length > 200)
       newLocation = newLocation.substring(newLocation.length - 200);
-    this.location = newLocation;
+    location = newLocation;
   } // of trimSetLocation
 
-  double get angle => (int.parse(this.rotation) ?? 0) * math.pi / 2;
+  double get angle => (int.parse(rotation) ?? 0) * math.pi / 2;
 
   void rotate(int direction) {
-    int newRotation = (int.parse(this.rotation) ?? 0) + direction;
+    int newRotation = (int.parse(rotation) ?? 0) + direction;
     newRotation = newRotation % 4; // wrap 360
-    this.rotation = '$newRotation';
+    rotation = '$newRotation';
   }
 //                                '*** End Custom Code
 } // of class snap
@@ -759,58 +769,62 @@ class AopUser extends DomainObject {
   String get hint  {
 //                                '*** Start Custom Code user.gethint
 //                                '*** End Custom Code
-    return this._hint;
+    return _hint;
   }  // of get hint
 
   set hint(String thishint  ) { 
 //                                '*** Start Custom Code user.sethint
 //                                '*** End Custom Code
-  this._hint = thishint;
+  _hint = thishint;
 }  //  of set hint
 
 //Associations
-  Future<List<AopAlbum>> get albums async => albumProvider.getWithFKey('user_id',this.id);
-  Future<List<AopSession>> get sessions async => sessionProvider.getWithFKey('user_id',this.id);
-  Future<List<AopSnap>> get snaps async => snapProvider.getWithFKey('user_id',this.id);
+  Future<List<AopAlbum>> get albums async => albumProvider.getWithFKey('user_id',id);
+  Future<List<AopSession>> get sessions async => sessionProvider.getWithFKey('user_id',id);
+  Future<List<AopSnap>> get snaps async => snapProvider.getWithFKey('user_id',id);
 
 //maker function for the provider
 static AopUser maker() {
   return AopUser();
 } 
 // To/From Map for persistence
-void fromMap(Map<String,dynamic> map) {
-  this.id = map['id'];
-  this.createdOn = map['created_on'];
-  this.updatedOn = map['updated_on'];
-  this.updatedUser = map['updated_user'];
-  this.name = map['name']; 
-  this.hint = map['hint']; 
+@override
+  void fromMap(Map<String,dynamic> map) {
+  id = map['id'];
+  createdOn = map['created_on'];
+  updatedOn = map['updated_on'];
+  updatedUser = map['updated_user'];
+  name = map['name']; 
+  hint = map['hint']; 
 }  // fromMap 
 
-Map<String,dynamic> toMap() {
+@override
+  Map<String,dynamic> toMap() {
   Map<String,dynamic> result = {};
-  result['id'] = this.id;
-  result['created_on'] = this.createdOn;
-  result['updated_on'] = this.updatedOn;
-  result['updated_user'] = this.updatedUser;
-  result['name'] = this.name; 
-  result['hint'] = this.hint; 
+  result['id'] = id;
+  result['created_on'] = createdOn;
+  result['updated_on'] = updatedOn;
+  result['updated_user'] = updatedUser;
+  result['name'] = name; 
+  result['hint'] = hint; 
   return result;
 }  // fromMap 
 
+  @override
   void fromRow(dynamic row) {
     String fld;
 	super.fromRow(row);
     try {
       fld = 'name';
-      this.name = row[4];
+      name = row[4];
       fld = 'hint';
-      this.hint = row[5];
+      hint = row[5];
     } catch (ex) {
-      throw Exception('Failed to assign field $fld : '+ex.toString());
+      throw Exception('Failed to assign field $fld : $ex');
     }
   }  // from Row
 
+  @override
   List<dynamic> toRow({bool insert=false}) {
 	var result = [];
 	if (insert)
@@ -820,7 +834,7 @@ Map<String,dynamic> toMap() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate:true}) async {
+Future<int> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {

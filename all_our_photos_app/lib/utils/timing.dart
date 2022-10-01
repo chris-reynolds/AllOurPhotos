@@ -2,7 +2,7 @@
 
 
 abstract class Timing {
-  static Map<String,DateTime> _timers = {};
+  static final Map<String,DateTime> _timers = {};
   static DateTime start(String name) {
     DateTime now = DateTime.now();
     _timers[name] = now;

@@ -14,11 +14,11 @@ typedef DateChangedEvent = Function(DateTime);
 class TapDateWidget extends StatefulWidget {
   final DateTime _initDate;
   final DateChangedEvent _onChange;
-  TapDateWidget(this._initDate, this._onChange);
+  const TapDateWidget(this._initDate, this._onChange);
 
   @override
   State<StatefulWidget> createState() {
-    return new TapDateWidgetState();
+    return TapDateWidgetState();
   }
 }
 
@@ -26,14 +26,14 @@ class TapDateWidgetState extends State<TapDateWidget> {
 
   DateTime _date;
 
-  Future<Null> popupDatePicker(BuildContext context)  async {
-    final _selectedDate = await showDatePicker(
+  Future<void> popupDatePicker(BuildContext context)  async {
+    final selectedDate = await showDatePicker(
       context: context, initialDate: _date,
         firstDate: DateTime(1900), lastDate: DateTime.now() );
-    if (_selectedDate != null && _selectedDate != _date) {
+    if (selectedDate != null && selectedDate != _date) {
       setState( () {
-        _date = _selectedDate;
-        widget._onChange(_selectedDate);
+        _date = selectedDate;
+        widget._onChange(selectedDate);
       }); // of setState
     }
   }
@@ -47,10 +47,10 @@ class TapDateWidgetState extends State<TapDateWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new TextButton(
+    return TextButton(
       child: Text('(${Utils.formatDate(_date,format:'d-mmm-yy')})',
       // TODO : work out how to decorate theme styles with underscore
-      style: Theme.of(context).textTheme.bodyText2.apply(decoration: TextDecoration.underline)),
+      style: Theme.of(context).textTheme.bodyMedium.apply(decoration: TextDecoration.underline)),
       onPressed: () { popupDatePicker(context); },
     );
   } // of build

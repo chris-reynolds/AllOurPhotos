@@ -60,7 +60,7 @@ class _YearGridState extends State<YearGrid> {
       result.add(newYear);
     }
     result.sort((YearEntry y1, YearEntry y2) => (y2.yearno - y1.yearno));
-    if (result.length > 0)
+    if (result.isNotEmpty)
       log.message('${result.length} years loaded ${result[0].yearno}');
     return result;
   } // of buildYears
@@ -105,7 +105,7 @@ class _YearGridState extends State<YearGrid> {
   @override
   Widget build(BuildContext context) {
     List<Widget> monthNamesHeader = [
-      new InkWell(
+      InkWell(
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: monthNames
@@ -120,7 +120,7 @@ class _YearGridState extends State<YearGrid> {
         },
       )
     ];
-    return new ListView(
+    return ListView(
       children: [
         ...monthNamesHeader,
         for (var thisYear in yearList) yearRowBuilder(thisYear)

@@ -12,16 +12,16 @@ typedef QuarterCallback = void Function(int);
 class MonthSelector extends StatefulWidget {
   final QuarterCallback onPressed;
 
-  MonthSelector({@required this.onPressed});
+  const MonthSelector({@required this.onPressed});
 
   @override
   _MonthSelectorState createState() => _MonthSelectorState();
 }
 
 class _MonthSelectorState extends State<MonthSelector> {
-  List<bool> _monthList = [true, false, false, false];
+  final List<bool> _monthList = [true, false, false, false];
 //  bool _multiMonth = true;
-  List<String> _monthNames = 'Jan-Mar Apr-Jun Jul-Sep Oct-Dec'.split(' ');
+  final List<String> _monthNames = 'Jan-Mar Apr-Jun Jul-Sep Oct-Dec'.split(' ');
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,6 @@ class _MonthSelectorState extends State<MonthSelector> {
         for (int i = 0; i < 4; i++)
           TextButton(
               //padding: EdgeInsets.all(0),
-              child: Text(_monthNames[i]),
               onPressed: () {
                 setState(() {
                   for (int j = 0; j < 4; j++) _monthList[j] = (j == i);
@@ -39,7 +38,9 @@ class _MonthSelectorState extends State<MonthSelector> {
                   widget.onPressed(i);
               },
               style: TextButton.styleFrom(
-              backgroundColor: _monthList[i] ? Colors.greenAccent : Colors.amber)
+              backgroundColor: _monthList[i] ? Colors.greenAccent : Colors.amber),
+              //padding: EdgeInsets.all(0),
+              child: Text(_monthNames[i])
           )
       ], // of children
     ); // of Row

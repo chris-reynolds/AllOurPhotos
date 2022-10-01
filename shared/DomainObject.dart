@@ -14,7 +14,7 @@ abstract class DomainObject {
   String updatedUser;
   List<String> lastErrors = [];
 
-  bool get isValid => lastErrors.length == 0;
+  bool get isValid => lastErrors.isEmpty;
 
   Future<void> validate() async {
     lastErrors = [];
@@ -40,7 +40,7 @@ abstract class DomainObject {
       fld = 'updatedUser';
       updatedUser = row[3];
     } catch (ex) {
-      throw Exception('Failed to assign field $fld : ' + ex.toString());
+      throw Exception('Failed to assign field $fld : $ex');
     }
   } // from Row
 
@@ -57,7 +57,7 @@ abstract class DomainObject {
 
 List<int> idList(List<DomainObject> dobjList) {
   List<int> result = [];
-  dobjList.forEach((element) {result.add(element.id);});
+  for (var element in dobjList) {result.add(element.id);}
   return result;
 } // of idList
 
@@ -130,7 +130,7 @@ class DOProvider<TDO extends DomainObject> {
   Future<TDO> get(int id) async {
     var r = await dbConn.query(sqlStatements.getStatement(), [id]);
     List<TDO> results = toList(r);
-    if (results.length == 0) throw Exception('id $id not found in $tableName');
+    if (results.isEmpty) throw Exception('id $id not found in $tableName');
     if (results.length > 1) throw Exception('id $id is duplicate in $tableName');
     return results[0];
   } //
@@ -168,7 +168,7 @@ class DOProvider<TDO extends DomainObject> {
   Future<int> refreshFromDb(TDO aDomainObject) async {
     var r = await dbConn.query(sqlStatements.getStatement(), [aDomainObject.id]);
 //    List<TDO> results = toList(r);
-    if (r.length == 0) throw Exception('id ${aDomainObject.id} not found in $tableName');
+    if (r.isEmpty) throw Exception('id ${aDomainObject.id} not found in $tableName');
     aDomainObject.fromRow(r.single);
     return r.affectedRows;
   } //
@@ -183,9 +183,9 @@ class SQLStatementFactory {
 
   SQLStatementFactory(this._tableName, this._columnNames) {
     List<String> questions = [];
-    _columnNames.forEach((s) {
+    for (var s in _columnNames) {
       questions.add('?');
-    });
+    }
     _placeholders = questions.join(',');
   }
 
@@ -201,21 +201,17 @@ class SQLStatementFactory {
 
   String updateStatement() {
     var result = 'update `$_tableName` set ';
-    _columnNames.forEach((colName) {
+    for (var colName in _columnNames) {
       result += '$colName=?,';
-    });
-    result = result.substring(0, result.length - 1) // trim last comma
-        +
-        ' where id=? ';
+    }
+    result = '${result.substring(0, result.length - 1)} where id=? ';
     // todo multi-user and updated_on=?'; // tie breaker for record locking
     return result;
   } // of update Statement
 
   String getStatement() =>
-      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' +
-      ' from $_tableName where id=?';
+      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' ' from $_tableName where id=?';
 
   String getSomeStatement(String whereClause, {String orderBy = 'created_on'}) =>
-      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' +
-      ' from $_tableName where $whereClause order by $orderBy';
+      'select ${_lockedColumns.join(",")},${_columnNames.join(",")}' ' from $_tableName where $whereClause order by $orderBy';
 } // of SQLStatementFactory

@@ -20,7 +20,7 @@ import '../widgets/wdgImageFilter.dart'; // only for the icons
 class SinglePhotoWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return new SinglePhotoWidgetState();
+    return SinglePhotoWidgetState();
   }
 }
 
@@ -33,7 +33,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   bool isPhotoScaled = false;
   bool _isClippingInProgress = false;
 
-  void set isClippingInProgress(bool value) {
+  set isClippingInProgress(bool value) {
     setState(() {
       _isClippingInProgress = value;
     });
@@ -60,7 +60,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     setState(() {});
   }
 
-  void set snapIndex(int newIndex) {
+  set snapIndex(int newIndex) {
     if (newIndex >= 0 && newIndex < snapList.length)
       setState(() {
         _snapIndex = newIndex;
@@ -69,7 +69,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   Widget buildAppBar(BuildContext context) {
     return AppBar(
-      title: new Text(currentSnap.fileName + ' ' + currentSnap.caption),
+      title: Text('${currentSnap.fileName} ${currentSnap.caption}'),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.arrow_upward),
@@ -130,13 +130,13 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
               value: 'exif',
-              child: Text('exif Data'),
               enabled: (currentSnap.metadata != null),
+              child: Text('exif Data'),
             ),
             PopupMenuItem<String>(
               value: 'exif-thumb',
-              child: Text('exif Data thumbnail'),
               enabled: (currentSnap.metadata != null),
+              child: Text('exif Data thumbnail'),
             ),
           ],
         ),
@@ -275,11 +275,9 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   Future<String> calcNewFilenameForSnap(AopSnap snap, String sourceMarker) async {
     int previousCrops = await AopSnap.getPreviousCropCount(sourceMarker);
-    int dotPos = snap.fileName.lastIndexOf('\.');
+    int dotPos = snap.fileName.lastIndexOf('.');
     if (dotPos < 0) throw 'Failed to get extention of ${snap.fileName}';
-    String result = snap.fileName.substring(0, dotPos) +
-        '_cp${previousCrops + 1}' +
-        snap.fileName.substring(dotPos);
+    String result = '${snap.fileName.substring(0, dotPos)}_cp${previousCrops + 1}${snap.fileName.substring(dotPos)}';
     return result;
   } // of calcNewFilenameForSnap
 
@@ -295,7 +293,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     Navigator.of(context);
     List<int> fileContents = await loadWebBinary(thisSnap.thumbnailURL);
     JpegLoader jpegLoader = JpegLoader();
-    await jpegLoader.loadBuffer(fileContents);
+    jpegLoader.loadBuffer(fileContents);
     Map<String, dynamic> tags = jpegLoader.tags;
     String tagResult = '';
     if (tags == null)

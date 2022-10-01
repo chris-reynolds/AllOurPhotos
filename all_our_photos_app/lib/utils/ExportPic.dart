@@ -37,12 +37,12 @@ class ExportPic {
           for (int x = 1; x < paths.length; x++) {
             String folder = paths[x];
             if (folder != "Android") {
-              newPath += "/" + folder;
+              newPath += "/$folder";
             } else {
               break;
             }
           }
-          newPath = newPath + '/' + albumName;
+          newPath = '$newPath/$albumName';
           directory = Directory(newPath);
         } else {
           return false;
@@ -54,7 +54,7 @@ class ExportPic {
           return false;
         }
       } else if (Platform.isMacOS) {
-        directory = Directory((await Path.getDownloadsDirectory()).path + '/' + albumName);
+        directory = Directory('${(await Path.getDownloadsDirectory()).path}/$albumName');
       } else
         throw Exception('Platform not supported');
 
@@ -62,7 +62,7 @@ class ExportPic {
         await directory.create(recursive: true);
       }
       if (await directory.exists()) {
-        File saveFile = File(directory.path + "/$fileName");
+        File saveFile = File("${directory.path}/$fileName");
         await Dio().download(url, saveFile.path,
             onReceiveProgress: (value1, value2) {
 //            setState(() {
@@ -79,7 +79,7 @@ class ExportPic {
     } catch (e) {
       var target = fileName;
       if (directory != null && directory is Directory)
-        target = directory.path+'/'+fileName;
+        target = '${directory.path}/$fileName';
       Log.error('Failed to save $target \n Error is $e');
       print('Failed to save $target \n Error is $e');
     }

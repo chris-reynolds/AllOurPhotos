@@ -89,14 +89,14 @@ class _AlbumListState extends State<AlbumList> {
     if (_searchText.isEmpty) {
       return _list.map((album) => ChildItem(album,this)).toList();
     } else {
-      List<AopAlbum> _searchList = [];
+      List<AopAlbum> searchList = [];
       for (int i = 0; i < _list.length; i++) {
         String name = _list.elementAt(i).name;
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
-          _searchList.add(_list.elementAt(i));
+          searchList.add(_list.elementAt(i));
         }
       }
-      return _searchList.map((contact) => ChildItem(contact,this)).toList();
+      return searchList.map((contact) => ChildItem(contact,this)).toList();
     }
   }
 
@@ -172,7 +172,7 @@ class _AlbumListState extends State<AlbumList> {
           //await refreshList();
           Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum).then((value) async {
             Log.message('popping at list add');
-            await this.refreshList();
+            await refreshList();
           });
           done = true;
         } catch (ex) {
@@ -195,7 +195,7 @@ class ChildItem extends StatelessWidget {
       children: [
         TextButton(
             //padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
-            child:Text(album.name,style:Theme.of(context).textTheme.headline6),
+            child:Text(album.name,style:Theme.of(context).textTheme.titleLarge),
             onPressed: () =>
                 Navigator.pushNamed(context, 'AlbumDetail', arguments: album).then((value)  {
                   Log.message('popping at list select');

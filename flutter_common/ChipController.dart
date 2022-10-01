@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 //import '../utils/WebFile.dart';
 
-final String DEFAULT_CHIPS = "+,-,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams";
+const String DEFAULT_CHIPS = "+,-,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams";
 String remoteUrl;
 bool logging = false;
 WebFile remoteChipFile;
 
 class ChipSet {
-  static final DELIM = ',';
+  static const DELIM = ',';
   Set<String> chips;
 
   ChipSet(String s) {
@@ -37,6 +37,7 @@ class ChipSet {
 
   void addAll(ChipSet more) => chips.addAll(more.chips);
 
+  @override
   String toString() => chips.join(DELIM);
 } // of chipSet
 
@@ -44,25 +45,25 @@ class ChipSetSummary {
   int _total = 0;
   Map<String,int> items = {};
   ChipSetSummary(ChipSet defaults) {
-    defaults.chips.forEach((chip){
+    for (var chip in defaults.chips) {
       items[chip] = 0;  //dont count base
-    });
+    }
   }
   void merge(ChipSet chipset) {
-    chipset.chips.forEach((chip){
+    for (var chip in chipset.chips) {
       if (items.containsKey(chip))
         items[chip] += 1;
       else
         items[chip] = 1;
-    });
+    }
     _total += 1;
   }
   eCoverage coverage(String chip) {
     if (!items.containsKey(chip) || _total==0)
       throw Exception('Invalid call for Chip ($chip)');
-    var _usage = items[chip];
-    if (_usage==0) return eCoverage.ecNone;
-    else if (_usage==_total) return eCoverage.ecAll;
+    var usage = items[chip];
+    if (usage==0) return eCoverage.ecNone;
+    else if (usage==_total) return eCoverage.ecAll;
     else return eCoverage.ecSome;
   }  // of coverage
 } // of ChipSetSummary
@@ -116,10 +117,10 @@ String coverageText(eCoverage value) {
 } // coveragetext
 
 class TriChip extends StatefulWidget {
-  String _name;
-  eCoverage _cover;
+  final String _name;
+  final eCoverage _cover;
 
-  TriChip(this._name, this._cover) : super();
+  const TriChip(this._name, this._cover) : super();
 
   @override
   _TriChipState createState() => _TriChipState();

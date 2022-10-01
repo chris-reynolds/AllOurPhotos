@@ -39,7 +39,7 @@ DateTime addMonths(DateTime dt, int value) {
 DateTime monthEnd(DateTime dt) => DateTime(dt.year,dt.month,daysInMonth(dt.year, dt.month), 23, 59,59);
 
 String formatDate(DateTime aDate, {String format = 'yyyy-mm-d'}) {
-  String right(String s,{int size:2}) => s.substring(s.length - size);
+  String right(String s,{int size =2}) => s.substring(s.length - size);
   String n99(int value) => right((value + 100).toString());
   String n999(int value) => right((value + 1000).toString(),size:3);
   String result = format;
@@ -62,7 +62,7 @@ String formatDate(DateTime aDate, {String format = 'yyyy-mm-d'}) {
 
 }
 
-DateTime parseDMY(String inputStr,{bool allowYearOnly:false}) {
+DateTime parseDMY(String inputStr,{bool allowYearOnly =false}) {
   if (allowYearOnly)
     while (inputStr.split('/').length<3)
       inputStr = '1/$inputStr';
@@ -71,13 +71,13 @@ DateTime parseDMY(String inputStr,{bool allowYearOnly:false}) {
   if (bits[0].indexOf('/')>0) { // assume d/m/yy
     dateBits = bits[0].split('/');
     if (dateBits.length !=3) throw "Must be in the form d/m/y";
-    if (dateBits[0].length==1) dateBits[0]='0'+dateBits[0];
-    if (dateBits[1].length==1) dateBits[1]='0'+dateBits[1];
+    if (dateBits[0].length==1) dateBits[0]='0${dateBits[0]}';
+    if (dateBits[1].length==1) dateBits[1]='0${dateBits[1]}';
     if (dateBits[2].length==2)
       if (dateBits[2].compareTo('50')>0)
-        dateBits[2]='19'+dateBits[2];
+        dateBits[2]='19${dateBits[2]}';
         else
-          dateBits[2]='20'+dateBits[2];
+          dateBits[2]='20${dateBits[2]}';
     bits[0] = '${dateBits[2]}-${dateBits[1]}-${dateBits[0]}';
   }
   String workStr = bits.join(' '); // join the time back on, if any
@@ -86,11 +86,7 @@ DateTime parseDMY(String inputStr,{bool allowYearOnly:false}) {
 
 DateTime dateTimeFromExif(String exifString) {
   try {
-    String tmp = exifString.substring(0, 4) +
-        '-' +
-        exifString.substring(5, 7) +
-        '-' +
-        exifString.substring(8);
+    String tmp = '${exifString.substring(0, 4)}-${exifString.substring(5, 7)}-${exifString.substring(8)}';
     return DateTime.parse(tmp);
   } catch (ex) {
     return null;

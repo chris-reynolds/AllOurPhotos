@@ -4,7 +4,6 @@ Purpose: This will show the details of a single album
 
 */
 import 'dart:io';
-import 'package:all_our_photos_app/dart_common/LoginStateMachine.dart';
 import 'package:all_our_photos_app/shared/DomainObject.dart';
 import 'package:flutter/material.dart';
 //import 'package:image/image.dart';
@@ -155,7 +154,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     String albumName = argAlbum.name.replaceAll('/','-').replaceAll('\\','-').replaceAll(' ', '');
     if (albumName.length > 20)
       albumName = albumName.substring(0,19);
-    dirName += albumName+'/';
+    dirName += '$albumName/';
     if (!Directory(dirName).existsSync())
       Directory(dirName).createSync();
     // make directory in downloads

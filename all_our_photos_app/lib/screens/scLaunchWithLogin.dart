@@ -17,7 +17,7 @@ import 'scHome.dart';
 
 class LaunchWithLogin extends StatelessWidget {
   final StreamController<AuthenticationState> _streamController =
-      new StreamController<AuthenticationState>();
+      StreamController<AuthenticationState>();
   final String title;
   LaunchWithLogin(this.title);
   Future<void> initConfig() async {
@@ -27,7 +27,7 @@ class LaunchWithLogin extends StatelessWidget {
       String extStorage = (await getExternalStorageDirectory()).path;
       log.message('external storage is $extStorage');
     }
-    await loadConfig(localDocs + '/aopPhoneSync.config.json');
+    await loadConfig('$localDocs/aopPhoneSync.config.json');
     log.message('loaded config from $localDocs');
   } // of initConfig
 
@@ -51,7 +51,7 @@ class LaunchWithLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     initConfig().then((xx) => tryLogin());
     log.message('building after tryLogin');
-    return new StreamBuilder<AuthenticationState>(
+    return StreamBuilder<AuthenticationState>(
         stream: _streamController.stream,
 //        initialData: new AuthenticationState.initial(),
         builder: (BuildContext context, AsyncSnapshot<AuthenticationState> snapshot) {
@@ -59,7 +59,7 @@ class LaunchWithLogin extends StatelessWidget {
           if (state == null)
             return CircularProgressIndicator();
           else if (state.authenticated)
-            return HomeScreen(logoutFn:tryLogout, title: this.title,);
+            return HomeScreen(logoutFn:tryLogout, title: title,);
           else
             return SignInPage(/*_streamController,*/ tryLogin);
         });

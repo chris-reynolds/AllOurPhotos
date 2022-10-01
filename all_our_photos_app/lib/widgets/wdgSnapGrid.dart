@@ -13,7 +13,7 @@ class SsSnapGrid extends StatelessWidget {
   final List<AopSnap> snapList;
   final dynamic parentGrid;
   final AopAlbum possibleParentAlbum;
-  SsSnapGrid(this.snapList, this.parentGrid, this.possibleParentAlbum);
+  const SsSnapGrid(this.snapList, this.parentGrid, this.possibleParentAlbum);
 
   @override
   Widget build(BuildContext context) {

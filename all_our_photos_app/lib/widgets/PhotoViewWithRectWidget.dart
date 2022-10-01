@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
 
-typedef CallBackWithBool(bool flag);
+typedef CallBackWithBool = Function(bool flag);
 
 class PhotoViewerWithRect extends StatelessWidget {
   final PhotoViewController pvc = PhotoViewController();
@@ -30,7 +30,7 @@ class PhotoViewerWithRect extends StatelessWidget {
       return null; // Rect.fromLTWH(0, 0, pictureSize.width, pictureSize.height);
     Offset centrePoint = pvc.position;
     double scale = pvc.scale;
-    RenderBox renderBox = (this.key as GlobalKey).currentContext.findRenderObject();
+    RenderBox renderBox = (key as GlobalKey).currentContext.findRenderObject();
     Size widgetSize = renderBox?.size;
     double leftEdge = (-centrePoint.dx+0.5*widgetSize.width)/scale+pictureSize.width/2;
     double rightEdge = (-centrePoint.dx-0.5*widgetSize.width)/scale+pictureSize.width/2;

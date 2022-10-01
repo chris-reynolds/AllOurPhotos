@@ -1,6 +1,4 @@
-/**
- * Created by Chris on 06/02/2020.
- */
+/// Created by Chris on 06/02/2020.
 
 import 'dart:io';
 import 'dart:convert';
@@ -41,18 +39,18 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
     Log.message('uploading $imageName');
     Image thisImage = decodeImage(imageContents);
 
-    GeocodingSession _geo = GeocodingSession();
+    GeocodingSession geo = GeocodingSession();
     JpegLoader jpegLoader = JpegLoader();
     await jpegLoader.extractTags(imageContents);
-    Log.message(jpegLoader.tags.length==0?'NO TAGS !!!!!!!!!!!!!':'Tag count is ${jpegLoader.tags.length}');
-    String _deviceName = device ?? jpegLoader.tag('Model') ?? config['sesdevice'];
+    Log.message(jpegLoader.tags.isEmpty?'NO TAGS !!!!!!!!!!!!!':'Tag count is ${jpegLoader.tags.length}');
+    String deviceName = device ?? jpegLoader.tag('Model') ?? config['sesdevice'];
     DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ??
         jpegLoader.tag('dateTime') ??
         fileModified ??
         DateTime(1982,1,1);
 
     bool alReadyExists = await AopSnap.sizeOrNameOrDeviceAtTimeExists(
-        takenDate, imageContents.length, imageName, _deviceName);
+        takenDate, imageContents.length, imageName, deviceName);
     if (alReadyExists) return false;
     AopSnap newSnap = AopSnap()
       ..fileName = imageName
@@ -61,9 +59,9 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
       ..height = thisImage.height
       ..takenDate = takenDate
       ..modifiedDate = fileModified
-      ..deviceName = _deviceName
+      ..deviceName = deviceName
       ..rotation = '0' // todo support enumeration
-      ..importSource = _deviceName
+      ..importSource = deviceName
       ..importedDate = DateTime.now();
 
     bool isScanned = ((jpegLoader.tag('device.software') ?? '').toLowerCase().indexOf('scan') >= 0);
@@ -80,7 +78,7 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
           jpegLoader.dmsToDeg(jpegLoader.tag('GPSLongitude'), jpegLoader.tag('GPSLongitudeRef'));
     }
     if (newSnap.latitude != null) {
-      String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
+      String location = await geo.getLocation(newSnap.longitude, newSnap.latitude);
       if (location != null) newSnap.trimSetLocation(location);
     }
 
@@ -95,7 +93,7 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
       int lastDot = newSnap.fileName.lastIndexOf('.');
       if (lastDot < 0) throw "Cant find the extension of file name ${newSnap.fileName}";
       newSnap.fileName =
-          newSnap.fileName.substring(0, lastDot) + 'a' + newSnap.fileName.substring(lastDot);
+          '${newSnap.fileName.substring(0, lastDot)}a${newSnap.fileName.substring(lastDot)}';
     }
     String myMeta = jsonEncode(jpegLoader.tags);
     Image thumbnail =  makeThumbnail(thisImage); //copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
@@ -106,7 +104,7 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
     await newSnap.save();
     return true;
   } catch (ex, st) {
-    Log.error('Failed save for ${imageName} \n$ex \n$st');
+    Log.error('Failed save for $imageName \n$ex \n$st');
     return false;
   } // of try
 } // of uploadImage

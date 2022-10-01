@@ -8,7 +8,7 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 1 Oct22.v1';
+const VERSION = 'All Our Photos 1 Oct22.v2 - linter';
 
 void main() {
 
@@ -20,19 +20,18 @@ void main() {
       fontFamily: 'Helvetica', //'Helvetica',
       primaryColor: const Color(0xFF02BB9F),
       primaryColorDark: const Color(0xFF167F67),
-      accentColor: const Color(0xFFFFAD32),
       textTheme: TextTheme(
-          bodyText1: TextStyle(fontSize: 25.0, color: Colors.red,fontFamily:'Helvetica'),
-          bodyText2: TextStyle(fontFamily: 'Helvetica'),
-        subtitle1: TextStyle(fontFamily: 'Helvetica'),
-        subtitle2: TextStyle(fontFamily: 'Helvetica'),
-        caption: TextStyle(fontFamily: 'Helvetica'),
-        button: TextStyle(fontFamily: 'Helvetica'),
-        overline: TextStyle(fontFamily: 'Helvetica'),
+          bodyLarge: TextStyle(fontSize: 25.0, color: Colors.red,fontFamily:'Helvetica'),
+          bodyMedium: TextStyle(fontFamily: 'Helvetica'),
+        titleMedium: TextStyle(fontFamily: 'Helvetica'),
+        titleSmall: TextStyle(fontFamily: 'Helvetica'),
+        bodySmall: TextStyle(fontFamily: 'Helvetica'),
+        labelLarge: TextStyle(fontFamily: 'Helvetica'),
+        labelSmall: TextStyle(fontFamily: 'Helvetica'),
       ),
       buttonTheme: ButtonThemeData(
         buttonColor: Colors.greenAccent,
-      ),
+      ), colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color(0xFFFFAD32)),
     ),
     home: LaunchWithLogin(VERSION),
     routes: <String, WidgetBuilder>{

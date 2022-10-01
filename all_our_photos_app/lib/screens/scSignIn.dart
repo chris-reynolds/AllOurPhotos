@@ -7,7 +7,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../flutter_common/WidgetSupport.dart';
 //import 'scLogger.dart';

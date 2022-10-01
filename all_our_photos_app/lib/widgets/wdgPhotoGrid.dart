@@ -4,7 +4,6 @@
   Purpose: Stateful PhotoGrid widget with multi-select
 */
 
-import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart' as PathProvider;
@@ -49,9 +48,9 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     bool clearAll = (_imageFilter.selectionList.length == _imageFilter.items.length);
     _imageFilter.clearSelected();
     if (!clearAll) {
-      _imageFilter.items.forEach((AopSnap snap) {
+      for (var snap in _imageFilter.items) {
         _imageFilter.setSelected(snap, true);
-      });
+      }
     }
     if (repaint) setState(() {});
   } // of selectAll
@@ -460,7 +459,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       albumName = widget._album.name.replaceAll('/', '-').replaceAll('\\', '-').replaceAll(' ', '');
     }
     if (albumName.length > 20) albumName = albumName.substring(0, 19);
-    dirName += '/' + albumName + '/';
+    dirName += '/$albumName/';
     if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
     // make directory in downloads
     int errors = 0;

@@ -1,6 +1,4 @@
-/**
- * Created by Chris on 21/09/2018.
- */
+/// Created by Chris on 21/09/2018.
 
 typedef LoggerFunc = void Function(String s);
 

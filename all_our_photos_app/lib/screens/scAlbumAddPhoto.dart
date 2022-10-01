@@ -36,7 +36,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   } // of build
 
   Widget buildBar(BuildContext context) {
-    if (selectionList.length == 0)
+    if (selectionList.isEmpty)
       return AppBar(
         actions: <Widget>[
           MonthSelector(
@@ -58,7 +58,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
       );
     else
       return AppBar(
-        title: Text('${this.selectionList.length} items selected'),
+        title: Text('${selectionList.length} items selected'),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.check),
@@ -70,7 +70,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
               icon: Icon(Icons.undo),
               tooltip: 'Clear selection',
               onPressed: () {
-                this.clearSelected();
+                clearSelected();
                 setState(() {});
               }),
         ],
@@ -83,7 +83,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
     if (album == null) {
       album = ModalRoute.of(context).settings.arguments;
       yearNo = int.tryParse(album.name.substring(0, 4));
-      if (yearNo == null) yearNo = DateTime.now().year;
+      yearNo ??= DateTime.now().year;
       DateTime startDate = DateTime(yearNo, 1, 1);
       imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
       imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds:-1));
@@ -117,19 +117,18 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
 
   void setQuarter(int quarter) {
     imgFilter.fromDate = DateTime(yearNo, 3 * quarter + 1, 1);
-    imgFilter.toDate = addMonths(imgFilter.fromDate, 3).add(Duration(seconds:-1));;
+    imgFilter.toDate = addMonths(imgFilter.fromDate, 3).add(Duration(seconds:-1));
     refreshList();
   } // of setQuarter
 
   Widget snapCell(AopSnap snap) {
     return InkWell(
       child: Text(
-          '${formatDate(snap.takenDate, format: 'dd-mmm-yy hh:nn:ss')} ' +
-              '   ${snap.fullSizeURL}      ',
+          '${formatDate(snap.takenDate, format: 'dd-mmm-yy hh:nn:ss')} ' '   ${snap.fullSizeURL}      ',
           style: TextStyle(
               color: isSelected(snap.id) ? Colors.red : Colors.blueAccent)),
       onTap: () {
-        this.toggleSelected(snap.id);
+        toggleSelected(snap.id);
         setState(() {});
       },
     );

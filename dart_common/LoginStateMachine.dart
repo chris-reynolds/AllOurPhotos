@@ -23,8 +23,8 @@ typedef MessageFn = void Function(String message);
 class LoginStateMachine {
   Map<String, dynamic> _config;
   etLoginStatus _loginStatus = etLoginStatus.NotLoggedIn;
-  List<StatusChangeFn> _stateListeners = [];
-  List<MessageFn> _messageListeners = [];
+  final List<StatusChangeFn> _stateListeners = [];
+  final List<MessageFn> _messageListeners = [];
 
   // variables to handle lockout of repeated bad login
   static const MAXLOGIN = 3;
@@ -59,7 +59,7 @@ class LoginStateMachine {
       _messageListeners.remove(oldListener);
 
   LoginStateMachine(this._config, {StatusChangeFn listener}) {
-    if (_config == null) _config = {};
+    _config ??= {};
     if (listener != null) addStateListener(listener);
   } // of constructor
 
@@ -88,7 +88,7 @@ class LoginStateMachine {
   } // initState
 
   Future<int> startSession([Map<String, dynamic> newConfig]) async {
-    if (newConfig != null) this._config.addAll(newConfig);
+    if (newConfig != null) _config.addAll(newConfig);
     if (repeatedLoginLockOutTime != null &&
         repeatedLoginLockOutTime.isAfter(DateTime.now())) {
       broadcastMessage('Repeated bad logins caused a locked account');
@@ -119,7 +119,7 @@ class LoginStateMachine {
             // time to lock out
             repeatedLoginLockOutTime = DateTime.now().add(LOCKOUTPERIOD);
             loginStatus = etLoginStatus.TooManyTries;
-            Timer(LOCKOUTPERIOD, this.handleUnlockTimer);
+            Timer(LOCKOUTPERIOD, handleUnlockTimer);
           }
         }
         return sessionid;
@@ -152,7 +152,7 @@ class LoginStateMachine {
   } // of backTrack
 
   void logout() {
-    this.loginStatus = etLoginStatus.NotLoggedIn;
+    loginStatus = etLoginStatus.NotLoggedIn;
     broadcastMessage('');
   } // of logout
 

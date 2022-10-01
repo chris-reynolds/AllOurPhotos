@@ -16,9 +16,9 @@ class DgSimple extends StatefulWidget {
   final DlgValidator isValid;
 
   @override
-  _DgSimpleState createState() => _DgSimpleState(title, initialValue, this.errorMessage);
+  _DgSimpleState createState() => _DgSimpleState(title, initialValue, errorMessage);
 
-  DgSimple(this.title, this.initialValue, {this.errorMessage:'', this.isValid})
+  const DgSimple(this.title, this.initialValue, {this.errorMessage ='', this.isValid})
       : super();
 }
 
@@ -35,7 +35,7 @@ class _DgSimpleState extends State<DgSimple> {
       errorMessage = await widget.isValid(_nameController.text);
     else
       errorMessage = null;
-    if (errorMessage !=null && errorMessage.length > 0)
+    if (errorMessage !=null && errorMessage.isNotEmpty)
       setState(() {});
     else
       Navigator.pop(context, value);
@@ -80,7 +80,7 @@ class _DgSimpleState extends State<DgSimple> {
         ),
         Text(
           errorMessage,
-          style: Theme.of(context).textTheme.bodyText2,
+          style: Theme.of(context).textTheme.bodyMedium,
           maxLines: 3,
         ),
       ],

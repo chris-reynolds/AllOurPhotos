@@ -4,19 +4,19 @@ import '../dart_common/Geocoding.dart';
 import '../shared/aopClasses.dart';
 
 class SearchList extends StatefulWidget {
-  SearchList({ Key key }) : super(key: key);
+  const SearchList({ Key key }) : super(key: key);
 
   @override
-  _SearchListState createState() => new _SearchListState();
+  _SearchListState createState() => _SearchListState();
 
 }
 
 class _SearchListState extends State<SearchList> {
-  Widget appBarTitle = new Text(
-    "Search Sample", style: new TextStyle(color: Colors.white),);
-  Icon actionIcon = new Icon(Icons.search, color: Colors.white,);
-  final key = new GlobalKey<ScaffoldState>();
-  final TextEditingController _searchQuery = new TextEditingController();
+  Widget appBarTitle = Text(
+    "Search Sample", style: TextStyle(color: Colors.white),);
+  Icon actionIcon = Icon(Icons.search, color: Colors.white,);
+  final key = GlobalKey<ScaffoldState>();
+  final TextEditingController _searchQuery = TextEditingController();
   List<String> _list;
   bool _isSearching;
   String _searchText = "";
@@ -47,44 +47,44 @@ class _SearchListState extends State<SearchList> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       key: key,
       appBar: buildBar(context),
-      body: new ListView(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
+      body: ListView(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
         children: _isSearching ? _buildSearchList() : _buildList(),
       ),
     );
   }
 
   List<ChildItem> _buildList() {
-    return _list.map((contact) => new ChildItem(contact)).toList();
+    return _list.map((contact) => ChildItem(contact)).toList();
   }
 
   List<ChildItem> _buildSearchList() {
     if (_searchText.isEmpty) {
-      return _list.map((contact) => new ChildItem(contact))
+      return _list.map((contact) => ChildItem(contact))
           .toList();
     }
     else {
-      List<String> _searchList = List();
+      List<String> searchList = [];
       for (int i = 0; i < _list.length; i++) {
         String name = _list.elementAt(i);
         if (name.toLowerCase().contains(_searchText.toLowerCase())) {
-          _searchList.add(name);
+          searchList.add(name);
         }
       }
-      return _searchList.map((contact) => new ChildItem(contact))
+      return searchList.map((contact) => ChildItem(contact))
           .toList();
     }
   }
 
   Widget buildBar(BuildContext context) {
-    return new AppBar(
+    return AppBar(
         centerTitle: true,
         title: appBarTitle,
         actions: <Widget>[
-          new IconButton(icon: Icon(Icons.delete),
+          IconButton(icon: Icon(Icons.delete),
             iconSize: 30,
             onPressed: () {
             Log.logHistory = [];
@@ -92,23 +92,23 @@ class _SearchListState extends State<SearchList> {
                 _list = [];
               });
             },),
-          new IconButton(icon: Icon(Icons.map),
+          IconButton(icon: Icon(Icons.map),
             iconSize: 30,
             onPressed: handleLocationCompletion,),
-          new IconButton(icon: actionIcon, onPressed: () {
+          IconButton(icon: actionIcon, onPressed: () {
             setState(() {
-              if (this.actionIcon.icon == Icons.search) {
-                this.actionIcon = new Icon(Icons.close, color: Colors.white,);
-                this.appBarTitle = new TextField(
+              if (actionIcon.icon == Icons.search) {
+                actionIcon = Icon(Icons.close, color: Colors.white,);
+                appBarTitle = TextField(
                   controller: _searchQuery,
-                  style: new TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
 
                   ),
-                  decoration: new InputDecoration(
-                      prefixIcon: new Icon(Icons.search, color: Colors.white),
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
                       hintText: "Search...",
-                      hintStyle: new TextStyle(color: Colors.white)
+                      hintStyle: TextStyle(color: Colors.white)
                   ),
                 );
                 _handleSearchStart();
@@ -184,9 +184,9 @@ class _SearchListState extends State<SearchList> {
 
   void _handleSearchEnd() {
     setState(() {
-      this.actionIcon = new Icon(Icons.search, color: Colors.white,);
-      this.appBarTitle =
-      new Text("Search Sample", style: new TextStyle(color: Colors.white),);
+      actionIcon = Icon(Icons.search, color: Colors.white,);
+      appBarTitle =
+      Text("Search Sample", style: TextStyle(color: Colors.white),);
       _isSearching = false;
       _searchQuery.clear();
     });
@@ -197,11 +197,11 @@ class _SearchListState extends State<SearchList> {
 class ChildItem extends StatelessWidget {
   final String name;
 
-  ChildItem(this.name);
+  const ChildItem(this.name);
 
   @override
   Widget build(BuildContext context) {
-    return new ListTile(title: new Text(this.name));
+    return ListTile(title: Text(name));
   }
 
 }

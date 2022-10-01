@@ -1,18 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class HistoryScrollingList extends StatelessWidget {
-  HistoryScrollingList(this.listType);
+  const HistoryScrollingList(this.listType);
   final String listType;
   @override
   Widget build(BuildContext context) {
-    return new Center(
-        child: new Column(
+    return Center(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new Text(
+            Text(
               listType,
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],
         ),

@@ -1,7 +1,5 @@
-/**
- * Created by Chris on 8/10/2018.
- * Purpose: To reverse geocode from camera latitude/longitude to displayable name
- */
+/// Created by Chris on 8/10/2018.
+/// Purpose: To reverse geocode from camera latitude/longitude to displayable name
 
 import 'dart:io';
 import 'dart:math';
@@ -16,7 +14,7 @@ class GeocodingSession  {
   static double calcSign(String direction,double magnitude) {
     if (direction == null)
       return magnitude;
-    if ('SWsw'.indexOf(direction)>=0)
+    if ('SWsw'.contains(direction))
       magnitude = - magnitude;
     return magnitude;
   }
@@ -29,7 +27,7 @@ class GeocodingSession  {
     return '$longTiles:$latTiles';
   } // of _calcKey
 
-  static Map<String,String> _cache = {};
+  static final Map<String,String> _cache = {};
 
   int get length => _cache.length;
 

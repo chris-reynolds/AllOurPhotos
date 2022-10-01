@@ -17,11 +17,11 @@ class ImageFilterWidget extends StatefulWidget {
   final ImageFilter _initImageFilter;
   final VoidCallback onRefresh;
 
-  ImageFilterWidget(this._initImageFilter, {this.onRefresh});
+  const ImageFilterWidget(this._initImageFilter, {this.onRefresh});
 
   @override
   State<StatefulWidget> createState() {
-    return new ImageFilterWidgetState();
+    return ImageFilterWidgetState();
   }
 }
 
@@ -45,7 +45,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
   } // initState
 
   Widget qText(String s) {
-    return Text(s, style: Theme.of(context).textTheme.bodyText2);
+    return Text(s, style: Theme.of(context).textTheme.bodyMedium);
   } // of Text2
 
   void toggleRank(int rankNo) {
@@ -78,6 +78,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
   } // of onSearchTextChanged
 
   //  @override
+  @override
   Widget build(BuildContext context) {
 //    print('building ImageFilter with changeMode=$changeMode and refreshRequired=${_imageFilter.refreshRequired}');
     return GestureDetector(
@@ -87,14 +88,13 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
           if (changeMode == false) changeMode = true;
         }); // of setState
       },
-      child: new Center(
+      child: Center(
           child: !changeMode
               ? Row(
                   children: [
                     IconButton(icon: Icon(Icons.first_page),onPressed: (){onMonthMove(-1);},tooltip: 'Back 1 month', iconSize: 36,),
                     Text(
-                      '  Filter : ${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' +
-                          ' upto ${Utils.formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
+                      '  Filter : ${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' ' upto ${Utils.formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
                     ),
                     IconButton(icon: Icon(Icons.last_page),onPressed: (){onMonthMove(1);},tooltip: 'Advance 1 month',iconSize: 36,),
                     Expanded(child: Text('')),
@@ -109,7 +109,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                     ),
                   ],
                 )
-              : new Column(
+              : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
@@ -119,7 +119,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                           child: TextField(
                         controller: textController,
 //                  onChanged: onSearchTextChanged,
-                        style: Theme.of(context).textTheme.bodyText2,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       )),
                       qText('Rank:'),
                       IconButton(

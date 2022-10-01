@@ -13,22 +13,22 @@ class AssetWidget extends StatelessWidget {
   final String name;
   final double size;
   final Color color;
-  AssetWidget(this.name,{this.size=50,this.color});
+  const AssetWidget(this.name,{this.size=50,this.color});
 
   @override
   Widget build(BuildContext context) {
     return ImageIcon(
       AssetImage('assets/$name'),
-      size: size, color:color??Theme.of(context).accentColor,
+      size: size, color:color??Theme.of(context).colorScheme.secondary,
     );
   } // of build
 } // of AssetWidget
 
 BottomNavigationBarItem bottomButton(String keyText, IconData valueIcon) =>
-    BottomNavigationBarItem(icon: new Icon(valueIcon), label: keyText);
+    BottomNavigationBarItem(icon: Icon(valueIcon), label: keyText);
 
 IconButton navIconButton(BuildContext context,String routeName, IconData valueIcon) =>
-    IconButton(icon: new Icon(valueIcon),
+    IconButton(icon: Icon(valueIcon),
         tooltip: routeName,
         onPressed: () async {Navigator.pushNamed(context, routeName); });
 
@@ -49,14 +49,14 @@ typedef wsValidator = String Function(dynamic value);
 class WsFieldDef {
   List<String> bits;
   WsFieldDef(String fieldDef) {
-    bits = (fieldDef + ':::::').split(':');
+    bits = ('$fieldDef:::::').split(':');
     if (bits[1] == '') bits[1] = bits[0]; // copy key from prompt text if missing
   }
   String get fieldName => bits[1];
   String get prompt => bits[0];
 }  // of WsFieldDef
 class WsFieldSet {
-  Map<String,Container> _widgetMap= {};
+  final Map<String,Container> _widgetMap= {};
   WsFieldSet(List<String> defStrings,{Map values = const {}, double spacer}) {
     for (var thisDef in defStrings) {
       WsFieldDef thisFieldDef = WsFieldDef(thisDef);
@@ -88,12 +88,12 @@ Container wsTextField(String promptText, {String key, double spacer, dynamic ini
           filled: true,
         ),
 //        initialValue: initValue,
-        obscureText: (promptText.toLowerCase().indexOf('password') >= 0),
+        obscureText: (promptText.toLowerCase().contains('password')),
       ));
 } // of wsText
 
 Widget wsMakeField(String fieldDef, {Map values,double spacer}) {
-  List<String> bits = (fieldDef + ':::::').split(':');
+  List<String> bits = ('$fieldDef:::::').split(':');
   if (bits[1] == '') bits[1] = bits[0]; // copy key from prompt text if missing
   dynamic initValue = values[bits[1]] ?? '';
   return wsTextField(bits[0], key: bits[1], spacer:spacer, initValue: initValue);
@@ -120,16 +120,16 @@ Future<bool> confirmYesNo1(BuildContext context, String question) async {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: new Text('$question?'),
+          title: Text('$question?'),
           children: <Widget>[
-            new SimpleDialogOption(
-              child: new Text('Yes'),
+            SimpleDialogOption(
+              child: Text('Yes'),
               onPressed: () {
                 Navigator.pop(context, true);
               },
             ),
-            new SimpleDialogOption(
-              child: new Text('No'),
+            SimpleDialogOption(
+              child: Text('No'),
               onPressed: () {
                 Navigator.pop(context, false);
               },
@@ -150,7 +150,7 @@ Future<String> inputBox(BuildContext context, String question) async {
       builder: (BuildContext context) {
         String newText = '';
         return SimpleDialog(
-          title: new Text('$question?'),
+          title: Text('$question?'),
           children: <Widget>[
             TextField(
               onChanged: (text) {
@@ -167,13 +167,13 @@ Future<String> inputBox(BuildContext context, String question) async {
 }
 
 Future<bool> confirmYesNo(BuildContext context, String question, {String description = ''}) async {
-  TextStyle myStyle = Theme.of(context).textTheme.bodyText1;
+  TextStyle myStyle = Theme.of(context).textTheme.bodyLarge;
   return showDialog<bool>(
     context: context,
     barrierDismissible: false, // user must tap button!
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('$question'),
+        title: Text(question),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
@@ -212,13 +212,13 @@ Future<bool> confirmYesNo(BuildContext context, String question, {String descrip
 } // OF ConfirmYesNo
 
 Future<void> showMessage(BuildContext context, String message, {String title}) async {
-  TextStyle myStyle = Theme.of(context).textTheme.bodyText1;
+  TextStyle myStyle = Theme.of(context).textTheme.bodyLarge;
   return showDialog<bool>(
     context: context,
     barrierDismissible: false, // user must tap button!
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('${title ?? "--"}'),
+        title: Text(title ?? "--"),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
@@ -249,21 +249,21 @@ Future<T> showSelectDialog<T>(BuildContext context, String title, String entityT
   return showDialog<T>(
       context: context,
       builder: (BuildContext context) {
-        return new SimpleDialog(
-          title: new Text('$title'),
+        return SimpleDialog(
+          title: Text(title),
           children: <Widget>[
-            new SimpleDialogOption(
+            SimpleDialogOption(
               onPressed: () {
                 // Navigator.of(context).pop();
               },
-              child: new Center(
-                child: new DropdownButton<String>(
-                    hint: new Text("Select the new $entityType"),
+              child: Center(
+                child: DropdownButton<String>(
+                    hint: Text("Select the new $entityType"),
                     value: null,
                     items: items.map((val) {
-                      return new DropdownMenuItem<String>(
+                      return DropdownMenuItem<String>(
                         value: descriptor(val),
-                        child: new Text(descriptor(val)),
+                        child: Text(descriptor(val)),
                       );
                     }).toList(),
                     onChanged: (newVal) {

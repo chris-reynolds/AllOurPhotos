@@ -4,7 +4,6 @@ Purpose: This is a popup dialog that will allow the user to select a value from 
 
 */
 import 'package:flutter/material.dart';
-import '../dart_common/Logger.dart' as Log;
 import 'scSimpleDlg.dart';
 
 class DgTypeAhead extends StatefulWidget {
@@ -15,9 +14,9 @@ class DgTypeAhead extends StatefulWidget {
   final DlgValidator isValid;
 
   @override
-  _DgTypeAheadState createState() => _DgTypeAheadState(title, this.options, initialValue, this.errorMessage);
+  _DgTypeAheadState createState() => _DgTypeAheadState(title, options, initialValue, errorMessage);
 
-  DgTypeAhead(this.title, this.options, this.initialValue, {this.errorMessage:'', this.isValid})
+  const DgTypeAhead(this.title, this.options, this.initialValue, {this.errorMessage ='', this.isValid})
       : super();
 }
 
@@ -77,7 +76,7 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
               }),
         ],
       ),
-      children: <Widget>[
+      children: const <Widget>[
 
 /*        TypeAheadTextField(
           key: textKey,

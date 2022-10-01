@@ -11,7 +11,7 @@ class SelectionBar extends StatelessWidget {
   final Selection parentGrid;
   final Function onAccept;
   // we can only use this common for a widget that uses the Selection mixin
-  SelectionBar(this.parentGrid,{@required this.onAccept});
+  const SelectionBar(this.parentGrid,{@required this.onAccept});
 
   @override
   Widget build(BuildContext context) {
