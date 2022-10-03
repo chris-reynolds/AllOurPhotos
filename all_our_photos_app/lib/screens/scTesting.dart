@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../dart_common/Logger.dart' as Log;
-import '../dart_common/Geocoding.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
 
 class SearchList extends StatefulWidget {
@@ -42,7 +41,7 @@ class _SearchListState extends State<SearchList> {
   void initState() {
     super.initState();
     _isSearching = false;
-    _list = Log.logHistory;
+    _list = log.logHistory;
   }
 
   @override
@@ -87,7 +86,7 @@ class _SearchListState extends State<SearchList> {
           IconButton(icon: Icon(Icons.delete),
             iconSize: 30,
             onPressed: () {
-            Log.logHistory = [];
+            log.clear();
               setState(() {
                 _list = [];
               });
@@ -131,7 +130,7 @@ class _SearchListState extends State<SearchList> {
     dynamic r = await AopSnap.existingLocations;
     for (dynamic row in r.rows)
       geo.setLocation(row[1], row[2], row[0]);
-    Log.message('${snapList.length} snaps to code');
+    log.message('${snapList.length} snaps to code');
     for (AopSnap snap in snapList) {
       String location = await geo.getLocation(snap.longitude, snap.latitude);
       if (location != null) {
@@ -140,12 +139,12 @@ class _SearchListState extends State<SearchList> {
         snap.location = location;
         await snap.save();
         if (++sofar % 20 == 0) {
-          Log.message('$sofar');
+          log.message('$sofar');
           setState(() {});
         }
       }
     } // of for loop
-    Log.message('Locations complete');
+    log.message('Locations complete');
     setState(() {});
   } // of handleLocationCompletion
 
@@ -157,7 +156,7 @@ class _SearchListState extends State<SearchList> {
     dynamic r = await AopSnap.existingLocations;
     for (dynamic row in r.rows)
       geo.setLocation(row[1], row[2], row[0]);
-    Log.message('${snapList.length} snaps to code');
+    log.message('${snapList.length} snaps to code');
 //    for (AopSnap snap in snapList) {
 //      Map(String,dynamic) exifData = await
 //      String location = await geo.getLocation(snap.longitude, snap.latitude);
@@ -167,12 +166,12 @@ class _SearchListState extends State<SearchList> {
 //        snap.location = location;
 //        await snap.save();
 //        if (++sofar % 20 == 0) {
-//          Log.message('$sofar');
+//          log.message('$sofar');
 //          setState(() {});
 //        }
 //      }
 //    } // of for loop
-    Log.message('Locations complete');
+    log.message('Locations complete');
     setState(() {});
   } // of handleLocationCompletion
 

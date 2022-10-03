@@ -6,14 +6,10 @@
 */
 
 import 'package:flutter/material.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/wdgMonthSelector.dart';
-
-//import '../widgets/wdgSelectionBar.dart';
 import '../ImageFilter.dart';
-import '../dart_common/DateUtil.dart';
-import '../dart_common/ListUtils.dart';
-import '../dart_common/Logger.dart' as Log;
 import '../widgets/wdgSnapGrid.dart';
 
 class AlbumAddPhoto extends StatefulWidget {
@@ -87,7 +83,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
       DateTime startDate = DateTime(yearNo, 1, 1);
       imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
       imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds:-1));
-      Log.message('Album assigned');
+      log.message('Album assigned');
       imgFilter.setRank(2, false);
       refreshList();
     }
@@ -101,7 +97,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   @override
   void initState() {
     super.initState();
-    Log.message('I was here without a list = ${_list == null}');
+    log.message('I was here without a list = ${_list == null}');
   }
 
   Future<void> refreshList() async {

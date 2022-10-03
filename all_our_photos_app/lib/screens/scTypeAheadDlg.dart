@@ -91,7 +91,7 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
                 if (text != "") {
 //                  locationTextController.text = text;
                   value = text;
-                  Log.message('typeahead value ==== $text');
+                  log.message('typeahead value ==== $text');
                 }
               }),
         ),

@@ -11,9 +11,6 @@ import 'package:all_our_photos_app/shared/aopClasses.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as IM;
-import '../dart_common/Logger.dart' as Log;
-//import '../dart_common/DateUtil.dart';
-//import '../dart_common/WebFile.dart';
 import '../dart_common/ImageUploader.dart';
 import '../flutter_common/WidgetSupport.dart';
 
@@ -57,7 +54,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
   }
 
   Future<void> fixSingleTakenDate(AopSnap snap) async {
-    Log.message('Processing ${snap.fileName}');
+    log.message('Processing ${snap.fileName}');
     dynamic meta = jsonDecode(snap.metadata ?? '{}');
     String origDateStr = meta['DateTimeOriginal'] ?? meta['DateTime'];
     if (origDateStr != null)
@@ -69,13 +66,13 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
             .abs();
         if (secsDiff > 120) {
           // acouple of minuts is not rounding
-          Log.message('taken date needs fixing*** ${snap.ranking}');
+          log.message('taken date needs fixing*** ${snap.ranking}');
           snap.takenDate = origDate;
           snap.originalTakenDate = origDate;
           await snap.save();
         }
       } catch (ex) {
-        Log.error('Invalid date $origDateStr');
+        log.error('Invalid date $origDateStr');
       }
   } // of fixSingleTakenDate
 
@@ -95,16 +92,16 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
   } // of fixThumbnailDriver
 
   Future<void> fixSingleThumbnail(AopSnap snap) async {
-    Log.message('Processing ${snap.fileName}');
+    log.message('Processing ${snap.fileName}');
     dynamic meta = jsonDecode(snap.metadata ?? '{}');
     try {
       IM.Image fullPic = await loadWebImage(snap.fullSizeURL);
       IM.Image thumbnail = makeThumbnail(fullPic);
 //      IM.Image thumbnail = IM.copyResize( fullPic, width: 480); // you know it is portrait from orientation
       await saveWebImage(snap.thumbnailURL, image: thumbnail, quality: 50);
-      Log.message(' to fix ${snap.thumbnailURL}');
+      log.message(' to fix ${snap.thumbnailURL}');
     } catch (ex) {
-      Log.error('Failed to fix thumbnail $ex');
+      log.error('Failed to fix thumbnail $ex');
     }
   } // of fixSingleThumbnail
 
@@ -139,9 +136,9 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
             'path': fse.path
           };
           workList.add(item);
-          Log.message('$item');
+          log.message('$item');
         } else
-          Log.message('skipped $filename lacked date');
+          log.message('skipped $filename lacked date');
       }
       var currentAlbum = '';
       var albumId = -1;
@@ -150,7 +147,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
         if (currentAlbum!=item['album']) {
           var albumList = await albumProvider.rawExecute('select * from aopalbums where name like \'%$thisAlbum%\'');
           if (albumList.isEmpty) {
-            Log.message('!!!!!!! CREATE ALBUM $thisAlbum');
+            log.message('!!!!!!! CREATE ALBUM $thisAlbum');
             currentAlbum = thisAlbum;
             var newAlbum = AopAlbum()
               ..name = '2025 $thisAlbum';
@@ -165,7 +162,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
         int photoId = item['photoid'];
         var existingItems = await albumItemProvider.rawExecute('select * from aopalbum_items where album_id=$albumId and snap_id=$photoId');
         if (existingItems.isEmpty  && albumId>0 && photoId>0) {
-          Log.message('creating ${item['name']}');
+          log.message('creating ${item['name']}');
           var albumItem = AopAlbumItem()
             ..snapId = photoId
             ..albumId = albumId;
@@ -176,13 +173,13 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
             log.message('created');
         } // make new albumItem
         else
-          Log.message('skip ${item['name']}');
+          log.message('skip ${item['name']}');
       }  // of item loop
-      Log.message('Length is ${workList.length}');
+      log.message('Length is ${workList.length}');
       filename = 'done2';
       throw 'not implemented';
     } catch(e,s) {
-      //Log.error('Exception: $e\n$s\n');
+      //log.error('Exception: $e\n$s\n');
       showMessage(context, 'Exception: $e\n$s\n $filename ');
     }
   }

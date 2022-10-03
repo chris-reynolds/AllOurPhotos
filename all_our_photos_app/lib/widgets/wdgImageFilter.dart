@@ -5,9 +5,10 @@
 */
 
 import 'package:flutter/material.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../ImageFilter.dart';
 import 'wdgTapDate.dart';
-import '../dart_common/DateUtil.dart' as Utils;
+
 
 const filterColors = <Color>[null, Colors.red, Colors.orange, Colors.green, Colors.pink];
 
@@ -94,7 +95,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                   children: [
                     IconButton(icon: Icon(Icons.first_page),onPressed: (){onMonthMove(-1);},tooltip: 'Back 1 month', iconSize: 36,),
                     Text(
-                      '  Filter : ${_imageFilter.searchText} ${Utils.formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' ' upto ${Utils.formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
+                      '  Filter : ${_imageFilter.searchText} ${formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' ' upto ${formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
                     ),
                     IconButton(icon: Icon(Icons.last_page),onPressed: (){onMonthMove(1);},tooltip: 'Advance 1 month',iconSize: 36,),
                     Expanded(child: Text('')),

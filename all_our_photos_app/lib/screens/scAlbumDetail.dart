@@ -6,14 +6,8 @@ Purpose: This will show the details of a single album
 import 'dart:io';
 import 'package:all_our_photos_app/shared/DomainObject.dart';
 import 'package:flutter/material.dart';
-//import 'package:image/image.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
-import '../dart_common/Logger.dart' as Log;
-import '../dart_common/ListUtils.dart';
-import '../dart_common/ListProvider.dart';
-//import '../dart_common/WebFile.dart';
-//import '../dart_common/DateUtil.dart';
-//import '../widgets/wdgSnapGrid.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
@@ -117,7 +111,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     Navigator.pushNamed(context, 'AlbumItemCreate', arguments: argAlbum)
         .then((selectedSnaps) {
       List<int> snapIds = selectedSnaps ?? [];
-      Log.message('${snapIds.length} snaps returned');
+      log.message('${snapIds.length} snaps returned');
       argAlbum.addSnaps(snapIds).then((count) {
         clearSelected();
         refreshList();
@@ -218,7 +212,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
               DgSimple('Album name',argAlbum.name, errorMessage: errorMessage));
       if (newName == EXIT_CODE)
         return;  // jump straight out
-      Log.message('new name is: $newName');
+      log.message('new name is: $newName');
       argAlbum.name = newName;
       await argAlbum.validate();
       if (argAlbum.isValid) {
@@ -243,7 +237,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     argAlbum.snaps.then((newList) {
       setState(() {
         _list = newList;
-        Log.message('${_list.length} album items loaded');
+        log.message('${_list.length} album items loaded');
       });
     });
     // if there is a listener, let then know

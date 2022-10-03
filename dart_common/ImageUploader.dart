@@ -3,13 +3,14 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:image/image.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
-import 'Config.dart';
-import 'DateUtil.dart';
-import 'JpegLoader.dart';
-import 'Geocoding.dart';
-import 'WebFile.dart';
-import './Logger.dart' as Log;
+//import 'Config.dart';
+//import 'DateUtil.dart';
+//import 'JpegLoader.dart';
+//import 'Geocoding.dart';
+//import 'WebFile.dart';
+//import './Logger.dart' as Log;
 
 String _fileName(String path) => (path.lastIndexOf('/') > 0)
     ? path.substring(path.lastIndexOf('/') + 1)
@@ -36,13 +37,13 @@ Future<bool> uploadFile(File thisPicFile) async {
 Future<bool> uploadImage(List<int> imageContents, String imageName,
     {DateTime fileModified,String device}) async {
   try {
-    Log.message('uploading $imageName');
+    log.message('uploading $imageName');
     Image thisImage = decodeImage(imageContents);
 
     GeocodingSession geo = GeocodingSession();
     JpegLoader jpegLoader = JpegLoader();
     await jpegLoader.extractTags(imageContents);
-    Log.message(jpegLoader.tags.isEmpty?'NO TAGS !!!!!!!!!!!!!':'Tag count is ${jpegLoader.tags.length}');
+    log.message(jpegLoader.tags.isEmpty?'NO TAGS !!!!!!!!!!!!!':'Tag count is ${jpegLoader.tags.length}');
     String deviceName = device ?? jpegLoader.tag('Model') ?? config['sesdevice'];
     DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ??
         jpegLoader.tag('dateTime') ??
@@ -104,7 +105,7 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
     await newSnap.save();
     return true;
   } catch (ex, st) {
-    Log.error('Failed save for $imageName \n$ex \n$st');
+    log.error('Failed save for $imageName \n$ex \n$st');
     return false;
   } // of try
 } // of uploadImage

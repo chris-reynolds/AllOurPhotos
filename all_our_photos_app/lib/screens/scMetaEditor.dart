@@ -5,13 +5,14 @@
 
 */
 
-import 'package:all_our_photos_app/dart_common/WebFile.dart';
+
 import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
 import '../flutter_common/WidgetSupport.dart';
-import '../dart_common/DateUtil.dart';
+import 'package:aopcommon/aopcommon.dart';
+
 
 
 class MetaEditorWidget extends StatefulWidget {
@@ -156,7 +157,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
                 if (text != "") {
 //                  locationTextController.text = text;
                   values['location'] = text;
-                  Log.message('location ==== $text');
+                  log.message('location ==== $text');
                 }
               }),
             ), */

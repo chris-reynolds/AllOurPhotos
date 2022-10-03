@@ -6,8 +6,7 @@
 
 
 import 'package:flutter/material.dart';
-
-import '../dart_common/DateUtil.dart' as Utils;
+import 'package:aopcommon/aopcommon.dart';
 
 typedef DateChangedEvent = Function(DateTime);
 
@@ -48,7 +47,7 @@ class TapDateWidgetState extends State<TapDateWidget> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      child: Text('(${Utils.formatDate(_date,format:'d-mmm-yy')})',
+      child: Text('(${formatDate(_date,format:'d-mmm-yy')})',
       // TODO : work out how to decorate theme styles with underscore
       style: Theme.of(context).textTheme.bodyMedium.apply(decoration: TextDecoration.underline)),
       onPressed: () { popupDatePicker(context); },

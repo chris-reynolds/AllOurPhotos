@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
-import '../dart_common/Logger.dart' as Log;
-import '../dart_common/DateUtil.dart';
 import 'scSimpleDlg.dart';
 
 class AlbumList extends StatefulWidget {
@@ -51,18 +50,18 @@ class _AlbumListState extends State<AlbumList> {
   }
 
   Future<void> refreshList() async {
-    Log.message('refresh list');
+    log.message('refresh list');
     var newList = await AopAlbum.all();
         newList.sort((AopAlbum a,AopAlbum b) => b.name.compareTo(a.name));
         _list = newList;
         //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-        Log.message('${_list.length} albums loaded');
+        log.message('${_list.length} albums loaded');
       setState((){});
   } // of refreshList
 
   @override
   Widget build(BuildContext context) {
-    Log.message('build');
+    log.message('build');
     return Scaffold(
       key: key,
       appBar: buildBar(context),
@@ -80,12 +79,12 @@ class _AlbumListState extends State<AlbumList> {
   }
 
   List<ChildItem> _buildList() {
-    Log.message('buildlist() from _list');
+    log.message('buildlist() from _list');
     return _list.map((album) => ChildItem(album,this)).toList();
   }
 
   List<ChildItem> _buildAlbumList() {
-    Log.message('buildAlbumlist() from _list');
+    log.message('buildAlbumlist() from _list');
     if (_searchText.isEmpty) {
       return _list.map((album) => ChildItem(album,this)).toList();
     } else {
@@ -161,7 +160,7 @@ class _AlbumListState extends State<AlbumList> {
           context: context,
           builder: (BuildContext context) => DgSimple('Album name',name, errorMessage: errorMessage));
       if (name == null  || name == EXIT_CODE) return;
-      Log.message('new name is: $name');
+      log.message('new name is: $name');
       AopAlbum newAlbum = AopAlbum();
       newAlbum.name = name;
       await newAlbum.validate();
@@ -171,7 +170,7 @@ class _AlbumListState extends State<AlbumList> {
           await newAlbum.save();
           //await refreshList();
           Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum).then((value) async {
-            Log.message('popping at list add');
+            log.message('popping at list add');
             await refreshList();
           });
           done = true;
@@ -198,7 +197,7 @@ class ChildItem extends StatelessWidget {
             child:Text(album.name,style:Theme.of(context).textTheme.titleLarge),
             onPressed: () =>
                 Navigator.pushNamed(context, 'AlbumDetail', arguments: album).then((value)  {
-                  Log.message('popping at list select');
+                  log.message('popping at list select');
                   parent.refreshList();
                 })),
       ],

@@ -8,8 +8,8 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:aopcommon/aopcommon.dart';
 import 'package:dio/dio.dart';
-import 'Logger.dart' as Log;
 
 class ExportPic {
   static Future<bool> _requestPermission(Permission permission) async {
@@ -73,14 +73,14 @@ class ExportPic {
           await ImageGallerySaver.saveFile(saveFile.path,
               isReturnPathOfIOS: true);
         }
-        Log.message('Saved to ${saveFile.path}');
+        log.message('Saved to ${saveFile.path}');
         return true;
       }
     } catch (e) {
       var target = fileName;
       if (directory != null && directory is Directory)
         target = '${directory.path}/$fileName';
-      Log.error('Failed to save $target \n Error is $e');
+      log.error('Failed to save $target \n Error is $e');
       print('Failed to save $target \n Error is $e');
     }
     return false;

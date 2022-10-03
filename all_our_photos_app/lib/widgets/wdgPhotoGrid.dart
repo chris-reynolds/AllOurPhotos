@@ -7,20 +7,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart' as PathProvider;
-import '../dart_common/Logger.dart' as Log;
-import '../dart_common/DateUtil.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
 import '../screens/scSimpleDlg.dart';
 import '../screens/scTypeAheadDlg.dart';
 import '../ImageFilter.dart';
 import 'wdgImageFilter.dart';
 import '../utils/ExportPic.dart';
-
-//import 'ImageEditorWidget.dart.xxx';
 import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
-import '../dart_common/ListProvider.dart';
-import '../dart_common/ListUtils.dart';
 import '../MonthlyStatus.dart';
 
 class PhotoGrid extends StatefulWidget {
@@ -31,7 +26,7 @@ class PhotoGrid extends StatefulWidget {
   PhotoGrid(this._initImageFilter, {AopAlbum album, CallBack refreshNow})
       : _album = album,
         _refreshNow = refreshNow {
-//    Log.message('PhotoGrid constructor by filter');
+//    log.message('PhotoGrid constructor by filter');
   }
 
   @override
@@ -108,7 +103,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     _imageFilter = widget._initImageFilter;
     _imageFilter.onRefreshed = filterRefreshCallback;
     _inSelectMode = (widget._album != null); // album always starts in select mode
-    //   Log.message('PhotoGrid copying initFilter');
+    //   log.message('PhotoGrid copying initFilter');
   }
 
   @override
@@ -118,7 +113,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 
   void filterRefreshCallback() {
     setState(() {
-      Log.message('filterRefresh triggered ');
+      log.message('filterRefresh triggered ');
     });
   }
 
@@ -137,7 +132,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         }
       }
     });
-    Log.message('$updateCount images updated');
+    log.message('$updateCount images updated');
   } // editor Callback
 
   @override
@@ -300,7 +295,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                 errorMessage: errorMessage,
               ));
       if (value == null || value == EXIT_CODE) return;
-      Log.message('new caption is: $value');
+      log.message('new caption is: $value');
       errorMessage = '';
       done = true;
       for (AopSnap snap in snaps) {
@@ -336,7 +331,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
               }));
       if (value == null || value == EXIT_CODE) return;
       try {
-        Log.message('new taken date is: $value');
+        log.message('new taken date is: $value');
         DateTime newTakenDate = parseDMY(value);
         errorMessage = '';
         done = true;
@@ -378,7 +373,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
               }));
       if (value == null || value == EXIT_CODE) return;
       try {
-        Log.message('new location is: $value');
+        log.message('new location is: $value');
         errorMessage = '';
         done = true;
         for (AopSnap snap in snaps) {
@@ -414,7 +409,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     } catch (ex) {
       resultMessage = '$ex';
     }
-    Log.message(resultMessage);
+    log.message(resultMessage);
     showMessage(context, resultMessage);
     setState(() {});
   } // handleMultiSetGreen
@@ -437,7 +432,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         await argAlbum.delete();
         message += 'Album deleted';
         //;
-        Log.message('popping from grid after delete album');
+        log.message('popping from grid after delete album');
         await showMessage(context, message);
         Navigator.pop(context, true);
       } else {

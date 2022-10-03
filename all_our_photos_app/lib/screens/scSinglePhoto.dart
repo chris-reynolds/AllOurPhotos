@@ -6,14 +6,11 @@
 
 import 'dart:convert';
 import '../utils/ExportPic.dart';
-import '../dart_common/DateUtil.dart';
-import '../dart_common/WebFile.dart';
 import '../widgets/PhotoViewWithRectWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as Im;
-import '../JpegLoader.dart';
+import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
-import '../dart_common/Logger.dart' as Log;
 import '../flutter_common/WidgetSupport.dart';
 import '../widgets/wdgImageFilter.dart'; // only for the icons
 
@@ -201,7 +198,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   } // of build
 
   void setIsPhotoScaled(bool value) {
-    Log.message('Scaling $value');
+    log.message('Scaling $value');
 //    setState(() {
     isPhotoScaled = value;
 //    });
@@ -293,7 +290,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     Navigator.of(context);
     List<int> fileContents = await loadWebBinary(thisSnap.thumbnailURL);
     JpegLoader jpegLoader = JpegLoader();
-    jpegLoader.loadBuffer(fileContents);
+    jpegLoader.extractTags(fileContents);
     Map<String, dynamic> tags = jpegLoader.tags;
     String tagResult = '';
     if (tags == null)
