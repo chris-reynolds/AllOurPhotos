@@ -5,15 +5,12 @@
 
 */
 
-
 import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
 import '../shared/aopClasses.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
 import '../flutter_common/WidgetSupport.dart';
 import 'package:aopcommon/aopcommon.dart';
-
-
 
 class MetaEditorWidget extends StatefulWidget {
   const MetaEditorWidget({Key key}) : super(key: key);
@@ -40,17 +37,22 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
     if (caption == '+' || caption == '-') {
       String prompt = (caption == '+') ? 'Add new' : 'Remove';
       String newChipText = await inputBox(context, '$prompt Chip Text');
+      newChipText = newChipText?.trim();
       if (newChipText != null && newChipText.isNotEmpty) {
         if (caption == '-') {
           // delete item
-          _baseChips.remove(newChipText);
-          _currentChips.remove(newChipText);
+          if (!_baseChips.remove(newChipText))
+            showMessage(context, 'Failed to remove $newChipText');
+          else
+            selectedChips.remove(newChipText);
         } else // if (_baseChips.indexOf(newChipText)<0) {  // add if not already there
-          _baseChips.add(newChipText);
-        selectedChips.add(newChipText);
+        if (!_baseChips.add(newChipText))
+          showMessage(context, 'Failed to add $newChipText');
+        else
+          selectedChips.add(newChipText);
       }
-      ChipController.save(_baseChips).then((result){
-        if (!result)  showMessage(context, 'Failed to save names');
+      ChipProvider.save(_baseChips).then((result) {
+        if (!result) showMessage(context, 'Failed to save names');
       });
     }
     bool wasSelected = selectedChips.contains(caption);
@@ -66,9 +68,9 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
   void initState() {
     super.initState();
     _initLocations();
-    ChipController.remoteLocation = 'tagList.txt';
-    ChipController.enableLogging = true;
-    ChipController.load().then((chips) {
+    ChipProvider.remoteLocation = 'tagList.txt';
+    ChipProvider.enableLogging = true;
+    ChipProvider.load().then((chips) {
       _baseChips = chips;
       setState(() {});
     });
@@ -99,7 +101,6 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
     }
   } // of checkDate
 
-
   void _submit(BuildContext context) async {
     if (formKey.currentState.validate()) {
       snap.caption = values['caption'];
@@ -107,7 +108,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
       snap.tagList = selectedChips.toString();
       snap.ranking = values['ranking'];
       snap.location = values['location'];
-      await snap.save().then((result){
+      await snap.save().then((result) {
         // todo check save result
         Navigator.pop(context);
       });
@@ -116,8 +117,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_baseChips == null)
-      return CircularProgressIndicator();
+    if (_baseChips == null) return CircularProgressIndicator();
     if (snap == null) {
       snap = ModalRoute.of(context).settings.arguments as AopSnap;
       values = snap.toMap();
@@ -161,13 +161,15 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
                 }
               }),
             ), */
-            Autocomplete<String>(optionsBuilder: (TextEditingValue textEditingValue) {
-              return locationList
-                  .where((String location)=> location.toLowerCase()
-                  .contains(textEditingValue.text.toLowerCase()));
-              }, initialValue: TextEditingValue(text:values['location']),
-              onSelected: (v){
-              values['location']=v;},
+            Autocomplete<String>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                return locationList.where((String location) =>
+                    location.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+              },
+              initialValue: TextEditingValue(text: values['location'] ?? ''),
+              onSelected: (v) {
+                values['location'] = v;
+              },
             ),
             TextFormField(
               decoration: InputDecoration(labelText: 'Date Taken'),
@@ -223,5 +225,4 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
       ), // of Form
     ); // of scaffold
   } // of build
-
 } // of
