@@ -5,7 +5,7 @@
 
 */
 
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 //import '../utils/WebFile.dart';
 
@@ -21,19 +21,21 @@ class ChipSet {
   ChipSet(String s) {
     if (s == null || s == '') {
       chips = <String>{};
-    } else {
-      chips = s.split(DELIM).toSet();
+    } else { // now extra tags with extraneous spaces
+      var arr = s.split(DELIM);
+      for (int ix=0; ix<arr.length; ix++) arr[ix] = arr[ix].trim();
+      chips = arr.toSet();
     }
     if (logging) {
       log.message('${chips.length} chips from ($s)');
     }
   }
 
-  void add(String value) => chips.add(value);
+  bool add(String value) => chips.add(value.trim());
 
-  bool contains(String value) => chips.contains(value);
+  bool contains(String value) => chips.contains(value.trim());
 
-  void remove(String value) => chips.remove(value);
+  bool remove(String value) => chips.remove(value.trim());
 
   void addAll(ChipSet more) => chips.addAll(more.chips);
 
@@ -58,6 +60,7 @@ class ChipSetSummary {
     }
     _total += 1;
   }
+  /*
   eCoverage coverage(String chip) {
     if (!items.containsKey(chip) || _total==0)
       throw Exception('Invalid call for Chip ($chip)');
@@ -66,10 +69,12 @@ class ChipSetSummary {
     else if (usage==_total) return eCoverage.ecAll;
     else return eCoverage.ecSome;
   }  // of coverage
+  */
+
 } // of ChipSetSummary
 
 
-abstract class ChipController {
+abstract class ChipProvider {
   static set remoteLocation(String url) => remoteUrl = url;
 
   static set enableLogging(bool value) => logging = value;
@@ -89,7 +94,7 @@ abstract class ChipController {
   } // of save
 
 }
-
+/*
 enum eCoverage { ecNone, ecSome, ecAll }
 
 Color coverageColor(eCoverage value) {
@@ -138,3 +143,4 @@ class _TriChipState extends State<TriChip> {
     );
   }
 }
+*/
