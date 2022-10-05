@@ -8,7 +8,7 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 1 Oct22.v2 - linter';
+const VERSION = 'All Our Photos 3 Oct22.v1 - linter';
 
 void main() {
 
@@ -31,7 +31,9 @@ void main() {
       ),
       buttonTheme: ButtonThemeData(
         buttonColor: Colors.greenAccent,
-      ), colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color(0xFFFFAD32)),
+      ),
+      chipTheme: ChipThemeData(selectedColor: Colors.lightBlueAccent),
+      colorScheme: ColorScheme.fromSwatch().copyWith(secondary: const Color(0xFFFFAD32)),
     ),
     home: LaunchWithLogin(VERSION),
     routes: <String, WidgetBuilder>{
