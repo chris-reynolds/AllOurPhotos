@@ -151,8 +151,13 @@ Future<String> inputBox(BuildContext context, String question) async {
         String newText = '';
         return SimpleDialog(
           title: Text('$question?'),
+          contentPadding: EdgeInsets.all(12),
           children: <Widget>[
             TextField(
+              autofocus: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
               onChanged: (text) {
                 newText = text;
               },
