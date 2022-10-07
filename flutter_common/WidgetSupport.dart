@@ -13,7 +13,7 @@ class AssetWidget extends StatelessWidget {
   final String name;
   final double size;
   final Color color;
-  const AssetWidget(this.name,{this.size=50,this.color});
+  const AssetWidget(this.name,{Key key, this.size=50,this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ IconButton navIconButton(BuildContext context,String routeName, IconData valueIc
 
 
 /// WSValidator typedef is used to inject validators into a form definition
-typedef wsValidator = String Function(dynamic value);
+typedef WsValidator = String Function(dynamic value);
 
 // class MyForm extends Form {
 //   MyForm({Widget child,Key key}):super(child:child,key:key);
@@ -107,7 +107,7 @@ Widget wsMakeField(String fieldDef, {Map values,double spacer}) {
 //   return result;
 // } // wsFormValues
 
-wsValidator makeValidator(String vets) {
+WsValidator makeValidator(String vets) {
   return null; // todo setup validators. Mainly required, min length, regex
 } // make validator
 
