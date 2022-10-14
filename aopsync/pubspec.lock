@@ -117,7 +117,7 @@ packages:
       name: flutter_lints
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
+    version: "2.0.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -150,7 +150,7 @@ packages:
       name: lints
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.1"
+    version: "2.0.0"
   logging:
     dependency: transitive
     description:
@@ -182,10 +182,10 @@ packages:
   mysql1:
     dependency: "direct main"
     description:
-      path: "../../my_pub_dev/mysql1_dart"
-      relative: true
-    source: path
-    version: "0.17.1"
+      name: mysql1
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.20.0"
   path:
     dependency: transitive
     description:

@@ -183,6 +183,7 @@ class SQLStatementFactory {
 
   SQLStatementFactory(this._tableName, this._columnNames) {
     List<String> questions = [];
+    // ignore: unused_local_variable
     for (var s in _columnNames) {
       questions.add('?');
     }

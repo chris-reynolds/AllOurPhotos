@@ -7,7 +7,7 @@ MySqlConnection dbConn;
 
 class DbAllOurPhotos {
   static Map _lastConfig;
-  Future<int> initConnection(Map config) async {
+  Future<int> initConnection(Map/*!*/ config) async {
     if (dbConn==null ) {
       dbConn = await MySqlConnection.connect(ConnectionSettings(
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
@@ -22,7 +22,7 @@ class DbAllOurPhotos {
     try {
       Results res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
       Iterable spResult = res.first.asMap().values;
-      int sessionid = spResult.first as int;
+      int sessionid = (spResult.first as int)??-999;
       log.message('session created with id=$sessionid');
       return sessionid;
     } catch(ex) {

@@ -20,6 +20,8 @@ class LaunchWithLogin extends StatelessWidget {
   final StreamController<AuthenticationState> _streamController =
       StreamController<AuthenticationState>();
   PermissionStatus storagePermission;
+
+  LaunchWithLogin({Key key}) : super(key: key);
   Future<void> initConfig() async {
     String localDocs = (await getApplicationDocumentsDirectory()).path;
     log.message('localdocs from $localDocs');
@@ -66,9 +68,9 @@ class LaunchWithLogin extends StatelessWidget {
     Widget build(BuildContext context) {
       initConfig().then((xx) => tryLogin());
       log.message('building after tryLogin');
-      return new StreamBuilder<AuthenticationState>(
+      return StreamBuilder<AuthenticationState>(
           stream: _streamController.stream,
-//        initialData: new AuthenticationState.initial(),
+//        initialData: AuthenticationState.initial(),
           builder: (BuildContext context, AsyncSnapshot<AuthenticationState> snapshot) {
             final state = snapshot.data;
             if (state == null)

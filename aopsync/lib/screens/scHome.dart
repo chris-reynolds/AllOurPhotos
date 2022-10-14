@@ -9,7 +9,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:aopcommon/aopcommon.dart';
 
 import '../SyncDriver.dart';
@@ -22,7 +21,7 @@ const LAST_RUN = 'last_run';
 
 class HomePage extends StatefulWidget {
   final Function tryLogout;
-  HomePage(this.tryLogout) : super(); // of constructor
+  const HomePage(this.tryLogout, {Key key}) : super(key: key); // of constructor
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -30,7 +29,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   static List<FileSystemEntity> latestFileList = [];
-  DateTime lastRunTime;
+  DateTime lastRunTime = DateTime(1980);
   DateTime thisRunTime;
   bool _inProgress = false;
   bool _hasWebServer = false;
@@ -123,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                                 },
                               ), // of raisedButton
                             Spacer(),
-                            if (messageSnapshot.data.length > 0)
+                            if (messageSnapshot.data.isNotEmpty)
                               Container(
                                 margin: const EdgeInsets.all(15.0),
                                 padding: const EdgeInsets.all(15.0),
@@ -245,11 +244,11 @@ class _HomePageState extends State<HomePage> {
             dupCount++;
             break;
         } // of switch
-        progressMessage = 'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
+        progressMessage = 'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
             '\nRemaining ${latestFileList.length - i - 1}';
         messages.add(progressMessage);
         updateProgressVar(i + 1, latestFileList.length);
-        print(item.path);
+        log.message(item.path);
       }
       iosGallery.clearCollection();
       messages.add('$progressMessage \n\nProcessing completed');
@@ -282,11 +281,11 @@ class _HomePageState extends State<HomePage> {
             dupCount++;
             break;
         } // of switch
-        progressMessage = 'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount ' +
+        progressMessage = 'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
             '\nRemaining ${iosGallery.count - i - 1}';
         messages.add(progressMessage);
         updateProgressVar(i + 1, iosGallery.count);
-        print(item.safeFilename);
+        log.message(item.safeFilename);
       }
       iosGallery.clearCollection();
       messages.add('$progressMessage \n\nProcessing completed');

@@ -31,10 +31,11 @@
 import 'package:flutter/material.dart';
 import '../GalleryImage.dart';
 import 'package:flutter/services.dart';
+import 'package:aopcommon/aopcommon.dart';
 
 
 DateTime fromSwift(int swiftNo ) {
-  print('from swift ms $swiftNo');
+  log.message('from swift ms $swiftNo');
   DateTime baseDate = DateTime(1970);
   DateTime newDate = baseDate.add(Duration(milliseconds: (1000*swiftNo).floor())).toLocal();
   return newDate;
@@ -47,6 +48,9 @@ int toSwift(DateTime thisDate ) {
 }
 
 class MultiGallerySelectPage extends StatefulWidget {
+  const MultiGallerySelectPage({Key key}) : super(key: key);
+
+  @override
   createState() => _MultiGallerySelectPageState();
 }
 
@@ -55,8 +59,8 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
   final _title = "Gallery";
   final _channel = MethodChannel("/gallery");
 
-  var _selectedItems = List<GalleryImage>();
-  var _itemCache = Map<int, GalleryImage>();
+  final _selectedItems = <GalleryImage>[];
+  final _itemCache = <int, GalleryImage>{};
 
   Future<GalleryImage> _getItem(int index) async {
 // 1
@@ -74,7 +78,7 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
           id: item['id'],
           dateCreated: fromSwift(item['created']),
           location: item['location']);
-      print('$index size of ${galleryImage.id} is ${galleryImage.bytes.length}');
+      log.message('$index size of ${galleryImage.id} is ${galleryImage.bytes.length}');
       // 5
       _itemCache[index] = galleryImage;
 
@@ -85,7 +89,7 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
 
   _selectItem(int index) async {
     var galleryImage = await _getItem(index);
-    print('clicking ${galleryImage.id}');
+    log.message('clicking ${galleryImage.id}');
     setState(() {
       if (_isSelected(galleryImage.id)) {
         _selectedItems.removeWhere((anItem) => anItem.id == galleryImage.id);
@@ -96,19 +100,20 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
   }
 
   _isSelected(String id) {
-    return _selectedItems.where((item) => item.id == id).length > 0;
+    return _selectedItems.where((item) => item.id == id).isNotEmpty;
   }
 
   // TODO: replace with actual image count
   var _numberOfItems = 0;
 
+  @override
   void initState() {
     super.initState();
     DateTime startingOn = DateTime(2000,02,25);
     _channel.invokeMethod<int>("getCountFromDate",toSwift(startingOn)).then((count) => setState(() {
 //    _channel.invokeMethod<int>("getItemCount").then((count) => setState(() {
       _numberOfItems = count;
-      print('Setting collection count to $count');
+      log.message('Setting collection count to $count');
     }));
   }
 
@@ -123,7 +128,7 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
             future: _getItem(index),
             builder: (context, snapshot) {
               GalleryImage item = snapshot?.data;
-              print('showing item ${item?.location} ${item?.dateCreated} ${item.safeFilename}');
+              log.message('showing item ${item?.location} ${item?.dateCreated} ${item.safeFilename}');
               if (item != null) {
                 return Container(
                   child: Image.memory(item.bytes, fit: BoxFit.cover),

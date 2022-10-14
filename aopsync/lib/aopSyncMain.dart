@@ -9,17 +9,17 @@ void main() {
 
 class PhoneSyncApp extends StatefulWidget {
 
-  PhoneSyncApp() :super();
+  const PhoneSyncApp({Key key}) :super(key: key);
 
   @override
-  _PhoneSyncAppState createState() => new _PhoneSyncAppState();
+  _PhoneSyncAppState createState() => _PhoneSyncAppState();
 }
 
 class _PhoneSyncAppState extends State<PhoneSyncApp> {
 
   @override
   Widget build(BuildContext context) {
-      return new MaterialApp(
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: LaunchWithLogin(),
       );

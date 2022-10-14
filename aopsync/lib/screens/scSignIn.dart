@@ -7,7 +7,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+// import 'package:flutter/widgets.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../flutter_common/WidgetSupport.dart';
 import 'scLogger.dart';
@@ -21,7 +21,7 @@ class SignInPage extends StatelessWidget {
   final _loginFormKey = GlobalKey<FormState>();
   final AsyncCallback loginCallback;
   WsFieldSet _fieldSet;
-  SignInPage(/*this._streamController,*/this.loginCallback) {
+  SignInPage(this.loginCallback, {Key key}) : super(key: key) {
     List<String> fieldDefs = [
       'DB Host:dbhost',
       'DB Port:dbport',

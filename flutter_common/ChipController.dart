@@ -44,6 +44,7 @@ class ChipSet {
 } // of chipSet
 
 class ChipSetSummary {
+  // ignore: unused_field
   int _total = 0;
   Map<String,int> items = {};
   ChipSetSummary(ChipSet defaults) {
@@ -54,7 +55,7 @@ class ChipSetSummary {
   void merge(ChipSet chipset) {
     for (var chip in chipset.chips) {
       if (items.containsKey(chip))
-        items[chip] += 1;
+        items[chip] = items[chip]??0 + 1;
       else
         items[chip] = 1;
     }

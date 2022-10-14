@@ -14,7 +14,7 @@ import 'package:photo_manager/photo_manager.dart' as PM;
 
 
 class GalleryItem {
-  Uint8List data;
+  Uint8List/*!*/ data;
   String id;
   DateTime createdDate;
   JpegLoader loader;
@@ -33,17 +33,17 @@ class GalleryItem {
 }
 
 class IosGallery {
-  DateTime startDate;
+  DateTime startDate = DateTime(1980);
   String error = '';
-  JpegLoader _jpegLoader = JpegLoader();
-  bool _isLoaded = false;
+  //JpegLoader _jpegLoader = JpegLoader();
+  //bool _isLoaded = false;
   List<PM.AssetEntity> _items = [];
   int get count => _items.length;
 
 
   Future<void> loadFrom(DateTime startDate) async {
     startDate = startDate.add(Duration(hours:-48));// todo: get the time zone as IosGallery uses utc dates
-    print('IOS Gallery querying from ${dbDate(startDate)}');
+    log.message('IOS Gallery querying from ${dbDate(startDate)}');
     // startDate = DateTime.now();
     this.startDate = startDate;
     var dateFilter = PM.FilterOptionGroup(createTimeCond: PM.DateTimeCond(min:startDate,max:DateTime.now()));
@@ -60,11 +60,11 @@ class IosGallery {
     var ff2 = await ff.readAsBytes();
     var jpegLoader = JpegLoader();
     await jpegLoader.extractTags(ff2 );
-    print('tags = ${jpegLoader.tags.length}');
+    log.message('tags = ${jpegLoader.tags.length}');
     var jpegBytes = await item.thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height));
     var createdDate = fromSwiftDate(item.createDateSecond);
     var galleryItem = GalleryItem(jpegBytes, item.id, createdDate,jpegLoader);
-    print('loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
+    log.message('loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
     var file = await item.file;
     if (Platform.isIOS && file.existsSync())  // IOS picture file is temporary
       file.deleteSync();
@@ -72,7 +72,7 @@ class IosGallery {
   }
 
   DateTime fromSwiftDate(int swiftNo) {
-    print('from swift ms $swiftNo');
+    log.message('from swift ms $swiftNo');
     DateTime baseDate = DateTime(1970);
     DateTime newDate = baseDate.add(Duration(milliseconds: (1000 * swiftNo).floor())).toLocal();
     return newDate;

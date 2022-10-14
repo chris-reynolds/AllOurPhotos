@@ -16,9 +16,9 @@ import 'shared/aopClasses.dart';
 
 
 class SyncDriver {
-  String localFileRoot;
-  DateTime fromDate;
-  GeocodingSession _geo = GeocodingSession();
+  String/*!*/ localFileRoot;
+  DateTime/*!*/ fromDate;
+  final GeocodingSession _geo = GeocodingSession();
   StreamController<String> messageController = StreamController<String>();
 
   SyncDriver({@required this.localFileRoot, this.fromDate});
@@ -37,7 +37,7 @@ class SyncDriver {
     int priorImages = 0;
     await for (var fse in origin) {
       String imageName = fileName(fse.path);
-      if (imageName.startsWith('\.'))   continue;  // skip all that start with .
+      if (imageName.startsWith('.'))   continue;  // skip all that start with .
       FileStat stats = fse.statSync();
       // use 'continue' to jump to the end of the loop and not save this file to the list.
       if (stats.modified.isBefore(fromDate)) {
@@ -45,9 +45,9 @@ class SyncDriver {
         continue;
       }
       totalChecked += 1;
-      if (fse.path.indexOf('thumbnails') >= 0) continue;
+      if (fse.path.contains('thumbnails')) continue;
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
-      if (['jpg', 'png'].indexOf(thisExt) < 0) continue;
+      if (!['jpg', 'png'].contains(thisExt)) continue;
       //log.message('checking $imageName');
       bool alreadyExists = await AopSnap.nameSameDayExists(stats.modified, imageName );
       if (alreadyExists) {
@@ -100,14 +100,13 @@ class SyncDriver {
       List<int> jpeg = encodeJpg(thisImage, quality: 100);
       int imageSize = jpeg.length; // decode/encode seems to be the only way to get reliable length
       log.message('encoded $imageName');
-      if (jpegLoader==null)
-        jpegLoader = JpegLoader();
+      jpegLoader ??= JpegLoader();
 //      JpegLoader jpegLoader = loader ?? JpegLoader();
       if (jpegLoader.tags.isEmpty)   // IOS should have preped these earlier
         await jpegLoader.extractTags(fileContents);
       log.message('extracted tags $imageName }');
-      String deviceName = jpegLoader.tag('Model')  ?? config['sesdevice'];
-      String importSource = config['sesdevice'] ?? jpegLoader.tag('Model');
+      String deviceName = jpegLoader.tag('Model')  ?? config['sesdevice'] ?? 'No Device';
+      String importSource = config['sesdevice'] ?? jpegLoader.tag('Model') ?? 'No source';
 //      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 //
 //      if (!Platform.isIOS) {
@@ -140,8 +139,8 @@ class SyncDriver {
           ..importSource = importSource
           ..importedDate = DateTime.now();
 
-        if ((jpegLoader.tag('device.software') ?? '').toLowerCase().indexOf('scan') >= 0)
-          newSnap.importSource += ' scanned';
+        if ((jpegLoader.tag('device.software') ?? '').toLowerCase().contains('scan'))
+          newSnap.importSource = newSnap.importSource??'' ' scanned';
 
         newSnap.originalTakenDate = newSnap.takenDate;
         newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');

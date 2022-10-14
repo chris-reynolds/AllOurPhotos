@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 class AssetWidget extends StatelessWidget {
   final String name;
   final double size;
-  final Color color;
+  final Color/*!*/ color;
   const AssetWidget(this.name,{Key key, this.size=50,this.color}) : super(key: key);
 
   @override
