@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 class AssetWidget extends StatelessWidget {
   final String name;
   final double size;
-  final Color/*!*/ color;
-  const AssetWidget(this.name,{Key key, this.size=50,this.color}) : super(key: key);
+  final Color color;
+  const AssetWidget(this.name,{Key? key, this.size=50,required this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ typedef WsValidator = String Function(dynamic value);
 //   Set<FormFieldState<dynamic>> get fields => _fields;
 // }
 class WsFieldDef {
-  List<String> bits;
+  late List<String> bits;
   WsFieldDef(String fieldDef) {
     bits = ('$fieldDef:::::').split(':');
     if (bits[1] == '') bits[1] = bits[0]; // copy key from prompt text if missing
@@ -57,7 +57,7 @@ class WsFieldDef {
 }  // of WsFieldDef
 class WsFieldSet {
   final Map<String,Container> _widgetMap= {};
-  WsFieldSet(List<String> defStrings,{Map values = const {}, double spacer}) {
+  WsFieldSet(List<String> defStrings,{Map values = const {}, double? spacer}) {
     for (var thisDef in defStrings) {
       WsFieldDef thisFieldDef = WsFieldDef(thisDef);
       _widgetMap[thisFieldDef.fieldName] = wsTextField(thisFieldDef.prompt,
@@ -69,13 +69,13 @@ class WsFieldSet {
     Map<String,dynamic> result = {};
     _widgetMap.forEach((fieldName, widget) {
       if (widget.child is TextFormField)
-        result[fieldName] = (widget.child as TextFormField).controller.text;
+        result[fieldName] = (widget.child as TextFormField).controller!.text;
     }); // of forEach
     return result;
   }
 } //end of WsfieldSet
 
-Container wsTextField(String promptText, {String key, double spacer, dynamic initValue}) {
+Container wsTextField(String promptText, {required String key, double? spacer, dynamic initValue}) {
   return Container(
       key: Key(key),
       padding: EdgeInsets.fromLTRB(0, spacer ?? 12, 0, 0),
@@ -92,7 +92,7 @@ Container wsTextField(String promptText, {String key, double spacer, dynamic ini
       ));
 } // of wsText
 
-Widget wsMakeField(String fieldDef, {Map values,double spacer}) {
+Widget wsMakeField(String fieldDef, {required Map values,double? spacer}) {
   List<String> bits = ('$fieldDef:::::').split(':');
   if (bits[1] == '') bits[1] = bits[0]; // copy key from prompt text if missing
   dynamic initValue = values[bits[1]] ?? '';
@@ -107,11 +107,11 @@ Widget wsMakeField(String fieldDef, {Map values,double spacer}) {
 //   return result;
 // } // wsFormValues
 
-WsValidator makeValidator(String vets) {
+WsValidator? makeValidator(String vets) {
   return null; // todo setup validators. Mainly required, min length, regex
 } // make validator
 
-Future<bool> confirmYesNo1(BuildContext context, String question) async {
+Future<bool?> confirmYesNo1(BuildContext context, String question) async {
 /*it shows a popup with few options which you can select, for option we
         created enums which we can use with switch statement, in this first switch
         will wait for the user to select the option which it can use with switch cases*/
@@ -140,7 +140,7 @@ Future<bool> confirmYesNo1(BuildContext context, String question) async {
       ); // of showDialog
 }
 
-Future<String> inputBox(BuildContext context, String question) async {
+Future<String?> inputBox(BuildContext context, String question) async {
 /*it shows a popup with few options which you can select, for option we
         created enums which we can use with switch statement, in this first switch
         will wait for the user to select the option which it can use with switch cases*/
@@ -171,8 +171,8 @@ Future<String> inputBox(BuildContext context, String question) async {
       ); // of inputBox
 }
 
-Future<bool> confirmYesNo(BuildContext context, String question, {String description = ''}) async {
-  TextStyle myStyle = Theme.of(context).textTheme.bodyLarge;
+Future<bool?> confirmYesNo(BuildContext context, String question, {String description = ''}) async {
+  TextStyle? myStyle = Theme.of(context).textTheme.bodyLarge;
   return showDialog<bool>(
     context: context,
     barrierDismissible: false, // user must tap button!
@@ -190,7 +190,7 @@ Future<bool> confirmYesNo(BuildContext context, String question, {String descrip
           TextButton.icon(
             icon: Icon(
               Icons.check,
-              color: myStyle.color,
+              color: myStyle!.color,
             ),
             label: Text(
               'Yes',
@@ -216,8 +216,8 @@ Future<bool> confirmYesNo(BuildContext context, String question, {String descrip
   );
 } // OF ConfirmYesNo
 
-Future<void> showMessage(BuildContext context, String message, {String title}) async {
-  TextStyle myStyle = Theme.of(context).textTheme.bodyLarge;
+Future<bool?> showMessage(BuildContext context, String message, {String? title}) async {
+  TextStyle? myStyle = Theme.of(context).textTheme.bodyLarge;
   return showDialog<bool>(
     context: context,
     barrierDismissible: false, // user must tap button!
@@ -235,7 +235,7 @@ Future<void> showMessage(BuildContext context, String message, {String title}) a
           TextButton.icon(
             icon: Icon(
               Icons.close,
-              color: myStyle.color,
+              color: myStyle!.color,
             ),
             label: Text('OK', style: myStyle),
             onPressed: () {
@@ -248,7 +248,7 @@ Future<void> showMessage(BuildContext context, String message, {String title}) a
   );
 } // OF showMessage
 
-Future<T> showSelectDialog<T>(BuildContext context, String title, String entityType,
+Future<T?> showSelectDialog<T>(BuildContext context, String title, String entityType,
     List<dynamic> items, Function descriptor) async {
 //  String _selectedOption;
   return showDialog<T>(

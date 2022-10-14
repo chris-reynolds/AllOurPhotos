@@ -18,10 +18,11 @@ import 'scLogger.dart';
 //import 'MultiGallerySelectPage.dart';
 
 const LAST_RUN = 'last_run';
+const APP_VERSION ='AOP Sync 14Oct22';
 
 class HomePage extends StatefulWidget {
   final Function tryLogout;
-  const HomePage(this.tryLogout, {Key key}) : super(key: key); // of constructor
+  const HomePage(this.tryLogout, {Key? key}) : super(key: key); // of constructor
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -30,12 +31,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   static List<FileSystemEntity> latestFileList = [];
   DateTime lastRunTime = DateTime(1980);
-  DateTime thisRunTime;
+  late DateTime thisRunTime;
   bool _inProgress = false;
   bool _hasWebServer = false;
   double _progressValue = 0.0;
   var iosGallery = IosGallery(); // do nothing yet
-  SyncDriver syncDriver;
+  late SyncDriver syncDriver;
 
   int get photoCount {
     if (Platform.isIOS)
@@ -72,14 +73,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return
         Scaffold(
-            appBar: AppBar(title: Text('AOP Sync 13Oct22'), actions: <IconButton>[
+            appBar: AppBar(title: Text(APP_VERSION), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.list),
                 onPressed: ()=>_showLogger(context),
               ),
               IconButton(
                 icon: Icon(Icons.exit_to_app),
-                onPressed: widget.tryLogout,
+                onPressed: widget.tryLogout as void Function()?,
               ),
             ]),
             body: Stack(children: [
@@ -122,14 +123,14 @@ class _HomePageState extends State<HomePage> {
                                 },
                               ), // of raisedButton
                             Spacer(),
-                            if (messageSnapshot.data.isNotEmpty)
+                            if (messageSnapshot.data!.isNotEmpty)
                               Container(
                                 margin: const EdgeInsets.all(15.0),
                                 padding: const EdgeInsets.all(15.0),
                                 decoration:
                                     BoxDecoration(border: Border.all(color: Colors.blueAccent)),
                                 child: Text(
-                                  messageSnapshot.data,
+                                  messageSnapshot.data!,
                                   maxLines: 6,
                                 ),
                               ),
@@ -233,7 +234,7 @@ class _HomePageState extends State<HomePage> {
       messages.add('File Processing in progress. Please wait...');
       for (int i = 0; i < latestFileList.length; i++) {
         FileSystemEntity item = latestFileList[i];
-        switch (await syncDriver.uploadImageFile(item)) {
+        switch (await syncDriver.uploadImageFile(item as File)) {
           case true:
             upLoadCount++;
             break;
@@ -269,7 +270,7 @@ class _HomePageState extends State<HomePage> {
       setInProgress(true);
       messages.add('IOS Processing in progress. Please wait...');
       for (int i = 0; i < iosGallery.count; i++) {
-        GalleryItem item = await iosGallery[i];
+        GalleryItem item = (await iosGallery[i])!;
         switch (await syncDriver.uploadImage(item.safeFilename, item.createdDate, item.data, jpegLoader: item.loader)) {
           case true:
             upLoadCount++;

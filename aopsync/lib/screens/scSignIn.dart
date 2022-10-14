@@ -20,8 +20,8 @@ class SignInPage extends StatelessWidget {
 //  final StreamController<AuthenticationState> _streamController;
   final _loginFormKey = GlobalKey<FormState>();
   final AsyncCallback loginCallback;
-  WsFieldSet _fieldSet;
-  SignInPage(this.loginCallback, {Key key}) : super(key: key) {
+  late WsFieldSet _fieldSet;
+  SignInPage(this.loginCallback, {Key? key}) : super(key: key) {
     List<String> fieldDefs = [
       'DB Host:dbhost',
       'DB Port:dbport',

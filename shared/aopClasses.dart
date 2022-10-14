@@ -27,16 +27,16 @@ var userProvider = DOProvider<AopUser>("aopusers",["name","hint",],AopUser.maker
 //-------------------------------------------------------------------
 class AopAlbum extends DomainObject {
 
-  String name;
-  String description;
-  DateTime firstDate;
-  DateTime lastDate;
-  int _userId;
+  String? name;
+  String? description;
+  DateTime? firstDate;
+  DateTime? lastDate;
+  int? _userId;
 
 //                                '*** Start Custom Code privatealbum
 //                                '*** End Custom Code
   // constructor
-  AopAlbum ({Map<String,dynamic> data}) : super(data:data) {
+  AopAlbum ({Map<String,dynamic>? data}) : super(data:data) {
   if (data != null)
     fromMap(data);
 //                                '*** Start Custom Code album.create
@@ -47,8 +47,8 @@ class AopAlbum extends DomainObject {
 //Associations
   Future<List<AopAlbumItem>> get albumItems async => albumItemProvider.getWithFKey('album_id',id);
   Future<AopUser> get user async => userProvider.get(_userId);
-	int get userId => _userId;
-	set userId(int newId) {
+	int? get userId => _userId;
+	set userId(int? newId) {
 	  _userId = newId;
 	} // of userId
 
@@ -87,7 +87,7 @@ static AopAlbum maker() {
 
   @override
   void fromRow(dynamic row) {
-    String fld;
+    String? fld;
 	super.fromRow(row);
     try {
       fld = 'name';
@@ -112,13 +112,13 @@ static AopAlbum maker() {
 		result = super.toRow();
 	result.add(name);
 	result.add(description);
-	result.add(dbDate(firstDate));
-	result.add(dbDate(lastDate));
+	result.add(dbDate(firstDate!));
+	result.add(dbDate(lastDate!));
 	result.add(_userId);
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate =true}) async {
+Future<int?> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -128,7 +128,7 @@ Future<int> save({bool validate =true}) async {
   } 
 } // of save
 
-Future<void> delete() async {
+Future<bool> delete() async {
   return await albumProvider.delete(this);
 } // of delete
 
@@ -163,7 +163,7 @@ Future<void> delete() async {
 
   Future<int> removeSnaps(List<AopSnap> oldSnaps) async {
     int result = 0;
-    List<int> oldSnapIds = idList(oldSnaps);
+    List<int?> oldSnapIds = idList(oldSnaps);
     List<AopAlbumItem> existingItems = await albumItems;
     for (AopAlbumItem thisItem in existingItems) {
       if (oldSnapIds.contains(thisItem.snapId)) {
@@ -177,8 +177,8 @@ Future<void> delete() async {
   @override
   Future<void> validate() async {
     await super.validate(); // clear last errors
-    if (name.length < 10) lastErrors.add('name must be 10 characters long');
-    String yearStr = name.substring(0, 4);
+    if (name!.length < 10) lastErrors.add('name must be 10 characters long');
+    String yearStr = name!.substring(0, 4);
     int yearNo = int.tryParse(yearStr) ?? -1;
     if (yearNo < 1900 || yearNo > 2099) lastErrors.add('name should start with 4 digit year');
   } // of validate
@@ -193,13 +193,13 @@ Future<void> delete() async {
 //-------------------------------------------------------------------
 class AopAlbumItem extends DomainObject {
 
-  int _albumId;
-  int _snapId;
+  int? _albumId;
+  int? _snapId;
 
 //                                '*** Start Custom Code privatealbum item
 //                                '*** End Custom Code
   // constructor
-  AopAlbumItem ({Map<String,dynamic> data}) : super(data:data) {
+  AopAlbumItem ({Map<String,dynamic>? data}) : super(data:data) {
   if (data != null)
     fromMap(data);
 //                                '*** Start Custom Code album item.create
@@ -209,13 +209,13 @@ class AopAlbumItem extends DomainObject {
 
 //Associations
   Future<AopAlbum> get album async => albumProvider.get(_albumId);
-	int get albumId => _albumId;
-	set albumId(int newId) {
+	int? get albumId => _albumId;
+	set albumId(int? newId) {
 	  _albumId = newId;
 	} // of albumId
   Future<AopSnap> get snap async => snapProvider.get(_snapId);
-	int get snapId => _snapId;
-	set snapId(int newId) {
+	int? get snapId => _snapId;
+	set snapId(int? newId) {
 	  _snapId = newId;
 	} // of snapId
 
@@ -248,7 +248,7 @@ static AopAlbumItem maker() {
 
   @override
   void fromRow(dynamic row) {
-    String fld;
+    String? fld;
 	super.fromRow(row);
     try {
       fld = '_albumId';
@@ -270,7 +270,7 @@ static AopAlbumItem maker() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate =true}) async {
+Future<int?> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -280,7 +280,7 @@ Future<int> save({bool validate =true}) async {
   } 
 } // of save
 
-Future<void> delete() async {
+Future<bool> delete() async {
   return albumItemProvider.delete(this);
 } // of delete
 
@@ -296,15 +296,15 @@ Future<void> delete() async {
 //-------------------------------------------------------------------
 class AopSession extends DomainObject {
 
-  DateTime startDate;
-  DateTime endDate;
-  String source;
-  int _userId;
+  DateTime? startDate;
+  DateTime? endDate;
+  String? source;
+  int? _userId;
 
 //                                '*** Start Custom Code privatesession
 //                                '*** End Custom Code
   // constructor
-  AopSession ({Map<String,dynamic> data}) : super(data:data) {
+  AopSession ({Map<String,dynamic>? data}) : super(data:data) {
   if (data != null)
     fromMap(data);
 //                                '*** Start Custom Code session.create
@@ -315,8 +315,8 @@ class AopSession extends DomainObject {
 //Associations
   Future<List<AopSnap>> get snaps async => snapProvider.getWithFKey('session_id',id);
   Future<AopUser> get user async => userProvider.get(_userId);
-	int get userId => _userId;
-	set userId(int newId) {
+	int? get userId => _userId;
+	set userId(int? newId) {
 	  _userId = newId;
 	} // of userId
 
@@ -353,7 +353,7 @@ static AopSession maker() {
 
   @override
   void fromRow(dynamic row) {
-    String fld;
+    String? fld;
 	super.fromRow(row);
     try {
       fld = 'startDate';
@@ -374,14 +374,14 @@ static AopSession maker() {
 	var result = [];
 	if (insert)
 		result = super.toRow();
-	result.add(dbDate(startDate));
-	result.add(dbDate(endDate));
+	result.add(dbDate(startDate!));
+	result.add(dbDate(endDate!));
 	result.add(source);
 	result.add(_userId);
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate =true}) async {
+Future<int?> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -391,7 +391,7 @@ Future<int> save({bool validate =true}) async {
   } 
 } // of save
 
-Future<void> delete() async {
+Future<bool> delete() async {
   return sessionProvider.delete(this);
 } // of delete
 
@@ -407,33 +407,33 @@ Future<void> delete() async {
 //-------------------------------------------------------------------
 class AopSnap extends DomainObject {
 
-  String fileName;
-  String directory;
-  DateTime takenDate;
-  DateTime originalTakenDate;
-  DateTime modifiedDate;
-  String deviceName;
-  String caption;
-  int ranking;
-  double longitude;
-  double latitude;
-  int width;
-  int height;
-  String location;
-  String rotation;
-  String importSource;
-  String mediaType;
-  DateTime importedDate;
-  int mediaLength;
-  String tagList;
-  String metadata;
-  int _sessionId;
-  int _userId;
+  String? fileName;
+  String? directory;
+  DateTime? takenDate;
+  DateTime? originalTakenDate;
+  DateTime? modifiedDate;
+  String? deviceName;
+  String? caption;
+  int? ranking;
+  double? longitude;
+  double? latitude;
+  int? width;
+  int? height;
+  String? location;
+  String? rotation;
+  String? importSource;
+  String? mediaType;
+  DateTime? importedDate;
+  int? mediaLength;
+  String? tagList;
+  String? metadata;
+  int? _sessionId;
+  int? _userId;
 
 //                                '*** Start Custom Code privatesnap
 //                                '*** End Custom Code
   // constructor
-  AopSnap ({Map<String,dynamic> data}) : super(data:data) {
+  AopSnap ({Map<String,dynamic>? data}) : super(data:data) {
   if (data != null)
     fromMap(data);
 //                                '*** Start Custom Code snap.create
@@ -450,13 +450,13 @@ class AopSnap extends DomainObject {
 //Associations
   Future<List<AopAlbumItem>> get albumItems async => albumItemProvider.getWithFKey('snap_id',id);
   Future<AopSession> get session async => sessionProvider.get(_sessionId);
-	int get sessionId => _sessionId;
-	set sessionId(int newId) {
+	int? get sessionId => _sessionId;
+	set sessionId(int? newId) {
 	  _sessionId = newId;
 	} // of sessionId
   Future<AopUser> get user async => userProvider.get(_userId);
-	int get userId => _userId;
-	set userId(int newId) {
+	int? get userId => _userId;
+	set userId(int? newId) {
 	  _userId = newId;
 	} // of userId
 
@@ -529,7 +529,7 @@ static AopSnap maker() {
 
   @override
   void fromRow(dynamic row) {
-    String fld;
+    String? fld;
 	super.fromRow(row);
     try {
       fld = 'fileName';
@@ -590,9 +590,9 @@ static AopSnap maker() {
 		result = super.toRow();
 	result.add(fileName);
 	result.add(directory);
-	result.add(dbDate(takenDate));
-	result.add(dbDate(originalTakenDate));
-	result.add(dbDate(modifiedDate));
+	result.add(dbDate(takenDate!));
+	result.add(dbDate(originalTakenDate!));
+	result.add(dbDate(modifiedDate!));
 	result.add(deviceName);
 	result.add(caption);
 	result.add(ranking);
@@ -604,7 +604,7 @@ static AopSnap maker() {
 	result.add(rotation);
 	result.add(importSource);
 	result.add(mediaType);
-	result.add(dbDate(importedDate));
+	result.add(dbDate(importedDate!));
 	result.add(mediaLength);
 	result.add(tagList);
 	result.add(metadata);
@@ -613,7 +613,7 @@ static AopSnap maker() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate =true}) async {
+Future<int?> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -623,14 +623,14 @@ Future<int> save({bool validate =true}) async {
   } 
 } // of save
 
-Future<void> delete() async {
+Future<bool> delete() async {
   return snapProvider.delete(this);
 } // of delete
 
 
 //                                '*** Start Custom Code snap custom procedures
 
-  static Future<bool> nameExists(String path, int fileSize) async {
+  static Future<bool?> nameExists(String path, int? fileSize) async {
     String fileName = Path.basename(path);
     var r = await snapProvider.rawExecute(
         'select count(*) from aopsnaps ' 'where file_name=? and media_Length=?',
@@ -639,7 +639,7 @@ Future<void> delete() async {
     return values[0] > 0;
   } // of nameExists
 
-  Future<bool> nameClashButDifferentSize() async {
+  Future<bool?> nameClashButDifferentSize() async {
     var r = await snapProvider.rawExecute(
         'select count(*) from aopsnaps ' 'where directory=? and file_name=? and media_Length<>?',
         [directory, fileName, mediaLength]);
@@ -647,7 +647,7 @@ Future<void> delete() async {
     return values[0] > 0;
   } // of nameClashButDifferentSize
 
-  static Future<bool> dateTimeExists(DateTime taken, int fileSize) async {
+  static Future<bool?> dateTimeExists(DateTime taken, int? fileSize) async {
     DateTime startTime = taken.add(Duration(seconds: -2));
     DateTime endTime = taken.add(Duration(seconds: 2));
     var r = await snapProvider.rawExecute(
@@ -661,7 +661,7 @@ Future<void> delete() async {
     return values[0] > 0;
   } // of dateTimeExists
 
-  static Future<bool> nameSameDayExists(DateTime taken, String filename) async {
+  static Future<bool?> nameSameDayExists(DateTime taken, String filename) async {
     DateTime startTime = taken.add(Duration(days: -2));
     DateTime endTime = taken.add(Duration(days: 2));
     var r = await snapProvider.rawExecute(
@@ -675,7 +675,7 @@ Future<void> delete() async {
     return values[0] > 0;
   } // of dateTimeExists
 
-  static Future<bool> sizeOrNameOrDeviceAtTimeExists(
+  static Future<bool?> sizeOrNameOrDeviceAtTimeExists(
       DateTime taken, int fileSize, String filename, String deviceName) async {
     DateTime startTime = taken.add(Duration(seconds: -2));
     DateTime endTime = taken.add(Duration(seconds: 2));
@@ -699,10 +699,10 @@ Future<void> delete() async {
     return r;
   } // of existingLocations
 
-  static Future<List<String>> get distinctLocations async {
+  static Future<List<String?>> get distinctLocations async {
     var r = await snapProvider
         .rawExecute('select distinct location from aopsnaps where location is not null');
-    List<String> result = [];
+    List<String?> result = [];
     for (var row in r) result.add(row[0]);
     return result;
   } // of existingLocations
@@ -712,7 +712,7 @@ Future<void> delete() async {
     return r;
   } // of yearGrid
 
-  static Future<int> getPreviousCropCount(String source) async {
+  static Future<int?> getPreviousCropCount(String source) async {
     var r = await snapProvider
         .rawExecute("select count(*) from aopsnaps where import_source='$source'");
     for (var row in r) return row[0];
@@ -737,10 +737,10 @@ Future<void> delete() async {
     location = newLocation;
   } // of trimSetLocation
 
-  double get angle => (int.parse(rotation) ?? 0) * math.pi / 2;
+  double get angle => (int.parse(rotation!) ?? 0) * math.pi / 2;
 
   void rotate(int direction) {
-    int newRotation = (int.parse(rotation) ?? 0) + direction;
+    int newRotation = (int.parse(rotation!) ?? 0) + direction;
     newRotation = newRotation % 4; // wrap 360
     rotation = '$newRotation';
   }
@@ -754,13 +754,13 @@ Future<void> delete() async {
 //-------------------------------------------------------------------
 class AopUser extends DomainObject {
 
-  String name;
-	String  _hint;
+  String? name;
+	String?  _hint;
 
 //                                '*** Start Custom Code privateuser
 //                                '*** End Custom Code
   // constructor
-  AopUser ({Map<String,dynamic> data}) : super(data:data) {
+  AopUser ({Map<String,dynamic>? data}) : super(data:data) {
   if (data != null)
     fromMap(data);
 //                                '*** Start Custom Code user.create
@@ -768,13 +768,13 @@ class AopUser extends DomainObject {
   } // of constructor 
 
 
-  String get hint  {
+  String? get hint  {
 //                                '*** Start Custom Code user.gethint
 //                                '*** End Custom Code
     return _hint;
   }  // of get hint
 
-  set hint(String thishint  ) { 
+  set hint(String? thishint  ) { 
 //                                '*** Start Custom Code user.sethint
 //                                '*** End Custom Code
   _hint = thishint;
@@ -814,7 +814,7 @@ static AopUser maker() {
 
   @override
   void fromRow(dynamic row) {
-    String fld;
+    String? fld;
 	super.fromRow(row);
     try {
       fld = 'name';
@@ -836,7 +836,7 @@ static AopUser maker() {
   return result;
 }  // to Row
  @override 
-Future<int> save({bool validate =true}) async {
+Future<int?> save({bool validate =true}) async {
   if (validate) 
 		await this.validate();
   if (isValid) {
@@ -846,7 +846,7 @@ Future<int> save({bool validate =true}) async {
   } 
 } // of save
 
-Future<void> delete() async {
+Future<bool> delete() async {
   return userProvider.delete(this);
 } // of delete
 

@@ -16,12 +16,12 @@ import 'shared/aopClasses.dart';
 
 
 class SyncDriver {
-  String/*!*/ localFileRoot;
-  DateTime/*!*/ fromDate;
+  String localFileRoot;
+  DateTime fromDate;
   final GeocodingSession _geo = GeocodingSession();
   StreamController<String> messageController = StreamController<String>();
 
-  SyncDriver({@required this.localFileRoot, this.fromDate});
+  SyncDriver({required this.localFileRoot, required this.fromDate});
 
   String fileName(String path) => (path.lastIndexOf('/') > 0)
       ? path.substring(path.lastIndexOf('/') + 1)
@@ -49,7 +49,7 @@ class SyncDriver {
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
       if (!['jpg', 'png'].contains(thisExt)) continue;
       //log.message('checking $imageName');
-      bool alreadyExists = await AopSnap.nameSameDayExists(stats.modified, imageName );
+      bool alreadyExists = (await AopSnap.nameSameDayExists(stats.modified, imageName ))!;
       if (alreadyExists) {
         log.message('skipping $imageName size=${stats.size} modified=${stats.modified}');
         continue;
@@ -81,21 +81,21 @@ class SyncDriver {
   } // of logAndDisplay
   
 
-  Future<bool> uploadImageFile(File thisPicFile) async {
+  Future<bool?> uploadImageFile(File thisPicFile) async {
     FileStat thisPicStats = thisPicFile.statSync();
     List<int> fileContents = thisPicFile.readAsBytesSync();
     String imageName = fileName(thisPicFile.path);
     return await uploadImage(imageName, thisPicStats.modified, fileContents);
   }
 
-  Future<bool> uploadImage(String imageName, DateTime createdDate, List<int> fileContents, {JpegLoader jpegLoader}) async {
+  Future<bool?> uploadImage(String imageName, DateTime createdDate, List<int> fileContents, {JpegLoader? jpegLoader}) async {
     try {
       log.message('Start processing $imageName ------------------------------------------');
-      if (await AopSnap.sizeOrNameOrDeviceAtTimeExists(createdDate, 0, imageName, 'vvvgnv')) {
+      if ((await AopSnap.sizeOrNameOrDeviceAtTimeExists(createdDate, 0, imageName, 'vvvgnv'))!) {
         log.message('fast dup check - true');
         return null;
       }
-      Image thisImage = decodeImage(fileContents);
+      Image thisImage = decodeImage(fileContents)!;
       log.message('decoded');
       List<int> jpeg = encodeJpg(thisImage, quality: 100);
       int imageSize = jpeg.length; // decode/encode seems to be the only way to get reliable length
@@ -122,7 +122,7 @@ class SyncDriver {
       DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ?? createdDate;
       log.message('check for dup-1');
       bool alReadyExists =
-          await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName, deviceName);
+          (await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName, deviceName))!;
       if (alReadyExists) {
         log.message('sizeOrNameOrDeviceAtTimeExists');
         return null;
@@ -143,7 +143,7 @@ class SyncDriver {
           newSnap.importSource = newSnap.importSource??'' ' scanned';
 
         newSnap.originalTakenDate = newSnap.takenDate;
-        newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
+        newSnap.directory = formatDate(newSnap.originalTakenDate!, format: 'yyyy-mm');
         // checkl for duplicate
         newSnap.mediaLength = imageSize;
         if (jpegLoader.tag("GPSLatitudeRef") != "null") {
@@ -152,25 +152,25 @@ class SyncDriver {
           newSnap.longitude =
               jpegLoader.dmsToDeg(jpegLoader.tag('GPSLongitude'), jpegLoader.tag('GPSLongitudeRef'));
         }
-        if (newSnap.latitude != null && newSnap.latitude.abs()>1e-6) {
-          String location = await _geo.getLocation(newSnap.longitude, newSnap.latitude);
+        if (newSnap.latitude != null && newSnap.latitude!.abs()>1e-6) {
+          String? location = await _geo.getLocation(newSnap.longitude!, newSnap.latitude!);
           if (location != null) newSnap.trimSetLocation(location);
           log.message('found location : ${newSnap.location}');
         }
 
-        if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
-          if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength)) {
+        if (newSnap.originalTakenDate != null && newSnap.originalTakenDate!.year > 1980) {
+          if ((await AopSnap.dateTimeExists(newSnap.originalTakenDate!, newSnap.mediaLength))!) {
             log.message('duplicate dateTime+length');
             return null;
           }
         }
-          if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) {
+          if ((await AopSnap.nameExists(newSnap.fileName!, newSnap.mediaLength))!) {
             log.message('duplicate name+length');
             return null;
           }
         jpegLoader.cleanTags();
         String myMeta = jsonEncode(jpegLoader.tags);
-        Image thumbnail = copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);
+        Image thumbnail = copyResize(thisImage, width: (newSnap.width! > newSnap.height!) ? 640 : 480);
         log.message('made thumbnail');
         await saveWebImage(newSnap.thumbnailURL, image: thumbnail, quality: 50);
         log.message('-> thumbnail');

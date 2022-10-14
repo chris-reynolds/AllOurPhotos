@@ -10,13 +10,13 @@ import 'package:aopcommon/aopcommon.dart';
 //import '../utils/WebFile.dart';
 
 const String DEFAULT_CHIPS = "+,-,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams";
-String remoteUrl;
+late String remoteUrl;
 bool logging = false;
-WebFile remoteChipFile;
+late WebFile remoteChipFile;
 
 class ChipSet {
   static const DELIM = ',';
-  Set<String> chips;
+  late Set<String> chips;
 
   ChipSet(String s) {
     if (s == null || s == '') {

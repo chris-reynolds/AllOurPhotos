@@ -6,12 +6,12 @@ import './dbAllOurPhotos.dart';
 bool sqlLogging = true;
 
 abstract class DomainObject {
-  DomainObject({Map<String, dynamic> data});
+  DomainObject({Map<String, dynamic>? data});
 
-  int id;
-  DateTime createdOn;
-  DateTime updatedOn;
-  String updatedUser;
+  int? id;
+  DateTime? createdOn;
+  DateTime? updatedOn;
+  String? updatedUser;
   List<String> lastErrors = [];
 
   bool get isValid => lastErrors.isEmpty;
@@ -29,7 +29,7 @@ abstract class DomainObject {
   void fromMap(Map<String, dynamic> map);
 
   void fromRow(dynamic row) {
-    String fld;
+    String? fld;
     try {
       fld = 'id';
       id = row[0];
@@ -55,8 +55,8 @@ abstract class DomainObject {
 
 } // of abstract class DomainObject
 
-List<int> idList(List<DomainObject> dobjList) {
-  List<int> result = [];
+List<int?> idList(List<DomainObject> dobjList) {
+  List<int?> result = [];
   for (var element in dobjList) {result.add(element.id);}
   return result;
 } // of idList
@@ -64,7 +64,7 @@ List<int> idList(List<DomainObject> dobjList) {
 class DOProvider<TDO extends DomainObject> {
   String tableName;
   List<String> columnList;
-  SQLStatementFactory sqlStatements;
+  late SQLStatementFactory sqlStatements;
   Function newFn;
 
   List<TDO> toList(dynamic r) {
@@ -84,30 +84,30 @@ class DOProvider<TDO extends DomainObject> {
 
   Future<dynamic> queryWithReOpen(String sql) async {
     try {
-      var r = await dbConn.query(sql);
+      var r = await dbConn!.query(sql);
       return r;
-    } catch (ex) {
-      log.error('query problem with ${ex.message}\n $sql');
-      if (ex.message.substring(0, 12) == 'Cannot write') {
+    } catch (ex ) {
+      log.error('query problem with $ex\n $sql');
+      if ('$ex'.substring(0, 12) == 'Cannot write') {
         log.message('reconnecting to database');
         await DbAllOurPhotos.reconnect();
-        return await dbConn.query(sql);
+        return await dbConn!.query(sql);
       } else
         rethrow;
     } // of catch
   } // of queryWithReOpen
 
-  Future<int> save(TDO aDomainObject) async {
+  Future<int?> save(TDO aDomainObject) async {
     String sql;
     try {
       List<dynamic> dataFields = aDomainObject.toRow();
-      if (aDomainObject.id != null && aDomainObject.id > 0) {
+      if (aDomainObject.id != null && aDomainObject.id! > 0) {
         // then update
         sql = sqlStatements.updateStatement();
         if (sqlLogging) log.message('save sql : $sql');
         dataFields.add(aDomainObject.id);
 //        dataFields.add(aDomainObject.updatedOn);
-        var r = await dbConn.query(sql, dataFields);
+        var r = await dbConn!.query(sql, dataFields);
         await refreshFromDb(aDomainObject);
         if (r.affectedRows == 0)
           throw "Failed to update item with $sql";
@@ -116,7 +116,7 @@ class DOProvider<TDO extends DomainObject> {
         // insert
         sql = sqlStatements.insertStatement();
         if (sqlLogging) log.message('save sql : $sql');
-        var r = await dbConn.query(sql, dataFields);
+        var r = await dbConn!.query(sql, dataFields);
         aDomainObject.id = r.insertId;
         await refreshFromDb(aDomainObject);
         return r.insertId;
@@ -127,15 +127,15 @@ class DOProvider<TDO extends DomainObject> {
     }
   } // of save
 
-  Future<TDO> get(int id) async {
-    var r = await dbConn.query(sqlStatements.getStatement(), [id]);
+  Future<TDO> get(int? id) async {
+    var r = await dbConn!.query(sqlStatements.getStatement(), [id]);
     List<TDO> results = toList(r);
     if (results.isEmpty) throw Exception('id $id not found in $tableName');
     if (results.length > 1) throw Exception('id $id is duplicate in $tableName');
     return results[0];
   } //
 
-  Future<List<TDO>> getWithFKey(String keyname, int keyValue) async {
+  Future<List<TDO>> getWithFKey(String keyname, int? keyValue) async {
     var sql = sqlStatements.getSomeStatement('$keyname=$keyValue');
     var r = await queryWithReOpen(sql);
     return toList(r);
@@ -154,19 +154,19 @@ class DOProvider<TDO extends DomainObject> {
   }
 
   Future<bool> delete(TDO aDomainObect) async {
-    var r = await dbConn.query(sqlStatements.deleteStatement(), [aDomainObect.id]);
+    var r = await dbConn!.query(sqlStatements.deleteStatement(), [aDomainObect.id]);
     if (r.affectedRows == 0)
       throw Exception('Failed Delete for $tableName id=${aDomainObect.id} ');
     else if (sqlLogging) log.message('Delete for $tableName id=${aDomainObect.id} ');
     return true;
   }
 
-  Future<dynamic> rawExecute(String sql, [List<dynamic> params]) async {
-    return await dbConn.query(sql, params);
+  Future<dynamic> rawExecute(String sql, [List<dynamic>? params]) async {
+    return await dbConn!.query(sql, params);
   } // of execute
 
-  Future<int> refreshFromDb(TDO aDomainObject) async {
-    var r = await dbConn.query(sqlStatements.getStatement(), [aDomainObject.id]);
+  Future<int?> refreshFromDb(TDO aDomainObject) async {
+    var r = await dbConn!.query(sqlStatements.getStatement(), [aDomainObject.id]);
 //    List<TDO> results = toList(r);
     if (r.isEmpty) throw Exception('id ${aDomainObject.id} not found in $tableName');
     aDomainObject.fromRow(r.single);
@@ -179,7 +179,7 @@ class SQLStatementFactory {
   final List<String> _lockedColumns = ['id', 'created_on', 'updated_on', 'updated_user'];
   final String _tableName;
   final List<String> _columnNames;
-  String _placeholders;
+  String? _placeholders;
 
   SQLStatementFactory(this._tableName, this._columnNames) {
     List<String> questions = [];

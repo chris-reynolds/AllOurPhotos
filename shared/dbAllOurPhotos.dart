@@ -3,11 +3,11 @@ import 'package:mysql1/mysql1.dart';
 import 'package:aopcommon/aopcommon.dart';
 
 
-MySqlConnection dbConn;
+MySqlConnection? dbConn;
 
 class DbAllOurPhotos {
-  static Map _lastConfig;
-  Future<int> initConnection(Map/*!*/ config) async {
+  static late Map _lastConfig;
+  Future<int> initConnection(Map config) async {
     if (dbConn==null ) {
       dbConn = await MySqlConnection.connect(ConnectionSettings(
           host: config['dbhost'], port: int.parse(config['dbport']), user: config['dbuser'],
@@ -20,9 +20,9 @@ class DbAllOurPhotos {
 
   Future<int> startSession(Map config) async {
     try {
-      Results res = await dbConn.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
+      Results res = await dbConn!.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
       Iterable spResult = res.first.asMap().values;
-      int sessionid = (spResult.first as int)??-999;
+      int sessionid = (spResult.first as int?)??-999;
       log.message('session created with id=$sessionid');
       return sessionid;
     } catch(ex) {
@@ -33,7 +33,7 @@ class DbAllOurPhotos {
 
   static Future<int> reconnect() async {
     if (dbConn!=null)
-      dbConn.close();
+      dbConn!.close();
     dbConn = null;
     var dbAop = DbAllOurPhotos();
     await dbAop.initConnection(_lastConfig);
@@ -53,7 +53,7 @@ class DbAllOurPhotos {
 */
   void close() {
     if (dbConn!=null)
-      dbConn.close();
+      dbConn!.close();
     dbConn = null;
   }  // of close
 

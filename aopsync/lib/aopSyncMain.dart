@@ -9,7 +9,7 @@ void main() {
 
 class PhoneSyncApp extends StatefulWidget {
 
-  const PhoneSyncApp({Key key}) :super(key: key);
+  const PhoneSyncApp({Key? key}) :super(key: key);
 
   @override
   _PhoneSyncAppState createState() => _PhoneSyncAppState();

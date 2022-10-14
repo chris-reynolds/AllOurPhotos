@@ -14,7 +14,7 @@ import 'package:photo_manager/photo_manager.dart' as PM;
 
 
 class GalleryItem {
-  Uint8List/*!*/ data;
+  Uint8List data;
   String id;
   DateTime createdDate;
   JpegLoader loader;
@@ -53,20 +53,20 @@ class IosGallery {
 
   }
 
-  Future<GalleryItem> operator [](int index) async {
+  Future<GalleryItem?> operator [](int index) async {
     if (index < 0 || index >= count) return null;
     PM.AssetEntity item = _items[index];
-    var ff= await item.originFile;
+    var ff= (await item.originFile)!;
     var ff2 = await ff.readAsBytes();
     var jpegLoader = JpegLoader();
     await jpegLoader.extractTags(ff2 );
     log.message('tags = ${jpegLoader.tags.length}');
-    var jpegBytes = await item.thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height));
-    var createdDate = fromSwiftDate(item.createDateSecond);
+    var jpegBytes = (await item.thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height)))!;
+    var createdDate = fromSwiftDate(item.createDateSecond!);
     var galleryItem = GalleryItem(jpegBytes, item.id, createdDate,jpegLoader);
     log.message('loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
     var file = await item.file;
-    if (Platform.isIOS && file.existsSync())  // IOS picture file is temporary
+    if (Platform.isIOS && file!.existsSync())  // IOS picture file is temporary
       file.deleteSync();
     return galleryItem;
   }
@@ -86,7 +86,7 @@ class IosGallery {
 
   void clearCollection() async {
     for (var item in _items) {
-      var file = await item.file;
+      var file = (await item.file)!;
       if (file.existsSync())
         file.deleteSync();
     }

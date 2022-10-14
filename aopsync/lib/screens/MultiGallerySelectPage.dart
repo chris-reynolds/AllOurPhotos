@@ -48,7 +48,7 @@ int toSwift(DateTime thisDate ) {
 }
 
 class MultiGallerySelectPage extends StatefulWidget {
-  const MultiGallerySelectPage({Key key}) : super(key: key);
+  const MultiGallerySelectPage({Key? key}) : super(key: key);
 
   @override
   createState() => _MultiGallerySelectPageState();
@@ -62,7 +62,7 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
   final _selectedItems = <GalleryImage>[];
   final _itemCache = <int, GalleryImage>{};
 
-  Future<GalleryImage> _getItem(int index) async {
+  Future<GalleryImage?> _getItem(int index) async {
 // 1
     if (_itemCache[index] != null) {
       return _itemCache[index];
@@ -88,7 +88,7 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
   }
 
   _selectItem(int index) async {
-    var galleryImage = await _getItem(index);
+    var galleryImage = (await _getItem(index))!;
     log.message('clicking ${galleryImage.id}');
     setState(() {
       if (_isSelected(galleryImage.id)) {
@@ -104,7 +104,7 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
   }
 
   // TODO: replace with actual image count
-  var _numberOfItems = 0;
+  int? _numberOfItems = 0;
 
   @override
   void initState() {
@@ -127,7 +127,7 @@ class _MultiGallerySelectPageState extends State<MultiGallerySelectPage> {
         child: FutureBuilder(
             future: _getItem(index),
             builder: (context, snapshot) {
-              GalleryImage item = snapshot?.data;
+              GalleryImage item = snapshot?.data! as GalleryImage ;
               log.message('showing item ${item?.location} ${item?.dateCreated} ${item.safeFilename}');
               if (item != null) {
                 return Container(

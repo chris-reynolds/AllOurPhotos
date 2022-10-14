@@ -19,14 +19,14 @@ import 'scHome.dart';
 class LaunchWithLogin extends StatelessWidget {
   final StreamController<AuthenticationState> _streamController =
       StreamController<AuthenticationState>();
-  PermissionStatus storagePermission;
+  late PermissionStatus storagePermission;
 
-  LaunchWithLogin({Key key}) : super(key: key);
+  LaunchWithLogin({Key? key}) : super(key: key);
   Future<void> initConfig() async {
     String localDocs = (await getApplicationDocumentsDirectory()).path;
     log.message('localdocs from $localDocs');
     if (Platform.isAndroid) {
-      String extStorage = (await getExternalStorageDirectory()).path;
+      String extStorage = (await getExternalStorageDirectory())!.path;
       log.message('external storage is $extStorage');
     }
     await loadConfig(localDocs + '/aopSync.config.json');
