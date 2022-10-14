@@ -11,30 +11,28 @@ import 'wdgImageFilter.dart' show filterColors;
 
 
 typedef BannerTapCallback = void Function(AopSnap snap);
+nullSnapCallBack (AopSnap snap) {}  // used for initialising callbacks
 
 const double HEADER_OFFSET = 50;
 
 class PhotoTile extends StatelessWidget {
-  const PhotoTile(
-      {Key key,
-      @required this.snapList,
-      @required this.index,
-      @required this.isSelected,
-      @required this.inSelectMode,
-      @required this.highResolution,
-      @required this.onBannerTap,
-      @required this.onBannerLongPress})
-      : assert(isSelected != null),
-        assert(inSelectMode != null),
-        assert(onBannerTap != null),
-        super(key: key);
+  PhotoTile(
+      {Key? key,
+      required this.snapList,
+      required this.index,
+      this.isSelected = false,
+      this.inSelectMode = false,
+      this.highResolution = false,
+      required this.onBannerTap,
+      required this.onBannerLongPress})
+      : super(key: key);
   final List<AopSnap> snapList;
   final int index;
-  final bool isSelected;
-  final bool inSelectMode;
-  final bool highResolution;
-  final BannerTapCallback onBannerTap; // User taps on the photo's header or footer.
-  final BannerTapCallback onBannerLongPress;
+  bool isSelected;
+  bool inSelectMode = false;
+  bool highResolution = false;
+  BannerTapCallback onBannerTap = nullSnapCallBack; // User taps on the photo's header or footer.
+  BannerTapCallback onBannerLongPress = nullSnapCallBack;
 
   AopSnap get snap => snapList[index];
 
@@ -73,7 +71,7 @@ class PhotoTile extends StatelessWidget {
 
     const IconData icon = Icons.star;
     final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
-    String descriptor = '${formatDate(snap.takenDate, format: 'd mmm yy')} ${snap.deviceName} ';
+    String descriptor = '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
@@ -89,7 +87,7 @@ class PhotoTile extends StatelessWidget {
               subtitle: Text(snap.caption ?? snap.location ?? '',
                   style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               trailing: Row(children: [
-                Icon(icon, color: filterColors[snap.ranking], size: 40.0),
+                Icon(icon, color: filterColors[snap.ranking!], size: 40.0),
               ])),
         ),
         child: imageWidget,

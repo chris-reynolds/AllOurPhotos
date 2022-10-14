@@ -11,11 +11,11 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   DateTime _fromDate = DateTime(1900);
   DateTime _toDate = DateTime(2030);
   @override
-  CallBack onRefreshed;
+  late CallBack onRefreshed;
   // by default only show ranks 2 and 3
-  final List<bool> _rank = <bool>[null,false,true,true];  // ignore entry zero
+  final List<bool> _rank = <bool>[false,false,true,true];  // ignore entry zero
   String _searchText = '';
-  List<AopSnap> _images;
+  late List<AopSnap> _images;
   @override
   List<AopSnap> get items {
     checkImages();
@@ -26,12 +26,12 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   bool get refreshRequired => _refreshRequired;
 
   // two constructors
-  ImageFilter.dateRange(this._fromDate, this._toDate,{CallBack refresh}) {
+  ImageFilter.dateRange(this._fromDate, this._toDate,{required CallBack refresh}) {
     onRefreshed = refresh;
     log.message('Image Filter - Date constructor $searchText');
   } // create with dateRange
 
-  ImageFilter.yearMonth(int year,int month,{CallBack refresh}) {
+  ImageFilter.yearMonth(int year,int month,{required CallBack refresh}) {
     _fromDate = DateTime(year,month,1);
     _toDate = monthEnd(_fromDate);
     _toDate = _toDate.subtract(Duration(seconds: 1));
@@ -44,19 +44,19 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
     log.message('Image Filter - Search Text constructor $searchText');
   }
 
-  get fromDate => _fromDate;
-  set fromDate(newValue) {
+  DateTime get fromDate => _fromDate;
+  set fromDate(DateTime newValue) {
     _fromDate = newValue;
     _refreshRequired = true;
   } // of set fromDate
 
-  get toDate => _toDate;
-  set toDate(newValue) {
+  DateTime get toDate => _toDate;
+  set toDate(DateTime newValue) {
     _toDate = newValue;
     _refreshRequired = true;
   } // of set fromDate
 
-  get searchText => _searchText;
+  String get searchText => _searchText;
 
   set searchText(String value) {
     _searchText = value.toLowerCase();
@@ -80,8 +80,8 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
  //   _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
     log.message('returning ${_images.length} images');
-    if (onRefreshed != null)  // alert listen of changes
-      onRefreshed();
+    //if (onRefreshed != null)
+      onRefreshed(); // alert listen of changes
   } // of calcImages
 
   String whereClause() {

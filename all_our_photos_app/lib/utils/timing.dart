@@ -13,7 +13,7 @@ abstract class Timing {
     DateTime now = DateTime.now();
     if (_timers[name] == null)
       throw "$name timer not found";
-    return now.difference(_timers[name]);
+    return now.difference(_timers[name]!);
   } // of check
 
   static Duration stop(String name) {

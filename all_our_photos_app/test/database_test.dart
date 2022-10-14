@@ -9,22 +9,23 @@ import 'package:aopcommon/aopcommon.dart';
 import 'dart:io' as Io;
 
 
-DbAllOurPhotos dbAop;
+DbAllOurPhotos? dbAop;
 
-Io.Directory testDataDirectory;
+late Io.Directory testDataDirectory;
 
-int insertedSnapIdForAlbum;
+int insertedSnapIdForAlbum = -999;
+
 void main() {
   setUp(() async {
     loadConfig();
     dbAop = DbAllOurPhotos();
-    await dbAop.initConnection(config);
+    await dbAop!.initConnection(config);
     testDataDirectory = Io.Directory('${Io.Directory.current.parent.path}/testdata');
   });
 
   tearDown(() async {
     // print('teardown ');
-    dbAop.close();
+    dbAop!.close();
     dbAop = null;
   });
   group('User', () {
@@ -44,10 +45,10 @@ void main() {
       expect(user.name,'chris');
     });
     test('add user ', () async {
-      AopUser user = AopUser();
+      AopUser user = AopUser(data:{});
       user.name = 'admin';
       user.hint = 'admin00';
-      int lastId = await user.save();
+      int lastId = (await user.save())!;
       print('inserted id is $lastId');
       AopUser adminUser = await userProvider.get(lastId);
       expect(adminUser.name,'admin');
@@ -78,11 +79,11 @@ void main() {
     test('Save image from file', () async {
 //      Io.File testFile = Io.File('${testDataDirectory.path}/test.jpg');
 //      List<int> contents = testFile.readAsBytesSync();
-      AopSnap snap = AopSnap();
+      AopSnap snap = AopSnap(data:{});
       snap.directory = testDataDirectory.path;
       snap.fileName = 'test.jpg';
       snap.importSource = 'test script';
-      int insertId = await snap.save();
+      int insertId = (await snap.save())!;
       insertedSnapIdForAlbum = insertId;
     });  // of save image as file
   }); // of Image Group
@@ -98,17 +99,17 @@ void main() {
       }
     }); // of Clean All albums test
     test('Create album',() async {
-      AopAlbum newAlbum = AopAlbum();
+      AopAlbum newAlbum = AopAlbum(data:{});
       newAlbum.name = 'test 1';
       await newAlbum.save();
       List<AopAlbum> testAlbums = await albumProvider.getSome('name like "test%"');
       expect(testAlbums.length,1,reason:'Created one test album after scrubbing');
     }); // of Create album test
     test('Create album item',() async {
-      AopAlbum newAlbum = AopAlbum();
+      AopAlbum newAlbum = AopAlbum(data:{});
       newAlbum.name = 'test 2';
-      int newAlbumId = await newAlbum.save();
-      AopAlbumItem item = AopAlbumItem();
+      int? newAlbumId = await newAlbum.save();
+      AopAlbumItem item = AopAlbumItem(data:{});
       item.snapId = insertedSnapIdForAlbum;
       item.albumId = newAlbumId;
       await item.save();

@@ -5,15 +5,15 @@ Purpose: This is a popup dialog that will allow the user to enter the name of a 
 */
 import 'package:flutter/material.dart';
 
-typedef DlgValidator = Future<String> Function(String);
+typedef DlgValidator = Future<String?> Function(String);
 
 const String EXIT_CODE = 'XXCLOSEXX';
 
 class DgSimple extends StatefulWidget {
-  final String initialValue;
+  final String? initialValue;
   final String title;
-  final String errorMessage;
-  final DlgValidator isValid;
+  final String? errorMessage;
+  final DlgValidator? isValid;
 
   @override
   _DgSimpleState createState() => _DgSimpleState(title, initialValue, errorMessage);
@@ -23,19 +23,19 @@ class DgSimple extends StatefulWidget {
 }
 
 class _DgSimpleState extends State<DgSimple> {
-  TextEditingController _nameController;
-  String value;
+  TextEditingController? _nameController;
+  String? value;
   String title;
-  String errorMessage;
+  String? errorMessage;
 
   _DgSimpleState(this.title, this.value, this.errorMessage) : super();
 
   void handleSavePressed(String value) async {
     if (widget.isValid != null)
-      errorMessage = await widget.isValid(_nameController.text);
+      errorMessage = await widget.isValid!(_nameController!.text);
     else
       errorMessage = null;
-    if (errorMessage !=null && errorMessage.isNotEmpty)
+    if (errorMessage !=null && errorMessage!.isNotEmpty)
       setState(() {});
     else
       Navigator.pop(context, value);
@@ -45,12 +45,12 @@ class _DgSimpleState extends State<DgSimple> {
   void initState() {
     super.initState();
     _nameController = TextEditingController();
-    _nameController.text = value;
+    _nameController!.text = value!;
   } // of initState
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _nameController!.dispose();
     super.dispose();
   }
 
@@ -66,7 +66,7 @@ class _DgSimpleState extends State<DgSimple> {
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                _nameController.text = '';
+                _nameController!.text = '';
                 handleSavePressed(EXIT_CODE);
               })
         ],
@@ -79,7 +79,7 @@ class _DgSimpleState extends State<DgSimple> {
           onSubmitted: handleSavePressed,
         ),
         Text(
-          errorMessage,
+          errorMessage!,
           style: Theme.of(context).textTheme.bodyMedium,
           maxLines: 3,
         ),

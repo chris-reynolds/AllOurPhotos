@@ -15,35 +15,37 @@ import '../dart_common/ImageUploader.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class DbFixFormWidget extends StatefulWidget {
+  const DbFixFormWidget({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return DbFixFormWidgetState();
   }
 }
 
-typedef SnapProcessor = Function(AopSnap snap);
+typedef SnapProcessor = Function(AopSnap? snap);
 
 class DbFixFormWidgetState extends State<DbFixFormWidget> {
   bool inProgress = false;
   String runType = '----';
-  String groupQuery;
-  String detailQuery;
-  SnapProcessor snapProcessor;
+  late String groupQuery;
+  late String detailQuery;
+  SnapProcessor? snapProcessor;
   String inputWhere = '';
   String fullWhere = '';
-  List<String> groups = [];
+  List<String?> groups = [];
   List<AopSnap> snapList = [];
   int snapIdx = -1;
   int groupIdx = -1;
 
-  String get currentGroupName =>
+  String? get currentGroupName =>
       (groupIdx >= 0 && groupIdx < groups.length) ? groups[groupIdx] : 'Current group not ready';
 
-  AopSnap get currentSnap => (snapIdx >= 0 && snapIdx < snapList.length) ? snapList[snapIdx] : null;
+  AopSnap? get currentSnap => (snapIdx >= 0 && snapIdx < snapList.length) ? snapList[snapIdx] : null;
 
   void fixTakenDateDriver() async {
     runType = 'Restore Taken Date from metaData';
-    if (await confirmYesNo(context, runType)) {
+    if ((await confirmYesNo(context, runType))!) {
       groupQuery =
       'select distinct directory from aopsnaps where ${(inputWhere.isNotEmpty)
           ? inputWhere
@@ -53,15 +55,15 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     }
   }
 
-  Future<void> fixSingleTakenDate(AopSnap snap) async {
-    log.message('Processing ${snap.fileName}');
+  Future<void> fixSingleTakenDate(AopSnap? snap) async {
+    log.message('Processing ${snap!.fileName}');
     dynamic meta = jsonDecode(snap.metadata ?? '{}');
-    String origDateStr = meta['DateTimeOriginal'] ?? meta['DateTime'];
+    String? origDateStr = meta['DateTimeOriginal'] ?? meta['DateTime'];
     if (origDateStr != null)
       try {
-        DateTime origDate = dateTimeFromExif(origDateStr);
+        DateTime origDate = dateTimeFromExif(origDateStr)!;
         int secsDiff = origDate
-            .difference(snap.takenDate)
+            .difference(snap.takenDate!)
             .inSeconds
             .abs();
         if (secsDiff > 120) {
@@ -82,7 +84,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
       return;
     }
     runType = 'Fix Thumbnail for orientation 6';
-    if (await confirmYesNo(context, runType)) {
+    if ((await confirmYesNo(context, runType))!) {
       fullWhere =
       ' (metadata like \'%Orientation":6%\' or metadata like \'%Orientation":8%\') and device_name like \'%$inputWhere%\' ';
       groupQuery = 'select distinct directory from aopsnaps where $fullWhere order by 1';
@@ -91,11 +93,11 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     }
   } // of fixThumbnailDriver
 
-  Future<void> fixSingleThumbnail(AopSnap snap) async {
-    log.message('Processing ${snap.fileName}');
+  Future<void> fixSingleThumbnail(AopSnap? snap) async {
+    log.message('Processing ${snap!.fileName}');
     dynamic meta = jsonDecode(snap.metadata ?? '{}');
     try {
-      IM.Image fullPic = await loadWebImage(snap.fullSizeURL);
+      IM.Image fullPic = (await loadWebImage(snap.fullSizeURL))!;
       IM.Image thumbnail = makeThumbnail(fullPic);
 //      IM.Image thumbnail = IM.copyResize( fullPic, width: 480); // you know it is portrait from orientation
       await saveWebImage(snap.thumbnailURL, image: thumbnail, quality: 50);
@@ -124,7 +126,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
         var dto = jpegLoader.tags['DateTimeOriginal']??jpegLoader.tags['DateTime'];
         if (dto!=null) {
           var photoList = await snapProvider.rawExecute(PHOTOID_SQL.replaceAll('xxxx', dto));
-          var photoId = -1;
+          int? photoId = -1;
           if (photoList!=null && photoList.isNotEmpty)
             photoId = photoList.first['id'];
           var item = {
@@ -140,18 +142,17 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
         } else
           log.message('skipped $filename lacked date');
       }
-      var currentAlbum = '';
-      var albumId = -1;
+      String? currentAlbum = '';
+      int? albumId = -1;
       for (var item in workList) {
-        String thisAlbum = item['album'];
+        String? thisAlbum = item['album'];
         if (currentAlbum!=item['album']) {
           var albumList = await albumProvider.rawExecute('select * from aopalbums where name like \'%$thisAlbum%\'');
           if (albumList.isEmpty) {
             log.message('!!!!!!! CREATE ALBUM $thisAlbum');
             currentAlbum = thisAlbum;
-            var newAlbum = AopAlbum()
-              ..name = '2025 $thisAlbum';
-            var result = await newAlbum.save();
+            var newAlbum = AopAlbum(data:{'name':'2025 $thisAlbum'});
+            var result = (await newAlbum.save())!;
             if (result>0)
               albumId = result;
             else
@@ -159,14 +160,14 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
           } else
             albumId = albumList.first['id'];
         } // of newAlbum
-        int photoId = item['photoid'];
+        int? photoId = item['photoid'];
         var existingItems = await albumItemProvider.rawExecute('select * from aopalbum_items where album_id=$albumId and snap_id=$photoId');
-        if (existingItems.isEmpty  && albumId>0 && photoId>0) {
+        if (existingItems.isEmpty  && albumId!>0 && photoId!>0) {
           log.message('creating ${item['name']}');
-          var albumItem = AopAlbumItem()
+          var albumItem = AopAlbumItem(data:{})
             ..snapId = photoId
             ..albumId = albumId;
-          var result = await albumItem.save();
+          var result = (await albumItem.save())!;
           if (result<=0)
             log.error('cant save item');
           else
@@ -210,7 +211,7 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
         //exit if no more groups
         return false;
       }
-      String thisWhereClause = detailQuery.replaceAll('GROUP', currentGroupName);
+      String thisWhereClause = detailQuery.replaceAll('GROUP', currentGroupName!);
       if (fullWhere.isNotEmpty)
         thisWhereClause += ' and $fullWhere';
       else if (inputWhere.isNotEmpty)
@@ -249,14 +250,14 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
           ),
           if (groupIdx >= 0)
             Text(
-              currentGroupName,
+              currentGroupName!,
               style: Theme
                   .of(context)
                   .textTheme
                   .bodyLarge,
             ),
           if (currentSnap != null)
-            Text('${currentSnap.fileName}  - $snapIdx of ${snapList.length}',
+            Text('${currentSnap!.fileName}  - $snapIdx of ${snapList.length}',
                 style: Theme
                     .of(context)
                     .textTheme

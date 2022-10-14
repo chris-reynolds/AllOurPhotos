@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'package:aopcommon/aopcommon.dart';
 import './dbAllOurPhotos.dart';
@@ -6,7 +7,7 @@ import './dbAllOurPhotos.dart';
 bool sqlLogging = true;
 
 abstract class DomainObject {
-  DomainObject({Map<String, dynamic>? data});
+  DomainObject({required Map<String, dynamic> data});
 
   int? id;
   DateTime? createdOn;
@@ -29,7 +30,7 @@ abstract class DomainObject {
   void fromMap(Map<String, dynamic> map);
 
   void fromRow(dynamic row) {
-    String? fld;
+    String fld ='';
     try {
       fld = 'id';
       id = row[0];

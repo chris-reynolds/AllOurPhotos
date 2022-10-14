@@ -24,7 +24,7 @@ class LaunchWithLogin extends StatelessWidget {
     String localDocs = (await getApplicationDocumentsDirectory()).path;
     log.message('localdocs from $localDocs');
     if (Platform.isAndroid) {
-      String extStorage = (await getExternalStorageDirectory()).path;
+      String extStorage = (await getExternalStorageDirectory())!.path;
       log.message('external storage is $extStorage');
     }
     await loadConfig('$localDocs/aopPhoneSync.config.json');

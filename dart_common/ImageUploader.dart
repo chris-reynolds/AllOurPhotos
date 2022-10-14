@@ -5,12 +5,6 @@ import 'dart:convert';
 import 'package:image/image.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
-//import 'Config.dart';
-//import 'DateUtil.dart';
-//import 'JpegLoader.dart';
-//import 'Geocoding.dart';
-//import 'WebFile.dart';
-//import './Logger.dart' as Log;
 
 String _fileName(String path) => (path.lastIndexOf('/') > 0)
     ? path.substring(path.lastIndexOf('/') + 1)
@@ -35,25 +29,25 @@ Future<bool> uploadFile(File thisPicFile) async {
 }
 
 Future<bool> uploadImage(List<int> imageContents, String imageName,
-    {DateTime fileModified,String device}) async {
+    {DateTime? fileModified,String? device}) async {
   try {
     log.message('uploading $imageName');
-    Image thisImage = decodeImage(imageContents);
+    Image thisImage = decodeImage(imageContents)!;
 
     GeocodingSession geo = GeocodingSession();
     JpegLoader jpegLoader = JpegLoader();
     await jpegLoader.extractTags(imageContents);
     log.message(jpegLoader.tags.isEmpty?'NO TAGS !!!!!!!!!!!!!':'Tag count is ${jpegLoader.tags.length}');
-    String deviceName = device ?? jpegLoader.tag('Model') ?? config['sesdevice'];
+    String deviceName = device ?? jpegLoader.tag('Model') ?? config['sesdevice'] ?? 'No Device';
     DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ??
         jpegLoader.tag('dateTime') ??
         fileModified ??
         DateTime(1982,1,1);
 
-    bool alReadyExists = await AopSnap.sizeOrNameOrDeviceAtTimeExists(
-        takenDate, imageContents.length, imageName, deviceName);
+    bool alReadyExists = (await AopSnap.sizeOrNameOrDeviceAtTimeExists(
+        takenDate, imageContents.length, imageName, deviceName))!;
     if (alReadyExists) return false;
-    AopSnap newSnap = AopSnap()
+    AopSnap newSnap = AopSnap(data:{})
       ..fileName = imageName
       ..directory = '1982-01'
       ..width = thisImage.width
@@ -66,10 +60,10 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
       ..importedDate = DateTime.now();
 
     bool isScanned = ((jpegLoader.tag('device.software') ?? '').toLowerCase().indexOf('scan') >= 0);
-    newSnap.importSource += isScanned ? ' scanned' : ' camera roll';
+    newSnap.importSource = newSnap.importSource??'' + (isScanned ? ' scanned' : ' camera roll');
 
     newSnap.originalTakenDate = newSnap.takenDate;
-    newSnap.directory = formatDate(newSnap.originalTakenDate, format: 'yyyy-mm');
+    newSnap.directory = formatDate(newSnap.originalTakenDate!, format: 'yyyy-mm');
     // checkl for duplicate
     newSnap.mediaLength = imageContents.length;
     if (jpegLoader.tag("GPSLatitudeRef") != null) {
@@ -79,22 +73,22 @@ Future<bool> uploadImage(List<int> imageContents, String imageName,
           jpegLoader.dmsToDeg(jpegLoader.tag('GPSLongitude'), jpegLoader.tag('GPSLongitudeRef'));
     }
     if (newSnap.latitude != null) {
-      String location = await geo.getLocation(newSnap.longitude, newSnap.latitude);
+      String? location = await geo.getLocation(newSnap.longitude!, newSnap.latitude!);
       if (location != null) newSnap.trimSetLocation(location);
     }
 
-    if (newSnap.originalTakenDate != null && newSnap.originalTakenDate.year > 1980) {
-      if (await AopSnap.dateTimeExists(newSnap.originalTakenDate, newSnap.mediaLength))
+    if (newSnap.originalTakenDate != null && newSnap.originalTakenDate!.year > 1980) {
+      if ((await AopSnap.dateTimeExists(newSnap.originalTakenDate!, newSnap.mediaLength))!)
         return false;
     } else {
-      if (await AopSnap.nameExists(newSnap.fileName, newSnap.mediaLength)) return false;
+      if ((await AopSnap.nameExists(newSnap.fileName!, newSnap.mediaLength))!) return false;
     }
     // all looks good to upload but it might be a different picture with the same name and month
-    if (await newSnap.nameClashButDifferentSize()) {
-      int lastDot = newSnap.fileName.lastIndexOf('.');
+    if ((await newSnap.nameClashButDifferentSize())!) {
+      int lastDot = newSnap.fileName!.lastIndexOf('.');
       if (lastDot < 0) throw "Cant find the extension of file name ${newSnap.fileName}";
       newSnap.fileName =
-          '${newSnap.fileName.substring(0, lastDot)}a${newSnap.fileName.substring(lastDot)}';
+          '${newSnap.fileName!.substring(0, lastDot)}a${newSnap.fileName!.substring(lastDot)}';
     }
     String myMeta = jsonEncode(jpegLoader.tags);
     Image thumbnail =  makeThumbnail(thisImage); //copyResize(thisImage, width: (newSnap.width > newSnap.height) ? 640 : 480);

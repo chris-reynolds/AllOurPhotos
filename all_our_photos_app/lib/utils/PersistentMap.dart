@@ -9,8 +9,9 @@ import 'package:aopcommon/aopcommon.dart';
 
 class PersistentMap {
   final String _url;
-  WebFile _webFile;
+  late WebFile _webFile;
   final _contents = <int,String>{};
+  bool isLoaded = false;
 
   PersistentMap(this._url);
   load() async {
@@ -18,6 +19,7 @@ class PersistentMap {
     String response = _webFile.contents;
 
     _contents.clear();
+    isLoaded = true;
     response.split('\n').forEach((line) {
       int delimPos = line.indexOf('=');
       if (delimPos>0) {
@@ -26,6 +28,7 @@ class PersistentMap {
         _contents[key] = value;
       }
     }); // of foreach line
+
   }
 
   Future<bool> save() async {
@@ -42,13 +45,17 @@ class PersistentMap {
   void clear() => _contents.clear();
 
 
-  String operator [](int key) => _contents[key]??'';
+  String operator [](int key) {
+    if (!isLoaded) throw Exception('Not yet loaded map $_url');
+    return _contents[key]??'';
+  }
 
   void operator []=(int key, String value) {
+    if (!isLoaded) throw Exception('Not yet loaded map $_url for update');
     _contents[key] = value;
   }
 
-  String remove(Object key) => _contents.remove(key);
+  String? remove(Object key) => _contents.remove(key);
 
   Iterable<int> get keys => _contents.keys;
 

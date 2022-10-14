@@ -20,10 +20,10 @@ import '../MonthlyStatus.dart';
 
 class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
-  final AopAlbum _album;
-  final CallBack _refreshNow;
+  final AopAlbum? _album;
+  final CallBack? _refreshNow;
 
-  PhotoGrid(this._initImageFilter, {AopAlbum album, CallBack refreshNow})
+  PhotoGrid(this._initImageFilter, {AopAlbum? album, CallBack? refreshNow})
       : _album = album,
         _refreshNow = refreshNow {
 //    log.message('PhotoGrid constructor by filter');
@@ -34,7 +34,7 @@ class PhotoGrid extends StatefulWidget {
 }
 
 class PhotoGridState extends State<PhotoGrid> with Selection<int> {
-  SelectableListProvider<AopSnap> _imageFilter;
+  late SelectableListProvider<AopSnap> _imageFilter;
   double _targetOffset = 0.0;
   ScrollController _scrollController = ScrollController();
 
@@ -176,7 +176,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   icon: Icon(Icons.delete),
                   tooltip: 'Remove selected photos from album',
                   onPressed: () {
-                    handleMultiRemoveFromAlbum(context, widget._album, _imageFilter.selectionList);
+                    handleMultiRemoveFromAlbum(context, widget._album!, _imageFilter.selectionList);
                   }),
             IconButton(
                 icon: Icon(Icons.star, color: Colors.green),
@@ -220,7 +220,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       ),
       body: Column(children: <Widget>[
         if (_imageFilter is ImageFilter)
-          ImageFilterWidget(_imageFilter, onRefresh: filterRefreshCallback),
+          ImageFilterWidget(_imageFilter as ImageFilter, onRefresh: filterRefreshCallback),
         Expanded(
           child: GridView.count(
             controller: _scrollController,
@@ -233,7 +233,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
             childAspectRatio: 1.1,
             //(orientation == Orientation.portrait) ? 1.0 : 1.3,
             children: [
-              if (_imageFilter.items != null)
+           //   if (_imageFilter.items != null)
                 for (int idx = 0; idx < _imageFilter.items.length; idx++)
                   PhotoTile(
                       isSelected: _imageFilter.isSelected(_imageFilter.items[idx]),
@@ -249,13 +249,13 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                           //                     toggleSelected(imageFile);
                           else
                             try {
-                              int newRanking = (imageFile.ranking + 1) % 3 + 1;
+                              int newRanking = (imageFile.ranking! + 1) % 3 + 1;
                               imageFile.ranking = newRanking;
                               imageFile.save();
                               if (imageFile.ranking != newRanking)
                                 throw "Failed to save new ranking???";
-                            } catch (e) {
-                              showMessage(context, e);
+                            } catch (ex) {
+                              showMessage(context, '$ex');
                             }
                         }); // setState
                       },
@@ -281,7 +281,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   }
 
   void handleMultiCaption(BuildContext context, List<AopSnap> snaps) async {
-    String value = '';
+    String? value = '';
     String errorMessage = '';
     bool done = false;
     if (snaps.isNotEmpty) // use first caption as default
@@ -313,7 +313,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   } // handleMultiCaption
 
   void handleMultiTakenDate(BuildContext context, List<AopSnap> snaps) async {
-    String value = '';
+    String? value = '';
     String errorMessage = '';
     bool done = false;
     while (!done) {
@@ -354,10 +354,10 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   } // handleMultiTakenDate
 
   void handleMultiLocation(BuildContext context, List<AopSnap> snaps) async {
-    String value = '';
+    String? value = '';
     String errorMessage = '';
     bool done = false;
-    List<String> allLocations = await AopSnap.distinctLocations;
+    List<String> allLocations = (await (AopSnap.distinctLocations))??[];
     while (!done) {
       value = await showDialog(
           context: context,
@@ -370,7 +370,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                 } catch (ex) {
                   return '$ex';
                 }
-              }));
+              }))  ;
       if (value == null || value == EXIT_CODE) return;
       try {
         log.message('new location is: $value');
@@ -422,8 +422,8 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       String message = '';
       if (selectedSnaps == null || selectedSnaps.isEmpty) return; // nothing to delete
       if ((await argAlbum.albumItems).length == selectedSnaps.length) {
-        if (await confirmYesNo(context, 'Delete this album',
-            description: 'All photos for this album have been\n selected for deletion'))
+        if ((await confirmYesNo(context, 'Delete this album',
+            description: 'All photos for this album have been\n selected for deletion'))!)
           deleteAlbum = true;
       }
       int count = await argAlbum.removeSnaps(selectedSnaps);
@@ -437,7 +437,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         Navigator.pop(context, true);
       } else {
         await showMessage(context, message);
-        if (widget._refreshNow != null) widget._refreshNow();
+        if (widget._refreshNow != null) widget._refreshNow!();
         clearSelected();
         setState(() {});
       }
@@ -451,7 +451,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     String dirName = (await PathProvider.getApplicationDocumentsDirectory()).path;
     String albumName = 'AllOurPhotos';
     if (widget._album != null) {
-      albumName = widget._album.name.replaceAll('/', '-').replaceAll('\\', '-').replaceAll(' ', '');
+      albumName = widget._album!.name!.replaceAll('/', '-').replaceAll('\\', '-').replaceAll(' ', '');
     }
     if (albumName.length > 20) albumName = albumName.substring(0, 19);
     dirName += '/$albumName/';

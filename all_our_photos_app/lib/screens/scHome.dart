@@ -6,9 +6,9 @@ import '../widgets/wdgYearGrid.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key key, this.title, this.logoutFn}) : super(key: key);
-  final Function logoutFn;
-  final String title;
+  const HomeScreen({Key? key, this.title, this.logoutFn}) : super(key: key);
+  final Function? logoutFn;
+  final String? title;
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -17,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   //inside _HomeScreenState class
 
-  PageController _pageController;
+  PageController? _pageController;
   int _page = 0;
   bool _debugMode = false;
 
@@ -30,13 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     super.dispose();
-    _pageController.dispose();
+    _pageController!.dispose();
   }
 
   void navigationTapped(int page) {
     // Animating to the page.
     // You can use whatever duration and curve you like
-    _pageController.jumpToPage(page);
+    _pageController!.jumpToPage(page);
 //    _pageController.animateToPage(page,
 //        duration: const Duration(milliseconds: 100), curve: Curves.ease);
   }
@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: GestureDetector(
             child: Text(
-              widget.title,
+              widget.title!,
               style: TextStyle(color: const Color(0xFFFFFFFF)),
             ),
             onDoubleTap: () {
@@ -66,8 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: Icon(Icons.exit_to_app),
               onPressed: () async {
-                if (await confirmYesNo(context, 'Do really want to log out?')) {
-                  widget.logoutFn();
+                if ((await confirmYesNo(context, 'Do really want to log out?'))!) {
+                  widget.logoutFn!();
                 }
               },
             ),

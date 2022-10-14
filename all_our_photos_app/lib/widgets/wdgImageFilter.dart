@@ -9,16 +9,16 @@ import 'package:aopcommon/aopcommon.dart';
 import '../ImageFilter.dart';
 import 'wdgTapDate.dart';
 
-
-const filterColors = <Color>[null, Colors.red, Colors.orange, Colors.green, Colors.pink];
+// blue gray not actually used. just holding the zero position
+const filterColors = <Color>[Colors.blueGrey, Colors.red, Colors.orange, Colors.green, Colors.pink];
 
 IconData _rankIcon(bool selected) => selected ? Icons.star : Icons.star_border;
 
 class ImageFilterWidget extends StatefulWidget {
   final ImageFilter _initImageFilter;
-  final VoidCallback onRefresh;
+  VoidCallback onRefresh = (){};
 
-  const ImageFilterWidget(this._initImageFilter, {this.onRefresh});
+  ImageFilterWidget(this._initImageFilter, {required this.onRefresh});
 
   @override
   State<StatefulWidget> createState() {
@@ -27,7 +27,7 @@ class ImageFilterWidget extends StatefulWidget {
 }
 
 class ImageFilterWidgetState extends State<ImageFilterWidget> {
-  ImageFilter _imageFilter;
+  late ImageFilter _imageFilter;
   TextEditingController textController = TextEditingController();
   bool _changeMode = false;
 

@@ -13,15 +13,17 @@ import '../ImageFilter.dart';
 import '../widgets/wdgSnapGrid.dart';
 
 class AlbumAddPhoto extends StatefulWidget {
+  const AlbumAddPhoto({Key? key}) : super(key: key);
+
   @override
-  _AlbumAddPhotoState createState() => _AlbumAddPhotoState();
+  AlbumAddPhotoState createState() => AlbumAddPhotoState();
 }
 
-class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
-  AopAlbum album;
-  ImageFilter imgFilter;
+class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
+  AopAlbum? album;
+  late ImageFilter imgFilter;
   int yearNo = DateTime.now().year;
-  List<AopSnap> _list;
+  List<AopSnap>? _list;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,7 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
     );
   } // of build
 
-  Widget buildBar(BuildContext context) {
+  PreferredSizeWidget buildBar(BuildContext context) {
     if (selectionList.isEmpty)
       return AppBar(
         actions: <Widget>[
@@ -77,9 +79,8 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (album == null) {
-      album = ModalRoute.of(context).settings.arguments;
-      yearNo = int.tryParse(album.name.substring(0, 4));
-      yearNo ??= DateTime.now().year;
+      album = ModalRoute.of(context)!.settings.arguments as AopAlbum?;
+      yearNo = int.tryParse(album!.name.substring(0, 4)) ?? DateTime.now().year;
       DateTime startDate = DateTime(yearNo, 1, 1);
       imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
       imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds:-1));
@@ -118,13 +119,14 @@ class _AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   } // of setQuarter
 
   Widget snapCell(AopSnap snap) {
+    const int DUMMY_ID = -999;
     return InkWell(
       child: Text(
-          '${formatDate(snap.takenDate, format: 'dd-mmm-yy hh:nn:ss')} ' '   ${snap.fullSizeURL}      ',
+          '${formatDate(snap.takenDate!, format: 'dd-mmm-yy hh:nn:ss')} ' '   ${snap.fullSizeURL}      ',
           style: TextStyle(
-              color: isSelected(snap.id) ? Colors.red : Colors.blueAccent)),
+              color: isSelected(snap.id??DUMMY_ID) ? Colors.red : Colors.blueAccent)),
       onTap: () {
-        toggleSelected(snap.id);
+        toggleSelected(snap.id??DUMMY_ID);
         setState(() {});
       },
     );

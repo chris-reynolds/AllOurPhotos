@@ -13,7 +13,7 @@ import '../flutter_common/WidgetSupport.dart';
 import 'package:aopcommon/aopcommon.dart';
 
 class MetaEditorWidget extends StatefulWidget {
-  const MetaEditorWidget({Key key}) : super(key: key);
+  const MetaEditorWidget({Key? key}) : super(key: key);
 
   @override
   MetaEditorWidgetState createState() => MetaEditorWidgetState();
@@ -22,21 +22,21 @@ class MetaEditorWidget extends StatefulWidget {
 class MetaEditorWidgetState extends State<MetaEditorWidget> {
   static const String DATE_FORMAT = 'd/m/yyyy hh:nn:ss';
   var formKey = GlobalKey<FormState>();
-  AopSnap snap;
+  AopSnap? snap;
   Map<String, dynamic> values = {};
-  ChipSet _baseChips;
-  ChipSet _currentChips;
+  ChipSet _baseChips = ChipSet('');
+  ChipSet _currentChips = ChipSet('');
 
   /* base plus any historic in this Snap */
-  WebFile chipFile;
-  ChipSet selectedChips;
-  String currentLocationText;
+  WebFile? chipFile;
+  late ChipSet selectedChips;
+  String? currentLocationText;
   List<String> locationList = ['None'];
 
   void selectChip(BuildContext context, String caption, bool selected) async {
     if (caption == '+' || caption == '-') {
       String prompt = (caption == '+') ? 'Add new' : 'Remove';
-      String newChipText = await inputBox(context, '$prompt Chip Text');
+      String? newChipText = await inputBox(context, '$prompt Chip Text');
       newChipText = newChipText?.trim();
       if (newChipText != null && newChipText.isNotEmpty) {
         if (caption == '-') {
@@ -81,7 +81,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
     //   setState(() {});
   }
 
-  String _checkCaption(value) {
+  String? _checkCaption(value) {
     if (value.length > 0 && value.length < 4)
       return "Caption needs at least 4 characters";
     else {
@@ -90,8 +90,8 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
     }
   } // of checkCaption
 
-  String _checkDate(String value) {
-    if (value.length < 5) value = '01/$value';
+  String? _checkDate(String? value) {
+    if (value!.length < 5) value = '01/$value';
     if (value.length < 8) value = '01/$value';
     try {
       values['taken_date'] = parseDMY(value);
@@ -102,13 +102,13 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
   } // of checkDate
 
   void _submit(BuildContext context) async {
-    if (formKey.currentState.validate()) {
-      snap.caption = values['caption'];
-      snap.takenDate = values['taken_date'];
-      snap.tagList = selectedChips.toString();
-      snap.ranking = values['ranking'];
-      snap.location = values['location'];
-      await snap.save().then((result) {
+    if (formKey.currentState!.validate()) {
+      snap!.caption = values['caption'];
+      snap!.takenDate = values['taken_date'];
+      snap!.tagList = selectedChips.toString();
+      snap!.ranking = values['ranking'];
+      snap!.location = values['location'];
+      await snap!.save().then((result) {
         // todo check save result
         Navigator.pop(context);
       });
@@ -117,20 +117,20 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_baseChips == null) return CircularProgressIndicator();
+    if (_baseChips.toString() == '') return CircularProgressIndicator();
     if (snap == null) {
-      snap = ModalRoute.of(context).settings.arguments as AopSnap;
-      values = snap.toMap();
+      snap = ModalRoute.of(context)!.settings.arguments as AopSnap?;
+      values = snap!.toMap();
       // remove time if it does not exist
-      values['taken_date'] = formatDate(snap.takenDate, format: DATE_FORMAT);
+      values['taken_date'] = formatDate(snap!.takenDate!, format: DATE_FORMAT);
       values['taken_date'] = values['taken_date']?.replaceAll(' 00:00:00', '');
       selectedChips = ChipSet(values['tag_list']);
     } // of initial snap assignment
     _currentChips = _baseChips;
-    _currentChips?.addAll(selectedChips);
+    _currentChips.addAll(selectedChips);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit ${snap.fileName}'),
+        title: Text('Edit ${snap!.fileName}'),
       ),
       body: Form(
         key: formKey,
@@ -164,8 +164,8 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
                 return locationList.where((String location) =>
-                    location.toLowerCase().contains(textEditingValue.text.toLowerCase()));
-              },
+                    location.toLowerCase().contains(textEditingValue.text.toLowerCase())) ;
+              } ,
               initialValue: TextEditingValue(text: values['location'] ?? ''),
               onSelected: (v) {
                 values['location'] = v;

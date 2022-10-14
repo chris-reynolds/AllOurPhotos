@@ -25,14 +25,14 @@ class ExportPic {
     return false;
   }
 
-  static Future<bool> save(String url, String fileName, String albumName) async {
-    Directory directory;
+  static Future<bool> save(String url, String? fileName, String albumName) async {
+    Directory? directory;
     try {
       if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
           directory = await Path.getExternalStorageDirectory();
           String newPath = "";
-          print(directory);
+          log.message(directory!.path);
           List<String> paths = directory.path.split("/");
           for (int x = 1; x < paths.length; x++) {
             String folder = paths[x];
@@ -54,7 +54,7 @@ class ExportPic {
           return false;
         }
       } else if (Platform.isMacOS) {
-        directory = Directory('${(await Path.getDownloadsDirectory()).path}/$albumName');
+        directory = Directory('${(await Path.getDownloadsDirectory())!.path}/$albumName');
       } else
         throw Exception('Platform not supported');
 
@@ -81,7 +81,7 @@ class ExportPic {
       if (directory != null && directory is Directory)
         target = '${directory.path}/$fileName';
       log.error('Failed to save $target \n Error is $e');
-      print('Failed to save $target \n Error is $e');
+      //print('Failed to save $target \n Error is $e');
     }
     return false;
   }  // of save

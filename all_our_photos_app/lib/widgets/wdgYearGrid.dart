@@ -30,7 +30,7 @@ class _YearGridState extends State<YearGrid> {
     'monthCell': TextStyle(),
   };
   List<YearEntry> yearList = [];
-  BuildContext currentContext;
+  BuildContext? currentContext;
 
   int _currentYear = 0;
   int _currentMonth = 0;
@@ -49,7 +49,7 @@ class _YearGridState extends State<YearGrid> {
 
   Future<List<YearEntry>> buildYears() async {
     List<YearEntry> result = [];
-    for (var row in await AopSnap.monthGrid) {
+    for (var row in (await AopSnap.monthGrid) as Iterable<dynamic>) {
       YearEntry newYear = YearEntry(row[0]);
       for (int monthIx = 1; monthIx <= 12; monthIx++)
         newYear.months[monthIx] = (row[monthIx]).round();
@@ -68,7 +68,7 @@ class _YearGridState extends State<YearGrid> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo),album: null))).then((value)
+                  PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo, refresh: () {  }),album: null))).then((value)
                   {setState(() {});}
                   );
     }

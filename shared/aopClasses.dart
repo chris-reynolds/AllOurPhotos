@@ -27,7 +27,7 @@ var userProvider = DOProvider<AopUser>("aopusers",["name","hint",],AopUser.maker
 //-------------------------------------------------------------------
 class AopAlbum extends DomainObject {
 
-  String? name;
+  String name ='';
   String? description;
   DateTime? firstDate;
   DateTime? lastDate;
@@ -36,8 +36,7 @@ class AopAlbum extends DomainObject {
 //                                '*** Start Custom Code privatealbum
 //                                '*** End Custom Code
   // constructor
-  AopAlbum ({Map<String,dynamic>? data}) : super(data:data) {
-  if (data != null)
+  AopAlbum ({required Map<String,dynamic> data}) : super(data:data) {
     fromMap(data);
 //                                '*** Start Custom Code album.create
 //                                '*** End Custom Code
@@ -54,7 +53,7 @@ class AopAlbum extends DomainObject {
 
 //maker function for the provider
 static AopAlbum maker() {
-  return AopAlbum();
+  return AopAlbum(data:{});
 } 
 // To/From Map for persistence
 @override
@@ -150,7 +149,7 @@ Future<bool> delete() async {
       bool found = false;
       for (AopAlbumItem item in existingItems) if (item.snapId == newId) found = true;
       if (!found) {
-        AopAlbumItem newItem = AopAlbumItem();
+        AopAlbumItem newItem = AopAlbumItem(data:{});
         newItem.albumId = id;
         newItem.snapId = newId;
         await newItem.save();
@@ -177,8 +176,8 @@ Future<bool> delete() async {
   @override
   Future<void> validate() async {
     await super.validate(); // clear last errors
-    if (name!.length < 10) lastErrors.add('name must be 10 characters long');
-    String yearStr = name!.substring(0, 4);
+    if (name.length < 10) lastErrors.add('name must be 10 characters long');
+    String yearStr = name.substring(0, 4);
     int yearNo = int.tryParse(yearStr) ?? -1;
     if (yearNo < 1900 || yearNo > 2099) lastErrors.add('name should start with 4 digit year');
   } // of validate
@@ -199,8 +198,7 @@ class AopAlbumItem extends DomainObject {
 //                                '*** Start Custom Code privatealbum item
 //                                '*** End Custom Code
   // constructor
-  AopAlbumItem ({Map<String,dynamic>? data}) : super(data:data) {
-  if (data != null)
+  AopAlbumItem ({required Map<String,dynamic> data}) : super(data:data) {
     fromMap(data);
 //                                '*** Start Custom Code album item.create
 //                                '*** End Custom Code
@@ -221,7 +219,7 @@ class AopAlbumItem extends DomainObject {
 
 //maker function for the provider
 static AopAlbumItem maker() {
-  return AopAlbumItem();
+  return AopAlbumItem(data:{});
 } 
 // To/From Map for persistence
 @override
@@ -304,8 +302,7 @@ class AopSession extends DomainObject {
 //                                '*** Start Custom Code privatesession
 //                                '*** End Custom Code
   // constructor
-  AopSession ({Map<String,dynamic>? data}) : super(data:data) {
-  if (data != null)
+  AopSession ({required Map<String,dynamic> data}) : super(data:data) {
     fromMap(data);
 //                                '*** Start Custom Code session.create
 //                                '*** End Custom Code
@@ -322,7 +319,7 @@ class AopSession extends DomainObject {
 
 //maker function for the provider
 static AopSession maker() {
-  return AopSession();
+  return AopSession(data:{});
 } 
 // To/From Map for persistence
 @override
@@ -433,8 +430,7 @@ class AopSnap extends DomainObject {
 //                                '*** Start Custom Code privatesnap
 //                                '*** End Custom Code
   // constructor
-  AopSnap ({Map<String,dynamic>? data}) : super(data:data) {
-  if (data != null)
+  AopSnap ({required Map<String,dynamic> data}) : super(data:data) {
     fromMap(data);
 //                                '*** Start Custom Code snap.create
     ranking ??= 2;
@@ -462,7 +458,7 @@ class AopSnap extends DomainObject {
 
 //maker function for the provider
 static AopSnap maker() {
-  return AopSnap();
+  return AopSnap(data:{});
 } 
 // To/From Map for persistence
 @override
@@ -699,11 +695,11 @@ Future<bool> delete() async {
     return r;
   } // of existingLocations
 
-  static Future<List<String?>> get distinctLocations async {
+  static Future<List<String>> get distinctLocations async {
     var r = await snapProvider
         .rawExecute('select distinct location from aopsnaps where location is not null');
-    List<String?> result = [];
-    for (var row in r) result.add(row[0]);
+    List<String> result = [];
+    for (var row in r) result.add(row[0] as String);
     return result;
   } // of existingLocations
 
@@ -712,7 +708,7 @@ Future<bool> delete() async {
     return r;
   } // of yearGrid
 
-  static Future<int?> getPreviousCropCount(String source) async {
+  static Future<int> getPreviousCropCount(String source) async {
     var r = await snapProvider
         .rawExecute("select count(*) from aopsnaps where import_source='$source'");
     for (var row in r) return row[0];
@@ -731,16 +727,16 @@ Future<bool> delete() async {
     return '$rootUrl/$directory/metadata/$fileName.json';
   } // of metadataURL
 
-  void trimSetLocation(String newLocation) {
+  void trimSetLocation(String? newLocation) {
     if (newLocation != null && newLocation.length > 200)
       newLocation = newLocation.substring(newLocation.length - 200);
     location = newLocation;
   } // of trimSetLocation
 
-  double get angle => (int.parse(rotation!) ?? 0) * math.pi / 2;
+  double get angle => (int.parse(rotation!) ) * math.pi / 2;
 
   void rotate(int direction) {
-    int newRotation = (int.parse(rotation!) ?? 0) + direction;
+    int newRotation = (int.parse(rotation!) ) + direction;
     newRotation = newRotation % 4; // wrap 360
     rotation = '$newRotation';
   }
@@ -760,8 +756,7 @@ class AopUser extends DomainObject {
 //                                '*** Start Custom Code privateuser
 //                                '*** End Custom Code
   // constructor
-  AopUser ({Map<String,dynamic>? data}) : super(data:data) {
-  if (data != null)
+  AopUser ({required Map<String,dynamic> data}) : super(data:data) {
     fromMap(data);
 //                                '*** Start Custom Code user.create
 //                                '*** End Custom Code
@@ -787,7 +782,7 @@ class AopUser extends DomainObject {
 
 //maker function for the provider
 static AopUser maker() {
-  return AopUser();
+  return AopUser(data:{});
 } 
 // To/From Map for persistence
 @override

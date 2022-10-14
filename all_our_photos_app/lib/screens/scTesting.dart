@@ -3,7 +3,7 @@ import 'package:aopcommon/aopcommon.dart';
 import '../shared/aopClasses.dart';
 
 class SearchList extends StatefulWidget {
-  const SearchList({ Key key }) : super(key: key);
+  const SearchList({ Key? key }) : super(key: key);
 
   @override
   _SearchListState createState() => _SearchListState();
@@ -16,8 +16,8 @@ class _SearchListState extends State<SearchList> {
   Icon actionIcon = Icon(Icons.search, color: Colors.white,);
   final key = GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = TextEditingController();
-  List<String> _list;
-  bool _isSearching;
+  late List<String> _list;
+  late bool _isSearching;
   String _searchText = "";
 
   _SearchListState() {
@@ -48,7 +48,7 @@ class _SearchListState extends State<SearchList> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: key,
-      appBar: buildBar(context),
+      appBar: buildBar(context) as PreferredSizeWidget?,
       body: ListView(
         padding: EdgeInsets.symmetric(vertical: 8.0),
         children: _isSearching ? _buildSearchList() : _buildList(),
@@ -132,7 +132,7 @@ class _SearchListState extends State<SearchList> {
       geo.setLocation(row[1], row[2], row[0]);
     log.message('${snapList.length} snaps to code');
     for (AopSnap snap in snapList) {
-      String location = await geo.getLocation(snap.longitude, snap.latitude);
+      String? location = await geo.getLocation(snap.longitude!, snap.latitude!);
       if (location != null) {
         if (location.length > 100)
           location = location.substring(location.length - 100);

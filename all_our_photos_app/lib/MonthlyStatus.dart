@@ -9,19 +9,18 @@ import 'package:flutter/material.dart';
 import 'utils/PersistentMap.dart';
 import 'package:aopcommon/aopcommon.dart';
 
-PersistentMap _monthlyStatus;
-
-String currentUser;
+PersistentMap _monthlyStatus = PersistentMap('monthly.txt');
+String currentUser = '?';
 
 class MonthlyStatus {
   static Future<void> init() async {
     currentUser = (config['sesuser'] as String).substring(0,1); // first letter
-    _monthlyStatus = PersistentMap('monthly.txt');
+//    _monthlyStatus = PersistentMap('monthly.txt');
     await _monthlyStatus.load();
   }
 
   static bool read(int yearNo,int monthNo) {
-    if (_monthlyStatus == null)
+    if (!_monthlyStatus.isLoaded)
       throw 'Monthly status not initialised';
     return _monthlyStatus[yearNo*100+monthNo].contains(currentUser);
   }

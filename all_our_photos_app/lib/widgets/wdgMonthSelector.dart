@@ -12,7 +12,7 @@ typedef QuarterCallback = void Function(int);
 class MonthSelector extends StatefulWidget {
   final QuarterCallback onPressed;
 
-  const MonthSelector({@required this.onPressed});
+  const MonthSelector({Key? key, required this.onPressed}) : super(key: key);
 
   @override
   _MonthSelectorState createState() => _MonthSelectorState();
@@ -34,7 +34,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                 setState(() {
                   for (int j = 0; j < 4; j++) _monthList[j] = (j == i);
                 });
-                if (widget.onPressed != null)
+ //               if (widget.onPressed != null)
                   widget.onPressed(i);
               },
               style: TextButton.styleFrom(

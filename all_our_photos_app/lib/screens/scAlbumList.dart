@@ -4,13 +4,13 @@ import '../shared/aopClasses.dart';
 import 'scSimpleDlg.dart';
 
 class AlbumList extends StatefulWidget {
-  const AlbumList({Key key}) : super(key: key);
+  const AlbumList({Key? key}) : super(key: key);
 
   @override
-  _AlbumListState createState() => _AlbumListState();
+  AlbumListState createState() => AlbumListState();
 }
 
-class _AlbumListState extends State<AlbumList> {
+class AlbumListState extends State<AlbumList> {
   Widget appBarTitle = Text(
     "Search Albums",
     style: TextStyle(color: Colors.white),
@@ -23,10 +23,10 @@ class _AlbumListState extends State<AlbumList> {
   final TextEditingController _searchQuery = TextEditingController();
   final _scrollController = ScrollController();
   List<AopAlbum> _list = [];
-  bool _isSearching;
+  late bool _isSearching;
   String _searchText = "";
 
-  _AlbumListState() {
+  AlbumListState() {
     _searchQuery.addListener(() {
       if (_searchQuery.text.isEmpty) {
         setState(() {
@@ -64,7 +64,7 @@ class _AlbumListState extends State<AlbumList> {
     log.message('build');
     return Scaffold(
       key: key,
-      appBar: buildBar(context),
+      appBar: buildBar(context) as PreferredSizeWidget?,
       body: SingleChildScrollView(
             controller: _scrollController,
             padding: const EdgeInsets.all(8.0),
@@ -152,8 +152,8 @@ class _AlbumListState extends State<AlbumList> {
   }
 
   void handleAddAlbum(BuildContext context) async {
-    String name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
-    String errorMessage = '';
+    String? name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
+    String? errorMessage = '';
     bool done = false;
     while (!done) {
       name = await showDialog(
@@ -161,7 +161,7 @@ class _AlbumListState extends State<AlbumList> {
           builder: (BuildContext context) => DgSimple('Album name',name, errorMessage: errorMessage));
       if (name == null  || name == EXIT_CODE) return;
       log.message('new name is: $name');
-      AopAlbum newAlbum = AopAlbum();
+      AopAlbum newAlbum = AopAlbum(data:{});
       newAlbum.name = name;
       await newAlbum.validate();
 
@@ -175,7 +175,7 @@ class _AlbumListState extends State<AlbumList> {
           });
           done = true;
         } catch (ex) {
-          errorMessage = ex.message;
+          errorMessage = '$ex';
         }
       } else
         errorMessage = newAlbum.lastErrors.join('\n');
@@ -185,8 +185,8 @@ class _AlbumListState extends State<AlbumList> {
 
 class ChildItem extends StatelessWidget {
   final AopAlbum album;
-  final _AlbumListState parent;
-  const ChildItem(this.album,this.parent,{Key key}):super(key:key);
+  final AlbumListState parent;
+  const ChildItem(this.album,this.parent,{Key? key}):super(key:key);
 
   @override
   Widget build(BuildContext context) {

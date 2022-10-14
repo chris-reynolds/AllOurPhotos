@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'scSimpleDlg.dart';
 
 class DgTypeAhead extends StatefulWidget {
-  final String initialValue;
+  final String? initialValue;
   final String title;
   final String errorMessage;
   final List<String> options;
-  final DlgValidator isValid;
+  final DlgValidator? isValid;
 
   @override
   _DgTypeAheadState createState() => _DgTypeAheadState(title, options, initialValue, errorMessage);
@@ -21,21 +21,21 @@ class DgTypeAhead extends StatefulWidget {
 }
 
 class _DgTypeAheadState extends State<DgTypeAhead> {
-  TextEditingController _nameController;
-  String value;
+  late TextEditingController _nameController;
+  String? value;
   String title;
   List<String> options;
-  String errorMessage;
+  String? errorMessage;
 
 
   _DgTypeAheadState(this.title, this.options, this.value, this.errorMessage) : super();
 
   void handleSavePressed(String value) async {
     if (widget.isValid != null)
-      errorMessage = await widget.isValid(_nameController.text);
+      errorMessage = await widget.isValid!(_nameController.text);
     else
       errorMessage = null;
-    if (value != EXIT_CODE && errorMessage !=null && errorMessage.isNotEmpty)
+    if (value != EXIT_CODE && errorMessage !=null && errorMessage!.isNotEmpty)
       setState(() {});
     else
       Navigator.pop(context, value);
@@ -45,7 +45,7 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
   void initState() {
     super.initState();
     _nameController = TextEditingController();
-    _nameController.text = value;
+    _nameController.text = value!;
   } // of initState
 
   @override
