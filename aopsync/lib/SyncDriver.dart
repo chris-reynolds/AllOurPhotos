@@ -104,8 +104,8 @@ class SyncDriver {
         jpegLoader = JpegLoader();
 //      JpegLoader jpegLoader = loader ?? JpegLoader();
       if (jpegLoader.tags.isEmpty)   // IOS should have preped these earlier
-        jpegLoader.extractTags(fileContents);
-      log.message('extracted tags $imageName');
+        await jpegLoader.extractTags(fileContents);
+      log.message('extracted tags $imageName }');
       String deviceName = jpegLoader.tag('Model')  ?? config['sesdevice'];
       String importSource = config['sesdevice'] ?? jpegLoader.tag('Model');
 //      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();

@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return
         Scaffold(
-            appBar: AppBar(title: Text('AOP Sync 17Mar22'), actions: <IconButton>[
+            appBar: AppBar(title: Text('AOP Sync 13Oct22'), actions: <IconButton>[
               IconButton(
                 icon: Icon(Icons.list),
                 onPressed: ()=>_showLogger(context),
