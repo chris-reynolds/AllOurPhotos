@@ -15,7 +15,7 @@ class ImageFilter with Selection<AopSnap> implements SelectableListProvider<AopS
   // by default only show ranks 2 and 3
   final List<bool> _rank = <bool>[false,false,true,true];  // ignore entry zero
   String _searchText = '';
-  late List<AopSnap> _images;
+  List<AopSnap> _images = [];
   @override
   List<AopSnap> get items {
     checkImages();
