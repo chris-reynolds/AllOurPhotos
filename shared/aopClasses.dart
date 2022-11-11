@@ -671,12 +671,14 @@ Future<bool> delete() async {
     return values[0] > 0;
   } // of dateTimeExists
 
-  static Future<bool?> sizeOrNameOrDeviceAtTimeExists(
+  static Future<bool?> sizeOrNameOrDeviceAtTimeExists(  //ignore device
       DateTime taken, int fileSize, String filename, String deviceName) async {
-    DateTime startTime = taken.add(Duration(seconds: -2));
-    DateTime endTime = taken.add(Duration(seconds: 2));
+    DateTime startTime = taken.add(Duration(milliseconds: -500));
+    DateTime endTime = taken.add(Duration(milliseconds: 500));
     var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps ' "where (original_taken_date between ? and ? or modified_date between ? and ?) " "and (media_Length=? or file_name=? or device_name=?)",
+        'select count(*) from aopsnaps ' "where (original_taken_date between ? and ? or modified_date between ? and ?) "
+//            "and (media_Length=? or file_name=? or device_name=?)",
+          "and (media_Length=? or file_name=?)",
         [
           (formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')),
           (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
@@ -684,7 +686,7 @@ Future<bool> delete() async {
           (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
           fileSize,
           filename,
-          deviceName
+//          deviceName
         ]);
     var values = r.first.values;
     return values[0] > 0;

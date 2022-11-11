@@ -8,7 +8,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
-import 'package:meta/meta.dart';
+// import 'package:meta/meta.dart';
 import 'package:image/image.dart';
 import 'package:aopcommon/aopcommon.dart';
 // import 'package:device_info/device_info.dart';
@@ -59,6 +59,7 @@ class SyncDriver {
       resultDates.add(stats.modified);
     } //
     logAndDisplay('Sorting ${result.length}');
+    // don't us sort function because we have a result and a resultDate array to reduce calls to 'stat'
     DateTime swapDate;
     FileSystemEntity swapFse;
     for (int i=0; i<result.length; i++) {
@@ -104,7 +105,7 @@ class SyncDriver {
 //      JpegLoader jpegLoader = loader ?? JpegLoader();
       if (jpegLoader.tags.isEmpty)   // IOS should have preped these earlier
         await jpegLoader.extractTags(fileContents);
-      log.message('extracted tags $imageName }');
+      log.message('extracted tags $imageName ');
       String deviceName = jpegLoader.tag('Model')  ?? config['sesdevice'] ?? 'No Device';
       String importSource = config['sesdevice'] ?? jpegLoader.tag('Model') ?? 'No source';
 //      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -124,10 +125,10 @@ class SyncDriver {
       bool alReadyExists =
           (await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName, deviceName))!;
       if (alReadyExists) {
-        log.message('sizeOrNameOrDeviceAtTimeExists');
+        log.message('sizeOrNameOrDeviceAtTimeExists for $imageName');
         return null;
       }
-        AopSnap newSnap = AopSnap()
+        AopSnap newSnap = AopSnap(data:{})
           ..fileName = imageName
           ..directory = '1982-01'
           ..width = thisImage.width
@@ -146,7 +147,7 @@ class SyncDriver {
         newSnap.directory = formatDate(newSnap.originalTakenDate!, format: 'yyyy-mm');
         // checkl for duplicate
         newSnap.mediaLength = imageSize;
-        if (jpegLoader.tag("GPSLatitudeRef") != "null") {
+        if (jpegLoader.tag("GPSLatitudeRef") != null) {
           newSnap.latitude =
               jpegLoader.dmsToDeg(jpegLoader.tag('GPSLatitude'), jpegLoader.tag('GPSLatitudeRef'));
           newSnap.longitude =

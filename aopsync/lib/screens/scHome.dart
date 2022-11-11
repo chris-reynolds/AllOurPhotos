@@ -18,7 +18,7 @@ import 'scLogger.dart';
 //import 'MultiGallerySelectPage.dart';
 
 const LAST_RUN = 'last_run';
-const APP_VERSION ='AOP Sync 14Oct22';
+const APP_VERSION ='AOP Sync 8Nov22';
 
 class HomePage extends StatefulWidget {
   final Function tryLogout;
