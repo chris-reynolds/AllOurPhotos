@@ -47,5 +47,9 @@
 	<string>Access library to sync with AllOurPhotos</string>
 	<key>NSAllowsArbitraryLoads</key>
 	<true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>

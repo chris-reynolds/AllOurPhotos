@@ -18,7 +18,7 @@ import 'scLogger.dart';
 //import 'MultiGallerySelectPage.dart';
 
 const LAST_RUN = 'last_run';
-const APP_VERSION ='AOP Sync 8Nov22';
+const APP_VERSION ='AOP Sync 6Jan 23';
 
 class HomePage extends StatefulWidget {
   final Function tryLogout;
@@ -191,7 +191,7 @@ class _HomePageState extends State<HomePage> {
     }
     WebFile.hasWebServer.then((result){_hasWebServer=result;});
 //    if (!Platform.isIOS) {
-    syncDriver = SyncDriver(localFileRoot: config['lcldirectory'], fromDate: lastRunTime);
+    syncDriver = SyncDriver(localFileRoot: config['lcldirectory'] ?? '.',  fromDate: lastRunTime);
 //    }
     super.initState();
   }

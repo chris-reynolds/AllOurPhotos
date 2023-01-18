@@ -119,8 +119,8 @@ class SyncDriver {
 //        deviceName = iosInfo.name;
 ////      print('Running on ${iosInfo.utsname.machine}');  // e.g. "iPod7,1"
 //      }
-
-      DateTime takenDate = dateTimeFromExif(jpegLoader.tag('dateTimeOriginal')) ?? createdDate;
+      String dateTakenStr = jpegLoader.tag('dateTimeOriginal') ?? jpegLoader.tag('dateTime') ?? '';
+      DateTime takenDate = dateTimeFromExif(dateTakenStr) ?? createdDate;
       log.message('check for dup-1');
       bool alReadyExists =
           (await AopSnap.sizeOrNameOrDeviceAtTimeExists(takenDate, imageSize, imageName, deviceName))!;
