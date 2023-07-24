@@ -231,8 +231,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     try {
       Im.Image originalImage = (await loadWebImage(originalSnap!.fullSizeURL))!;
       log.message('clipping ${originalSnap.fileName} ${originalImage.length}');
-      Im.Image newFullImage = Im.copyCrop(originalImage, rect.right.round(), rect.top.round(),
-          (rect.left - rect.right).round(), (rect.bottom - rect.top).round());
+      Im.Image newFullImage = Im.copyCrop(originalImage, x:rect.right.round(), y:rect.top.round(),
+          width:(rect.left - rect.right).round(), height:(rect.bottom - rect.top).round());
       Im.Image newThumbnail = Im.copyResize(newFullImage,
           width: (originalImage.width >= originalImage.height) ? 640 : 480);
       Map<String,dynamic> buffer = originalSnap.toMap();
