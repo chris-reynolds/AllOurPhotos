@@ -11,7 +11,7 @@ import 'package:all_our_photos_app/shared/aopClasses.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as IM;
-import '../dart_common/ImageUploader.dart';
+//import '../dart_common/ImageUploader.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class DbFixFormWidget extends StatefulWidget {
@@ -94,17 +94,17 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
   } // of fixThumbnailDriver
 
   Future<void> fixSingleThumbnail(AopSnap? snap) async {
-    log.message('Processing ${snap!.fileName}');
-    dynamic meta = jsonDecode(snap.metadata ?? '{}');
-    try {
-      IM.Image fullPic = (await loadWebImage(snap.fullSizeURL))!;
-      IM.Image thumbnail = makeThumbnail(fullPic);
-//      IM.Image thumbnail = IM.copyResize( fullPic, width: 480); // you know it is portrait from orientation
-      await saveWebImage(snap.thumbnailURL, image: thumbnail, quality: 50);
-      log.message(' to fix ${snap.thumbnailURL}');
-    } catch (ex) {
-      log.error('Failed to fix thumbnail $ex');
-    }
+    throw('fix single thumbnail');
+    // log.message('Processing ${snap!.fileName}');
+    // dynamic meta = jsonDecode(snap.metadata ?? '{}');
+    // try {
+    //   IM.Image fullPic = (await loadWebImage(snap.fullSizeURL))!;
+    //   IM.Image thumbnail = makeThumbnail(fullPic);
+    //   await saveWebImage(snap.thumbnailURL, image: thumbnail, quality: 50);
+    //   log.message(' to fix ${snap.thumbnailURL}');
+    // } catch (ex) {
+    //   log.error('Failed to fix thumbnail $ex');
+    // }
   } // of fixSingleThumbnail
 
   Future<void> importMacAlbums(BuildContext context) async {

@@ -13,7 +13,8 @@ String _fileName(String path) => (path.lastIndexOf('/') > 0)
 
 Image makeThumbnail(Image fromImage) {
   bool isWider = fromImage.width>fromImage.height;
-  if (fromImage.exif.hasOrientation && (fromImage.exif.orientation==6 || fromImage.exif.orientation==8))
+  ExifIFD? orientation = fromImage.exif['Image Orientation'];
+  if (orientation==6 || orientation==8)
     isWider = !isWider;
   Image toImage = copyResize(fromImage,width:isWider?640:480);
   // now strip some exif
