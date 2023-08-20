@@ -5,11 +5,11 @@ import 'package:http_server/http_server.dart';
 import 'package:path/path.dart' as path;
 import 'package:exif/exif.dart';
 
-String VERSION = '2019.03.09';
+String VERSION = '2023.05.04';
 HttpServer mainServer;
 VirtualDirectory _staticFileRoot;
 Map config;
-List<String> _topCache = <String>[];
+// List<String> _topCache = <String>[];
 
 Future main(List<String> arguments) async {
   try {
@@ -50,8 +50,8 @@ Future<String> extractExif(String path) async {
 Future<HttpServer> loadServer(int port, String rootPath) async {
   // TODO: check rootpath file existance
   _staticFileRoot = new VirtualDirectory(rootPath)
-    ..allowDirectoryListing = false;
-//      ..allowDirectoryListing = true;
+//    ..allowDirectoryListing = false;
+    ..allowDirectoryListing = true;
 //    _staticFileRoot.directoryHandler = serveDirectory;
   return await HttpServer.bind(InternetAddress.anyIPv4, port);
 } // of loadServer
@@ -132,7 +132,6 @@ Future processRequest(HttpRequest request) async {
     plainResponse(
         HttpStatus.methodNotAllowed, 'Invalid method${request.method}');
 } // of process request
-
 
 Future<Map> loadConfig(String filename) async {
   if (!FileSystemEntity.isFileSync(filename))
