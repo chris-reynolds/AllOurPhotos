@@ -48,3 +48,4 @@ aopsync/ios/Flutter/.last_build_id
 *.lock
 all_our_photos_app/ios/Flutter/Flutter.podspec
 josie_export/*.jpg
+DartWebServer/bin/aopmain.exe
