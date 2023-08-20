@@ -16,9 +16,9 @@ IconData _rankIcon(bool selected) => selected ? Icons.star : Icons.star_border;
 
 class ImageFilterWidget extends StatefulWidget {
   final ImageFilter _initImageFilter;
-  VoidCallback onRefresh = (){};
+  final VoidCallback onRefresh;
 
-  ImageFilterWidget(this._initImageFilter, {required this.onRefresh});
+  ImageFilterWidget(this._initImageFilter, {required this.onRefresh, Key? key}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -35,7 +35,7 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
 
   set changeMode(bool value) {
     // try and fool the compiler
-    print('change to $value');
+    log.message('change to $value');
     _changeMode = value;
   }
 

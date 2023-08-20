@@ -62,7 +62,7 @@ static AopAlbum maker() {
   createdOn = map['created_on'];
   updatedOn = map['updated_on'];
   updatedUser = map['updated_user'];
-  name = map['name']; 
+  name = map['name']??'No name';
   description = map['description']; 
   firstDate = map['first_date']; 
   lastDate = map['last_date']; 

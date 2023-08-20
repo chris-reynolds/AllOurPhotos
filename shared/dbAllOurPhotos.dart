@@ -23,6 +23,7 @@ class DbAllOurPhotos {
       Results res = await dbConn!.query("select spsessioncreate('${config['sesuser']}','${config['sespassword']}','${config['sesdevice']}')");
       Iterable spResult = res.first.asMap().values;
       int sessionid = (spResult.first as int?)??-999;
+      if (sessionid <=0) throw 'Bad sessionid';
       log.message('session created with id=$sessionid');
       return sessionid;
     } catch(ex) {

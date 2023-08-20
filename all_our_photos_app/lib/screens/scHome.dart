@@ -11,10 +11,10 @@ class HomeScreen extends StatefulWidget {
   final String? title;
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   //inside _HomeScreenState class
 
   PageController? _pageController;
@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: GestureDetector(
             child: Text(
               widget.title!,
-              style: TextStyle(color: const Color(0xFFFFFFFF)),
+              style: TextStyle(color: const Color(0x22222200)),
             ),
             onDoubleTap: () {
               setState(() {

@@ -78,7 +78,7 @@ class ExportPic {
       }
     } catch (e) {
       var target = fileName;
-      if (directory != null && directory is Directory)
+      if (directory != null)
         target = '${directory.path}/$fileName';
       log.error('Failed to save $target \n Error is $e');
       //print('Failed to save $target \n Error is $e');

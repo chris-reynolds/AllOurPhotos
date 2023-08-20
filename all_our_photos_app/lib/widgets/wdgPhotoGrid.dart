@@ -23,9 +23,9 @@ class PhotoGrid extends StatefulWidget {
   final AopAlbum? _album;
   final CallBack? _refreshNow;
 
-  PhotoGrid(this._initImageFilter, {AopAlbum? album, CallBack? refreshNow})
-      : _album = album,
-        _refreshNow = refreshNow {
+  PhotoGrid(this._initImageFilter, {AopAlbum? album, CallBack? refreshNow, Key? key})
+      :  _album = album,
+        _refreshNow = refreshNow, super(key: key) {
 //    log.message('PhotoGrid constructor by filter');
   }
 
@@ -72,7 +72,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       int monthNo = startDate.month;
       bool currentStatus = MonthlyStatus.read(yearNo, monthNo);
       MonthlyStatus.write(yearNo, monthNo, !currentStatus).then((x) {
-        print('switched month to ${!currentStatus}');
+        log.message('switched month to ${!currentStatus}');
         setState(() {});
       });
     }
@@ -357,8 +357,8 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     String? value = '';
     String errorMessage = '';
     bool done = false;
-    List<String> allLocations = (await (AopSnap.distinctLocations))??[];
-    while (!done) {
+    List<String> allLocations = (await (AopSnap.distinctLocations));
+    while (!done ) {
       value = await showDialog(
           context: context,
           builder: (BuildContext context) => DgTypeAhead(
@@ -420,7 +420,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     try {
       bool deleteAlbum = false;
       String message = '';
-      if (selectedSnaps == null || selectedSnaps.isEmpty) return; // nothing to delete
+      if (selectedSnaps.isEmpty) return; // nothing to delete
       if ((await argAlbum.albumItems).length == selectedSnaps.length) {
         if ((await confirmYesNo(context, 'Delete this album',
             description: 'All photos for this album have been\n selected for deletion'))!)
@@ -451,7 +451,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     String dirName = (await PathProvider.getApplicationDocumentsDirectory()).path;
     String albumName = 'AllOurPhotos';
     if (widget._album != null) {
-      albumName = widget._album!.name!.replaceAll('/', '-').replaceAll('\\', '-').replaceAll(' ', '');
+      albumName = widget._album!.name.replaceAll('/', '-').replaceAll('\\', '-').replaceAll(' ', '');
     }
     if (albumName.length > 20) albumName = albumName.substring(0, 19);
     dirName += '/$albumName/';

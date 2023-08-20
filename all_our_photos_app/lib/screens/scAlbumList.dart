@@ -13,7 +13,7 @@ class AlbumList extends StatefulWidget {
 class AlbumListState extends State<AlbumList> {
   Widget appBarTitle = Text(
     "Search Albums",
-    style: TextStyle(color: Colors.white),
+    style: TextStyle(color: Colors.yellow),
   );
   Icon actionIcon = Icon(
     Icons.search,

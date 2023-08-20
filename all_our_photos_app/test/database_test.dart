@@ -49,7 +49,7 @@ void main() {
       user.name = 'admin';
       user.hint = 'admin00';
       int lastId = (await user.save())!;
-      print('inserted id is $lastId');
+      //print('inserted id is $lastId');
       AopUser adminUser = await userProvider.get(lastId);
       expect(adminUser.name,'admin');
       await adminUser.delete();

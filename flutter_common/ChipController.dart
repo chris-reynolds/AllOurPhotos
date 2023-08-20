@@ -19,7 +19,7 @@ class ChipSet {
   late Set<String> chips;
 
   ChipSet(String s) {
-    if (s == null || s == '') {
+    if ( s == '') {
       chips = <String>{};
     } else { // now extra tags with extraneous spaces
       var arr = s.split(DELIM);

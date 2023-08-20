@@ -14,6 +14,8 @@ import '../flutter_common/WidgetSupport.dart';
 import '../utils/ExportPic.dart';
 
 class AlbumDetail extends StatefulWidget {
+  AlbumDetail({Key? key}): super(key: key);
+
   @override
   _AlbumDetailState createState() => _AlbumDetailState();
 }
@@ -23,10 +25,10 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   AopAlbum? argAlbum;
-  late List<AopSnap> _list;
+  List<AopSnap>? _list;
 
   @override
-  List<AopSnap> get items => _list;
+  List<AopSnap> get items => _list??[];
 
   @override
   CallBack onRefreshed = (){};
@@ -67,7 +69,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
               },
             ),
 //            if (Platform.isMacOS)
-          if (items!=null && items.isNotEmpty)
+          if ( items.isNotEmpty)
             IconButton(
               icon: Icon(Icons.file_download),
               tooltip: 'Export album to downloads folder',
@@ -176,7 +178,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     else {
       // check if everything is moving
       bool deleteAlbum = false;
-      if (_list.length == selectionList.length) {
+      if (_list!.length == selectionList.length) {
         if ((await confirmYesNo(context, 'Delete album after move',
             description: 'All photos for this album have been\n selected for deletion'))!)
           deleteAlbum = true;
@@ -237,11 +239,11 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     argAlbum!.snaps.then((newList) {
       setState(() {
         _list = newList;
-        log.message('${_list.length} album items loaded');
+        log.message('${_list!.length} album items loaded');
       });
     });
     // if there is a listener, let then know
-    if (onRefreshed != null)
+    //if (onRefreshed != null)
       onRefreshed();
   } // of refreshList
 

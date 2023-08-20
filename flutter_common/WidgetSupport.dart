@@ -19,7 +19,7 @@ class AssetWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ImageIcon(
       AssetImage('assets/$name'),
-      size: size, color:color??Theme.of(context).colorScheme.secondary,
+      size: size, color: color //Theme.of(context).colorScheme.secondary,
     );
   } // of build
 } // of AssetWidget

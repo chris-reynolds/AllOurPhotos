@@ -19,11 +19,13 @@ class YearEntry {
 } // of yearEntry
 
 class YearGrid extends StatefulWidget {
+  const YearGrid({Key? key}) : super(key: key);
+
   @override
-  _YearGridState createState() => _YearGridState();
+  YearGridState createState() => YearGridState();
 }
 
-class _YearGridState extends State<YearGrid> {
+class YearGridState extends State<YearGrid> {
   final Map<String, TextStyle> gridStyles = {
     'monthNames': TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
     'yearNos': TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
@@ -111,7 +113,7 @@ class _YearGridState extends State<YearGrid> {
                     ))
                 .toList()),
         onTap: () {
-          print('resetting yearlist');
+          log.message('resetting yearlist');
           yearList = [];
         },
       )

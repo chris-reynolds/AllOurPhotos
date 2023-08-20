@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:all_our_photos_app/shared/aopClasses.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as IM;
+//import 'package:image/image.dart' as IM;
 //import '../dart_common/ImageUploader.dart';
 import '../flutter_common/WidgetSupport.dart';
 
