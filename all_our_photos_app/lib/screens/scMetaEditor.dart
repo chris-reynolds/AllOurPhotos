@@ -37,8 +37,8 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
     if (caption == '+' || caption == '-') {
       String prompt = (caption == '+') ? 'Add new' : 'Remove';
       String? newChipText = await inputBox(context, '$prompt Chip Text');
-      newChipText = newChipText?.trim();
-      if (newChipText != null && newChipText.isNotEmpty) {
+      newChipText = newChipText.trim();
+      if (newChipText.isNotEmpty) {
         if (caption == '-') {
           // delete item
           if (!_baseChips.remove(newChipText))

@@ -32,7 +32,7 @@ class ExportPic {
         if (await _requestPermission(Permission.storage)) {
           directory = await Path.getExternalStorageDirectory();
           String newPath = "";
-          log.message(directory!.path);
+          log.message(directory.path);
           List<String> paths = directory.path.split("/");
           for (int x = 1; x < paths.length; x++) {
             String folder = paths[x];

@@ -294,7 +294,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                 value,
                 errorMessage: errorMessage,
               ));
-      if (value == null || value == EXIT_CODE) return;
+      if (value == EXIT_CODE) return;
       log.message('new caption is: $value');
       errorMessage = '';
       done = true;
@@ -329,7 +329,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   return '$ex';
                 }
               }));
-      if (value == null || value == EXIT_CODE) return;
+      if (value == EXIT_CODE) return;
       try {
         log.message('new taken date is: $value');
         DateTime newTakenDate = parseDMY(value);
@@ -371,7 +371,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   return '$ex';
                 }
               }))  ;
-      if (value == null || value == EXIT_CODE) return;
+      if (value == EXIT_CODE) return;
       try {
         log.message('new location is: $value');
         errorMessage = '';

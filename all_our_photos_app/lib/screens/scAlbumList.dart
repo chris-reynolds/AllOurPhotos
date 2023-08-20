@@ -159,7 +159,7 @@ class AlbumListState extends State<AlbumList> {
       name = await showDialog(
           context: context,
           builder: (BuildContext context) => DgSimple('Album name',name, errorMessage: errorMessage));
-      if (name == null  || name == EXIT_CODE) return;
+      if (name == EXIT_CODE) return;
       log.message('new name is: $name');
       AopAlbum newAlbum = AopAlbum(data:{});
       newAlbum.name = name;

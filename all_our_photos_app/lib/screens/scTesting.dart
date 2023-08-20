@@ -133,17 +133,15 @@ class _SearchListState extends State<SearchList> {
     log.message('${snapList.length} snaps to code');
     for (AopSnap snap in snapList) {
       String? location = await geo.getLocation(snap.longitude!, snap.latitude!);
-      if (location != null) {
-        if (location.length > 100)
-          location = location.substring(location.length - 100);
-        snap.location = location;
-        await snap.save();
-        if (++sofar % 20 == 0) {
-          log.message('$sofar');
-          setState(() {});
-        }
+      if (location.length > 100)
+        location = location.substring(location.length - 100);
+      snap.location = location;
+      await snap.save();
+      if (++sofar % 20 == 0) {
+        log.message('$sofar');
+        setState(() {});
       }
-    } // of for loop
+        } // of for loop
     log.message('Locations complete');
     setState(() {});
   } // of handleLocationCompletion
