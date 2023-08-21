@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aopClasses.dart';
 import 'scSimpleDlg.dart';
 
 class AlbumList extends StatefulWidget {
@@ -46,17 +46,17 @@ class AlbumListState extends State<AlbumList> {
   void initState() {
     super.initState();
     _isSearching = false;
-    refreshList().then((x){});
+    refreshList().then((x) {});
   }
 
   Future<void> refreshList() async {
     log.message('refresh list');
     var newList = await AopAlbum.all();
-        newList.sort((AopAlbum a,AopAlbum b) => b.name.compareTo(a.name));
-        _list = newList;
-        //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-        log.message('${_list.length} albums loaded');
-      setState((){});
+    newList.sort((AopAlbum a, AopAlbum b) => b.name.compareTo(a.name));
+    _list = newList;
+    //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    log.message('${_list.length} albums loaded');
+    setState(() {});
   } // of refreshList
 
   @override
@@ -66,13 +66,13 @@ class AlbumListState extends State<AlbumList> {
       key: key,
       appBar: buildBar(context) as PreferredSizeWidget?,
       body: SingleChildScrollView(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _isSearching ? _buildAlbumList() : _buildList(),
-            ),
-          ),
+        controller: _scrollController,
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _isSearching ? _buildAlbumList() : _buildList(),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add), onPressed: () => handleAddAlbum(context)),
     );
@@ -80,13 +80,13 @@ class AlbumListState extends State<AlbumList> {
 
   List<ChildItem> _buildList() {
     log.message('buildlist() from _list');
-    return _list.map((album) => ChildItem(album,this)).toList();
+    return _list.map((album) => ChildItem(album, this)).toList();
   }
 
   List<ChildItem> _buildAlbumList() {
     log.message('buildAlbumlist() from _list');
     if (_searchText.isEmpty) {
-      return _list.map((album) => ChildItem(album,this)).toList();
+      return _list.map((album) => ChildItem(album, this)).toList();
     } else {
       List<AopAlbum> searchList = [];
       for (int i = 0; i < _list.length; i++) {
@@ -95,30 +95,30 @@ class AlbumListState extends State<AlbumList> {
           searchList.add(_list.elementAt(i));
         }
       }
-      return searchList.map((contact) => ChildItem(contact,this)).toList();
+      return searchList.map((contact) => ChildItem(contact, this)).toList();
     }
   }
 
   Widget buildBar(BuildContext context) {
     return AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
-     IconButton(
+      IconButton(
         icon: actionIcon,
         onPressed: () {
           setState(() {
             if (actionIcon.icon == Icons.search) {
-              actionIcon =Icon(
+              actionIcon = Icon(
                 Icons.close,
                 color: Colors.white,
               );
-              appBarTitle =TextField(
+              appBarTitle = TextField(
                 controller: _searchQuery,
-                style:TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                 ),
-                decoration:InputDecoration(
-                    prefixIcon:Icon(Icons.search, color: Colors.white),
+                decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search, color: Colors.white),
                     hintText: "Search...",
-                    hintStyle:TextStyle(color: Colors.white)),
+                    hintStyle: TextStyle(color: Colors.white)),
               );
               _handleSearchStart();
             } else {
@@ -138,13 +138,13 @@ class AlbumListState extends State<AlbumList> {
 
   void _handleSearchEnd() {
     setState(() {
-      actionIcon =Icon(
+      actionIcon = Icon(
         Icons.search,
         color: Colors.white,
       );
-      appBarTitle =Text(
+      appBarTitle = Text(
         "Search Albums",
-        style:TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.white),
       );
       _isSearching = false;
       _searchQuery.clear();
@@ -158,18 +158,20 @@ class AlbumListState extends State<AlbumList> {
     while (!done) {
       name = await showDialog(
           context: context,
-          builder: (BuildContext context) => DgSimple('Album name',name, errorMessage: errorMessage));
+          builder: (BuildContext context) =>
+              DgSimple('Album name', name, errorMessage: errorMessage));
       if (name == EXIT_CODE) return;
       log.message('new name is: $name');
-      AopAlbum newAlbum = AopAlbum(data:{});
-      newAlbum.name = name;
+      AopAlbum newAlbum = AopAlbum(data: {});
+      newAlbum.name = name ?? 'Undefined';
       await newAlbum.validate();
 
       if (newAlbum.isValid) {
         try {
           await newAlbum.save();
           //await refreshList();
-          Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum).then((value) async {
+          Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
+              .then((value) async {
             log.message('popping at list add');
             await refreshList();
           });
@@ -186,7 +188,7 @@ class AlbumListState extends State<AlbumList> {
 class ChildItem extends StatelessWidget {
   final AopAlbum album;
   final AlbumListState parent;
-  const ChildItem(this.album,this.parent,{Key? key}):super(key:key);
+  const ChildItem(this.album, this.parent, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -194,9 +196,11 @@ class ChildItem extends StatelessWidget {
       children: [
         TextButton(
             //padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
-            child:Text(album.name,style:Theme.of(context).textTheme.titleLarge),
+            child:
+                Text(album.name, style: Theme.of(context).textTheme.titleLarge),
             onPressed: () =>
-                Navigator.pushNamed(context, 'AlbumDetail', arguments: album).then((value)  {
+                Navigator.pushNamed(context, 'AlbumDetail', arguments: album)
+                    .then((value) {
                   log.message('popping at list select');
                   parent.refreshList();
                 })),

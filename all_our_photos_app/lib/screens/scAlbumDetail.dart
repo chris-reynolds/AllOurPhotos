@@ -4,38 +4,40 @@ Purpose: This will show the details of a single album
 
 */
 import 'dart:io';
-import 'package:all_our_photos_app/shared/DomainObject.dart';
+import 'package:aopmodel/DomainObject.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aopClasses.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../utils/ExportPic.dart';
 
 class AlbumDetail extends StatefulWidget {
-  AlbumDetail({Key? key}): super(key: key);
+  AlbumDetail({Key? key}) : super(key: key);
 
   @override
   _AlbumDetailState createState() => _AlbumDetailState();
 }
 
-class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
-    implements SelectableListProvider<AopSnap>{
+class _AlbumDetailState extends State<AlbumDetail>
+    with Selection<AopSnap>
+    implements SelectableListProvider<AopSnap> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   AopAlbum? argAlbum;
   List<AopSnap>? _list;
 
   @override
-  List<AopSnap> get items => _list??[];
+  List<AopSnap> get items => _list ?? [];
 
   @override
-  CallBack onRefreshed = (){};
+  CallBack onRefreshed = () {};
 
   void refreshNow() async {
     _list = await argAlbum!.snaps;
   }
+
   @override
   Widget build(BuildContext context) {
     if (argAlbum == null)
@@ -46,7 +48,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
         appBar: buildBar(context),
 //        body: snapGrid(context, _list, this),
 //        body: SsSnapGrid(_list, this, argAlbum),
-        body: PhotoGrid(this,album: argAlbum, refreshNow: refreshNow),
+        body: PhotoGrid(this, album: argAlbum, refreshNow: refreshNow),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_a_photo),
           onPressed: () => handleAddAlbumItem(context),
@@ -55,21 +57,21 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   } // of build
 
   PreferredSizeWidget buildBar(BuildContext context) {
- //   if (selectionList.isEmpty)
-      return AppBar(
-          centerTitle: true,
-          title: Text(argAlbum!.name),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                handleRenameAlbum(context).then((xx) {
-                  setState(() {});
-                });
-              },
-            ),
+    //   if (selectionList.isEmpty)
+    return AppBar(
+        centerTitle: true,
+        title: Text(argAlbum!.name),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              handleRenameAlbum(context).then((xx) {
+                setState(() {});
+              });
+            },
+          ),
 //            if (Platform.isMacOS)
-          if ( items.isNotEmpty)
+          if (items.isNotEmpty)
             IconButton(
               icon: Icon(Icons.file_download),
               tooltip: 'Export album to downloads folder',
@@ -79,8 +81,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
                 });
               },
             ),
-
-          ]);
+        ]);
     // else
     //   return AppBar(
     //     title: Text('${selectionList.length} items selected'),
@@ -101,7 +102,6 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     //   );
   }
 
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -117,7 +117,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       argAlbum!.addSnaps(snapIds).then((count) {
         clearSelected();
         refreshList();
-        showSnackBar("$count photos added",context);
+        showSnackBar("$count photos added", context);
       });
     });
   } // of handleAddAlbumItem
@@ -147,40 +147,46 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
   Future<void> handleDownload(BuildContext context) async {
     List<AopSnap> snaps = selectionList;
     String dirName = '${Platform.environment['HOME']}/Downloads/';
-    String albumName = argAlbum!.name.replaceAll('/','-').replaceAll('\\','-').replaceAll(' ', '');
-    if (albumName.length > 20)
-      albumName = albumName.substring(0,19);
+    String albumName = argAlbum!.name
+        .replaceAll('/', '-')
+        .replaceAll('\\', '-')
+        .replaceAll(' ', '');
+    if (albumName.length > 20) albumName = albumName.substring(0, 19);
     dirName += '$albumName/';
-    if (!Directory(dirName).existsSync())
-      Directory(dirName).createSync();
+    if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
     // make directory in downloads
     int errors = 0;
-     for (int snapIx=0; snapIx< snaps.length; snapIx++) {
-      showSnackBar('${snaps.length-snapIx} photos to download',context);
+    for (int snapIx = 0; snapIx < snaps.length; snapIx++) {
+      showSnackBar('${snaps.length - snapIx} photos to download', context);
       String sourceURL = snaps[snapIx].fullSizeURL;
-      if (!await ExportPic.save(sourceURL,snaps[snapIx].fileName,albumName))
+      if (!await ExportPic.save(sourceURL, snaps[snapIx].fileName, albumName))
         errors += 1;
 //      List<int> imgBytes = await loadWebBinary(sourceURL);
 //      String prefix = formatDate(snaps[snapIx].takenDate)+'-';
 //      File(dirName+prefix+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
-    showSnackBar('Download complete. There were $errors errors.',context);
+    showSnackBar('Download complete. There were $errors errors.', context);
   } // of handleDownload
 
   Future<void> moveToAnotherAlbum(BuildContext context) async {
     List<AopAlbum> allAlbums = await AopAlbum.all();
-    AopAlbum? newAlbum = await showSelectDialog<AopAlbum>(context,
-        'Move to another album','Album', allAlbums, (AopAlbum album)=>album.name);
+    AopAlbum? newAlbum = await showSelectDialog<AopAlbum>(
+        context,
+        'Move to another album',
+        'Album',
+        allAlbums,
+        (AopAlbum album) => album.name);
     if (newAlbum == null)
-      showSnackBar('Move abandoned',context);
+      showSnackBar('Move abandoned', context);
     else if (newAlbum.id == argAlbum!.id)
-      showSnackBar('You cant move to the same album',context);
+      showSnackBar('You cant move to the same album', context);
     else {
       // check if everything is moving
       bool deleteAlbum = false;
       if (_list!.length == selectionList.length) {
         if ((await confirmYesNo(context, 'Delete album after move',
-            description: 'All photos for this album have been\n selected for deletion'))!)
+            description:
+                'All photos for this album have been\n selected for deletion'))!)
           deleteAlbum = true;
       }
       // now we need to move the items before the optional delete
@@ -190,14 +196,13 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
       for (AopAlbumItem albumItem in oldItems) {
         if (selectedIds.contains(albumItem.snapId)) {
           albumItem.albumId = newAlbum.id;
-          if ((await albumItem.save())! >0)
-            counter++;
+          if ((await albumItem.save())! > 0) counter++;
         } // match
       } // of search loop
-      showSnackBar('$counter photos moved to (${newAlbum.name})',context);
+      showSnackBar('$counter photos moved to (${newAlbum.name})', context);
       if (deleteAlbum) {
         await argAlbum!.delete();
-        Navigator.pop(context,true);
+        Navigator.pop(context, true);
       } else
         refreshList();
     } // ok to move
@@ -210,12 +215,12 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     while (!done) {
       newName = await showDialog(
           context: context,
-          builder: (BuildContext context) =>
-              DgSimple('Album name',argAlbum!.name, errorMessage: errorMessage));
-      if (newName == EXIT_CODE)
-        return;  // jump straight out
+          builder: (BuildContext context) => DgSimple(
+              'Album name', argAlbum!.name,
+              errorMessage: errorMessage));
+      if (newName == EXIT_CODE) return; // jump straight out
       log.message('new name is: $newName');
-      argAlbum!.name = newName??'null album name';
+      argAlbum!.name = newName ?? 'null album name';
       await argAlbum!.validate();
       if (argAlbum!.isValid) {
         try {
@@ -244,7 +249,7 @@ class _AlbumDetailState extends State<AlbumDetail> with Selection<AopSnap>
     });
     // if there is a listener, let then know
     //if (onRefreshed != null)
-      onRefreshed();
+    onRefreshed();
   } // of refreshList
 
   void showSnackBar(String message, BuildContext context) {

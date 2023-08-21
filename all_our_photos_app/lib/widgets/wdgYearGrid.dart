@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../ImageFilter.dart';
 import '../widgets/wdgPhotoGrid.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aopClasses.dart';
 import '../MonthlyStatus.dart';
 
 // Note there is a blank month name in entry 0 for the year column
@@ -36,14 +36,19 @@ class YearGridState extends State<YearGrid> {
 
   int _currentYear = 0;
   int _currentMonth = 0;
-  void setCurrent(int year,int month) {_currentYear=year; _currentMonth = month;}
-  bool isCurrent(int year,int month) => (_currentYear==year && _currentMonth == month);
+  void setCurrent(int year, int month) {
+    _currentYear = year;
+    _currentMonth = month;
+  }
+
+  bool isCurrent(int year, int month) =>
+      (_currentYear == year && _currentMonth == month);
 
   @override
   initState() {
     super.initState();
-    MonthlyStatus.init().then((x){
-    buildYears().then((newYearList) {
+    MonthlyStatus.init().then((x) {
+      buildYears().then((newYearList) {
         setState(() => yearList = newYearList);
       }); // of then
     });
@@ -64,28 +69,37 @@ class YearGridState extends State<YearGrid> {
   } // of buildYears
 
   void handleMonthClick(int yearNo, int monthNo) {
-    if (monthNo > 0) { // dont navigate if clicking on yearNo
+    if (monthNo > 0) {
+      // dont navigate if clicking on yearNo
       setCurrent(yearNo, monthNo);
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo, refresh: () {  }),album: null))).then((value)
-                  {setState(() {});}
-                  );
+              builder: (context) => PhotoGrid(
+                  ImageFilter.yearMonth(yearNo, monthNo, refresh: () {}),
+                  album: null))).then((value) {
+        setState(() {});
+      });
     }
   } // handleMonthClick
 
-  Color monthProgressColor(int yearNo,int monthNo) {
-    return MonthlyStatus.read(yearNo,monthNo) ? Colors.blue : Colors.amber; // todo
+  Color monthProgressColor(int yearNo, int monthNo) {
+    return MonthlyStatus.read(yearNo, monthNo)
+        ? Colors.blue
+        : Colors.amber; // todo
   }
+
   Row yearRowBuilder(YearEntry thisYear) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
       Text('${thisYear.yearno}', style: gridStyles['yearNos']),
       for (int monthIx = 1; monthIx <= 12; monthIx++)
         if (thisYear.months[monthIx] > 0)
           IconButton(
-            icon: Icon(isCurrent(thisYear.yearno,monthIx)?Icons.ac_unit:MonthlyStatus.icon(thisYear.yearno, monthIx), size: 36.0,
+            icon: Icon(
+                isCurrent(thisYear.yearno, monthIx)
+                    ? Icons.ac_unit
+                    : MonthlyStatus.icon(thisYear.yearno, monthIx),
+                size: 36.0,
                 color: monthProgressColor(thisYear.yearno, monthIx)),
             // tooltip: 'Todo: Maybe location info',
             onPressed: () {
@@ -126,4 +140,3 @@ class YearGridState extends State<YearGrid> {
     ); // of ListView
   }
 }
-

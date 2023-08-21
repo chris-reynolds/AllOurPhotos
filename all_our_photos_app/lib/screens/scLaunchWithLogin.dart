@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../authentication_state.dart';
-import '../shared/dbAllOurPhotos.dart';
+import 'package:aopmodel/dbAllOurPhotos.dart';
 import 'scSignin.dart';
 import 'scHome.dart';
 
@@ -54,12 +54,16 @@ class LaunchWithLogin extends StatelessWidget {
     return StreamBuilder<AuthenticationState>(
         stream: _streamController.stream,
 //        initialData: new AuthenticationState.initial(),
-        builder: (BuildContext context, AsyncSnapshot<AuthenticationState> snapshot) {
+        builder: (BuildContext context,
+            AsyncSnapshot<AuthenticationState> snapshot) {
           final state = snapshot.data;
           if (state == null)
             return CircularProgressIndicator();
           else if (state.authenticated)
-            return HomeScreen(logoutFn:tryLogout, title: title,);
+            return HomeScreen(
+              logoutFn: tryLogout,
+              title: title,
+            );
           else
             return SignInPage(/*_streamController,*/ tryLogin);
         });

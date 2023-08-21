@@ -6,12 +6,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aopClasses.dart';
 import 'wdgImageFilter.dart' show filterColors;
 
-
 typedef BannerTapCallback = void Function(AopSnap snap);
-nullSnapCallBack (AopSnap snap) {}  // used for initialising callbacks
+nullSnapCallBack(AopSnap snap) {} // used for initialising callbacks
 
 const double HEADER_OFFSET = 50;
 
@@ -31,7 +30,8 @@ class PhotoTile extends StatelessWidget {
   bool isSelected;
   bool inSelectMode = false;
   bool highResolution = false;
-  BannerTapCallback onBannerTap = nullSnapCallBack; // User taps on the photo's header or footer.
+  BannerTapCallback onBannerTap =
+      nullSnapCallBack; // User taps on the photo's header or footer.
   BannerTapCallback onBannerLongPress = nullSnapCallBack;
 
   AopSnap get snap => snapList[index];
@@ -48,8 +48,7 @@ class PhotoTile extends StatelessWidget {
           }
         },
         onDoubleTap: () {
-          if (inSelectMode)
-            onBannerLongPress(snap);
+          if (inSelectMode) onBannerLongPress(snap);
         },
         onLongPress: () async {
           await Navigator.pushNamed(context, 'SinglePhoto',
@@ -58,7 +57,8 @@ class PhotoTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(top: HEADER_OFFSET),
           child: Container(
-              decoration: BoxDecoration(color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
+              decoration: BoxDecoration(
+                  color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
               key: Key(snap.thumbnailURL),
               child: Transform.rotate(
                 angle: snap.angle,
@@ -70,8 +70,10 @@ class PhotoTile extends StatelessWidget {
         ));
 
     const IconData icon = Icons.star;
-    final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
-    String descriptor = '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
+    final IconData iconSelect =
+        isSelected ? Icons.check_box : Icons.check_box_outline_blank;
+    String descriptor =
+        '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!inSelectMode) {
@@ -82,10 +84,12 @@ class PhotoTile extends StatelessWidget {
           },
           child: GridTileBar(
               //backgroundColor: Colors.lime.shade50,
-              title:
-                  Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+              title: Text(descriptor,
+                  style:
+                      TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               subtitle: Text(snap.caption ?? snap.location ?? '',
-                  style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+                  style:
+                      TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               trailing: Row(children: [
                 Icon(icon, color: filterColors[snap.ranking!], size: 40.0),
               ])),
@@ -103,7 +107,8 @@ class PhotoTile extends StatelessWidget {
           },
           child: GridTileBar(
             //     backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
-            title: Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+            title: Text(descriptor,
+                style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
             subtitle: Text(snap.caption ?? snap.location ?? '',
                 style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),

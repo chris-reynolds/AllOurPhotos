@@ -10,7 +10,7 @@ import '../widgets/PhotoViewWithRectWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as Im;
 import 'package:aopcommon/aopcommon.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aopClasses.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../widgets/wdgImageFilter.dart'; // only for the icons
 
@@ -88,7 +88,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         IconButton(
             icon: Icon(Icons.edit),
             onPressed: () async {
-              await Navigator.pushNamed(context, 'MetaEditor', arguments: currentSnap);
+              await Navigator.pushNamed(context, 'MetaEditor',
+                  arguments: currentSnap);
               setState(() {}); //force repaint on return
             }),
         IconButton(
@@ -108,8 +109,10 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         IconButton(
           icon: Icon(Icons.download_outlined),
           onPressed: () async {
-            ExportPic.save(currentSnap!.fullSizeURL, currentSnap!.fileName, 'AllOurPhotos').then((success){
-              showMessage(context, success?"Downloaded":"Download failed");
+            ExportPic.save(currentSnap!.fullSizeURL, currentSnap!.fileName,
+                    'AllOurPhotos')
+                .then((success) {
+              showMessage(context, success ? "Downloaded" : "Download failed");
             });
           },
         ),
@@ -118,12 +121,15 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
             onPressed: () {
               cropMe(context, currentSnap);
             }),
-        IconButton(icon: Icon(Icons.palette), onPressed: (_snapIndex == 1) ? () {} : null),
+        IconButton(
+            icon: Icon(Icons.palette),
+            onPressed: (_snapIndex == 1) ? () {} : null),
         PopupMenuButton<String>(
           onSelected: (String result) {
             if (result == 'exif') {
               showExif(context, currentSnap!);
-            } else if (result == 'exif-thumb') showThumbnailExif(context, currentSnap!);
+            } else if (result == 'exif-thumb')
+              showThumbnailExif(context, currentSnap!);
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
@@ -145,17 +151,20 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   @override
   Widget build(BuildContext context) {
     double yPos;
-    if (snapList == null) _initParams(); // can't get params until we have a context!!!!
+    if (snapList == null)
+      _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];
     return Scaffold(
         appBar: buildAppBar(context) as PreferredSizeWidget?,
         body: GestureDetector(
-          onVerticalDragStart: (cursorPos) => yPos = cursorPos.localPosition.direction,
+          onVerticalDragStart: (cursorPos) =>
+              yPos = cursorPos.localPosition.direction,
           onVerticalDragUpdate: (cursorPos) {
             if (cursorPos.delta.dy > 100)
               snapIndex = _snapIndex + 1;
             else if (cursorPos.delta.dy < -100) snapIndex = _snapIndex - 1;
-            log.message('onVerticalDragUpdate $_snapIndex ${cursorPos.delta.dy}');
+            log.message(
+                'onVerticalDragUpdate $_snapIndex ${cursorPos.delta.dy}');
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -165,21 +174,26 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   onPressed: () {
                     _changeRanking(context);
                   },
-                  icon: Icon(Icons.star, color: filterColors[currentSnap!.ranking!], size: 40.0),
+                  icon: Icon(Icons.star,
+                      color: filterColors[currentSnap!.ranking!], size: 40.0),
                 ),
                 Text(
                   '${currentSnap!.caption ?? ''}\n${currentSnap!.location ?? ''}',
-                  style: TextStyle(color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
+                  style: TextStyle(
+                      color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
                 ),
               ]),
               Expanded(
                 flex: 1,
                 child: GestureDetector(
-                  onVerticalDragEnd: (dragDetails){
-                    if (dragDetails.primaryVelocity! < 0) { // swipe up
-                      if (_snapIndex<snapList!.length-1) snapIndex=_snapIndex+1;
-                    } else if (dragDetails.primaryVelocity! > 0) { // swipe down
-                      if (_snapIndex>0) snapIndex = _snapIndex-1;
+                  onVerticalDragEnd: (dragDetails) {
+                    if (dragDetails.primaryVelocity! < 0) {
+                      // swipe up
+                      if (_snapIndex < snapList!.length - 1)
+                        snapIndex = _snapIndex + 1;
+                    } else if (dragDetails.primaryVelocity! > 0) {
+                      // swipe down
+                      if (_snapIndex > 0) snapIndex = _snapIndex - 1;
                     }
                   },
                   child: Transform.rotate(
@@ -192,7 +206,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   ), // of Transform
                 ), // of GestureDetector
               ), // of Expanded
-              if (_isClippingInProgress) Center(child: CircularProgressIndicator()),
+              if (_isClippingInProgress)
+                Center(child: CircularProgressIndicator()),
             ],
           ),
         ));
@@ -226,21 +241,26 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     }
   } // of cropMe
 
-  Future<AopSnap?> snapCrop(BuildContext context, AopSnap? originalSnap, Rect? rect) async {
+  Future<AopSnap?> snapCrop(
+      BuildContext context, AopSnap? originalSnap, Rect? rect) async {
     if (rect == null) return null;
     try {
       Im.Image originalImage = (await loadWebImage(originalSnap!.fullSizeURL))!;
       log.message('clipping ${originalSnap.fileName} ${originalImage.length}');
-      Im.Image newFullImage = Im.copyCrop(originalImage, x:rect.right.round(), y:rect.top.round(),
-          width:(rect.left - rect.right).round(), height:(rect.bottom - rect.top).round());
+      Im.Image newFullImage = Im.copyCrop(originalImage,
+          x: rect.right.round(),
+          y: rect.top.round(),
+          width: (rect.left - rect.right).round(),
+          height: (rect.bottom - rect.top).round());
       Im.Image newThumbnail = Im.copyResize(newFullImage,
           width: (originalImage.width >= originalImage.height) ? 640 : 480);
-      Map<String,dynamic> buffer = originalSnap.toMap();
+      Map<String, dynamic> buffer = originalSnap.toMap();
       buffer.remove('id'); //
-      var newSnap = AopSnap(data:buffer);
+      var newSnap = AopSnap(data: buffer);
       // sourceMarker is used for tracking where photos came from
       String sourcerMarker = 'Crop+${originalSnap.id}';
-      newSnap.fileName = await calcNewFilenameForSnap(originalSnap, sourcerMarker);
+      newSnap.fileName =
+          await calcNewFilenameForSnap(originalSnap, sourcerMarker);
       Map<String, dynamic> metaMap = jsonDecode(originalSnap.metadata!);
       metaMap['width'] = newFullImage.width;
       metaMap['height'] = newFullImage.height;
@@ -258,7 +278,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       snapList!.add(newSnap);
       // is it part of the current album. If so add it to album
       if (maybeCurrentAlbum != null) {
-        AopAlbumItem item = AopAlbumItem(data:{});
+        AopAlbumItem item = AopAlbumItem(data: {});
         item.albumId = maybeCurrentAlbum!.id;
         item.snapId = newSnap.id;
         await item.save();
@@ -273,11 +293,13 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     }
   }
 
-  Future<String> calcNewFilenameForSnap(AopSnap snap, String sourceMarker) async {
+  Future<String> calcNewFilenameForSnap(
+      AopSnap snap, String sourceMarker) async {
     int previousCrops = (await AopSnap.getPreviousCropCount(sourceMarker));
     int dotPos = snap.fileName!.lastIndexOf('.');
     if (dotPos < 0) throw 'Failed to get extention of ${snap.fileName}';
-    String result = '${snap.fileName!.substring(0, dotPos)}_cp${previousCrops + 1}${snap.fileName!.substring(dotPos)}';
+    String result =
+        '${snap.fileName!.substring(0, dotPos)}_cp${previousCrops + 1}${snap.fileName!.substring(dotPos)}';
     return result;
   } // of calcNewFilenameForSnap
 
@@ -300,6 +322,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       tagResult = 'NO EXIF DATA';
     else
       tags.forEach((k, v) => tagResult += '$k = $v \n');
-    showMessage(context, tagResult, title: 'Exif for Thumbnail of ${thisSnap.fileName}');
+    showMessage(context, tagResult,
+        title: 'Exif for Thumbnail of ${thisSnap.fileName}');
   } // of showExif
 }

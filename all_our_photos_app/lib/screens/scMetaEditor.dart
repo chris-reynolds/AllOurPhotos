@@ -7,7 +7,7 @@
 
 import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aopClasses.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
 import '../flutter_common/WidgetSupport.dart';
 import 'package:aopcommon/aopcommon.dart';
@@ -36,7 +36,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
   void selectChip(BuildContext context, String caption, bool selected) async {
     if (caption == '+' || caption == '-') {
       String prompt = (caption == '+') ? 'Add new' : 'Remove';
-      String? newChipText = await inputBox(context, '$prompt Chip Text');
+      String newChipText = (await inputBox(context, '$prompt Chip Text')) ?? '';
       newChipText = newChipText.trim();
       if (newChipText.isNotEmpty) {
         if (caption == '-') {
@@ -163,9 +163,10 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
             ), */
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
-                return locationList.where((String location) =>
-                    location.toLowerCase().contains(textEditingValue.text.toLowerCase())) ;
-              } ,
+                return locationList.where((String location) => location
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()));
+              },
               initialValue: TextEditingValue(text: values['location'] ?? ''),
               onSelected: (v) {
                 values['location'] = v;
@@ -192,7 +193,8 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
                         values['ranking'] = (values['ranking']) % 3 + 1;
                       });
                     },
-                    child: Icon(Icons.star, color: filterColors[values['ranking']], size: 40.0),
+                    child: Icon(Icons.star,
+                        color: filterColors[values['ranking']], size: 40.0),
                   ),
                 ],
               );

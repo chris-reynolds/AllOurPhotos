@@ -25,14 +25,15 @@ class ExportPic {
     return false;
   }
 
-  static Future<bool> save(String url, String? fileName, String albumName) async {
+  static Future<bool> save(
+      String url, String? fileName, String albumName) async {
     Directory? directory;
     try {
       if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
           directory = await Path.getExternalStorageDirectory();
           String newPath = "";
-          log.message(directory.path);
+          log.message(directory!.path);
           List<String> paths = directory.path.split("/");
           for (int x = 1; x < paths.length; x++) {
             String folder = paths[x];
@@ -54,7 +55,8 @@ class ExportPic {
           return false;
         }
       } else if (Platform.isMacOS) {
-        directory = Directory('${(await Path.getDownloadsDirectory())!.path}/$albumName');
+        directory = Directory(
+            '${(await Path.getDownloadsDirectory())!.path}/$albumName');
       } else
         throw Exception('Platform not supported');
 
@@ -68,7 +70,7 @@ class ExportPic {
 //            setState(() {
 //              progress = value1 / value2;
 //            });
-            });
+        });
         if (Platform.isIOS) {
           await ImageGallerySaver.saveFile(saveFile.path,
               isReturnPathOfIOS: true);
@@ -78,12 +80,10 @@ class ExportPic {
       }
     } catch (e) {
       var target = fileName;
-      if (directory != null)
-        target = '${directory.path}/$fileName';
+      if (directory != null) target = '${directory.path}/$fileName';
       log.error('Failed to save $target \n Error is $e');
       //print('Failed to save $target \n Error is $e');
     }
     return false;
-  }  // of save
-
+  } // of save
 } // of ExportPic
