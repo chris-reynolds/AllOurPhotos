@@ -30,7 +30,7 @@ class SignInPage extends StatelessWidget {
 //      "Web Port:webport",
       'Device:sesdevice',
     ];
-    if (!Platform.isIOS) fieldDefs.add('Local Directory:lcldirectory');
+//    if (!Platform.isIOS) fieldDefs.add('Local Directory:lcldirectory');
     _fieldSet = WsFieldSet(fieldDefs, values: config.values(), spacer: 1);
   }
 
