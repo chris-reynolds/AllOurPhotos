@@ -62,7 +62,8 @@ class WsFieldDef {
 
 class WsFieldSet {
   final Map<String, Container> _widgetMap = {};
-  WsFieldSet(List<String> defStrings, {Map values = const {}, double? spacer}) {
+  WsFieldSet(List<String> defStrings,
+      {Map<String, dynamic> values = const {}, double? spacer}) {
     for (var thisDef in defStrings) {
       WsFieldDef thisFieldDef = WsFieldDef(thisDef);
       _widgetMap[thisFieldDef.fieldName] = wsTextField(thisFieldDef.prompt,

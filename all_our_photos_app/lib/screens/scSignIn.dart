@@ -11,7 +11,6 @@ import 'package:aopcommon/aopcommon.dart';
 import '../flutter_common/WidgetSupport.dart';
 //import 'scLogger.dart';
 
-
 class SignInPage extends StatelessWidget {
 //  final StreamController<AuthenticationState> _streamController;
   final _loginFormKey = GlobalKey<FormState>();
@@ -31,10 +30,8 @@ class SignInPage extends StatelessWidget {
 //      "Web Port:webport",
       'Device:sesdevice',
     ];
-    if (!Platform.isIOS)
-      fieldDefs.add('Local Directory:lcldirectory');
-    _fieldSet = WsFieldSet(fieldDefs,values: config, spacer:1);
-
+    if (!Platform.isIOS) fieldDefs.add('Local Directory:lcldirectory');
+    _fieldSet = WsFieldSet(fieldDefs, values: config.values(), spacer: 1);
   }
 
   signIn2() async {
@@ -43,7 +40,7 @@ class SignInPage extends StatelessWidget {
     log.message('my form state $formValueMap');
     config.addAll(formValueMap);
     await loginCallback();
-  log.message('just executed login callback');
+    log.message('just executed login callback');
   }
 
   void _showLogger(BuildContext context) {
@@ -69,14 +66,13 @@ class SignInPage extends StatelessWidget {
 //     return fieldDefs.map((thisFieldDef) => wsMakeField(thisFieldDef, values: config, spacer: 1)).toList();
 //   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sign in'),actions:[
+      appBar: AppBar(title: Text('Sign in'), actions: [
         IconButton(
           icon: Icon(Icons.list),
-          onPressed: ()=>_showLogger(context),
+          onPressed: () => _showLogger(context),
         ),
       ]),
       body: SafeArea(
@@ -84,7 +80,7 @@ class SignInPage extends StatelessWidget {
 //          onChanged: handleFormChanged,
           key: _loginFormKey,
           child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 24,vertical: 0),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 0),
             children: <Widget>[
               ..._fieldSet.widgets,
 //              ...registerLoginWidgets(),
@@ -93,9 +89,9 @@ class SignInPage extends StatelessWidget {
                 onPressed: () async {
                   log.message('sign in 23 callback');
                   await signIn2();
-                  },
+                },
               ),
-             ],
+            ],
           ),
         ),
       ),

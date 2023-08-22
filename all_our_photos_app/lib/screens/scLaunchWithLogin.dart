@@ -6,10 +6,8 @@
 */
 
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:aopcommon/aopcommon.dart';
+import 'package:aopcommon/aopcommon.dart' show config, log;
 import '../authentication_state.dart';
 import 'package:aopmodel/dbAllOurPhotos.dart';
 import 'scSignin.dart';
@@ -21,14 +19,8 @@ class LaunchWithLogin extends StatelessWidget {
   final String title;
   LaunchWithLogin(this.title);
   Future<void> initConfig() async {
-    String localDocs = (await getApplicationDocumentsDirectory()).path;
-    log.message('localdocs from $localDocs');
-    if (Platform.isAndroid) {
-      String extStorage = (await getExternalStorageDirectory())!.path;
-      log.message('external storage is $extStorage');
-    }
-    await loadConfig('$localDocs/aopPhoneSync.config.json');
-    log.message('loaded config from $localDocs');
+    config.init('aop');
+    log.message('loaded config ');
   } // of initConfig
 
   Future<void> tryLogin() async {
@@ -37,7 +29,7 @@ class LaunchWithLogin extends StatelessWidget {
       await db.initConnection(config);
       await db.startSession(config);
       _streamController.add(AuthenticationState.authenticated());
-      saveConfig();
+      await config.save();
       log.message('Config saved');
     } catch (ex) {
       log.error('Failed to login $ex');

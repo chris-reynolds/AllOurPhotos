@@ -16,7 +16,7 @@ int insertedSnapIdForAlbum = -999;
 
 void main() {
   setUp(() async {
-    loadConfig();
+    await config.init('test');
     dbAop = DbAllOurPhotos();
     await dbAop!.initConnection(config);
     testDataDirectory =

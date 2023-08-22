@@ -47,7 +47,7 @@ dependencies:
   aopcommon:
     path: ../../aop/aopcommon
   mysql1: ^0.20.0
- #   path: ../../my_pub_dev/mysql1_dart
+  localstorage: ^4.0.0+4
 
 dev_dependencies:
   flutter_test:
