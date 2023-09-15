@@ -15,8 +15,6 @@ temp/
 deleted/*
 all_our_photos_app/client_id.json
 all_our_photos_app/doco/IOS_GoogleAPI.md
-all_our_photos_app/doco/IOS_GoogleAPI.md
-all_our_photos_app/doco/IOS_GoogleAPI.md
 all_our_photos_app/assets/services.json
 *.log
 *.01
@@ -24,7 +22,6 @@ all_our_photos_app/assets/services.json
 *.03
 *.04
 *.05
-AopIndexBuilder/bin/aopFileImporter.config.json
 AopIndexBuilder/bin/aopFileImporter.config.json
 all_our_photos_app/lib/aopAppMain.config.json
 *.db
@@ -50,3 +47,8 @@ all_our_photos_app/ios/Flutter/Flutter.podspec
 josie_export/*.jpg
 DartWebServer/bin/aopmain.exe
 all_our_photos_app/macos/Flutter/GeneratedPluginRegistrant.swift
+aopserver/Lib/
+aopserver/Scripts/
+*/__pycache__/
+*/tests/__pycache__/
+aopmodel/.flutter-plugins-dependencies

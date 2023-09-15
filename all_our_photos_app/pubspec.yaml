@@ -46,7 +46,7 @@ dependencies:
     path: ../aopmodel
   aopcommon:
     path: ../../aop/aopcommon
-  mysql1: ^0.20.0
+#  mysql1: ^0.20.0
   localstorage: ^4.0.0+4
 
 dev_dependencies:
