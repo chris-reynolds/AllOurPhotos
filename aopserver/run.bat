@@ -1,0 +1,1 @@
+uvicorn aopservermain:app --reload
