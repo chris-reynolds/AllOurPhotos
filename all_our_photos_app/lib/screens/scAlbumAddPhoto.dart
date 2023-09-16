@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import 'package:aopmodel/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgMonthSelector.dart';
 import '../ImageFilter.dart';
 import '../widgets/wdgSnapGrid.dart';

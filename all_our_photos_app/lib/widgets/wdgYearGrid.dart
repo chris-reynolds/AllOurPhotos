@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../ImageFilter.dart';
 import '../widgets/wdgPhotoGrid.dart';
-import 'package:aopmodel/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../MonthlyStatus.dart';
 
 // Note there is a blank month name in entry 0 for the year column

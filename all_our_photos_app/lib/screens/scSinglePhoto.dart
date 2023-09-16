@@ -10,7 +10,7 @@ import '../widgets/PhotoViewWithRectWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as Im;
 import 'package:aopcommon/aopcommon.dart';
-import 'package:aopmodel/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../widgets/wdgImageFilter.dart'; // only for the icons
 

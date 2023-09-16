@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart' as PathProvider;
 import 'package:aopcommon/aopcommon.dart';
-import 'package:aopmodel/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../screens/scSimpleDlg.dart';
 import '../screens/scTypeAheadDlg.dart';
 import '../ImageFilter.dart';
@@ -248,7 +248,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                     index: idx,
                     inSelectMode: _inSelectMode,
                     highResolution: (_picsPerRow == 1),
-                    onBannerTap: (imageFile) {
+                    onBannerTap: (AopSnap imageFile) {
                       setState(() {
                         if (_inSelectMode)
                           _imageFilter.setSelected(
@@ -269,7 +269,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                       }); // setState
                     },
                     // of bannerTap
-                    onBannerLongPress: (imageFile) {
+                    onBannerLongPress: (AopSnap imageFile) {
                       int endIndex = -1; // find where we are in the grid
                       for (int ix = 0;
                           ix < _imageFilter.items.length && endIndex == -1;

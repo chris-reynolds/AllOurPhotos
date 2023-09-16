@@ -9,7 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart' show config, log;
 import '../authentication_state.dart';
-import 'package:aopmodel/dbAllOurPhotos.dart';
+// import 'package:aopmodel/dbAllOurPhotos.dart';
 import 'scSignin.dart';
 import 'scHome.dart';
 
@@ -25,9 +25,9 @@ class LaunchWithLogin extends StatelessWidget {
 
   Future<void> tryLogin() async {
     try {
-      var db = DbAllOurPhotos();
-      await db.initConnection(config);
-      await db.startSession(config);
+//      var db = DbAllOurPhotos();
+//      await db.initConnection(config);
+//      await db.startSession(config);
       _streamController.add(AuthenticationState.authenticated());
       await config.save();
       log.message('Config saved');

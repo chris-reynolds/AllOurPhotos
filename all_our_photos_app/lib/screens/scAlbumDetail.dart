@@ -4,10 +4,10 @@ Purpose: This will show the details of a single album
 
 */
 import 'dart:io';
-import 'package:aopmodel/DomainObject.dart';
+import 'package:aopmodel/domain_object.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import 'package:aopmodel/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';

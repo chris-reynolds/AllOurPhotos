@@ -3,12 +3,12 @@
 /// unit testing for the database layer
 
 import 'package:test/test.dart';
-import 'package:aopmodel/dbAllOurPhotos.dart';
-import 'package:aopmodel/aopClasses.dart';
+//import 'package:aopmodel/dbAllOurPhotos.dart';
+import 'package:aopmodel/aop_classes.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'dart:io' as Io;
 
-DbAllOurPhotos? dbAop;
+//DbAllOurPhotos? dbAop;
 
 late Io.Directory testDataDirectory;
 
@@ -17,16 +17,16 @@ int insertedSnapIdForAlbum = -999;
 void main() {
   setUp(() async {
     await config.init('test');
-    dbAop = DbAllOurPhotos();
-    await dbAop!.initConnection(config);
+    //   dbAop = DbAllOurPhotos();
+    //   await dbAop!.initConnection(config);
     testDataDirectory =
         Io.Directory('${Io.Directory.current.parent.path}/testdata');
   });
 
   tearDown(() async {
     // print('teardown ');
-    dbAop!.close();
-    dbAop = null;
+//    dbAop!.close();
+//    dbAop = null;
   });
   group('User', () {
     test('delete admin if exists', () async {

@@ -200,8 +200,9 @@ class AopAlbum extends DomainObject {
     List<AopAlbumItem> existingItems = await albumItems;
     for (int newId in newSnapIds) {
       bool found = false;
-      for (AopAlbumItem item in existingItems)
+      for (AopAlbumItem item in existingItems) {
         if (item.snapId == newId) found = true;
+      }
       if (!found) {
         AopAlbumItem newItem = AopAlbumItem(data: {});
         newItem.albumId = id;
@@ -233,8 +234,9 @@ class AopAlbum extends DomainObject {
     if (name.length < 10) lastErrors.add('name must be 10 characters long');
     String yearStr = name.substring(0, 4);
     int yearNo = int.tryParse(yearStr) ?? -1;
-    if (yearNo < 1900 || yearNo > 2099)
+    if (yearNo < 1900 || yearNo > 2099) {
       lastErrors.add('name should start with 4 digit year');
+    }
   } // of validate
 
 //                                '*** End Custom Code
@@ -757,7 +759,9 @@ class AopSnap extends DomainObject {
     var r = await snapProvider.rawExecute(
         'select distinct location from aopsnaps where location is not null');
     List<String> result = [];
-    for (var row in r) result.add(row[0] as String);
+    for (var row in r) {
+      result.add(row[0] as String);
+    }
     return result;
   } // of existingLocations
 
@@ -769,7 +773,9 @@ class AopSnap extends DomainObject {
   static Future<int> getPreviousCropCount(String source) async {
     var r = await snapProvider.rawExecute(
         "select count(*) from aopsnaps where import_source='$source'");
-    for (var row in r) return row[0];
+    for (var row in r) {
+      return row[0];
+    }
     return -1; // never used but required for static analysis
   } // of yearGrid
 
@@ -786,8 +792,9 @@ class AopSnap extends DomainObject {
   } // of metadataURL
 
   void trimSetLocation(String? newLocation) {
-    if (newLocation != null && newLocation.length > 200)
+    if (newLocation != null && newLocation.length > 200) {
       newLocation = newLocation.substring(newLocation.length - 200);
+    }
     location = newLocation;
   } // of trimSetLocation
 

@@ -7,7 +7,7 @@
 
 import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
-import 'package:aopmodel/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
 import '../flutter_common/WidgetSupport.dart';
 import 'package:aopcommon/aopcommon.dart';
