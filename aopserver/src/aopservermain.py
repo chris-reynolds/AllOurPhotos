@@ -12,13 +12,14 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 config = json.load(open('config.json'))
-condb = DBSession(config['db'])
+model =json.load(open('model.json'))
+sess = DBSession(config['db'],model)
 
 
 app.mount('/photos',StaticFiles(directory='c:\\data\\photos'))
 
 iprint('albums=')
-iprint(condb.fetch('select id from aopalbums'))
+iprint(sess.fetch('select id from aopalbums'))
 
 @app.get("/")
 async def root():
@@ -26,24 +27,25 @@ async def root():
 
 @app.get('/api/albums')
 async def albums():
-  return condb.fetch('select id from aopalbums')
+  return session.db.fetch('select id from aopalbums')
 
-@app.get('/api/{entityName}/{id}')
-async def getById(entityName,id):
-  if not DBSession.entityIsValid(entityName):
+@app.get('/api/{entityName}/{where}')
+async def getById(entityName: str, where: str):
+  if not sess.entityIsValid(entityName):
      raise HTTPException(status_code=404, detail="Item REALLY not found")
   else:
-    result = DBSession.fetch1(entityName,(id,))
+    if (where.isnumeric()):  where = 'id='+where   
+    result = sess.fetch(entityName,where)
     if result == None:
         raise HTTPException(status_code=404, detail="Item not found")
     else:
        return result
 
-@app.get('/session/{user}/{password}/{source}')
+@app.get('/ses/{user}/{password}/{source}')
 async def session(user,password,source):
-   return DBSession.makeSession(user,password,source)       
+   return session.makeSession(user,password,source)       
 
-# del condb  # disconnect from database
+# del session  # disconnect from database
 
 iprint('done')
 

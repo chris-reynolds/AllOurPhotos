@@ -4,7 +4,6 @@
   Purpose: Stateful TapDateWidget
 */
 
-
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 
@@ -13,7 +12,8 @@ typedef DateChangedEvent = Function(DateTime);
 class TapDateWidget extends StatefulWidget {
   final DateTime _initDate;
   final DateChangedEvent _onChange;
-  const TapDateWidget(this._initDate, this._onChange, {Key? key}):super(key: key);
+  const TapDateWidget(this._initDate, this._onChange, {Key? key})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -22,21 +22,21 @@ class TapDateWidget extends StatefulWidget {
 }
 
 class TapDateWidgetState extends State<TapDateWidget> {
-
   DateTime? _date;
 
-  Future<void> popupDatePicker(BuildContext context)  async {
+  Future<void> popupDatePicker(BuildContext context) async {
     final selectedDate = await showDatePicker(
-      context: context, initialDate: _date!,
-        firstDate: DateTime(1900), lastDate: DateTime.now() );
+        context: context,
+        initialDate: _date!,
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now());
     if (selectedDate != null && selectedDate != _date) {
-      setState( () {
+      setState(() {
         _date = selectedDate;
         widget._onChange(selectedDate);
       }); // of setState
     }
   }
-
 
   @override
   void initState() {
@@ -47,10 +47,14 @@ class TapDateWidgetState extends State<TapDateWidget> {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      child: Text('(${formatDate(_date!,format:'d-mmm-yy')})',
-      // TODO : work out how to decorate theme styles with underscore
-      style: Theme.of(context).textTheme.bodyMedium!.apply(decoration: TextDecoration.underline)),
-      onPressed: () { popupDatePicker(context); },
+      child: Text('(${formatDate(_date!, format: 'd-mmm-yy')})',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .apply(decoration: TextDecoration.underline)),
+      onPressed: () {
+        popupDatePicker(context);
+      },
     );
   } // of build
 } // of TapDateWidgetState

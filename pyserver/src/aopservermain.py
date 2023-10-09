@@ -7,6 +7,7 @@ from datetime import datetime
 from src.aopmodel import *
 # from src.dbsession import DBSession
 #                                 '*** Start Custom Code importing
+from fastapi.staticfiles import StaticFiles
 MxString = str
 MxDatetime = float
 MxFloat = float
@@ -22,12 +23,10 @@ opMxMemo = str | None
 
 # Configure the MySQL database connection
 config = json.load(open('config.json'))
-
-# Create a MySQL connection pool
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(autocommit=True,pool_name="mypool", pool_size=5, pool_reset_session=True, **config['db'])
-# sess = DBSession(config['db'])
 
 app = FastAPI()
+app.mount('/photos',StaticFiles(directory='c:\\data\\photos'))
 
 #                                 '*** Start Custom Code custom routes
 @app.get('/ses/{user}/{password}/{source}')

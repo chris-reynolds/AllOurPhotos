@@ -16,26 +16,28 @@ class DgSimple extends StatefulWidget {
   final DlgValidator? isValid;
 
   @override
-  _DgSimpleState createState() => _DgSimpleState(title, initialValue, errorMessage);
+  DgSimpleState createState() =>
+      DgSimpleState(title, initialValue, errorMessage);
 
-  const DgSimple(this.title, this.initialValue, {this.errorMessage ='', this.isValid})
+  const DgSimple(this.title, this.initialValue,
+      {this.errorMessage = '', this.isValid})
       : super();
 }
 
-class _DgSimpleState extends State<DgSimple> {
+class DgSimpleState extends State<DgSimple> {
   TextEditingController? _nameController;
   String? value;
   String title;
   String? errorMessage;
 
-  _DgSimpleState(this.title, this.value, this.errorMessage) : super();
+  DgSimpleState(this.title, this.value, this.errorMessage) : super();
 
   void handleSavePressed(String value) async {
     if (widget.isValid != null)
       errorMessage = await widget.isValid!(_nameController!.text);
     else
       errorMessage = null;
-    if (errorMessage !=null && errorMessage!.isNotEmpty)
+    if (errorMessage != null && errorMessage!.isNotEmpty)
       setState(() {});
     else
       Navigator.pop(context, value);

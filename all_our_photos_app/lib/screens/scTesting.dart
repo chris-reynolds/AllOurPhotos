@@ -6,10 +6,10 @@ class SearchList extends StatefulWidget {
   const SearchList({Key? key}) : super(key: key);
 
   @override
-  _SearchListState createState() => _SearchListState();
+  SearchListState createState() => SearchListState();
 }
 
-class _SearchListState extends State<SearchList> {
+class SearchListState extends State<SearchList> {
   Widget appBarTitle = Text(
     "Search Sample",
     style: TextStyle(color: Colors.white),
@@ -24,7 +24,7 @@ class _SearchListState extends State<SearchList> {
   late bool _isSearching;
   String _searchText = "";
 
-  _SearchListState() {
+  SearchListState() {
     _searchQuery.addListener(() {
       if (_searchQuery.text.isEmpty) {
         setState(() {

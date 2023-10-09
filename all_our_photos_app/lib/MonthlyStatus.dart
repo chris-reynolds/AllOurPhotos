@@ -9,22 +9,21 @@ import 'package:flutter/material.dart';
 import 'utils/PersistentMap.dart';
 import 'package:aopcommon/aopcommon.dart';
 
-PersistentMap _monthlyStatus = PersistentMap('monthly.txt');
+PersistentMap _monthlyStatus = PersistentMap('photos/monthly.txt');
 String currentUser = '?';
 
 class MonthlyStatus {
   static Future<void> init() async {
-    currentUser = (config['sesuser'] as String).substring(0,1); // first letter
-//    _monthlyStatus = PersistentMap('monthly.txt');
+    currentUser = (config['sesuser'] as String).substring(0, 1); // first letter
     await _monthlyStatus.load();
   }
 
-  static bool read(int yearNo,int monthNo) {
-    if (!_monthlyStatus.isLoaded)
-      throw 'Monthly status not initialised';
-    return _monthlyStatus[yearNo*100+monthNo].contains(currentUser);
+  static bool read(int yearNo, int monthNo) {
+    if (!_monthlyStatus.isLoaded) throw 'Monthly status not initialised';
+    return _monthlyStatus[yearNo * 100 + monthNo].contains(currentUser);
   }
-  static Future<void> write(int yearNo,int monthNo,bool newValue) async {
+
+  static Future<void> write(int yearNo, int monthNo, bool newValue) async {
     await _monthlyStatus.load();
     String stored = _monthlyStatus[yearNo * 100 + monthNo];
     bool oldValue = stored.contains(currentUser);
@@ -37,12 +36,12 @@ class MonthlyStatus {
     });
   } // write
 
-  static IconData icon(int yearNo,int monthNo) {
-    if (_monthlyStatus[yearNo*100+monthNo].isEmpty)
+  static IconData icon(int yearNo, int monthNo) {
+    if (_monthlyStatus[yearNo * 100 + monthNo].isEmpty)
       return Icons.image;
-    else if (_monthlyStatus[yearNo*100+monthNo]=='c')
+    else if (_monthlyStatus[yearNo * 100 + monthNo] == 'c')
       return Icons.elderly;
-    else if (_monthlyStatus[yearNo*100+monthNo]=='j')
+    else if (_monthlyStatus[yearNo * 100 + monthNo] == 'j')
       return Icons.woman;
     else
       return Icons.mood;

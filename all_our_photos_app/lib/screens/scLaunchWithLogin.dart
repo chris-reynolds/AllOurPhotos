@@ -6,6 +6,7 @@
 */
 
 import 'dart:async';
+import 'package:aopmodel/aop_classes.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart' show config, log;
 import '../authentication_state.dart';
@@ -28,6 +29,10 @@ class LaunchWithLogin extends StatelessWidget {
 //      var db = DbAllOurPhotos();
 //      await db.initConnection(config);
 //      await db.startSession(config);
+      Map<String, dynamic> sessionRequest =
+          await sessionProvider.rawRequest('ses/test/test00/debug');
+      int sessionId = int.parse(sessionRequest['jam']);
+      if (sessionId <= 0) throw Exception('Invalid session Id');
       _streamController.add(AuthenticationState.authenticated());
       await config.save();
       log.message('Config saved');

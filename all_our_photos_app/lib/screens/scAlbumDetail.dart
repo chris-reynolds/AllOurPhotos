@@ -14,13 +14,13 @@ import '../flutter_common/WidgetSupport.dart';
 import '../utils/ExportPic.dart';
 
 class AlbumDetail extends StatefulWidget {
-  AlbumDetail({Key? key}) : super(key: key);
+  const AlbumDetail({Key? key}) : super(key: key);
 
   @override
-  _AlbumDetailState createState() => _AlbumDetailState();
+  AlbumDetailState createState() => AlbumDetailState();
 }
 
-class _AlbumDetailState extends State<AlbumDetail>
+class AlbumDetailState extends State<AlbumDetail>
     with Selection<AopSnap>
     implements SelectableListProvider<AopSnap> {
   final scaffoldKey = GlobalKey<ScaffoldState>();

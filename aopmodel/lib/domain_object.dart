@@ -138,8 +138,8 @@ class DOProvider<TDO extends DomainObject> {
     }
   }
 
-  Future<dynamic> queryWithReOpen(String verb, String url) async {
-    return _sendRequest(verb, url);
+  Future<dynamic> rawRequest(String url, {String verb = 'get'}) async {
+    return _sendRequest(verb, RestURLFactory.baseURL + url);
   } // of queryWithReOpen
 
   Future<int?> save(TDO aDomainObject) async {

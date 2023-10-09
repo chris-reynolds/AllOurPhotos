@@ -5,24 +5,35 @@ from  logger import iprint,eprint
 
 
 class DBSession():
-    def __init__(self,config):
+    def __init__(self,config, model):
       self.id = 0
       self.db = SqlDatabase(config)
+      self.model = model
+      self.sqlFactory = SqlFactory(model)
 
+
+    def entityIsValid(self,entityName: str):
+        return entityName in self.model
+    
+    def fetch(self,entityName:str, where: str='1=0', orderby: str='id', one:bool = False):
+        if not self.entityIsValid(entityName): 
+            raise Exception('out of scope')
+        sqltext = self.sqlFactory.selectStatement(entityName)+ f"where $where order by $orderby"
+        return self.db.fetch(sqltext,one=one)
+    
     def makeSession(self,user:str,password:str,source:str):
         sqltext = f"select spsessioncreate('{user}','{password}','{source}')"
-        cursor = self.db.checkedConnection.cursor()
-        cursor.execute(sqltext)
-        x =  cursor.fetchone()
-        cursor.close()
-        self.id = x[0]
+        with self.db.checkedConnection().cursor() as acursor:
+          acursor.execute(sqltext)
+          x =  acursor.fetchone()
+          self.id = x  # todo : just get first column
+        print('session id is',self.id)
      
 
 class SqlDatabase():
     def __init__(self,config):
         iprint('config is',config)
         self._config = config
-        self.sqlFactory = SqlFactory()
         self.tryconnect()
 
     def __del__(self):
@@ -37,32 +48,21 @@ class SqlDatabase():
             raise Exception('Lost in space!!!!!!!!!!!!!!!!!!')
         return self.connection
 
-    def fetch(self,sqltext,params: tuple|None=None):
-        cursor = self.checkedConnection.cursor()
-        cursor.execute(sqltext,params)
-        x =  cursor.fetchall()
-        cursor.close()
-        return x  
-
-    def fetch1(self,sqltext,params: tuple|None=None):
-        iprint('params=',params)
-        cursor = self.checkedConnection.cursor()
-        cursor.execute(sqltext,params)
-        x =  cursor.fetchone()
-        cursor.close()
-        return x  
-
-    def getById(self,entityName: str, id: int):
-        sql = self.sqlFactory.selectByIdStatement(entityName)
-        return self.fetch1(sql,{id})
-    
+    def fetch(self, sqltext: str, one: bool=False, params: tuple|None=None):
+        x = None
+        with self.checkedConnection().cursor() as acursor:
+          # todo : use params
+          acursor.execute(sqltext)
+          x =  acursor.fetchone if one else acursor.fetchall()
+          acursor.close()
+        return x      
    
     def tryconnect(self):
         try:
             self.connection = mysql.connector.connect(**self._config) 
             if self.connection.is_connected():
                 db_Info = self.connection.get_server_info()
-                record = self.fetch1("select database();")
+                record = self.fetch("select database();",one=True)
                 iprint("You're connected to database: ", record, db_Info)
                 #cursor.close()
         except Error as e:
@@ -71,21 +71,17 @@ class SqlDatabase():
 class SqlFactory():
 
     _lockedColumns = ['created_on', 'updated_on', 'updated_user']
-    _metadata = {"album":['name','description','first_date','last_date'],
-             "session":['start_date','end_date','source'],
-             "snap":['file_name','directory','taken_date','original_taken_date',
-                     'modified_date','device_name','caption','ranking',
-                     'longitude','latitude','width','height','location','rotation',
-                     'import_source','media_type','imported_date','media_length',
-                     'tag_list','metadata'],
-             "user":['name','hint']}
 
-    def selectByIdStatement(self,entityName):
+    def __init__(self,model):
+      self._metadata = model
+
+    
+    def selectStatement(self,entityName):
         if not entityName in self._metadata:
             return ''
         columns = self._metadata[entityName]
         allColumns = self._lockedColumns+columns
-        return f"select id,{','.join(allColumns)} from aop{entityName}s where id=%s"
+        return f"select id,{','.join(allColumns)} from {entityName}"
         
     def insertStatement(self,entityName):
         if not entityName in self._metadata:
@@ -93,7 +89,7 @@ class SqlFactory():
         columns = self._metadata[entityName]
         allColumns = self._lockedColumns+columns
         valueMarkers = ','.join(['%s' for col in allColumns])
-        return f"insert into aop{entityName}s ({','.join(allColumns)}) values({valueMarkers})"
+        return f"insert into {entityName} ({','.join(allColumns)}) values({valueMarkers})"
 
     def updateStatement(self,entityName):
         if not entityName in self._metadata:
@@ -102,12 +98,12 @@ class SqlFactory():
         allColumns = self._lockedColumns+columns
         valueMarkers = ','.join(['%s' for col in allColumns])
         updateClause = ','.join(['{col}=%s' for col in allColumns])
-        return f"update aop{entityName}s set {updateClause} where id=%s"
+        return f"update {entityName} set {updateClause} where id=%s"
 
     def deleteStatment(self,entityName):
         if not entityName in self._metadata:
             return ''
-        return f"delete from aop{entityName}s where id=%s"
+        return f"delete from {entityName} where id=%s"
 
 '''
 import 'dart:async';

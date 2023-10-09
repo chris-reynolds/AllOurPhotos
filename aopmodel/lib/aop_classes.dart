@@ -3,6 +3,9 @@
 //
 
 import 'dart:async';
+//import 'dart:ui';
+//import 'package:http/http.dart';
+
 import 'domain_object.dart';
 //                                '*** Start Custom Code imports
 // ignore_for_file: unnecessary_getters_setters
@@ -11,7 +14,7 @@ import 'package:path/path.dart' as path;
 import 'package:aopcommon/aopcommon.dart';
 //import '../utils/WebFile.dart';
 
-String get rootUrl => 'http://${config["dbhost"]}:3333';
+//String get rootUrl => 'http://${config["dbhost"]}:3333';
 //                                '*** End Custom Code
 
 // Domain object providers
@@ -445,6 +448,18 @@ class AopSession extends DomainObject {
   } // of delete
 
 //                                '*** Start Custom Code session custom procedures
+  static Future<AopSession> createSession(
+      String username, String password, String source) async {
+    try {
+      var login = await sessionProvider
+          .rawRequest('/sessioncreate/{username}/{password}/{source}');
+      AopSession session = AopSession(data: login);
+      return session;
+    } catch (ex) {
+      log.error('Failed to create session : $ex');
+      rethrow;
+    }
+  } // of create session
 //                                '*** End Custom Code
 } // of class session
 
@@ -766,7 +781,7 @@ class AopSnap extends DomainObject {
   } // of existingLocations
 
   static Future<dynamic> get monthGrid async {
-    var r = await snapProvider.rawExecute('select * from vwmonthgrid');
+    var r = await snapProvider.rawRequest('find/monthgrid');
     return r;
   } // of yearGrid
 

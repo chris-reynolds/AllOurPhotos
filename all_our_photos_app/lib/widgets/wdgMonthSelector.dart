@@ -15,10 +15,10 @@ class MonthSelector extends StatefulWidget {
   const MonthSelector({Key? key, required this.onPressed}) : super(key: key);
 
   @override
-  _MonthSelectorState createState() => _MonthSelectorState();
+  MonthSelectorState createState() => MonthSelectorState();
 }
 
-class _MonthSelectorState extends State<MonthSelector> {
+class MonthSelectorState extends State<MonthSelector> {
   final List<bool> _monthList = [true, false, false, false];
 //  bool _multiMonth = true;
   final List<String> _monthNames = 'Jan-Mar Apr-Jun Jul-Sep Oct-Dec'.split(' ');
@@ -34,14 +34,14 @@ class _MonthSelectorState extends State<MonthSelector> {
                 setState(() {
                   for (int j = 0; j < 4; j++) _monthList[j] = (j == i);
                 });
- //               if (widget.onPressed != null)
-                  widget.onPressed(i);
+                //               if (widget.onPressed != null)
+                widget.onPressed(i);
               },
               style: TextButton.styleFrom(
-              backgroundColor: _monthList[i] ? Colors.greenAccent : Colors.amber),
+                  backgroundColor:
+                      _monthList[i] ? Colors.greenAccent : Colors.amber),
               //padding: EdgeInsets.all(0),
-              child: Text(_monthNames[i])
-          )
+              child: Text(_monthNames[i]))
       ], // of children
     ); // of Row
   } // of build

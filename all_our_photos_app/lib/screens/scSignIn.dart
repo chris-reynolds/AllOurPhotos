@@ -11,28 +11,30 @@ import 'package:aopcommon/aopcommon.dart';
 import '../flutter_common/WidgetSupport.dart';
 //import 'scLogger.dart';
 
+List<String> _fieldDefs = [
+  'DB Host:dbhost',
+  'DB Port:dbport',
+  'Database:dbname',
+  'DB User:dbuser',
+  'DB Password:dbpassword',
+  'User name:sesuser',
+  'Password:sespassword',
+//      'Web Root:webroot',
+//      "Web Port:webport",
+  'Device:sesdevice',
+];
+
 class SignInPage extends StatelessWidget {
 //  final StreamController<AuthenticationState> _streamController;
   final _loginFormKey = GlobalKey<FormState>();
   final AsyncCallback loginCallback;
-  late WsFieldSet _fieldSet;
+  final WsFieldSet _fieldSet;
 
-  SignInPage(this.loginCallback) {
-    List<String> fieldDefs = [
-      'DB Host:dbhost',
-      'DB Port:dbport',
-      'Database:dbname',
-      'DB User:dbuser',
-      'DB Password:dbpassword',
-      'User name:sesuser',
-      'Password:sespassword',
-//      'Web Root:webroot',
-//      "Web Port:webport",
-      'Device:sesdevice',
-    ];
+  SignInPage(this.loginCallback)
+      :
+
 //    if (!Platform.isIOS) fieldDefs.add('Local Directory:lcldirectory');
-    _fieldSet = WsFieldSet(fieldDefs, values: config.values(), spacer: 1);
-  }
+        _fieldSet = WsFieldSet(_fieldDefs, values: config.values(), spacer: 1);
 
   signIn2() async {
     var formValueMap = _fieldSet.values;

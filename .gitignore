@@ -51,4 +51,14 @@ aopserver/Lib/
 aopserver/Scripts/
 */__pycache__/
 */tests/__pycache__/
+*/*/__pycache__/
 aopmodel/.flutter-plugins-dependencies
+pyserver/pyserver/Scripts/*
+pyserver/pyserver/Lib/*
+pyserver/src/__pycache__/*
+pyserver/pyserver/pyvenv.cfg
+pyserver/ddl/drop_triggers.sql
+pyserver/ddl/clean_test.sql
+pyserver/src/xxxaopdbxxxx.py
+pyserver/src/xxxaopservermainxxxx.py
+pyserver/src/dbsession.py
