@@ -18,7 +18,7 @@ class ImageFilterWidget extends StatefulWidget {
   final ImageFilter _initImageFilter;
   final VoidCallback onRefresh;
 
-  ImageFilterWidget(this._initImageFilter, {required this.onRefresh, Key? key}): super(key: key);
+  const ImageFilterWidget(this._initImageFilter, {required this.onRefresh, Key? key}): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
