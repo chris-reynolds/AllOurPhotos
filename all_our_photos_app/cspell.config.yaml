@@ -1,5 +1,5 @@
 version: "0.2"
-ignorePaths: ["*.dart"]
+ignorePaths: ["*.dart","*.yaml"]
 dictionaryDefinitions: []
 dictionaries: []
 words: []
