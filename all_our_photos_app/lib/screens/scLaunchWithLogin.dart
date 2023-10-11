@@ -7,10 +7,11 @@
 
 import 'dart:async';
 import 'package:aopmodel/aop_classes.dart';
+import 'package:aopmodel/domain_object.dart';
 import 'package:flutter/material.dart';
-import 'package:aopcommon/aopcommon.dart' show config, log;
+import 'package:aopcommon/aopcommon.dart' show log, WebFile;
 import '../authentication_state.dart';
-// import 'package:aopmodel/dbAllOurPhotos.dart';
+import '../utils/Config.dart';
 import 'scSignin.dart';
 import 'scHome.dart';
 
@@ -20,8 +21,8 @@ class LaunchWithLogin extends StatelessWidget {
   final String title;
   LaunchWithLogin(this.title);
   Future<void> initConfig() async {
-    config.init('aop');
-    log.message('loaded config ');
+    await config.load('aop_config.json');
+    log.message('loaded config $config');
   } // of initConfig
 
   Future<void> tryLogin() async {
@@ -29,11 +30,17 @@ class LaunchWithLogin extends StatelessWidget {
 //      var db = DbAllOurPhotos();
 //      await db.initConnection(config);
 //      await db.startSession(config);
-      Map<String, dynamic> sessionRequest =
-          await sessionProvider.rawRequest('ses/test/test00/debug');
-      int sessionId = int.parse(sessionRequest['jam']);
-      if (sessionId <= 0) throw Exception('Invalid session Id');
+      if (config['sesuser'] == null) throw Exception('No User');
+      rootUrl = 'http://${config['host']}:${config['port']}';
+      WebFile.setRootUrl('${rootUrl}/photos');
+      Map<String, dynamic> sessionRequest = await sessionProvider.rawRequest(
+          'ses/${config['sesuser']}/${config['sespassword']}/${config['sesdevice']}');
+      config['sessionid'] = sessionRequest['jam'] ?? '';
+      if (!config['sessionid'].startsWith('2'))
+        throw Exception('Invalid session Id');
+      modelSessionid = config['sessionid'];
       _streamController.add(AuthenticationState.authenticated());
+
       await config.save();
       log.message('Config saved');
     } catch (ex) {

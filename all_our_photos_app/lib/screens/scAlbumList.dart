@@ -11,34 +11,18 @@ class AlbumList extends StatefulWidget {
 }
 
 class AlbumListState extends State<AlbumList> {
-  Widget appBarTitle = Text(
-    "Search Albums",
-    style: TextStyle(color: Colors.yellow),
-  );
-  Icon actionIcon = Icon(
-    Icons.search,
-    color: Colors.white,
-  );
   final key = GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = TextEditingController();
   final _scrollController = ScrollController();
-  List<AopAlbum> _list = [];
+  late Future<List<AopAlbum>> _list;
   late bool _isSearching;
   String _searchText = "";
 
   AlbumListState() {
     _searchQuery.addListener(() {
-      if (_searchQuery.text.isEmpty) {
-        setState(() {
-          _isSearching = false;
-          _searchText = "";
-        });
-      } else {
-        setState(() {
-          _isSearching = true;
-          _searchText = _searchQuery.text;
-        });
-      }
+      setState(() {
+        _searchText = _searchQuery.text;
+      });
     });
   }
 
@@ -46,114 +30,90 @@ class AlbumListState extends State<AlbumList> {
   void initState() {
     super.initState();
     _isSearching = false;
-    refreshList().then((x) {});
+    _list = AopAlbum.all();
+    ;
+    // noisyLoadList();
   }
 
-  Future<void> refreshList() async {
-    log.message('refresh list');
+  void toggleSearching() => setState(() {
+        _isSearching = !_isSearching;
+      });
+
+  Future<List<AopAlbum>> noisyLoadList() async {
+    log.message('noisy list');
     var newList = await AopAlbum.all();
     newList.sort((AopAlbum a, AopAlbum b) => b.name.compareTo(a.name));
-    _list = newList;
-    //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    log.message('${_list.length} albums loaded');
-    setState(() {});
+    log.message('${newList.length} albums loaded');
+    return newList;
   } // of refreshList
 
   @override
   Widget build(BuildContext context) {
-    log.message('build');
-    return Scaffold(
-      key: key,
-      appBar: buildBar(context) as PreferredSizeWidget?,
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _isSearching ? _buildAlbumList() : _buildList(),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add), onPressed: () => handleAddAlbum(context)),
+    return FutureBuilder(
+      builder: (ctx, snapshot) {
+        // Checking if future is resolved or not
+        if (snapshot.connectionState == ConnectionState.done) {
+          // If we got an error
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                '${snapshot.error} occurred',
+                style: TextStyle(fontSize: 18),
+              ),
+            );
+
+            // if we got our data
+          } else if (snapshot.hasData) {
+            return albumListWidget(context, snapshot.data as List<AopAlbum>);
+          }
+        }
+
+        // Displaying LoadingSpinner to indicate waiting state
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+      // Future that needs to be resolved in order to display
+      future: _list,
     );
   }
 
-  List<ChildItem> _buildList() {
-    log.message('buildlist() from _list');
-    return _list.map((album) => ChildItem(album, this)).toList();
+  Widget albumListWidget(BuildContext context, List<AopAlbum> stuff) {
+    return SingleChildScrollView(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(8.0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        buildSearchBar(context),
+        ...stuff
+            .where(albumSelected)
+            .map((album) => ChildItem(album, this))
+            .toList(),
+      ]),
+    );
   }
 
-  List<ChildItem> _buildAlbumList() {
-    log.message('buildAlbumlist() from _list');
-    if (_searchText.isEmpty) {
-      return _list.map((album) => ChildItem(album, this)).toList();
-    } else {
-      List<AopAlbum> searchList = [];
-      for (int i = 0; i < _list.length; i++) {
-        String name = _list.elementAt(i).name;
-        if (name.toLowerCase().contains(_searchText.toLowerCase())) {
-          searchList.add(_list.elementAt(i));
-        }
-      }
-      return searchList.map((contact) => ChildItem(contact, this)).toList();
-    }
-  }
-
-  Widget buildBar(BuildContext context) {
-    return AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
-      IconButton(
-        icon: actionIcon,
-        onPressed: () {
-          setState(() {
-            if (actionIcon.icon == Icons.search) {
-              actionIcon = Icon(
-                Icons.close,
-                color: Colors.white,
-              );
-              appBarTitle = TextField(
-                controller: _searchQuery,
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search, color: Colors.white),
-                    hintText: "Search...",
-                    hintStyle: TextStyle(color: Colors.white)),
-              );
-              _handleSearchStart();
-            } else {
-              _handleSearchEnd();
-            }
-          });
-        },
+  Widget buildSearchBar(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.75,
+      child: TextField(
+        controller: _searchQuery,
+        //      style: TextStyle(fontSize: 25),
+        decoration: InputDecoration(
+            labelText: 'Enter your search text here',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.search, color: Colors.white),
+            contentPadding: EdgeInsets.all(10),
+            hintText: "Search...",
+            hintStyle: TextStyle(color: Colors.white)),
       ),
-    ]);
-  }
-
-  void _handleSearchStart() {
-    setState(() {
-      _isSearching = true;
-    });
-  }
-
-  void _handleSearchEnd() {
-    setState(() {
-      actionIcon = Icon(
-        Icons.search,
-        color: Colors.white,
-      );
-      appBarTitle = Text(
-        "Search Albums",
-        style: TextStyle(color: Colors.white),
-      );
-      _isSearching = false;
-      _searchQuery.clear();
-    });
-  }
+//        IconButton(icon: Icon(Icons.close), onPressed: toggleSearching)
+//      ]
+    );
+  } // of buildSearchBar
 
   void handleAddAlbum(BuildContext context) async {
-    String? name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
-    String? errorMessage = '';
+    String name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
+    String errorMessage = '';
     bool done = false;
     while (!done) {
       name = await showDialog(
@@ -163,17 +123,16 @@ class AlbumListState extends State<AlbumList> {
       if (name == EXIT_CODE) return;
       log.message('new name is: $name');
       AopAlbum newAlbum = AopAlbum(data: {});
-      newAlbum.name = name ?? 'Undefined';
+      newAlbum.name = name;
       await newAlbum.validate();
 
       if (newAlbum.isValid) {
         try {
           await newAlbum.save();
-          //await refreshList();
+          (await _list).add(newAlbum);
           Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
               .then((value) async {
-            log.message('popping at list add');
-            await refreshList();
+            log.message('popping at album list add');
           });
           done = true;
         } catch (ex) {
@@ -183,6 +142,10 @@ class AlbumListState extends State<AlbumList> {
         errorMessage = newAlbum.lastErrors.join('\n');
     } // of done loop
   } // handleAddAlbum
+
+  bool albumSelected(AopAlbum album) =>
+      _searchText.isEmpty ||
+      album.name.toLowerCase().contains(_searchText.toLowerCase());
 } // of AlbumListState
 
 class ChildItem extends StatelessWidget {
@@ -202,7 +165,6 @@ class ChildItem extends StatelessWidget {
                 Navigator.pushNamed(context, 'AlbumDetail', arguments: album)
                     .then((value) {
                   log.message('popping at list select');
-                  parent.refreshList();
                 })),
       ],
     );

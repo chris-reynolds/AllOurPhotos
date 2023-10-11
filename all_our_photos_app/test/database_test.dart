@@ -5,7 +5,7 @@
 import 'package:test/test.dart';
 //import 'package:aopmodel/dbAllOurPhotos.dart';
 import 'package:aopmodel/aop_classes.dart';
-import 'package:aopcommon/aopcommon.dart';
+//import 'utils/Config.dart';
 import 'dart:io' as Io;
 
 //DbAllOurPhotos? dbAop;
@@ -16,7 +16,7 @@ int insertedSnapIdForAlbum = -999;
 
 void main() {
   setUp(() async {
-    await config.init('test');
+    //await config.load('test');
     //   dbAop = DbAllOurPhotos();
     //   await dbAop!.initConnection(config);
     testDataDirectory =

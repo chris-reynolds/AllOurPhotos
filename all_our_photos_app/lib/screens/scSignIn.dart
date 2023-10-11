@@ -9,18 +9,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../flutter_common/WidgetSupport.dart';
-//import 'scLogger.dart';
+import '../utils/Config.dart';
 
 List<String> _fieldDefs = [
-  'DB Host:dbhost',
-  'DB Port:dbport',
-  'Database:dbname',
-  'DB User:dbuser',
-  'DB Password:dbpassword',
+  'AOP Server:host',
+  'Port:port',
   'User name:sesuser',
   'Password:sespassword',
-//      'Web Root:webroot',
-//      "Web Port:webport",
   'Device:sesdevice',
 ];
 

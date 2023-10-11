@@ -7,14 +7,14 @@
 import 'package:flutter/material.dart';
 
 import 'utils/PersistentMap.dart';
-import 'package:aopcommon/aopcommon.dart';
+import 'utils/Config.dart';
 
-PersistentMap _monthlyStatus = PersistentMap('photos/monthly.txt');
+PersistentMap _monthlyStatus = PersistentMap('monthly.txt');
 String currentUser = '?';
 
 class MonthlyStatus {
   static Future<void> init() async {
-    currentUser = (config['sesuser'] as String).substring(0, 1); // first letter
+    currentUser = (config['sesuser'] ?? '?').substring(0, 1); // first letter
     await _monthlyStatus.load();
   }
 
