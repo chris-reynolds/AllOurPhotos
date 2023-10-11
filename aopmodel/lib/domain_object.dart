@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 bool urlLogging = true;
 int sessionId = 0;
 
+String rootUrl = 'Unassigned'; //http://localhost:8000/';
+String modelSessionid = 'unassigned';
+
 abstract class DomainObject {
   DomainObject({required Map<String, dynamic> data});
 
@@ -76,7 +79,7 @@ class DOProvider<TDO extends DomainObject> {
     var result = <TDO>[];
     for (var row in r) {
       TDO newDomainObject = (newFn() as TDO);
-      newDomainObject.fromRow(row);
+      newDomainObject.fromMap(row);
       result.add(newDomainObject);
     }
     return result;
@@ -92,11 +95,14 @@ class DOProvider<TDO extends DomainObject> {
       if ((verb == 'post' || verb == 'put') && data == Null) {
         throw 'No data to send or bad verb';
       }
-      print('Send Request : $verb $url');
+      if (!(url.startsWith('http'))) {
+        url = '$rootUrl/$url';
+      }
+      log.message('Send Request : $verb $url');
       Map<String, String> headers = {
         'Accept': 'application/json',
         'Content-type': 'application/json',
-        'cookie': 'sessionid:$sessionId'
+        'Cookie': 'jam=$modelSessionid'
       };
       http.Response? response;
       switch (verb.toLowerCase()) {
@@ -123,23 +129,25 @@ class DOProvider<TDO extends DomainObject> {
           break;
       }
       print('Response status: ${response?.statusCode}');
-      print('Response body: ${response?.body}');
+      // print('Response body: ${response?.body}');
       switch (response?.statusCode) {
         case 200:
-          return jsonDecode(response?.body ?? '');
+          //        var ss = response?.body;
+          var xxx = jsonDecode(response?.body ?? '');
+          return xxx;
         case 404:
           throw 'not found';
         default:
           throw 'server error ${response?.statusCode}\n ${response?.body} ';
       }
     } catch (error) {
-      print('sendRequest error: $error');
+      log.error('sendRequest error: $error');
       rethrow;
     }
   }
 
   Future<dynamic> rawRequest(String url, {String verb = 'get'}) async {
-    return _sendRequest(verb, RestURLFactory.baseURL + url);
+    return _sendRequest(verb, url);
   } // of queryWithReOpen
 
   Future<int?> save(TDO aDomainObject) async {
@@ -188,7 +196,7 @@ class DOProvider<TDO extends DomainObject> {
       var r = await _sendRequest(verb, url);
       return toList(r);
     } catch (ex) {
-      log.error(ex.toString());
+      log.error('$ex \n caused by $url');
       rethrow;
     }
   }
@@ -222,21 +230,21 @@ class DOProvider<TDO extends DomainObject> {
 
 class RestURLFactory {
   final String _tableName;
-  static String baseURL = 'http://127.0.0.1:8000/';
+
   RestURLFactory(this._tableName);
 
   (String, String) deleteStatement(int id) =>
-      ('DELETE', '$baseURL/$_tableName/$id');
+      ('DELETE', '$rootUrl/$_tableName/$id');
 
-  (String, String) insertStatement() => ('POST', '$baseURL/$_tableName');
+  (String, String) insertStatement() => ('POST', '$rootUrl/$_tableName');
 
   (String, String) updateStatement(int id) =>
-      ('PUT', '$baseURL/$_tableName/$id');
+      ('PUT', '$rootUrl/$_tableName/$id');
 
   (String, String) getIdStatement(int id) =>
-      ('GET', '$baseURL/$_tableName/$id');
+      ('GET', '$rootUrl/$_tableName/$id');
 
   (String, String) getSomeStatement(String whereClause,
           {String orderBy = 'created_on'}) =>
-      ('GET', '$_tableName/s/$whereClause/$orderBy');
+      ('GET', '$_tableName/?where=$whereClause&orderby=$orderBy');
 } // of RestURLFactory

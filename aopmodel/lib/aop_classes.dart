@@ -14,12 +14,11 @@ import 'package:path/path.dart' as path;
 import 'package:aopcommon/aopcommon.dart';
 //import '../utils/WebFile.dart';
 
-//String get rootUrl => 'http://${config["dbhost"]}:3333';
 //                                '*** End Custom Code
 
 // Domain object providers
 var albumProvider = DOProvider<AopAlbum>(
-    "aopalbums",
+    "albums",
     [
       "name",
       "description",
@@ -29,14 +28,14 @@ var albumProvider = DOProvider<AopAlbum>(
     ],
     AopAlbum.maker);
 var albumItemProvider = DOProvider<AopAlbumItem>(
-    "aopalbum_items",
+    "album_items",
     [
       "album_id",
       "snap_id",
     ],
     AopAlbumItem.maker);
 var sessionProvider = DOProvider<AopSession>(
-    "aopsessions",
+    "sessions",
     [
       "start_date",
       "end_date",
@@ -45,7 +44,7 @@ var sessionProvider = DOProvider<AopSession>(
     ],
     AopSession.maker);
 var snapProvider = DOProvider<AopSnap>(
-    "aopsnaps",
+    "snaps",
     [
       "file_name",
       "directory",
@@ -115,14 +114,15 @@ class AopAlbum extends DomainObject {
 // To/From Map for persistence
   @override
   void fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return;
     id = map['id'];
-    createdOn = map['created_on'];
-    updatedOn = map['updated_on'];
+    createdOn = fromDbDate(map['created_on']);
+    updatedOn = fromDbDate(map['updated_on']);
     updatedUser = map['updated_user'];
     name = map['name'] ?? 'No name';
     description = map['description'];
-    firstDate = map['first_date'];
-    lastDate = map['last_date'];
+    firstDate = fromDbDate(map['first_date']);
+    lastDate = fromDbDate(map['last_date']);
     _userId = map['userid'];
   } // fromMap
 
@@ -130,13 +130,13 @@ class AopAlbum extends DomainObject {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> result = {};
     result['id'] = id;
-    result['created_on'] = createdOn;
-    result['updated_on'] = updatedOn;
+    result['created_on'] = dbDate(createdOn);
+    result['updated_on'] = dbDate(updatedOn);
     result['updated_user'] = updatedUser;
     result['name'] = name;
     result['description'] = description;
-    result['first_date'] = firstDate;
-    result['last_date'] = lastDate;
+    result['first_date'] = dbDate(firstDate);
+    result['last_date'] = dbDate(lastDate);
     result['userid'] = _userId;
     return result;
   } // fromMap
@@ -282,9 +282,10 @@ class AopAlbumItem extends DomainObject {
 // To/From Map for persistence
   @override
   void fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return;
     id = map['id'];
-    createdOn = map['created_on'];
-    updatedOn = map['updated_on'];
+    createdOn = fromDbDate(map['created_on']);
+    updatedOn = fromDbDate(map['updated_on']);
     updatedUser = map['updated_user'];
     _albumId = map['albumid'];
     _snapId = map['snapid'];
@@ -294,8 +295,8 @@ class AopAlbumItem extends DomainObject {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> result = {};
     result['id'] = id;
-    result['created_on'] = createdOn;
-    result['updated_on'] = updatedOn;
+    result['created_on'] = dbDate(createdOn);
+    result['updated_on'] = dbDate(updatedOn);
     result['updated_user'] = updatedUser;
     result['albumid'] = _albumId;
     result['snapid'] = _snapId;
@@ -380,12 +381,13 @@ class AopSession extends DomainObject {
 // To/From Map for persistence
   @override
   void fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return;
     id = map['id'];
-    createdOn = map['created_on'];
-    updatedOn = map['updated_on'];
+    createdOn = fromDbDate(map['created_on']);
+    updatedOn = fromDbDate(map['updated_on']);
     updatedUser = map['updated_user'];
-    startDate = map['start_date'];
-    endDate = map['end_date'];
+    startDate = fromDbDate(map['start_date']);
+    endDate = fromDbDate(map['end_date']);
     source = map['source'];
     _userId = map['userid'];
   } // fromMap
@@ -394,11 +396,11 @@ class AopSession extends DomainObject {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> result = {};
     result['id'] = id;
-    result['created_on'] = createdOn;
-    result['updated_on'] = updatedOn;
+    result['created_on'] = dbDate(createdOn);
+    result['updated_on'] = dbDate(updatedOn);
     result['updated_user'] = updatedUser;
-    result['start_date'] = startDate;
-    result['end_date'] = endDate;
+    result['start_date'] = dbDate(startDate);
+    result['end_date'] = dbDate(endDate);
     result['source'] = source;
     result['userid'] = _userId;
     return result;
@@ -528,15 +530,16 @@ class AopSnap extends DomainObject {
 // To/From Map for persistence
   @override
   void fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return;
     id = map['id'];
-    createdOn = map['created_on'];
-    updatedOn = map['updated_on'];
+    createdOn = fromDbDate(map['created_on']);
+    updatedOn = fromDbDate(map['updated_on']);
     updatedUser = map['updated_user'];
     fileName = map['file_name'];
     directory = map['directory'];
-    takenDate = map['taken_date'];
-    originalTakenDate = map['original_taken_date'];
-    modifiedDate = map['modified_date'];
+    takenDate = fromDbDate(map['taken_date']);
+    originalTakenDate = fromDbDate(map['original_taken_date']);
+    modifiedDate = fromDbDate(map['modified_date']);
     deviceName = map['device_name'];
     caption = map['caption'];
     ranking = map['ranking'];
@@ -548,7 +551,7 @@ class AopSnap extends DomainObject {
     rotation = map['rotation'];
     importSource = map['import_source'];
     mediaType = map['media_type'];
-    importedDate = map['imported_date'];
+    importedDate = fromDbDate(map['imported_date']);
     mediaLength = map['media_length'];
     tagList = map['tag_list'];
     metadata = map['metadata'];
@@ -560,14 +563,14 @@ class AopSnap extends DomainObject {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> result = {};
     result['id'] = id;
-    result['created_on'] = createdOn;
-    result['updated_on'] = updatedOn;
+    result['created_on'] = dbDate(createdOn);
+    result['updated_on'] = dbDate(updatedOn);
     result['updated_user'] = updatedUser;
     result['file_name'] = fileName;
     result['directory'] = directory;
-    result['taken_date'] = takenDate;
-    result['original_taken_date'] = originalTakenDate;
-    result['modified_date'] = modifiedDate;
+    result['taken_date'] = dbDate(takenDate);
+    result['original_taken_date'] = dbDate(originalTakenDate);
+    result['modified_date'] = dbDate(modifiedDate);
     result['device_name'] = deviceName;
     result['caption'] = caption;
     result['ranking'] = ranking;
@@ -579,7 +582,7 @@ class AopSnap extends DomainObject {
     result['rotation'] = rotation;
     result['import_source'] = importSource;
     result['media_type'] = mediaType;
-    result['imported_date'] = importedDate;
+    result['imported_date'] = dbDate(importedDate);
     result['media_length'] = mediaLength;
     result['tag_list'] = tagList;
     result['metadata'] = metadata;
@@ -783,7 +786,7 @@ class AopSnap extends DomainObject {
   static Future<dynamic> get monthGrid async {
     var r = await snapProvider.rawRequest('find/monthgrid');
     return r;
-  } // of yearGrid
+  } // of monthgrid
 
   static Future<int> getPreviousCropCount(String source) async {
     var r = await snapProvider.rawExecute(
@@ -795,15 +798,15 @@ class AopSnap extends DomainObject {
   } // of yearGrid
 
   String get fullSizeURL {
-    return '$rootUrl/$directory/$fileName';
+    return '$rootUrl/photos/$directory/$fileName';
   } // of fullSizeURL
 
   String get thumbnailURL {
-    return '$rootUrl/$directory/thumbnails/$fileName';
+    return '$rootUrl/photos/$directory/thumbnails/$fileName';
   } // of thumbnailURL
 
   String get metadataURL {
-    return '$rootUrl/$directory/metadata/$fileName.json';
+    return '$rootUrl/photos/$directory/metadata/$fileName.json';
   } // of metadataURL
 
   void trimSetLocation(String? newLocation) {
@@ -813,10 +816,10 @@ class AopSnap extends DomainObject {
     location = newLocation;
   } // of trimSetLocation
 
-  double get angle => (int.parse(rotation!)) * math.pi / 2;
+  double get angle => (int.parse(rotation ?? '0')) * math.pi / 2;
 
   void rotate(int direction) {
-    int newRotation = (int.parse(rotation!)) + direction;
+    int newRotation = (int.parse(rotation ?? '0')) + direction;
     newRotation = newRotation % 4; // wrap 360
     rotation = '$newRotation';
   }
@@ -867,9 +870,10 @@ class AopUser extends DomainObject {
 // To/From Map for persistence
   @override
   void fromMap(Map<String, dynamic> map) {
+    if (map.isEmpty) return;
     id = map['id'];
-    createdOn = map['created_on'];
-    updatedOn = map['updated_on'];
+    createdOn = fromDbDate(map['created_on']);
+    updatedOn = fromDbDate(map['updated_on']);
     updatedUser = map['updated_user'];
     name = map['name'];
     hint = map['hint'];
@@ -879,8 +883,8 @@ class AopUser extends DomainObject {
   Map<String, dynamic> toMap() {
     Map<String, dynamic> result = {};
     result['id'] = id;
-    result['created_on'] = createdOn;
-    result['updated_on'] = updatedOn;
+    result['created_on'] = dbDate(createdOn);
+    result['updated_on'] = dbDate(updatedOn);
     result['updated_user'] = updatedUser;
     result['name'] = name;
     result['hint'] = hint;
