@@ -128,8 +128,8 @@ class DOProvider<TDO extends DomainObject> {
               encoding: Encoding.getByName('utf-8'));
           break;
       }
-      print('Response status: ${response?.statusCode}');
-      // print('Response body: ${response?.body}');
+      log.message('Response status: ${response?.statusCode}');
+      // log.message('Response body: ${response?.body}');
       switch (response?.statusCode) {
         case 200:
           //        var ss = response?.body;

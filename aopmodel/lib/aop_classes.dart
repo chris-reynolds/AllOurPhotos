@@ -598,8 +598,6 @@ class AopSnap extends DomainObject {
     try {
       fld = 'fileName';
       fileName = row[4];
-//      if (this.fileName.contains('ios'))
-//        print('this one');
       fld = 'directory';
       directory = row[5];
       fld = 'takenDate';
