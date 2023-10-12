@@ -150,15 +150,15 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double yPos;
+    // todo:  double yPos;
     if (snapList == null)
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];
     return Scaffold(
         appBar: buildAppBar(context) as PreferredSizeWidget?,
         body: GestureDetector(
-          onVerticalDragStart: (cursorPos) =>
-              yPos = cursorPos.localPosition.direction,
+//          onVerticalDragStart: (cursorPos) =>
+//              yPos = cursorPos.localPosition.direction,
           onVerticalDragUpdate: (cursorPos) {
             if (cursorPos.delta.dy > 100)
               snapIndex = _snapIndex + 1;
