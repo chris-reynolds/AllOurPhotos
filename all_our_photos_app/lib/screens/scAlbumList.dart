@@ -14,7 +14,7 @@ class AlbumListState extends State<AlbumList> {
   final key = GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = TextEditingController();
   final _scrollController = ScrollController();
-  late Future<List<AopAlbum>> _list;
+  List<AopAlbum> _list = [];
   late bool _isSearching;
   String _searchText = "";
 
@@ -30,10 +30,12 @@ class AlbumListState extends State<AlbumList> {
   void initState() {
     super.initState();
     _isSearching = false;
-    _list = AopAlbum.all();
-    ;
-    // noisyLoadList();
-  }
+    AopAlbum.all().then((result) {
+      setState(() {
+        _list = result;
+      }); // of setState
+    }); // of then
+  } // of initState
 
   void toggleSearching() => setState(() {
         _isSearching = !_isSearching;
@@ -49,33 +51,12 @@ class AlbumListState extends State<AlbumList> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: (ctx, snapshot) {
-        // Checking if future is resolved or not
-        if (snapshot.connectionState == ConnectionState.done) {
-          // If we got an error
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                '${snapshot.error} occurred',
-                style: TextStyle(fontSize: 18),
-              ),
-            );
-
-            // if we got our data
-          } else if (snapshot.hasData) {
-            return albumListWidget(context, snapshot.data as List<AopAlbum>);
-          }
-        }
-
-        // Displaying LoadingSpinner to indicate waiting state
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-      // Future that needs to be resolved in order to display
-      future: _list,
-    );
+    if (_list.isEmpty)
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    else
+      return albumListWidget(context, _list);
   }
 
   Widget albumListWidget(BuildContext context, List<AopAlbum> stuff) {
@@ -129,7 +110,7 @@ class AlbumListState extends State<AlbumList> {
       if (newAlbum.isValid) {
         try {
           await newAlbum.save();
-          (await _list).add(newAlbum);
+          _list.add(newAlbum);
           Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
               .then((value) async {
             log.message('popping at album list add');
