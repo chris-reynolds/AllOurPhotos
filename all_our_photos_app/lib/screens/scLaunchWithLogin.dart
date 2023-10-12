@@ -32,7 +32,7 @@ class LaunchWithLogin extends StatelessWidget {
 //      await db.startSession(config);
       if (config['sesuser'] == null) throw Exception('No User');
       rootUrl = 'http://${config['host']}:${config['port']}';
-      WebFile.setRootUrl('${rootUrl}/photos');
+      WebFile.setRootUrl('$rootUrl/photos');
       Map<String, dynamic> sessionRequest = await sessionProvider.rawRequest(
           'ses/${config['sesuser']}/${config['sespassword']}/${config['sesdevice']}');
       config['sessionid'] = sessionRequest['jam'] ?? '';
