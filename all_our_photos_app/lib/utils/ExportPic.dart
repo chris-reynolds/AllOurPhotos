@@ -27,6 +27,8 @@ class ExportPic {
 
   static Future<bool> save(
       String url, String? fileName, String albumName) async {
+    return false;
+    /* TODO : handle download save pic
     Directory? directory;
     try {
       if (Platform.isAndroid) {
@@ -85,5 +87,6 @@ class ExportPic {
       //print('Failed to save $target \n Error is $e');
     }
     return false;
+    */
   } // of save
 } // of ExportPic

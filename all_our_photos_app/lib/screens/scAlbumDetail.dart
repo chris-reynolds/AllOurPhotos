@@ -3,7 +3,7 @@
 Purpose: This will show the details of a single album
 
 */
-import 'dart:io';
+// import 'dart:io';
 import 'package:aopmodel/domain_object.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
@@ -145,7 +145,8 @@ class AlbumDetailState extends State<AlbumDetail>
   // } // of handleDelete
 
   Future<void> handleDownload(BuildContext context) async {
-    List<AopSnap> snaps = selectionList;
+    // TODO : handleDownload
+/*     List<AopSnap> snaps = selectionList;
     String dirName = '${Platform.environment['HOME']}/Downloads/';
     String albumName = argAlbum!.name
         .replaceAll('/', '-')
@@ -166,6 +167,7 @@ class AlbumDetailState extends State<AlbumDetail>
 //      File(dirName+prefix+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
     showSnackBar('Download complete. There were $errors errors.', context);
+*/
   } // of handleDownload
 
   Future<void> moveToAnotherAlbum(BuildContext context) async {

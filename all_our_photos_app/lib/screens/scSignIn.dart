@@ -12,8 +12,8 @@ import '../flutter_common/WidgetSupport.dart';
 import '../utils/Config.dart';
 
 List<String> _fieldDefs = [
-  'AOP Server:host',
-  'Port:port',
+//  'AOP Server:host',
+//  'Port:port',
   'User name:sesuser',
   'Password:sespassword',
   'Device:sesdevice',
@@ -40,9 +40,12 @@ class SignInPage extends StatelessWidget {
     log.message('just executed login callback');
   }
 
-  void _showLogger(BuildContext context) {
-//    Navigator.push(context, MaterialPageRoute(builder:(context)=>LoggerList(),fullscreenDialog: true));
-  }
+  // void _showLogger(BuildContext context) {
+  //   Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //           builder: (context) => LoggerList(), fullscreenDialog: true));
+  // }
 
 //   List<Widget> registerLoginWidgets() {
 //     List<String> fieldDefs = [
@@ -66,12 +69,9 @@ class SignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sign in'), actions: [
-        IconButton(
-          icon: Icon(Icons.list),
-          onPressed: () => _showLogger(context),
-        ),
-      ]),
+      appBar: AppBar(
+          title: Text('Sign in'),
+          actions: [navIconButton(context, 'testlog', Icons.list)]),
       body: SafeArea(
         child: Form(
 //          onChanged: handleFormChanged,

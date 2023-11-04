@@ -4,7 +4,7 @@
   Purpose: Stateful PhotoGrid widget with multi-select
 */
 
-import 'dart:io';
+// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart' as PathProvider;
 import 'package:aopcommon/aopcommon.dart';
@@ -145,8 +145,8 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     _scrollController = ScrollController(
         initialScrollOffset: _targetOffset, keepScrollOffset: false);
     if (_picsPerRow == -1) {
-      _picsPerRow = Platform.isMacOS ? 5 : 2;
-      _maxPicsPerRow = Platform.isMacOS ? 10 : 5;
+      _picsPerRow = 2; //Platform.isMacOS ? 5 : 2;
+      _maxPicsPerRow = 5; //Platform.isMacOS ? 10 : 5;
     }
     return Scaffold(
       appBar: AppBar(
@@ -463,6 +463,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 
   Future<void> handleDownload(
       BuildContext context, List<AopSnap> selectedSnaps) async {
+    /* TODO: handledownload
 //    String dirName = '${Platform.environment['HOME']}/Downloads/';
     String dirName =
         (await PathProvider.getApplicationDocumentsDirectory()).path;
@@ -487,5 +488,6 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 //      File(dirName+selectedSnaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
     showMessage(context, 'Download complete. There were $errors errors.');
+    */
   } // of handleDownload
 }

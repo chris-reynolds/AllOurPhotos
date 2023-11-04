@@ -8,17 +8,16 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 9 Aug 23.v1';
+const VERSION = 'All Our Photos 3.1 Nov 23';
 
 void main() {
-
   MaterialApp application = MaterialApp(
     title: 'All Our Photos',
     debugShowCheckedModeBanner: false,
     //showSemanticsDebugger: true,
-     theme: ThemeData(
-       primarySwatch: Colors.blue,
-     ),
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+    ),
     //   fontFamily: 'Helvetica', //'Helvetica',
     //   primaryColor: const Color(0xFF02BB9F),
     //   primaryColorDark: const Color(0xFF167F67),
@@ -39,7 +38,7 @@ void main() {
     // ),
     home: LaunchWithLogin(VERSION),
     routes: <String, WidgetBuilder>{
-      'home': (context) => LaunchWithLogin(VERSION) ,
+      'home': (context) => LaunchWithLogin(VERSION),
       'AlbumList': (BuildContext context) => AlbumList(),
       'AlbumDetail': (BuildContext context) => AlbumDetail(),
       'AlbumItemCreate': (BuildContext context) => AlbumAddPhoto(),

@@ -13,9 +13,10 @@ PersistentMap _monthlyStatus = PersistentMap('monthly.txt');
 String currentUser = '?';
 
 class MonthlyStatus {
-  static Future<void> init() async {
+  static Future<int> init() async {
     currentUser = (config['sesuser'] ?? '?').substring(0, 1); // first letter
     await _monthlyStatus.load();
+    return 1;
   }
 
   static bool read(int yearNo, int monthNo) {

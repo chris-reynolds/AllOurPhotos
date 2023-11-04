@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:aopcommon/aopcommon.dart';
-// import './dbAllOurPhotos.dart';
 import 'package:http/http.dart' as http;
+import 'package:aopcommon/aopcommon.dart';
 
 bool urlLogging = true;
 int sessionId = 0;
@@ -96,15 +95,16 @@ class DOProvider<TDO extends DomainObject> {
         throw 'No data to send or bad verb';
       }
       if (!(url.startsWith('http'))) {
-        url = '$rootUrl/$url';
+        url = '$rootUrl$url';
       }
       log.message('Send Request : $verb $url');
       Map<String, String> headers = {
         'Accept': 'application/json',
         'Content-type': 'application/json',
-        'Cookie': 'jam=$modelSessionid'
+        'Preserve': '{"jam":"$modelSessionid"}'
       };
       http.Response? response;
+
       switch (verb.toLowerCase()) {
         case 'get':
           response = await client.get(Uri.parse(url), headers: headers);
@@ -153,14 +153,14 @@ class DOProvider<TDO extends DomainObject> {
   Future<int?> save(TDO aDomainObject) async {
     String url, verb;
     try {
-      List<dynamic> dataFields = aDomainObject.toRow();
+      Map<String, dynamic> dataFields = aDomainObject.toMap();
       if (aDomainObject.id != null && aDomainObject.id! > 0) {
         (verb, url) = urlStatements.updateStatement(aDomainObject.id ?? 0);
       } else {
         (verb, url) = urlStatements.insertStatement();
       }
       if (urlLogging) log.message('save url : $url');
-      dataFields.add(aDomainObject.id);
+      //   dataFields'['id']'(aDomainObject.id);
       var r = await _sendRequest(verb, url, data: dataFields);
       aDomainObject.fromMap(r);
       return aDomainObject.id;
@@ -238,8 +238,7 @@ class RestURLFactory {
 
   (String, String) insertStatement() => ('POST', '$rootUrl/$_tableName');
 
-  (String, String) updateStatement(int id) =>
-      ('PUT', '$rootUrl/$_tableName/$id');
+  (String, String) updateStatement(int id) => ('PUT', '$rootUrl/$_tableName');
 
   (String, String) getIdStatement(int id) =>
       ('GET', '$rootUrl/$_tableName/$id');

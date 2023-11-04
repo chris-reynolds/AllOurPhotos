@@ -49,13 +49,13 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double dwidth = MediaQuery.of(context).size.width;
+    print('width=$dwidth **************************');
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
-            child: Text(
-              widget.title!,
-              style: TextStyle(color: const Color(0x22222200)),
-            ),
+            child: Text('${widget.title!} and $dwidth',
+                style: Theme.of(context).tabBarTheme.labelStyle),
             onDoubleTap: () {
               setState(() {
                 _debugMode = !_debugMode;
