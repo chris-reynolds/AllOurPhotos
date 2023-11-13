@@ -124,7 +124,7 @@ def photos(request: Request,aPath:str):
     if os.path.isfile(fullFileName):
         return FileResponse(path=fullFileName)
     else:
-        return HTTPException(status_code=404,detail=f"Path='{aPath}'.")
+        raise HTTPException(status_code=404,detail=f"'{aPath}' is not found.")
 
 
 #                                 '*** End Custom Code

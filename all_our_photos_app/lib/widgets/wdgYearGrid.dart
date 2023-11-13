@@ -26,8 +26,8 @@ class YearGrid extends StatefulWidget {
 }
 
 class YearGridState extends State<YearGrid> {
-  List<YearEntry> yearList = [];
-  String startError = '';
+  late Future<List<YearEntry>> yearList = buildYears();
+  late Future<int> monthlyStatusIndic = MonthlyStatus.init();
   double gridFontSize = 20.0;
   double gridIconSize = 20.0;
   int _currentYear = 0;
@@ -39,21 +39,6 @@ class YearGridState extends State<YearGrid> {
 
   bool isCurrent(int year, int month) =>
       (_currentYear == year && _currentMonth == month);
-
-  @override
-  initState() {
-    log.message('wdgYearGridState.initstate()');
-    super.initState();
-    MonthlyStatus.init().then((x) {
-      log.message('wdgYearGridState.initstate()-2');
-      buildYears().then((newYearList) {
-        log.message('wdgYearGridState.initstate()-3');
-        setState(() => yearList = newYearList);
-      }).onError((ex, stackTrace) {
-        log.error('Failed to load monthly status');
-      }); // of then
-    });
-  } // of initState
 
   Future<List<YearEntry>> buildYears() async {
     List<YearEntry> result = [];
@@ -141,20 +126,70 @@ class YearGridState extends State<YearGrid> {
                 .toList()),
         onTap: () {
           log.message('resetting yearlist');
-          yearList = [];
+          yearList = Future.value(<YearEntry>[]);
         },
       )
     ];
-    return ListView(
-      children: [
-        if (startError.isNotEmpty)
-          Text(
-            startError,
-            style: TextStyle(backgroundColor: Colors.red),
-          ),
-        ...monthNamesHeader,
-        for (var thisYear in yearList) yearRowBuilder(thisYear)
-      ],
-    ); // of ListView
+    // return FutureBuilder(
+    //   future: Future.wait([monthlyStatusIndic, yearList]),
+    //   builder: (context, snapshot) {
+    //     switch (snapshot.connectionState) {
+    //       case ConnectionState.waiting:
+    //         return Center(child: CircularProgressIndicator());
+    //       case ConnectionState.done:
+    //         if (snapshot.hasError)
+    //           return Center(child: Text('${snapshot.error}'));
+    //         if (!snapshot.hasData)
+    //           return Center(child: Text('todo has no data'));
+    //         // we are finally done with good data
+    //         var myYearList = (snapshot.data! as List)[1] as List<YearEntry>;
+    //         return ListView(
+    //           children: [
+    //             ...monthNamesHeader,
+    //             for (var thisYear in myYearList) yearRowBuilder(thisYear)
+    //           ],
+    //         );
+    //       default:
+    //         return Text('State: ${snapshot.connectionState}');
+    //     }
+    //   },
+    // );
+    return aFutureBuilder(
+        future: Future.wait([monthlyStatusIndic, yearList]),
+        builder: (context, snapshot) {
+          var myYearList = (snapshot.data!)[1] as List<YearEntry>;
+          return ListView(
+            children: [
+              ...monthNamesHeader,
+              for (var thisYear in myYearList) yearRowBuilder(thisYear)
+            ],
+          );
+        }); // of aFuture builder
   }
 }
+
+FutureBuilder<List<Object>> aFutureBuilder({
+  Key? key,
+  required Future<List<Object>>? future,
+  List<Object>? initialData,
+  required Widget Function(BuildContext, AsyncSnapshot<List<Object>>) builder,
+}) {
+  return FutureBuilder(
+    future: future,
+    initialData: initialData,
+    builder: (context, snapshot) {
+      switch (snapshot.connectionState) {
+        case ConnectionState.waiting:
+          return Center(child: CircularProgressIndicator());
+        case ConnectionState.done:
+          if (snapshot.hasError)
+            return Center(child: Text('${snapshot.error}'));
+          if (!snapshot.hasData) return Center(child: Text('todo has no data'));
+          // we are finally done with good data
+          return builder(context, snapshot);
+        default:
+          return Text('State: ${snapshot.connectionState}');
+      }
+    },
+  );
+} // aFutureBuilder

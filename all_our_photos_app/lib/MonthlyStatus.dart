@@ -32,9 +32,8 @@ class MonthlyStatus {
     if (oldValue) stored = stored.replaceAll(currentUser, '');
     if (newValue) stored += currentUser;
     _monthlyStatus[yearNo * 100 + monthNo] = stored;
-    _monthlyStatus.save().then((success) {
-      if (!success) throw 'failed to write monthly progress';
-    });
+    var success = await _monthlyStatus.save();
+    if (!success) throw 'failed to write monthly progress';
   } // write
 
   static IconData icon(int yearNo, int monthNo) {
