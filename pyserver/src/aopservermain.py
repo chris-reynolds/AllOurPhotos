@@ -31,7 +31,7 @@ opMxMemo = str | None
 config = json.load(open('config.json'))
 
 # Create a MySQL connection pool
-connection_pool = mysql.connector.pooling.MySQLConnectionPool(autocommit=True,pool_name="mypool", pool_size=5, pool_reset_session=True, **config['db'])
+connection_pool = mysql.connector.pooling.MySQLConnectionPool(autocommit=True,pool_name="mypool", pool_size=10, pool_reset_session=True, **config['db'])
 
 app = FastAPI()
 
