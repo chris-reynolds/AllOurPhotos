@@ -295,3 +295,35 @@ Future<T?> showSelectDialog<T>(BuildContext context, String title,
         );
       });
 } // of showSelectDialog
+
+void showSnackBar(String message, BuildContext context) {
+  ScaffoldMessenger.of(context)
+    ..removeCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+} // of showSnackBar
+
+FutureBuilder<List<Object>> aFutureBuilder({
+  Key? key,
+  required Future<List<Object>>? future,
+  List<Object>? initialData,
+  required Widget Function(BuildContext, AsyncSnapshot<List<Object>>) builder,
+}) {
+  return FutureBuilder(
+    future: future,
+    initialData: initialData,
+    builder: (context, snapshot) {
+      switch (snapshot.connectionState) {
+        case ConnectionState.waiting:
+          return Center(child: CircularProgressIndicator());
+        case ConnectionState.done:
+          if (snapshot.hasError)
+            return Center(child: Text('${snapshot.error}'));
+          if (!snapshot.hasData) return Center(child: Text('todo has no data'));
+          // we are finally done with good data
+          return builder(context, snapshot);
+        default:
+          return Text('State: ${snapshot.connectionState}');
+      }
+    },
+  );
+} // aFutureBuilder

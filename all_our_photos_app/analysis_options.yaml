@@ -22,6 +22,7 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    avoid_web_libraries_in_flutter : false
     prefer_const_constructors : false
     curly_braces_in_flow_control_structures : false
     library_prefixes : false

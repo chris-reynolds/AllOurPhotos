@@ -254,12 +254,6 @@ class AlbumDetailState extends State<AlbumDetail>
     onRefreshed();
   } // of refreshList
 
-  void showSnackBar(String message, BuildContext context) {
-//    ScaffoldMessenger.of(context)
-//      ..removeCurrentSnackBar()
-//      ..showSnackBar(SnackBar(content: Text(message)));
-  } // of showSnackBar
-
   Widget snapTile(AopSnap snap) {
     return Column(children: [
       ListTile(

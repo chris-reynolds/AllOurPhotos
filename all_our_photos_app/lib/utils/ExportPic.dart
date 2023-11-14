@@ -9,7 +9,9 @@ import 'package:path_provider/path_provider.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:aopcommon/aopcommon.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dio/dio.dart';
+import 'dart:html' as html;
 
 class ExportPic {
   static Future<bool> _requestPermission(Permission permission) async {
@@ -27,11 +29,15 @@ class ExportPic {
 
   static Future<bool> save(
       String url, String? fileName, String albumName) async {
-    return false;
-    /* TODO : handle download save pic
     Directory? directory;
     try {
-      if (Platform.isAndroid) {
+      if (kIsWeb) {
+        html.AnchorElement anchorElement = html.AnchorElement()
+          ..href = 'data:image/jpeg;$url'
+          ..download = 'fredxx.jpg';
+        anchorElement.click();
+        return false; // TODO : handle web Download
+      } else if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
           directory = await Path.getExternalStorageDirectory();
           String newPath = "";
@@ -85,8 +91,8 @@ class ExportPic {
       if (directory != null) target = '${directory.path}/$fileName';
       log.error('Failed to save $target \n Error is $e');
       //print('Failed to save $target \n Error is $e');
+      rethrow;
     }
     return false;
-    */
   } // of save
 } // of ExportPic

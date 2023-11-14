@@ -4,6 +4,7 @@ import '../ImageFilter.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'package:aopmodel/aop_classes.dart';
 import '../MonthlyStatus.dart';
+import '../flutter_common/WidgetSupport.dart';
 
 // Note there is a blank month name in entry 0 for the year column
 final List<String> monthNames =
@@ -167,29 +168,3 @@ class YearGridState extends State<YearGrid> {
         }); // of aFuture builder
   }
 }
-
-FutureBuilder<List<Object>> aFutureBuilder({
-  Key? key,
-  required Future<List<Object>>? future,
-  List<Object>? initialData,
-  required Widget Function(BuildContext, AsyncSnapshot<List<Object>>) builder,
-}) {
-  return FutureBuilder(
-    future: future,
-    initialData: initialData,
-    builder: (context, snapshot) {
-      switch (snapshot.connectionState) {
-        case ConnectionState.waiting:
-          return Center(child: CircularProgressIndicator());
-        case ConnectionState.done:
-          if (snapshot.hasError)
-            return Center(child: Text('${snapshot.error}'));
-          if (!snapshot.hasData) return Center(child: Text('todo has no data'));
-          // we are finally done with good data
-          return builder(context, snapshot);
-        default:
-          return Text('State: ${snapshot.connectionState}');
-      }
-    },
-  );
-} // aFutureBuilder

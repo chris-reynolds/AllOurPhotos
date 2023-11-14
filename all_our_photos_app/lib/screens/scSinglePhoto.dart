@@ -109,12 +109,15 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         IconButton(
           icon: Icon(Icons.download_outlined),
           onPressed: () async {
-            ExportPic.save(currentSnap!.fullSizeURL, currentSnap!.fileName,
-                    'AllOurPhotos')
-                .then((success) {
+            try {
+              var success = await ExportPic.save(currentSnap!.fullSizeURL,
+                  currentSnap!.fileName, 'AllOurPhotos');
               showMessage(context, success ? "Downloaded" : "Download failed");
-            });
-          },
+            } catch (ex) {
+              log.error('$ex');
+              showMessage(context, '$ex');
+            }
+          }, // of onPressed download
         ),
         IconButton(
             icon: Icon(Icons.crop),

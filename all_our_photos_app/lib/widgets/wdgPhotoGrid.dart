@@ -463,7 +463,6 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 
   Future<void> handleDownload(
       BuildContext context, List<AopSnap> selectedSnaps) async {
-    /* TODO: handledownload
 //    String dirName = '${Platform.environment['HOME']}/Downloads/';
     String dirName =
         (await PathProvider.getApplicationDocumentsDirectory()).path;
@@ -476,7 +475,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     }
     if (albumName.length > 20) albumName = albumName.substring(0, 19);
     dirName += '/$albumName/';
-    if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
+    //   if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
     // make directory in downloads
     int errors = 0;
     for (int snapIx = 0; snapIx < selectedSnaps.length; snapIx++) {
@@ -488,6 +487,5 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 //      File(dirName+selectedSnaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
     }
     showMessage(context, 'Download complete. There were $errors errors.');
-    */
   } // of handleDownload
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:aopcommon/aopcommon.dart';
 import 'scAlbumList.dart';
 import 'scTesting.dart';
 import 'scDBFix.dart';
@@ -50,7 +51,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     double dwidth = MediaQuery.of(context).size.width;
-    print('width=$dwidth **************************');
+    log.message('width=$dwidth **************************');
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(

@@ -236,9 +236,9 @@ class RestURLFactory {
   (String, String) deleteStatement(int id) =>
       ('DELETE', '$rootUrl/$_tableName/$id');
 
-  (String, String) insertStatement() => ('POST', '$rootUrl/$_tableName');
+  (String, String) insertStatement() => ('POST', '${rootUrl}$_tableName');
 
-  (String, String) updateStatement(int id) => ('PUT', '$rootUrl/$_tableName');
+  (String, String) updateStatement(int id) => ('PUT', '${rootUrl}$_tableName');
 
   (String, String) getIdStatement(int id) =>
       ('GET', '$rootUrl/$_tableName/$id');
