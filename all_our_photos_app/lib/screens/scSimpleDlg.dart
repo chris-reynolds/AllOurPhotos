@@ -11,13 +11,12 @@ const String EXIT_CODE = 'XXCLOSEXX';
 
 class DgSimple extends StatefulWidget {
   final String? initialValue;
+  final String errorMessage;
   final String title;
-  final String? errorMessage;
   final DlgValidator? isValid;
 
   @override
-  DgSimpleState createState() =>
-      DgSimpleState(title, initialValue, errorMessage);
+  DgSimpleState createState() => DgSimpleState();
 
   const DgSimple(this.title, this.initialValue,
       {this.errorMessage = '', this.isValid})
@@ -25,19 +24,15 @@ class DgSimple extends StatefulWidget {
 }
 
 class DgSimpleState extends State<DgSimple> {
-  TextEditingController? _nameController;
-  String? value;
-  String title;
-  String? errorMessage;
+  final TextEditingController _nameController = TextEditingController();
 
-  DgSimpleState(this.title, this.value, this.errorMessage) : super();
+  String value = '';
+  String localErrorMessage = '';
 
   void handleSavePressed(String value) async {
     if (widget.isValid != null)
-      errorMessage = await widget.isValid!(_nameController!.text);
-    else
-      errorMessage = null;
-    if (errorMessage != null && errorMessage!.isNotEmpty)
+      localErrorMessage = (await widget.isValid!(_nameController.text)) ?? '';
+    if (localErrorMessage.isNotEmpty)
       setState(() {});
     else
       Navigator.pop(context, value);
@@ -46,13 +41,13 @@ class DgSimpleState extends State<DgSimple> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _nameController!.text = value!;
+    localErrorMessage = widget.errorMessage;
+    _nameController.text = widget.initialValue ?? '';
   } // of initState
 
   @override
   void dispose() {
-    _nameController!.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -63,12 +58,12 @@ class DgSimpleState extends State<DgSimple> {
       titlePadding: EdgeInsets.all(20),
       title: Row(
         children: [
-          Text(title),
+          Text(widget.title),
           Spacer(),
           IconButton(
               icon: Icon(Icons.close),
               onPressed: () {
-                _nameController!.text = '';
+                _nameController.text = '';
                 handleSavePressed(EXIT_CODE);
               })
         ],
@@ -81,7 +76,7 @@ class DgSimpleState extends State<DgSimple> {
           onSubmitted: handleSavePressed,
         ),
         Text(
-          errorMessage!,
+          localErrorMessage,
           style: Theme.of(context).textTheme.bodyMedium,
           maxLines: 3,
         ),
