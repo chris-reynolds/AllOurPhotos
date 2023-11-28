@@ -5,6 +5,8 @@
 
 */
 
+//import 'dart:html';
+
 import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
 import 'package:aopmodel/aop_classes.dart';
@@ -108,11 +110,18 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
       snap!.tagList = selectedChips.toString();
       snap!.ranking = values['ranking'];
       snap!.location = values['location'];
-      await snap!.save().then((result) {
-        // todo check save result
-        Navigator.pop(context);
-      });
-    }
+      try {
+        var success = await snap!.save();
+        if ((success ?? 0) > 0)
+          Navigator.pop(context);
+        else
+          throw Exception('Failed to save image details');
+      } catch (ex) {
+        log.error('Failed top save metadata : $ex');
+        showMessage(context, '$ex');
+      }
+    } else
+      showMessage(context, 'Something is invalid. Not sure what');
   } // of _submit
 
   @override
