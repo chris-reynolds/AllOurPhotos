@@ -89,7 +89,12 @@ class YearGridState extends State<YearGrid> {
       for (int monthIx = 1; monthIx <= 12; monthIx++)
         if (thisYear.months[monthIx] > 0)
           IconButton(
-            padding: EdgeInsets.all(4),
+            constraints: BoxConstraints(
+                maxHeight: gridIconSize + 8,
+                maxWidth: gridIconSize + 4,
+                minHeight: gridIconSize + 8,
+                minWidth: gridIconSize + 4),
+            padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
             icon: Icon(
                 isCurrent(thisYear.yearno, monthIx)
                     ? Icons.ac_unit
@@ -103,6 +108,12 @@ class YearGridState extends State<YearGrid> {
           )
         else
           IconButton(
+            constraints: BoxConstraints(
+                maxHeight: gridIconSize + 8,
+                maxWidth: gridIconSize + 4,
+                minHeight: gridIconSize + 8,
+                minWidth: gridIconSize + 4),
+            padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
             icon: Icon(Icons.radio_button_unchecked, size: gridIconSize),
             onPressed: () {},
           ),
@@ -113,7 +124,7 @@ class YearGridState extends State<YearGrid> {
   Widget build(BuildContext context) {
     bool smallScreen = (MediaQuery.of(context).size.width < 800);
     gridFontSize = smallScreen ? 12 : 24;
-    gridIconSize = smallScreen ? 32 : 32;
+    gridIconSize = smallScreen ? 24 : 32;
     List<Widget> monthNamesHeader = [
       InkWell(
         child: Row(
@@ -131,30 +142,6 @@ class YearGridState extends State<YearGrid> {
         },
       )
     ];
-    // return FutureBuilder(
-    //   future: Future.wait([monthlyStatusIndic, yearList]),
-    //   builder: (context, snapshot) {
-    //     switch (snapshot.connectionState) {
-    //       case ConnectionState.waiting:
-    //         return Center(child: CircularProgressIndicator());
-    //       case ConnectionState.done:
-    //         if (snapshot.hasError)
-    //           return Center(child: Text('${snapshot.error}'));
-    //         if (!snapshot.hasData)
-    //           return Center(child: Text('todo has no data'));
-    //         // we are finally done with good data
-    //         var myYearList = (snapshot.data! as List)[1] as List<YearEntry>;
-    //         return ListView(
-    //           children: [
-    //             ...monthNamesHeader,
-    //             for (var thisYear in myYearList) yearRowBuilder(thisYear)
-    //           ],
-    //         );
-    //       default:
-    //         return Text('State: ${snapshot.connectionState}');
-    //     }
-    //   },
-    // );
     return aFutureBuilder(
         future: Future.wait([monthlyStatusIndic, yearList]),
         builder: (context, snapshot) {
