@@ -248,25 +248,25 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                     index: idx,
                     inSelectMode: _inSelectMode,
                     highResolution: (_picsPerRow == 1),
-                    onBannerTap: (AopSnap imageFile) {
-                      setState(() {
-                        if (_inSelectMode)
-                          _imageFilter.setSelected(
-                              _imageFilter.items[idx],
-                              !_imageFilter
-                                  .isSelected(_imageFilter.items[idx]));
+                    onBannerTap: (AopSnap imageFile) async {
+                      if (_inSelectMode) {
+                        _imageFilter.setSelected(_imageFilter.items[idx],
+                            !_imageFilter.isSelected(_imageFilter.items[idx]));
+                        setState(() {});
                         //                     toggleSelected(imageFile);
-                        else
-                          try {
-                            int newRanking = (imageFile.ranking! + 1) % 3 + 1;
-                            imageFile.ranking = newRanking;
-                            imageFile.save();
-                            if (imageFile.ranking != newRanking)
-                              throw "Failed to save new ranking???";
-                          } catch (ex) {
-                            showMessage(context, '$ex');
-                          }
-                      }); // setState
+                      } else
+                        try {
+                          int newRanking = (imageFile.ranking! + 1) % 3 + 1;
+                          imageFile.ranking = newRanking;
+                          var success = await imageFile.save();
+                          if (imageFile.ranking != newRanking ||
+                              !(success! > 0))
+                            throw "Failed to save new ranking???";
+                          else
+                            setState(() {});
+                        } catch (ex) {
+                          showMessage(context, '$ex');
+                        }
                     },
                     // of bannerTap
                     onBannerLongPress: (AopSnap imageFile) {
@@ -474,7 +474,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
           .replaceAll(' ', '');
     }
     if (albumName.length > 20) albumName = albumName.substring(0, 19);
-    dirName += '/$albumName/';
+    dirName = '$dirName/$albumName/';
     //   if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
     // make directory in downloads
     int errors = 0;
