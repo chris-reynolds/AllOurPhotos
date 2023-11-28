@@ -74,26 +74,36 @@ class AlbumListState extends State<AlbumList> {
   }
 
   Widget buildSearchBar(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.75,
-      child: TextField(
-        controller: _searchQuery,
-        //      style: TextStyle(fontSize: 25),
-        decoration: InputDecoration(
-            labelText: 'Enter your search text here',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.search, color: Colors.white),
-            contentPadding: EdgeInsets.all(10),
-            hintText: "Search...",
-            hintStyle: TextStyle(color: Colors.white)),
-      ),
-//        IconButton(icon: Icon(Icons.close), onPressed: toggleSearching)
-//      ]
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+            flex: 3,
+            child: TextField(
+              controller: _searchQuery,
+              //      style: TextStyle(fontSize: 25),
+              decoration: InputDecoration(
+                  labelText: 'Enter your search text here',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search, color: Colors.white),
+                  contentPadding: EdgeInsets.all(10),
+                  hintText: "Search...",
+                  hintStyle: TextStyle(color: Colors.white)),
+            )),
+        Spacer(),
+        FloatingActionButton.extended(
+          onPressed: () {
+            handleAddAlbum(context);
+          },
+          label: const Text("New Album"),
+          icon: const Icon(Icons.add),
+        )
+      ],
     );
   } // of buildSearchBar
 
   void handleAddAlbum(BuildContext context) async {
-    String name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
+    String? name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
     String errorMessage = '';
     bool done = false;
     while (!done) {
@@ -101,10 +111,10 @@ class AlbumListState extends State<AlbumList> {
           context: context,
           builder: (BuildContext context) =>
               DgSimple('Album name', name, errorMessage: errorMessage));
-      if (name == EXIT_CODE) return;
+      if (name == EXIT_CODE || name == null) return;
       log.message('new name is: $name');
       AopAlbum newAlbum = AopAlbum(data: {});
-      newAlbum.name = name;
+      newAlbum.name = name!;
       await newAlbum.validate();
 
       if (newAlbum.isValid) {
@@ -114,6 +124,7 @@ class AlbumListState extends State<AlbumList> {
           Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
               .then((value) async {
             log.message('popping at album list add');
+            setState(() {});
           });
           done = true;
         } catch (ex) {
@@ -151,3 +162,66 @@ class ChildItem extends StatelessWidget {
     );
   }
 }
+
+// Future<void> xhandleAddAlbum(BuildContext context) async {
+//   String name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
+//   String errorMessage = '';
+//   bool done = false;
+//   while (!done) {
+//     name = await showDialog(
+//         context: context,
+//         builder: (BuildContext context) =>
+//             DgSimple('Album name', name, errorMessage: errorMessage));
+//     if (name == EXIT_CODE) return;
+//     log.message('new name is: $name');
+//     AopAlbum newAlbum = AopAlbum(data: {});
+//     newAlbum.name = name;
+//     await newAlbum.validate();
+
+//     if (newAlbum.isValid) {
+//       try {
+//         await newAlbum.save();
+//         //        _list.add(newAlbum);
+//         Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
+//             .then((value) async {
+//           log.message('popping at album list add');
+//         });
+//         done = true;
+//       } catch (ex) {
+//         errorMessage = '$ex';
+//       }
+//     } else
+//       errorMessage = newAlbum.lastErrors.join('\n');
+//   } // of done loop
+// } // handleAddAlbum
+
+// Future<AopAlbum?> showAlbumCreate(BuildContext context) async {
+//   var nameController = TextEditingController(text: 'fred');
+//   await showDialog(
+//       context: context,
+//       builder: ((context) {
+//         return AlertDialog(
+//           backgroundColor: Color.fromARGB(255, 183, 195, 207),
+//           title: Text('Enter new album name'),
+//           content: TextField(controller: nameController),
+//           actions: [
+//             ElevatedButton(
+//                 onPressed: () {
+//                   Navigator.pop(context);
+//                   log.message('pressed create');
+//                   return;
+//                 },
+//                 child: Text('Create')),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   Navigator.pop(context);
+//                   log.message('pressed cancel');
+//                   return;
+//                 },
+//                 child: Text('Cancel')),
+//           ],
+//         );
+//       })); // of showDialog
+//   log.message('done show dialog');
+//   return null;
+// } // of showAlbumCreate
