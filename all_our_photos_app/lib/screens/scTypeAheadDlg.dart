@@ -14,8 +14,7 @@ class DgTypeAhead extends StatefulWidget {
   final DlgValidator? isValid;
 
   @override
-  DgTypeAheadState createState() =>
-      DgTypeAheadState(title, options, initialValue, errorMessage);
+  DgTypeAheadState createState() => DgTypeAheadState();
 
   const DgTypeAhead(this.title, this.options, this.initialValue,
       {this.errorMessage = '', this.isValid})
@@ -25,12 +24,9 @@ class DgTypeAhead extends StatefulWidget {
 class DgTypeAheadState extends State<DgTypeAhead> {
   late TextEditingController _nameController;
   String? value;
-  String title;
-  List<String> options;
+  late String title;
+  late List<String> options;
   String? errorMessage;
-
-  DgTypeAheadState(this.title, this.options, this.value, this.errorMessage)
-      : super();
 
   void handleSavePressed(String value) async {
     if (widget.isValid != null)
@@ -46,6 +42,10 @@ class DgTypeAheadState extends State<DgTypeAhead> {
   @override
   void initState() {
     super.initState();
+    title = widget.title;
+    options = widget.options;
+    value = widget.initialValue;
+    errorMessage = widget.errorMessage;
     _nameController = TextEditingController();
     _nameController.text = value!;
   } // of initState
