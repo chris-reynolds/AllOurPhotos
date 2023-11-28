@@ -5,6 +5,7 @@
 
 */
 import 'dart:io';
+import 'package:aopmodel/domain_object.dart';
 import 'package:path_provider/path_provider.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -32,11 +33,17 @@ class ExportPic {
     Directory? directory;
     try {
       if (kIsWeb) {
+        String relativeUrl = url;
+        if (relativeUrl.startsWith(rootUrl))
+          relativeUrl = relativeUrl.substring(rootUrl.length - 1);
         html.AnchorElement anchorElement = html.AnchorElement()
-          ..href = 'data:image/jpeg;$url'
-          ..download = 'fredxx.jpg';
+          ..href = relativeUrl
+          ..setAttribute(
+              'download', fileName ?? Uri(path: url).pathSegments.last);
+        html.document.body!.append(anchorElement);
+        log.message('set anchorelement ${anchorElement.download}');
         anchorElement.click();
-        return false; // TODO : handle web Download
+        return true;
       } else if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
           directory = await Path.getExternalStorageDirectory();
