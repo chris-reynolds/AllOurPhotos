@@ -130,7 +130,7 @@ def photos(request: Request,aPath:str):
 #                                 '*** End Custom Code
 
 # API route to create a new album
-@app.post("/albums/", response_model=Album)
+@app.post("/albums", response_model=Album)
 def create_album(request:Request, album: Album) -> Album:
     try:
         (album.updated_user,user_id) = username_and_id(request)
@@ -220,7 +220,7 @@ def update_album(request:Request, newAlbum: Album) -> Album:
 
 
 # API route to create a new albumItem
-@app.post("/albumItems/", response_model=AlbumItem)
+@app.post("/album_items", response_model=AlbumItem)
 def create_albumItem(request:Request, albumItem: AlbumItem) -> AlbumItem:
     try:
         (albumItem.updated_user,user_id) = username_and_id(request)
@@ -245,7 +245,7 @@ def create_albumItem(request:Request, albumItem: AlbumItem) -> AlbumItem:
         else:
             raise HTTPException(status_code=500, detail=f"{ex}")
 
-@app.get("/albumItems/{id}", response_model=AlbumItem)
+@app.get("/album_items/{id}", response_model=AlbumItem)
 def get_albumItem(request:Request, id: int) -> AlbumItem:
     result = get_albumItems(request,where=f'id={id}')
     if result == None or result == []:
@@ -254,7 +254,7 @@ def get_albumItem(request:Request, id: int) -> AlbumItem:
         return result[0]
 
 # API route to get some albumItems
-@app.get("/albumItems/", response_model=List[AlbumItem])
+@app.get("/album_items/", response_model=List[AlbumItem])
 def get_albumItems(request:Request, where: str = '1=0', orderby: str = 'id', limit: int = 1001, offset: int = 0) -> List[AlbumItem]:
     session: Session = get_session_from_request(request) 
     queryText = f"SELECT * FROM aopalbum_items where {where} order by {orderby}  LIMIT {limit} OFFSET {offset} "
@@ -272,7 +272,7 @@ def get_albumItems(request:Request, where: str = '1=0', orderby: str = 'id', lim
 
 
 # API route to delete a albumItem
-@app.delete("/albumItems/{id}", response_model=AlbumItem)
+@app.delete("/album_items/{id}", response_model=AlbumItem)
 def delete_albumItem(request:Request, id: int):
     try:
         (updated_user,user_id) = username_and_id(request)
@@ -288,7 +288,7 @@ def delete_albumItem(request:Request, id: int):
         raise HTTPException(status_code=500, detail=f"{ex}")
 
 # API route to update a albumItem
-@app.put("/albumItems", response_model=AlbumItem)
+@app.put("/album_items", response_model=AlbumItem)
 def update_albumItem(request:Request, newAlbumItem: AlbumItem) -> AlbumItem:
     try:
         thisId: int = newAlbumItem.id # type: ignore
@@ -310,7 +310,7 @@ def update_albumItem(request:Request, newAlbumItem: AlbumItem) -> AlbumItem:
 
 
 # API route to create a new session
-@app.post("/sessions/", response_model=Session)
+@app.post("/sessions", response_model=Session)
 def create_session(request:Request, session: Session) -> Session:
     try:
         (session.updated_user,user_id) = username_and_id(request)
@@ -399,7 +399,7 @@ def update_session(request:Request, newSession: Session) -> Session:
 
 
 # API route to create a new snap
-@app.post("/snaps/", response_model=Snap)
+@app.post("/snaps", response_model=Snap)
 def create_snap(request:Request, snap: Snap) -> Snap:
     try:
         (snap.updated_user,user_id) = username_and_id(request)
@@ -489,7 +489,7 @@ def update_snap(request:Request, newSnap: Snap) -> Snap:
 
 
 # API route to create a new user
-@app.post("/users/", response_model=User)
+@app.post("/users", response_model=User)
 def create_user(request:Request, user: User) -> User:
     try:
         (user.updated_user,user_id) = username_and_id(request)

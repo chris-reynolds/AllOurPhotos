@@ -182,7 +182,7 @@ class DOProvider<TDO extends DomainObject> {
 
   Future<List<TDO>> getWithFKey(String keyname, int? keyValue) async {
     String verb, url;
-    (verb, url) = urlStatements.getSomeStatement('$keyname.eq.$keyValue');
+    (verb, url) = urlStatements.getSomeStatement('$keyname=$keyValue');
     var r = await _sendRequest(verb, url);
     return toList(r);
   }
@@ -241,7 +241,7 @@ class RestURLFactory {
   (String, String) updateStatement(int id) => ('PUT', '${rootUrl}$_tableName');
 
   (String, String) getIdStatement(int id) =>
-      ('GET', '$rootUrl/$_tableName/$id');
+      ('GET', '${rootUrl}$_tableName/$id');
 
   (String, String) getSomeStatement(String whereClause,
           {String orderBy = 'created_on'}) =>
