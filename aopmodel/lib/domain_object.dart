@@ -132,8 +132,8 @@ class DOProvider<TDO extends DomainObject> {
       // log.message('Response body: ${response?.body}');
       switch (response?.statusCode) {
         case 200:
-          //        var ss = response?.body;
-          var xxx = jsonDecode(response?.body ?? '');
+          var xxx = json
+              .decode(utf8.decode(response!.bodyBytes, allowMalformed: false));
           return xxx;
         case 404:
           throw 'not found';
@@ -234,7 +234,7 @@ class RestURLFactory {
   RestURLFactory(this._tableName);
 
   (String, String) deleteStatement(int id) =>
-      ('DELETE', '$rootUrl/$_tableName/$id');
+      ('DELETE', '${rootUrl}$_tableName/$id');
 
   (String, String) insertStatement() => ('POST', '${rootUrl}$_tableName');
 
