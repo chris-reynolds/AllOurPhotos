@@ -110,9 +110,9 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           icon: Icon(Icons.download_outlined),
           onPressed: () async {
             try {
-              var success = await ExportPic.save(currentSnap!.fullSizeURL,
-                  currentSnap!.fileName, 'AllOurPhotos');
-              showMessage(context, success ? "Downloaded" : "Download failed");
+              var success =
+                  await ExportPic.export(currentSnap!, 'AllOurPhotos');
+              if (!success) showMessage(context, "Download failed");
             } catch (ex) {
               log.error('$ex');
               showMessage(context, '$ex');
