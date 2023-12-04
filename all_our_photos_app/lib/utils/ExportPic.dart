@@ -5,7 +5,8 @@
 
 */
 import 'dart:io';
-import 'package:aopmodel/domain_object.dart';
+import 'package:aopmodel/aop_classes.dart';
+// import 'package:aopmodel/domain_object.dart';
 import 'package:path_provider/path_provider.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -28,20 +29,30 @@ class ExportPic {
     return false;
   }
 
-  static Future<bool> save(
-      String url, String? fileName, String albumName) async {
+  static Future<int> exportSeveral(List<AopSnap> snaps) async {
+    int errors = 0;
+    for (var snap in snaps) {
+      if (!await export(snap, 'xxx')) errors += 1;
+    }
+    return errors;
+  }
+
+  static Future<bool> export(AopSnap snap, String albumName) async {
     Directory? directory;
+    String url = snap.fullSizeURL;
+    String fileName = snap.fileName ?? 'noname.jpg';
     try {
       if (kIsWeb) {
         String relativeUrl = url;
-        if (relativeUrl.startsWith(rootUrl))
-          relativeUrl = relativeUrl.substring(rootUrl.length - 1);
+//        if (relativeUrl.startsWith(rootUrl))
+//          relativeUrl = relativeUrl.substring(rootUrl.length - 1);
+        log.message('Attrempting to download $relativeUrl');
         html.AnchorElement anchorElement = html.AnchorElement()
           ..href = relativeUrl
-          ..setAttribute(
-              'download', fileName ?? Uri(path: url).pathSegments.last);
+          ..setAttribute('download', fileName);
         html.document.body!.append(anchorElement);
-        log.message('set anchorelement ${anchorElement.download}');
+        log.message(
+            'set anchorelement for $relativeUrl ${anchorElement.download}');
         anchorElement.click();
         return true;
       } else if (Platform.isAndroid) {
