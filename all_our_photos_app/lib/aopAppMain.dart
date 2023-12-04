@@ -8,7 +8,7 @@ import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-const VERSION = 'All Our Photos 28.1 Nov 23';
+const VERSION = 'All Our Photos 4 Dec 23';
 
 void main() {
   MaterialApp application = MaterialApp(
