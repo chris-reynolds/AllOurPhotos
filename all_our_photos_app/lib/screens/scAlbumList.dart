@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
+import '../flutter_common/WidgetSupport.dart';
 import 'scSimpleDlg.dart';
 
 class AlbumList extends StatefulWidget {
@@ -67,11 +68,28 @@ class AlbumListState extends State<AlbumList> {
         buildSearchBar(context),
         ...stuff
             .where(albumSelected)
-            .map((album) => ChildItem(album, this))
+            .map((album) => buildAlbumLine(album))
             .toList(),
       ]),
     );
   }
+
+  Widget buildAlbumLine(AopAlbum album) {
+    return Row(
+      children: [
+        TextButton(
+            //padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
+            child:
+                Text(album.name, style: Theme.of(context).textTheme.titleLarge),
+            onPressed: () =>
+                Navigator.pushNamed(context, 'AlbumDetail', arguments: album)
+                    .then((value) {
+                  log.message('popping at list selectttttttttttttt');
+                  setState(() {});
+                })),
+      ],
+    );
+  } // of buildAlbumLine
 
   Widget buildSearchBar(BuildContext context) {
     return Row(
@@ -114,7 +132,7 @@ class AlbumListState extends State<AlbumList> {
       if (name == EXIT_CODE || name == null) return;
       log.message('new name is: $name');
       AopAlbum newAlbum = AopAlbum(data: {});
-      newAlbum.name = name!;
+      newAlbum.name = name;
       await newAlbum.validate();
 
       if (newAlbum.isValid) {
@@ -156,44 +174,44 @@ class ChildItem extends StatelessWidget {
             onPressed: () =>
                 Navigator.pushNamed(context, 'AlbumDetail', arguments: album)
                     .then((value) {
-                  log.message('popping at list select');
+                  log.message('popping at list selectttttttttttttt');
                 })),
       ],
     );
   }
 }
 
-// Future<void> xhandleAddAlbum(BuildContext context) async {
-//   String name = '${formatDate(DateTime.now(), format: 'yyyy')} Unknown';
-//   String errorMessage = '';
-//   bool done = false;
-//   while (!done) {
-//     name = await showDialog(
-//         context: context,
-//         builder: (BuildContext context) =>
-//             DgSimple('Album name', name, errorMessage: errorMessage));
-//     if (name == EXIT_CODE) return;
-//     log.message('new name is: $name');
-//     AopAlbum newAlbum = AopAlbum(data: {});
-//     newAlbum.name = name;
-//     await newAlbum.validate();
-
-//     if (newAlbum.isValid) {
-//       try {
-//         await newAlbum.save();
-//         //        _list.add(newAlbum);
-//         Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
-//             .then((value) async {
-//           log.message('popping at album list add');
-//         });
-//         done = true;
-//       } catch (ex) {
-//         errorMessage = '$ex';
-//       }
-//     } else
-//       errorMessage = newAlbum.lastErrors.join('\n');
-//   } // of done loop
-// } // handleAddAlbum
+void handleMultiRemoveFromAlbum(BuildContext context, AopAlbum argAlbum,
+    List<AopSnap> selectedSnaps) async {
+  try {
+    bool deleteAlbum = false;
+    String message = '';
+    if (selectedSnaps.isEmpty) return; // nothing to delete
+    if ((await argAlbum.albumItems).length == selectedSnaps.length) {
+      if ((await confirmYesNo(context, 'Delete this album',
+          description:
+              'All photos for this album have been\n selected for deletion'))!)
+        deleteAlbum = true;
+    }
+    int count = await argAlbum.removeSnaps(selectedSnaps);
+    message = "$count photos removed\n";
+    if (deleteAlbum) {
+      await argAlbum.delete();
+      message += 'Album deleted';
+      //;
+      log.message('popping from grid after delete album');
+      await showMessage(context, message);
+      Navigator.pop(context, true);
+    } else {
+      await showMessage(context, message);
+//      if (widget._refreshNow != null) widget._refreshNow!();
+//      clearSelected();
+//      setState(() {});
+    }
+  } catch (ex) {
+    showMessage(context, 'Error: $ex');
+  }
+} // of handleMultiRemoveFromAlbum*/
 
 // Future<AopAlbum?> showAlbumCreate(BuildContext context) async {
 //   var nameController = TextEditingController(text: 'fred');

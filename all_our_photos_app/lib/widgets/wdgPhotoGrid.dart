@@ -6,7 +6,6 @@
 
 // import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart' as PathProvider;
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
 import '../screens/scSimpleDlg.dart';
@@ -22,9 +21,10 @@ class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
   final AopAlbum? _album;
   final CallBack? _refreshNow;
+  final CallBack? removeAlbumItems;
 
   PhotoGrid(this._initImageFilter,
-      {AopAlbum? album, CallBack? refreshNow, Key? key})
+      {AopAlbum? album, CallBack? refreshNow, this.removeAlbumItems, Key? key})
       : _album = album,
         _refreshNow = refreshNow,
         super(key: key) {
@@ -167,14 +167,12 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
           if (_inSelectMode && _imageFilter.selectionList.isNotEmpty) ...[
             //           if (Platform.isMacOS)
             IconButton(
-              icon: Icon(Icons.file_download),
-              tooltip: 'Export photo(s) to downloads folder',
-              onPressed: () {
-                handleDownload(context, _imageFilter.selectionList).then((xx) {
-                  setState(() {});
-                });
-              },
-            ),
+                icon: Icon(Icons.file_download),
+                tooltip: 'Export photo(s)',
+                onPressed: () async {
+                  await ExportPic.exportSeveral(_imageFilter.selectionList);
+                }),
+
             if (widget._album != null)
               IconButton(
                   icon: Icon(Icons.delete),
@@ -460,32 +458,4 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       showMessage(context, 'Error: $ex');
     }
   } // of handleMultiRemoveFromAlbum*/
-
-  Future<void> handleDownload(
-      BuildContext context, List<AopSnap> selectedSnaps) async {
-//    String dirName = '${Platform.environment['HOME']}/Downloads/';
-    String dirName =
-        (await PathProvider.getApplicationDocumentsDirectory()).path;
-    String albumName = 'AllOurPhotos';
-    if (widget._album != null) {
-      albumName = widget._album!.name
-          .replaceAll('/', '-')
-          .replaceAll('\\', '-')
-          .replaceAll(' ', '');
-    }
-    if (albumName.length > 20) albumName = albumName.substring(0, 19);
-    dirName = '$dirName/$albumName/';
-    //   if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
-    // make directory in downloads
-    int errors = 0;
-    for (int snapIx = 0; snapIx < selectedSnaps.length; snapIx++) {
-//      showMessage(context,'${selectedSnaps.length-snapIx} photos to download');
-      String sourceURL = selectedSnaps[snapIx].fullSizeURL;
-      if (!await ExportPic.save(
-          sourceURL, selectedSnaps[snapIx].fileName, albumName)) errors += 1;
-//      List<int> imgBytes = await loadWebBinary(sourceURL);
-//      File(dirName+selectedSnaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
-    }
-    showMessage(context, 'Download complete. There were $errors errors.');
-  } // of handleDownload
 }

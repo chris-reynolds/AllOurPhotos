@@ -11,7 +11,6 @@ import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
-import '../utils/ExportPic.dart';
 
 class AlbumDetail extends StatefulWidget {
   const AlbumDetail({Key? key}) : super(key: key);
@@ -58,29 +57,24 @@ class AlbumDetailState extends State<AlbumDetail>
 
   PreferredSizeWidget buildBar(BuildContext context) {
     //   if (selectionList.isEmpty)
+    log.message('build bar for album detail');
     return AppBar(
         centerTitle: true,
         title: Text(argAlbum!.name),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {
-              handleRenameAlbum(context).then((xx) {
+              icon: Icon(Icons.edit),
+              tooltip: 'Rename album',
+              onPressed: () async {
+                await handleRenameAlbum(context);
                 setState(() {});
-              });
-            },
-          ),
-//            if (Platform.isMacOS)
-          if (items.isNotEmpty)
+              }),
+          if (selectionList.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.file_download),
-              tooltip: 'Export album to downloads folder',
-              onPressed: () {
-                handleDownload(context).then((xx) {
-                  setState(() {});
-                });
-              },
-            ),
+                icon: Icon(Icons.redo),
+                onPressed: () {
+                  moveToAnotherAlbum(context);
+                }),
         ]);
     // else
     //   return AppBar(
@@ -143,32 +137,6 @@ class AlbumDetailState extends State<AlbumDetail>
   //     refreshList();
   //   }
   // } // of handleDelete
-
-  Future<void> handleDownload(BuildContext context) async {
-    // TODO : handleDownload
-/*     List<AopSnap> snaps = selectionList;
-    String dirName = '${Platform.environment['HOME']}/Downloads/';
-    String albumName = argAlbum!.name
-        .replaceAll('/', '-')
-        .replaceAll('\\', '-')
-        .replaceAll(' ', '');
-    if (albumName.length > 20) albumName = albumName.substring(0, 19);
-    dirName += '$albumName/';
-    if (!Directory(dirName).existsSync()) Directory(dirName).createSync();
-    // make directory in downloads
-    int errors = 0;
-    for (int snapIx = 0; snapIx < snaps.length; snapIx++) {
-      showSnackBar('${snaps.length - snapIx} photos to download', context);
-      String sourceURL = snaps[snapIx].fullSizeURL;
-      if (!await ExportPic.save(sourceURL, snaps[snapIx].fileName, albumName))
-        errors += 1;
-//      List<int> imgBytes = await loadWebBinary(sourceURL);
-//      String prefix = formatDate(snaps[snapIx].takenDate)+'-';
-//      File(dirName+prefix+snaps[snapIx].fileName).writeAsBytesSync(imgBytes,mode: FileMode.append );
-    }
-    showSnackBar('Download complete. There were $errors errors.', context);
-*/
-  } // of handleDownload
 
   Future<void> moveToAnotherAlbum(BuildContext context) async {
     List<AopAlbum> allAlbums = await AopAlbum.all();
