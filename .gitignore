@@ -50,3 +50,4 @@ all_our_photos_app/ios/Flutter/Flutter.podspec
 josie_export/*.jpg
 DartWebServer/bin/aopmain.exe
 all_our_photos_app/macos/Flutter/GeneratedPluginRegistrant.swift
+all_our_photos_app/pubspec.lock
