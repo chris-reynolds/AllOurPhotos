@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgMonthSelector.dart';
 import '../ImageFilter.dart';
 import '../widgets/wdgSnapGrid.dart';
@@ -29,7 +29,7 @@ class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildBar(context),
-      body: SsSnapGrid(_list, this,album),
+      body: SsSnapGrid(_list, this, album),
     );
   } // of build
 
@@ -41,13 +41,18 @@ class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
             onPressed: setQuarter,
           ),
           IconButton(
-              icon: Icon(Icons.timelapse), onPressed: extendEndDate,tooltip: 'Extend a month',),
+            icon: Icon(Icons.timelapse),
+            onPressed: extendEndDate,
+            tooltip: 'Extend a month',
+          ),
           IconButton(
               icon: Icon(
                 imgFilter.getRank(2) ? Icons.star : Icons.star_border,
                 color: Colors.orange,
               ),
-              tooltip: imgFilter.getRank(2)?'Hide amber photos':'Show amber photos',
+              tooltip: imgFilter.getRank(2)
+                  ? 'Hide amber photos'
+                  : 'Show amber photos',
               onPressed: () {
                 imgFilter.setRank(2, !imgFilter.getRank(2)); // toggle.
                 refreshList();
@@ -83,7 +88,7 @@ class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
       yearNo = int.tryParse(album!.name.substring(0, 4)) ?? DateTime.now().year;
       DateTime startDate = DateTime(yearNo, 1, 1);
       imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
-      imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds:-1));
+      imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds: -1));
       log.message('Album assigned');
       imgFilter.setRank(2, false);
       refreshList();
@@ -114,7 +119,8 @@ class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
 
   void setQuarter(int quarter) {
     imgFilter.fromDate = DateTime(yearNo, 3 * quarter + 1, 1);
-    imgFilter.toDate = addMonths(imgFilter.fromDate, 3).add(Duration(seconds:-1));
+    imgFilter.toDate =
+        addMonths(imgFilter.fromDate, 3).add(Duration(seconds: -1));
     refreshList();
   } // of setQuarter
 
@@ -122,14 +128,16 @@ class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
     const int DUMMY_ID = -999;
     return InkWell(
       child: Text(
-          '${formatDate(snap.takenDate!, format: 'dd-mmm-yy hh:nn:ss')} ' '   ${snap.fullSizeURL}      ',
+          '${formatDate(snap.takenDate!, format: 'dd-mmm-yy hh:nn:ss')} '
+          '   ${snap.fullSizeURL}      ',
           style: TextStyle(
-              color: isSelected(snap.id??DUMMY_ID) ? Colors.red : Colors.blueAccent)),
+              color: isSelected(snap.id ?? DUMMY_ID)
+                  ? Colors.red
+                  : Colors.blueAccent)),
       onTap: () {
-        toggleSelected(snap.id??DUMMY_ID);
+        toggleSelected(snap.id ?? DUMMY_ID);
         setState(() {});
       },
     );
   } // of snapCell
-
 } // of AlbumAddPhotoState

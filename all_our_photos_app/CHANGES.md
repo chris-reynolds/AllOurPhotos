@@ -11,4 +11,6 @@
 - Support main metadata changes to single photos.
 - Support caption and time taken changes to multiple pictures.
 
+## 2.0 21st August 2023
+- attempt to move from native apps to web site
 

@@ -6,12 +6,12 @@
 */
 
 import 'dart:async';
-import 'dart:io';
+import 'package:aopmodel/aop_classes.dart';
+import 'package:aopmodel/domain_object.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:aopcommon/aopcommon.dart';
+import 'package:aopcommon/aopcommon.dart' show log, WebFile;
 import '../authentication_state.dart';
-import '../shared/dbAllOurPhotos.dart';
+import '../utils/Config.dart';
 import 'scSignin.dart';
 import 'scHome.dart';
 
@@ -21,23 +21,32 @@ class LaunchWithLogin extends StatelessWidget {
   final String title;
   LaunchWithLogin(this.title);
   Future<void> initConfig() async {
-    String localDocs = (await getApplicationDocumentsDirectory()).path;
-    log.message('localdocs from $localDocs');
-    if (Platform.isAndroid) {
-      String extStorage = (await getExternalStorageDirectory())!.path;
-      log.message('external storage is $extStorage');
-    }
-    await loadConfig('$localDocs/aopPhoneSync.config.json');
-    log.message('loaded config from $localDocs');
+    await config.load('aop_config.json');
+    log.message('loaded config $config');
   } // of initConfig
 
   Future<void> tryLogin() async {
     try {
-      var db = DbAllOurPhotos();
-      await db.initConnection(config);
-      await db.startSession(config);
+//      var db = DbAllOurPhotos();
+//      await db.initConnection(config);
+//      await db.startSession(config);
+      if (config['sesuser'] == null) throw Exception('No User');
+      if (Uri.base.host.isNotEmpty) {
+        rootUrl = '${Uri.base}';
+        rootUrl = rootUrl.replaceAll('8686',
+            '8000'); // allow interactive debugging on port 86886 with affecting server
+      } else
+        rootUrl = 'http://${config['host']}:${config['port']}/';
+      WebFile.setRootUrl('${rootUrl}photos/');
+      Map<String, dynamic> sessionRequest = await sessionProvider.rawRequest(
+          'ses/${config['sesuser']}/${config['sespassword']}/${config['sesdevice']}');
+      config['sessionid'] = sessionRequest['jam'] ?? '';
+      if (!config['sessionid'].startsWith('2'))
+        throw Exception('Invalid session Id');
+      modelSessionid = config['sessionid'];
       _streamController.add(AuthenticationState.authenticated());
-      saveConfig();
+
+      await config.save();
       log.message('Config saved');
     } catch (ex) {
       log.error('Failed to login $ex');
@@ -54,12 +63,16 @@ class LaunchWithLogin extends StatelessWidget {
     return StreamBuilder<AuthenticationState>(
         stream: _streamController.stream,
 //        initialData: new AuthenticationState.initial(),
-        builder: (BuildContext context, AsyncSnapshot<AuthenticationState> snapshot) {
+        builder: (BuildContext context,
+            AsyncSnapshot<AuthenticationState> snapshot) {
           final state = snapshot.data;
           if (state == null)
             return CircularProgressIndicator();
           else if (state.authenticated)
-            return HomeScreen(logoutFn:tryLogout, title: title,);
+            return HomeScreen(
+              logoutFn: tryLogout,
+              title: title,
+            );
           else
             return SignInPage(/*_streamController,*/ tryLogin);
         });

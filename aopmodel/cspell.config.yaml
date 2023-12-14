@@ -1,0 +1,7 @@
+version: "0.2"
+ignorePaths: ["*.dart","*.yaml"]
+dictionaryDefinitions: []
+dictionaries: []
+words: []
+ignoreWords: []
+import: []

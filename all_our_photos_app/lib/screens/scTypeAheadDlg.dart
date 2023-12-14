@@ -14,28 +14,26 @@ class DgTypeAhead extends StatefulWidget {
   final DlgValidator? isValid;
 
   @override
-  _DgTypeAheadState createState() => _DgTypeAheadState(title, options, initialValue, errorMessage);
+  DgTypeAheadState createState() => DgTypeAheadState();
 
-  const DgTypeAhead(this.title, this.options, this.initialValue, {this.errorMessage ='', this.isValid})
+  const DgTypeAhead(this.title, this.options, this.initialValue,
+      {this.errorMessage = '', this.isValid})
       : super();
 }
 
-class _DgTypeAheadState extends State<DgTypeAhead> {
+class DgTypeAheadState extends State<DgTypeAhead> {
   late TextEditingController _nameController;
   String? value;
-  String title;
-  List<String> options;
+  late String title;
+  late List<String> options;
   String? errorMessage;
-
-
-  _DgTypeAheadState(this.title, this.options, this.value, this.errorMessage) : super();
 
   void handleSavePressed(String value) async {
     if (widget.isValid != null)
       errorMessage = await widget.isValid!(_nameController.text);
     else
       errorMessage = null;
-    if (value != EXIT_CODE && errorMessage !=null && errorMessage!.isNotEmpty)
+    if (value != EXIT_CODE && errorMessage != null && errorMessage!.isNotEmpty)
       setState(() {});
     else
       Navigator.pop(context, value);
@@ -44,6 +42,10 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
   @override
   void initState() {
     super.initState();
+    title = widget.title;
+    options = widget.options;
+    value = widget.initialValue;
+    errorMessage = widget.errorMessage;
     _nameController = TextEditingController();
     _nameController.text = value!;
   } // of initState
@@ -77,7 +79,6 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
         ],
       ),
       children: const <Widget>[
-
 /*        TypeAheadTextField(
           key: textKey,
           decoration: new InputDecoration(labelText: 'Location Lookup', errorText: ''),
@@ -100,5 +101,3 @@ class _DgTypeAheadState extends State<DgTypeAhead> {
     );
   } // of build
 }
-
-

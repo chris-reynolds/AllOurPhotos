@@ -5,9 +5,11 @@
 
 */
 
+//import 'dart:html';
+
 import 'package:all_our_photos_app/flutter_common/ChipController.dart';
 import 'package:flutter/material.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgImageFilter.dart' show filterColors;
 import '../flutter_common/WidgetSupport.dart';
 import 'package:aopcommon/aopcommon.dart';
@@ -36,7 +38,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
   void selectChip(BuildContext context, String caption, bool selected) async {
     if (caption == '+' || caption == '-') {
       String prompt = (caption == '+') ? 'Add new' : 'Remove';
-      String? newChipText = await inputBox(context, '$prompt Chip Text');
+      String newChipText = (await inputBox(context, '$prompt Chip Text')) ?? '';
       newChipText = newChipText.trim();
       if (newChipText.isNotEmpty) {
         if (caption == '-') {
@@ -108,11 +110,18 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
       snap!.tagList = selectedChips.toString();
       snap!.ranking = values['ranking'];
       snap!.location = values['location'];
-      await snap!.save().then((result) {
-        // todo check save result
-        Navigator.pop(context);
-      });
-    }
+      try {
+        var success = await snap!.save();
+        if ((success ?? 0) > 0)
+          Navigator.pop(context);
+        else
+          throw Exception('Failed to save image details');
+      } catch (ex) {
+        log.error('Failed top save metadata : $ex');
+        showMessage(context, '$ex');
+      }
+    } else
+      showMessage(context, 'Something is invalid. Not sure what');
   } // of _submit
 
   @override
@@ -163,9 +172,10 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
             ), */
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
-                return locationList.where((String location) =>
-                    location.toLowerCase().contains(textEditingValue.text.toLowerCase())) ;
-              } ,
+                return locationList.where((String location) => location
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()));
+              },
               initialValue: TextEditingValue(text: values['location'] ?? ''),
               onSelected: (v) {
                 values['location'] = v;
@@ -192,7 +202,8 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
                         values['ranking'] = (values['ranking']) % 3 + 1;
                       });
                     },
-                    child: Icon(Icons.star, color: filterColors[values['ranking']], size: 40.0),
+                    child: Icon(Icons.star,
+                        color: filterColors[values['ranking']], size: 40.0),
                   ),
                 ],
               );

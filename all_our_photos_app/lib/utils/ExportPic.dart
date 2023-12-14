@@ -5,11 +5,15 @@
 
 */
 import 'dart:io';
+import 'package:aopmodel/aop_classes.dart';
+// import 'package:aopmodel/domain_object.dart';
 import 'package:path_provider/path_provider.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:aopcommon/aopcommon.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dio/dio.dart';
+import 'dart:html' as html;
 
 class ExportPic {
   static Future<bool> _requestPermission(Permission permission) async {
@@ -25,14 +29,37 @@ class ExportPic {
     return false;
   }
 
-  static Future<bool> save(String url, String? fileName, String albumName) async {
+  static Future<int> exportSeveral(List<AopSnap> snaps) async {
+    int errors = 0;
+    for (var snap in snaps) {
+      if (!await export(snap, 'xxx')) errors += 1;
+    }
+    return errors;
+  }
+
+  static Future<bool> export(AopSnap snap, String albumName) async {
     Directory? directory;
+    String url = snap.fullSizeURL;
+    String fileName = snap.fileName ?? 'noname.jpg';
     try {
-      if (Platform.isAndroid) {
+      if (kIsWeb) {
+        String relativeUrl = url;
+//        if (relativeUrl.startsWith(rootUrl))
+//          relativeUrl = relativeUrl.substring(rootUrl.length - 1);
+        log.message('Attrempting to download $relativeUrl');
+        html.AnchorElement anchorElement = html.AnchorElement()
+          ..href = relativeUrl
+          ..setAttribute('download', fileName);
+        html.document.body!.append(anchorElement);
+        log.message(
+            'set anchorelement for $relativeUrl ${anchorElement.download}');
+        anchorElement.click();
+        return true;
+      } else if (Platform.isAndroid) {
         if (await _requestPermission(Permission.storage)) {
           directory = await Path.getExternalStorageDirectory();
           String newPath = "";
-          log.message(directory.path);
+          log.message(directory!.path);
           List<String> paths = directory.path.split("/");
           for (int x = 1; x < paths.length; x++) {
             String folder = paths[x];
@@ -54,7 +81,8 @@ class ExportPic {
           return false;
         }
       } else if (Platform.isMacOS) {
-        directory = Directory('${(await Path.getDownloadsDirectory())!.path}/$albumName');
+        directory = Directory(
+            '${(await Path.getDownloadsDirectory())!.path}/$albumName');
       } else
         throw Exception('Platform not supported');
 
@@ -68,7 +96,7 @@ class ExportPic {
 //            setState(() {
 //              progress = value1 / value2;
 //            });
-            });
+        });
         if (Platform.isIOS) {
           await ImageGallerySaver.saveFile(saveFile.path,
               isReturnPathOfIOS: true);
@@ -78,12 +106,11 @@ class ExportPic {
       }
     } catch (e) {
       var target = fileName;
-      if (directory != null)
-        target = '${directory.path}/$fileName';
+      if (directory != null) target = '${directory.path}/$fileName';
       log.error('Failed to save $target \n Error is $e');
       //print('Failed to save $target \n Error is $e');
+      rethrow;
     }
     return false;
-  }  // of save
-
+  } // of save
 } // of ExportPic

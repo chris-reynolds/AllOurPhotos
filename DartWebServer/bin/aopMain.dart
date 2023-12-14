@@ -6,9 +6,9 @@ import 'package:path/path.dart' as path;
 import 'package:exif/exif.dart';
 
 String VERSION = '2023.05.04';
-HttpServer mainServer;
-VirtualDirectory _staticFileRoot;
-Map config;
+HttpServer? mainServer;
+VirtualDirectory _staticFileRoot = VirtualDirectory('');
+Map config = {};
 // List<String> _topCache = <String>[];
 
 Future main(List<String> arguments) async {
@@ -17,7 +17,7 @@ Future main(List<String> arguments) async {
     config = await loadConfig(arguments[0]);
     int webServerPort = int.tryParse(config['webserver_port']) ?? 8888;
     mainServer = await loadServer(webServerPort, config['fileserver_root']);
-    mainServer.listen(processRequest);
+    mainServer!.listen(processRequest);
     print('AOP Server $VERSION running on $webServerPort');
     return;
   } catch (ex) {
@@ -30,7 +30,7 @@ Future<String> extractExif(String path) async {
   List<String> result = [];
   Map<String, IfdTag> data =
       await readExifFromBytes(await new File(path).readAsBytes());
-  if (data == null || data.isEmpty)
+  if ( data.isEmpty)
     result.add('Error: No EXIF information found');
   else {
     if (data.containsKey('JPEGThumbnail')) {
@@ -42,13 +42,13 @@ Future<String> extractExif(String path) async {
       data.remove('TIFFThumbnail');
     }
     for (String key in data.keys)
-      result.add("$key (${data[key].tagType}): ${data[key]}");
+      result.add("$key (${data[key]!.tagType}): ${data[key]}");
   }
   return result.join('\n');
 } // of extractExif
 
 Future<HttpServer> loadServer(int port, String rootPath) async {
-  // TODO: check rootpath file existance
+  if Directory(rootPath) e
   _staticFileRoot = new VirtualDirectory(rootPath)
 //    ..allowDirectoryListing = false;
     ..allowDirectoryListing = true;

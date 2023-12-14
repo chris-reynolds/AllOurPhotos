@@ -6,16 +6,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import 'wdgImageFilter.dart' show filterColors;
 
-
 typedef BannerTapCallback = void Function(AopSnap snap);
-nullSnapCallBack (AopSnap snap) {}  // used for initialising callbacks
+nullSnapCallBack(AopSnap snap) {} // used for initialising callbacks
 
 const double HEADER_OFFSET = 50;
 
-class PhotoTile extends StatelessWidget {
+class PhotoTile extends StatefulWidget {
   PhotoTile(
       {Key? key,
       required this.snapList,
@@ -31,61 +30,76 @@ class PhotoTile extends StatelessWidget {
   bool isSelected;
   bool inSelectMode = false;
   bool highResolution = false;
-  BannerTapCallback onBannerTap = nullSnapCallBack; // User taps on the photo's header or footer.
+  BannerTapCallback onBannerTap =
+      nullSnapCallBack; // User taps on the photo's header or footer.
   BannerTapCallback onBannerLongPress = nullSnapCallBack;
 
-  AopSnap get snap => snapList[index];
+  @override
+  State<PhotoTile> createState() => _PhotoTileState();
+}
+
+class _PhotoTileState extends State<PhotoTile> {
+  AopSnap get snap => widget.snapList[widget.index];
 
   @override
   Widget build(BuildContext context) {
     final Widget imageWidget = GestureDetector(
         onTap: () async {
-          if (inSelectMode)
-            onBannerTap(snap);
-          else {
-            await Navigator.pushNamed(context, 'SinglePhoto',
-                arguments: [snapList, index]); // weakly types params. yuk.
+          if (widget.inSelectMode) {
+            widget.onBannerTap(snap);
+            setState(() {});
+          } else {
+            await Navigator.pushNamed(context, 'SinglePhoto', arguments: [
+              widget.snapList,
+              widget.index
+            ]); // weakly types params. yuk.
           }
         },
         onDoubleTap: () {
-          if (inSelectMode)
-            onBannerLongPress(snap);
+          if (widget.inSelectMode) widget.onBannerLongPress(snap);
         },
         onLongPress: () async {
-          await Navigator.pushNamed(context, 'SinglePhoto',
-              arguments: [snapList, index]); // weakly types params. yuk.
+          await Navigator.pushNamed(context, 'SinglePhoto', arguments: [
+            widget.snapList,
+            widget.index
+          ]); // weakly types params. yuk.
         },
         child: Padding(
           padding: const EdgeInsets.only(top: HEADER_OFFSET),
           child: Container(
-              decoration: BoxDecoration(color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
+              decoration: BoxDecoration(
+                  color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
               key: Key(snap.thumbnailURL),
               child: Transform.rotate(
                 angle: snap.angle,
                 child: Image.network(
-                  highResolution ? snap.fullSizeURL : snap.thumbnailURL,
+                  widget.highResolution ? snap.fullSizeURL : snap.thumbnailURL,
                   fit: BoxFit.scaleDown,
                 ),
               )),
         ));
 
     const IconData icon = Icons.star;
-    final IconData iconSelect = isSelected ? Icons.check_box : Icons.check_box_outline_blank;
-    String descriptor = '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
+    final IconData iconSelect =
+        widget.isSelected ? Icons.check_box : Icons.check_box_outline_blank;
+    String descriptor =
+        '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
 //    if (descriptor == null || descriptor.length == 0)
 //      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
-    if (!inSelectMode) {
+    if (!widget.inSelectMode) {
       return GridTile(
         header: GestureDetector(
           onTap: () {
-            onBannerTap(snap);
+            widget.onBannerTap(snap);
           },
           child: GridTileBar(
               //backgroundColor: Colors.lime.shade50,
-              title:
-                  Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+              title: Text(descriptor,
+                  style:
+                      TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               subtitle: Text(snap.caption ?? snap.location ?? '',
-                  style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+                  style:
+                      TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
               trailing: Row(children: [
                 Icon(icon, color: filterColors[snap.ranking!], size: 40.0),
               ])),
@@ -96,14 +110,15 @@ class PhotoTile extends StatelessWidget {
       return GridTile(
         header: GestureDetector(
           onTap: () {
-            onBannerTap(snap);
+            widget.onBannerTap(snap);
           },
           onDoubleTap: () {
-            onBannerLongPress(snap);
+            widget.onBannerLongPress(snap);
           },
           child: GridTileBar(
             //     backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
-            title: Text(descriptor, style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
+            title: Text(descriptor,
+                style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
             subtitle: Text(snap.caption ?? snap.location ?? '',
                 style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),

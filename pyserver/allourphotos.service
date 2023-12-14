@@ -1,0 +1,14 @@
+[Unit]
+Description=All Our Photos Web Server
+After=network.target
+
+[Service]
+ExecStart=source venv/bin/activate && uvicorn src.aopservermain:app --host 0.0.0.0 --port 80 --workers 6
+WorkingDirectory=/home/chris/aop/software/server
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../ImageFilter.dart';
 import '../widgets/wdgPhotoGrid.dart';
-import '../shared/aopClasses.dart';
+import 'package:aopmodel/aop_classes.dart';
 import '../MonthlyStatus.dart';
+import '../flutter_common/WidgetSupport.dart';
 
 // Note there is a blank month name in entry 0 for the year column
 final List<String> monthNames =
@@ -26,66 +27,79 @@ class YearGrid extends StatefulWidget {
 }
 
 class YearGridState extends State<YearGrid> {
-  final Map<String, TextStyle> gridStyles = {
-    'monthNames': TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-    'yearNos': TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-    'monthCell': TextStyle(),
-  };
-  List<YearEntry> yearList = [];
-  BuildContext? currentContext;
-
+  late Future<List<YearEntry>> yearList = buildYears();
+  late Future<int> monthlyStatusIndic = MonthlyStatus.init();
+  double gridFontSize = 20.0;
+  double gridIconSize = 20.0;
   int _currentYear = 0;
   int _currentMonth = 0;
-  void setCurrent(int year,int month) {_currentYear=year; _currentMonth = month;}
-  bool isCurrent(int year,int month) => (_currentYear==year && _currentMonth == month);
+  void setCurrent(int year, int month) {
+    _currentYear = year;
+    _currentMonth = month;
+  }
 
-  @override
-  initState() {
-    super.initState();
-    MonthlyStatus.init().then((x){
-    buildYears().then((newYearList) {
-        setState(() => yearList = newYearList);
-      }); // of then
-    });
-  } // of initState
+  bool isCurrent(int year, int month) =>
+      (_currentYear == year && _currentMonth == month);
 
   Future<List<YearEntry>> buildYears() async {
     List<YearEntry> result = [];
-    for (var row in (await AopSnap.monthGrid) as Iterable<dynamic>) {
-      YearEntry newYear = YearEntry(row[0]);
-      for (int monthIx = 1; monthIx <= 12; monthIx++)
-        newYear.months[monthIx] = (row[monthIx]).round();
-      result.add(newYear);
+    try {
+      for (var row in (await AopSnap.monthGrid) as Iterable<dynamic>) {
+        YearEntry newYear = YearEntry(row[0]);
+        for (int monthIx = 1; monthIx <= 12; monthIx++)
+          newYear.months[monthIx] = (row[monthIx]).round();
+        result.add(newYear);
+      }
+      result.sort((YearEntry y1, YearEntry y2) => (y2.yearno - y1.yearno));
+      if (result.isNotEmpty)
+        log.message('${result.length} years loaded ${result[0].yearno}');
+      return result;
+    } catch (ex) {
+      log.error('failed to build years: $ex');
+      rethrow;
     }
-    result.sort((YearEntry y1, YearEntry y2) => (y2.yearno - y1.yearno));
-    if (result.isNotEmpty)
-      log.message('${result.length} years loaded ${result[0].yearno}');
-    return result;
   } // of buildYears
 
   void handleMonthClick(int yearNo, int monthNo) {
-    if (monthNo > 0) { // dont navigate if clicking on yearNo
+    if (monthNo > 0) {
+      // dont navigate if clicking on yearNo
       setCurrent(yearNo, monthNo);
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  PhotoGrid(ImageFilter.yearMonth(yearNo, monthNo, refresh: () {  }),album: null))).then((value)
-                  {setState(() {});}
-                  );
+              builder: (context) => PhotoGrid(
+                  ImageFilter.yearMonth(yearNo, monthNo, refresh: () {}),
+                  album: null))).then((value) {
+        setState(() {});
+      });
     }
   } // handleMonthClick
 
-  Color monthProgressColor(int yearNo,int monthNo) {
-    return MonthlyStatus.read(yearNo,monthNo) ? Colors.blue : Colors.amber; // todo
+  Color monthProgressColor(int yearNo, int monthNo) {
+    return MonthlyStatus.read(yearNo, monthNo)
+        ? Colors.blue
+        : Colors.amber; // todo
   }
+
   Row yearRowBuilder(YearEntry thisYear) {
     return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      Text('${thisYear.yearno}', style: gridStyles['yearNos']),
+      Text('${thisYear.yearno}',
+          style:
+              TextStyle(fontSize: gridFontSize, fontWeight: FontWeight.bold)),
       for (int monthIx = 1; monthIx <= 12; monthIx++)
         if (thisYear.months[monthIx] > 0)
           IconButton(
-            icon: Icon(isCurrent(thisYear.yearno,monthIx)?Icons.ac_unit:MonthlyStatus.icon(thisYear.yearno, monthIx), size: 36.0,
+            constraints: BoxConstraints(
+                maxHeight: gridIconSize + 8,
+                maxWidth: gridIconSize + 4,
+                minHeight: gridIconSize + 8,
+                minWidth: gridIconSize + 4),
+            padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
+            icon: Icon(
+                isCurrent(thisYear.yearno, monthIx)
+                    ? Icons.ac_unit
+                    : MonthlyStatus.icon(thisYear.yearno, monthIx),
+                size: gridIconSize,
                 color: monthProgressColor(thisYear.yearno, monthIx)),
             // tooltip: 'Todo: Maybe location info',
             onPressed: () {
@@ -94,7 +108,13 @@ class YearGridState extends State<YearGrid> {
           )
         else
           IconButton(
-            icon: Icon(Icons.radio_button_unchecked, size: 12.0),
+            constraints: BoxConstraints(
+                maxHeight: gridIconSize + 8,
+                maxWidth: gridIconSize + 4,
+                minHeight: gridIconSize + 8,
+                minWidth: gridIconSize + 4),
+            padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
+            icon: Icon(Icons.radio_button_unchecked, size: gridIconSize),
             onPressed: () {},
           ),
     ]);
@@ -102,6 +122,9 @@ class YearGridState extends State<YearGrid> {
 
   @override
   Widget build(BuildContext context) {
+    bool smallScreen = (MediaQuery.of(context).size.width < 800);
+    gridFontSize = smallScreen ? 12 : 24;
+    gridIconSize = smallScreen ? 24 : 32;
     List<Widget> monthNamesHeader = [
       InkWell(
         child: Row(
@@ -109,21 +132,26 @@ class YearGridState extends State<YearGrid> {
             children: monthNames
                 .map((monthName) => Text(
                       monthName,
-                      style: gridStyles['monthNames'],
+                      style: TextStyle(
+                          fontSize: gridFontSize, fontWeight: FontWeight.bold),
                     ))
                 .toList()),
         onTap: () {
           log.message('resetting yearlist');
-          yearList = [];
+          yearList = Future.value(<YearEntry>[]);
         },
       )
     ];
-    return ListView(
-      children: [
-        ...monthNamesHeader,
-        for (var thisYear in yearList) yearRowBuilder(thisYear)
-      ],
-    ); // of ListView
+    return aFutureBuilder(
+        future: Future.wait([monthlyStatusIndic, yearList]),
+        builder: (context, snapshot) {
+          var myYearList = (snapshot.data!)[1] as List<YearEntry>;
+          return ListView(
+            children: [
+              ...monthNamesHeader,
+              for (var thisYear in myYearList) yearRowBuilder(thisYear)
+            ],
+          );
+        }); // of aFuture builder
   }
 }
-

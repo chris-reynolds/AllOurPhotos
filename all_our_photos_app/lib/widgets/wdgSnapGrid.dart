@@ -7,21 +7,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-import '../shared/aopClasses.dart';
-
+import 'package:aopmodel/aop_classes.dart';
 
 class SsSnapGrid extends StatelessWidget {
   final List<AopSnap>? snapList;
   final dynamic parentGrid;
   final AopAlbum? possibleParentAlbum;
-  const SsSnapGrid(this.snapList, this.parentGrid, this.possibleParentAlbum, {Key? key}):super(key: key);
+  const SsSnapGrid(this.snapList, this.parentGrid, this.possibleParentAlbum,
+      {Key? key})
+      : super(key: key);
 
   Widget snapTile(BuildContext context, int index) {
     AopSnap snap = snapList![index];
     return Stack(children: [
       GestureDetector(
           onTap: () {
-            Navigator.of(context).pushNamed('SinglePhoto',arguments:[snapList,index,possibleParentAlbum]); // weakly types params. yuk.
+            Navigator.of(context).pushNamed('SinglePhoto', arguments: [
+              snapList,
+              index,
+              possibleParentAlbum
+            ]); // weakly types params. yuk.
           },
           child: Hero(
               key: Key(snap.thumbnailURL),

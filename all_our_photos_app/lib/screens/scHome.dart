@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:aopcommon/aopcommon.dart';
 import 'scAlbumList.dart';
 import 'scTesting.dart';
 import 'scDBFix.dart';
@@ -49,13 +50,13 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double dwidth = MediaQuery.of(context).size.width;
+    log.message('width=$dwidth **************************');
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
-            child: Text(
-              widget.title!,
-              style: TextStyle(color: const Color(0x22222200)),
-            ),
+            child: Text('${widget.title!} and $dwidth',
+                style: Theme.of(context).tabBarTheme.labelStyle),
             onDoubleTap: () {
               setState(() {
                 _debugMode = !_debugMode;
@@ -66,19 +67,21 @@ class HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: Icon(Icons.exit_to_app),
               onPressed: () async {
-                if ((await confirmYesNo(context, 'Do really want to log out?'))!) {
+                if ((await confirmYesNo(
+                    context, 'Do really want to log out?'))!) {
                   widget.logoutFn!();
                 }
               },
             ),
           if (_debugMode) navIconButton(context, 'testlog', Icons.list),
-          if (_debugMode) navIconButton(context, 'Db Fixs', Icons.local_hospital),
+          if (_debugMode)
+            navIconButton(context, 'Db Fixs', Icons.local_hospital),
         ],
       ),
       body: PageView(
         onPageChanged: onPageChanged,
         controller: _pageController,
-        children: [
+        children: const [
 //          HistoryScreen("History"),
           YearGrid(),
           AlbumList(),
@@ -87,14 +90,14 @@ class HomeScreenState extends State<HomeScreen> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-          items: [
-            bottomButton('History', Icons.grid_on),
-            bottomButton('Albums', Icons.collections),
+        items: [
+          bottomButton('History', Icons.grid_on),
+          bottomButton('Albums', Icons.collections),
 //            bottomButton('Camera Roll', Icons.camera_roll),
-          ],
-          onTap: navigationTapped,
-          currentIndex: _page,
-        ),
+        ],
+        onTap: navigationTapped,
+        currentIndex: _page,
+      ),
     );
   }
 }
