@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
 import 'screens/scLaunchWithLogin.dart';
 
-
-
 void main() {
-    runApp(PhoneSyncApp());
+  runApp(AopSyncApp());
 } // of main
 
-class PhoneSyncApp extends StatefulWidget {
+const APP_VERSION = 'AOP Sync 17 Dec 23';
 
-  const PhoneSyncApp({Key? key}) :super(key: key);
+class AopSyncApp extends StatefulWidget {
+  const AopSyncApp({Key? key}) : super(key: key);
 
   @override
-  _PhoneSyncAppState createState() => _PhoneSyncAppState();
+  AopSyncAppState createState() => AopSyncAppState();
 }
 
-class _PhoneSyncAppState extends State<PhoneSyncApp> {
-
+class AopSyncAppState extends State<AopSyncApp> {
   @override
   Widget build(BuildContext context) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: LaunchWithLogin(),
-      );
-  }  // of build
-
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LaunchWithLogin(APP_VERSION),
+    );
+  } // of build
 } // of _PhoneSyncAppState
 

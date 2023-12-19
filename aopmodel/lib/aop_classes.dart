@@ -724,18 +724,24 @@ class AopSnap extends DomainObject {
 
   static Future<bool?> nameSameDayExists(
       DateTime taken, String filename) async {
-    DateTime startTime = taken.add(Duration(days: -2));
-    DateTime endTime = taken.add(Duration(days: 2));
-    var r = await snapProvider.rawExecute(
-        'select count(*) from aopsnaps '
-        "where (original_taken_date between ? and ?) and file_name=?",
-        [
-          (formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')),
-          (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
-          filename
-        ]);
-    var values = r.first.values;
-    return values[0] > 0;
+    String startTime = formatDate(taken.add(Duration(days: -2)),
+        format: 'yyyy-mm-dd hh:nn:ss');
+    String endTime =
+        formatDate(taken.add(Duration(days: 2)), format: 'yyyy-mm-dd hh:nn:ss');
+    // var r = await snapProvider.rawExecute(
+    //     'select count(*) from aopsnaps '
+    //     "where (original_taken_date between ? and ?) and file_name=?",
+    //     [
+    //       (formatDate(startTime, format: 'yyyy-mm-dd hh:nn:ss')),
+    //       (formatDate(endTime, format: 'yyyy-mm-dd hh:nn:ss')),
+    //       filename
+    //     ]);
+    // var values = r.first.values;
+    // return values[0] > 0;
+    var r = await snapProvider.rawRequest(
+        'find/nameExists?start=$startTime&end=$endTime&filename=$filename');
+    int count = r[0][0];
+    return count > 0;
   } // of dateTimeExists
 
   static Future<bool?> sizeOrNameOrDeviceAtTimeExists(

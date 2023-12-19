@@ -29,7 +29,7 @@ class PhotoTile extends StatefulWidget {
   final int index;
   bool isSelected;
   bool inSelectMode = false;
-  bool highResolution = false;
+  final bool highResolution;
   BannerTapCallback onBannerTap =
       nullSnapCallBack; // User taps on the photo's header or footer.
   BannerTapCallback onBannerLongPress = nullSnapCallBack;

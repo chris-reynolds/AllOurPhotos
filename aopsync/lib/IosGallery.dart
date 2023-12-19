@@ -10,9 +10,6 @@ import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart' as PM;
 
-
-
-
 class GalleryItem {
   Uint8List data;
   String id;
@@ -24,12 +21,11 @@ class GalleryItem {
     String temp = id.replaceAll('/', '_');
     temp = temp.replaceAll('\'', '-');
     if (temp.length > 30 && !temp.contains('.')) {
-      temp = 'ios'+formatDate(createdDate,format:'yyyymmdd_hhnnss')+'.jpg';
+      temp = "ios${formatDate(createdDate, format: 'yyyymmdd_hhnnss')}.jpg";
     }
-    if (!temp.contains('.')) temp = temp + '.jpg';
+    if (!temp.contains('.')) temp = "$temp.jpg";
     return temp;
   } // safe_id
-
 }
 
 class IosGallery {
@@ -40,33 +36,36 @@ class IosGallery {
   List<PM.AssetEntity> _items = [];
   int get count => _items.length;
 
-
   Future<void> loadFrom(DateTime startDate) async {
-    startDate = startDate.add(Duration(hours:-48));// todo: get the time zone as IosGallery uses utc dates
+    startDate = startDate.add(Duration(
+        hours: -48)); // todo: get the time zone as IosGallery uses utc dates
     log.message('IOS Gallery querying from ${dbDate(startDate)}');
     // startDate = DateTime.now();
     this.startDate = startDate;
-    var dateFilter = PM.FilterOptionGroup(createTimeCond: PM.DateTimeCond(min:startDate,max:DateTime.now()));
-    PM.AssetPathEntity root = (await PM.PhotoManager.getAssetPathList(onlyAll: true,
-        filterOption: dateFilter))[0];
-    _items = await root.getAssetListRange(start: 0, end: root.assetCount);
-
+    var dateFilter = PM.FilterOptionGroup(
+        createTimeCond: PM.DateTimeCond(min: startDate, max: DateTime.now()));
+    PM.AssetPathEntity root = (await PM.PhotoManager.getAssetPathList(
+        onlyAll: true, filterOption: dateFilter))[0];
+    _items =
+        await root.getAssetListRange(start: 0, end: await root.assetCountAsync);
   }
 
   Future<GalleryItem?> operator [](int index) async {
     if (index < 0 || index >= count) return null;
     PM.AssetEntity item = _items[index];
-    var ff= (await item.originFile)!;
+    var ff = (await item.originFile)!;
     var ff2 = await ff.readAsBytes();
     var jpegLoader = JpegLoader();
-    await jpegLoader.extractTags(ff2 );
+    await jpegLoader.extractTags(ff2);
     log.message('tags = ${jpegLoader.tags.length}');
-    var jpegBytes = (await item.thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height)))!;
+    var jpegBytes = (await item
+        .thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height)))!;
     var createdDate = fromSwiftDate(item.createDateSecond!);
-    var galleryItem = GalleryItem(jpegBytes, item.id, createdDate,jpegLoader);
-    log.message('loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
+    var galleryItem = GalleryItem(jpegBytes, item.id, createdDate, jpegLoader);
+    log.message(
+        'loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
     var file = await item.file;
-    if (Platform.isIOS && file!.existsSync())  // IOS picture file is temporary
+    if (Platform.isIOS && file!.existsSync()) // IOS picture file is temporary
       file.deleteSync();
     return galleryItem;
   }
@@ -74,7 +73,9 @@ class IosGallery {
   DateTime fromSwiftDate(int swiftNo) {
     log.message('from swift ms $swiftNo');
     DateTime baseDate = DateTime(1970);
-    DateTime newDate = baseDate.add(Duration(milliseconds: (1000 * swiftNo).floor())).toLocal();
+    DateTime newDate = baseDate
+        .add(Duration(milliseconds: (1000 * swiftNo).floor()))
+        .toLocal();
     return newDate;
   }
 
@@ -87,8 +88,7 @@ class IosGallery {
   void clearCollection() async {
     for (var item in _items) {
       var file = (await item.file)!;
-      if (file.existsSync())
-        file.deleteSync();
+      if (file.existsSync()) file.deleteSync();
     }
     _items = [];
 //    await _channel.invokeMethod<int>('clearCollection');
