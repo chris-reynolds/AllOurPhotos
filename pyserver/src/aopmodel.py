@@ -66,7 +66,7 @@ class Snap(BaseModel):
     modified_date: Union[MxDatetime, None] = None
     device_name: Union[MxString, None] = None
     caption: Union[MxString, None] = None
-    ranking: MxInteger
+    ranking: MxInteger = 2
     longitude: Union[MxFloat, None] = None
     latitude: Union[MxFloat, None] = None
     width: Union[MxInteger, None] = None
@@ -74,7 +74,7 @@ class Snap(BaseModel):
     location: Union[MxString, None] = None
     rotation: Union[MxString, None] = None
     import_source: Union[MxString, None] = None
-    media_type: MxString
+    media_type: Union [MxString, None] = None
     imported_date: Union[MxDatetime, None] = None
     media_length: Union[MxInteger, None] = None
     tag_list: Union[MxString, None] = None

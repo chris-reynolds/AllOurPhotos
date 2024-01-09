@@ -1,0 +1,1 @@
+uvicorn src.aopservermain:app

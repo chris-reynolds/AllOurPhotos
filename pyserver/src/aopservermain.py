@@ -4,8 +4,12 @@ from fastapi import FastAPI, HTTPException, Request,Response, File, UploadFile
 import mysql.connector
 import json
 import shutil
+from PIL import Image,ExifTags,TiffImagePlugin
+# from PIL.ExifTags import TAGS
+import io
 from datetime import datetime
 from src.aopmodel import *
+from src.geo import dmsToDeg,getLocation,trimLocation
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 #                                 '*** Start Custom Code importing
@@ -44,6 +48,7 @@ origins = [
     "http://localhost:*",
 ]
 
+ROOT_DIR = 'c:\\data\\photos\\'
 
 app.add_middleware(
     CORSMiddleware,
@@ -82,16 +87,102 @@ async def find(request: Request, key:str):
         sql = sql.replace('@'+key,valueMap[key])
     return raw_sql(sql,asDictionary=False)
 
-@app.post('/upload/{modified}')
-async def uploader(request:Request,modified: str,myfile: UploadFile = File(...)):
+@app.post('/upload2/{modified}/{filename}/{sourceDevice}')
+async def uploader(modified: str, filename: str, sourceDevice: str, myfile:UploadFile): #modified: str,filename: str, 
+    request_object_content = await myfile.read()
+    mediaLength = len(request_object_content)
+    img = Image.open(io.BytesIO(request_object_content))
+    img_exif = img.getexif()
+    await myfile.seek(0)  # rest file cursor to get get full copy after reading exif
+    taken = img_exif.get(306)  #DateTime
+    date_original = img_exif.get(36867)  #DateTimeOriginal
+    takendate = datetime.strptime(date_original or taken or modified,'%Y:%m:%d %H:%M:%S')
+    monthDir = takendate.strftime('%Y-%m')
+    modified_ts = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S').timestamp()
+#    myfile: UploadFile = aform.get('myfile')
     print(f"uploading ({modified})")
-    with open("destination.tmp", "wb") as buffer:
-      shutil.copyfileobj(myfile.file, buffer)
+    targetFile = ROOT_DIR+monthDir+'\\'+filename
+    targetThumbnail = ROOT_DIR+monthDir+'\\thumbnails\\'+filename
+    targetMetadata = ROOT_DIR+monthDir+'\\metadata\\' +filename +'.json'
+    if not os.path.exists(targetFile):
+      with open(targetFile, "wb") as buffer:
+        shutil.copyfileobj(myfile.file, buffer)
+      os.utime(targetFile, (modified_ts, modified_ts))
+    if not os.path.exists(targetThumbnail):
+        makeThumbnail(img,img_exif,targetThumbnail)
+    filteredMetadata: dict[str,str] = filterMetadata(img_exif)
+    if not os.path.exists(targetMetadata):
+        with open(targetMetadata, 'w') as targ:
+            json.dump(filteredMetadata, targ, sort_keys=True, ensure_ascii=False, indent=4)
+    await makeDatabaseRow(img,filteredMetadata,sourceDevice,monthDir,filename,takendate,modified,mediaLength) 
     print(f"uploaded ({modified})")
-    return f"uploaded ({modified})"
+    return f"uploaded ({modified} {targetFile})"
     
+def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
+    origWidth = image.width
+    origHeight = image.height
+    isLandscape: bool = origWidth>origHeight
+    targetSize = {'width':640,'height':480} if isLandscape else {'width':480,'height':640}
+    scale = min(origWidth/targetSize['width'],origHeight/targetSize['height'])
+    newSize = int(origWidth/scale),int(origHeight/scale)
+    image.thumbnail(newSize,Image.Resampling.LANCZOS)
+    image.save(target,quality=50)
+    return True
 
 
+def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
+    def exif_cast(v):
+        if isinstance(v, TiffImagePlugin.IFDRational):
+            return float(v)
+        elif isinstance(v, tuple):
+            return tuple(exif_cast(t) for t in v)
+        elif isinstance(v, bytes):
+            return v.decode(errors="replace")
+        elif isinstance(v, dict):
+            for kk, vv in v.items():
+                v[kk] = exif_cast(vv)
+            return v
+        else: 
+            return v
+    result = {}
+    for keyid,value in imageExif.items():
+        value2 = exif_cast(value)
+        tagName = ExifTags.TAGS.get(keyid,keyid)
+        if (not value2 is str) or len(value2)<100:
+            result[tagName] = value2
+    return result
+ 
+
+async def makeDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sourceDevice: str, monthDir: str,filename: str,takenDate: datetime,modified: str, mediaLength: int):
+      model = filteredExif.get('Model',None)
+      deviceName: str = model or sourceDevice or 'No Device';
+      importSource: str = sourceDevice or model or 'No source';
+      newSnap = Snap()
+      newSnap.file_name = filename
+      newSnap.directory = monthDir
+      newSnap.width = img.width
+      newSnap.height = img.height
+      newSnap.taken_date = takenDate
+      newSnap.modified_date = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S')
+      newSnap.device_name = deviceName
+      newSnap.rotation = '0' 
+      newSnap.import_source = importSource
+      newSnap.imported_date = datetime.now()
+
+      software = filteredExif.get('device.software','').lower()
+      if 'scan' in software:
+        newSnap.import_source = (newSnap.import_source or '')  + ' scanned';
+      newSnap.original_taken_date = newSnap.taken_date;
+      # checkl for duplicate
+      newSnap.media_length = mediaLength
+      if filteredExif.get('GPSInfo',False):
+        newSnap.latitude,newSnap.longitude = dmsToDeg(filteredExif['GPSInfo'])
+      if (newSnap.latitude != None and abs(newSnap.latitude) > 1e-6):
+        location = await getLocation(newSnap.longitude or 0, newSnap.latitude);
+        if (location != None):
+            newSnap.location = trimLocation(location);
+        print('found location : ${newSnap.location}');
+      
 
 def raw_sql(sqlText: str, values = None, asDictionary: bool = True):
     try:
