@@ -1,0 +1,9 @@
+{   "aopalbums":["name","description","first_date","last_date"],
+    "aopsessions":["start_date","end_date","source"],
+    "aopsnaps":["file_name","directory","taken_date","original_taken_date",
+            "modified_date","device_name","caption","ranking",
+            "longitude","latitude","width","height","location","rotation",
+            "import_source","media_type","imported_date","media_length",
+            "tag_list","metadata"],
+    "aopusers":["name","hint"]
+}
