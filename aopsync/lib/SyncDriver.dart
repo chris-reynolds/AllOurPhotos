@@ -14,6 +14,8 @@ import 'package:aopcommon/aopcommon.dart';
 // import 'package:device_info/device_info.dart';
 import 'package:aopmodel/aopmodel.dart';
 import 'utils/Config.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class SyncDriver {
   String localFileRoot;
@@ -40,17 +42,17 @@ class SyncDriver {
     await for (var fse in origin) {
       String imageName = fileName(fse.path);
       if (imageName.startsWith('.')) continue; // skip all that start with .
+      log.message('checking $imageName');
       FileStat stats = fse.statSync();
       // use 'continue' to jump to the end of the loop and not save this file to the list.
       if (stats.modified.isBefore(fromDate)) {
         priorImages += 1;
-        continue;
+        // todo this continue is needed  continue;
       }
       totalChecked += 1;
       if (fse.path.contains('thumbnails')) continue;
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
       if (!['jpg', 'png'].contains(thisExt)) continue;
-      //log.message('checking $imageName');
       bool alreadyExists =
           (await AopSnap.nameSameDayExists(stats.modified, imageName))!;
       if (alreadyExists) {
@@ -94,7 +96,7 @@ class SyncDriver {
     FileStat thisPicStats = thisPicFile.statSync();
     List<int> fileContents = thisPicFile.readAsBytesSync();
     String imageName = fileName(thisPicFile.path);
-    return await uploadImage(imageName, thisPicStats.modified, fileContents);
+    return await uploadImage2(imageName, thisPicStats.modified, fileContents);
   }
 
   Future<bool?> uploadImage(
@@ -214,4 +216,20 @@ class SyncDriver {
       return false;
     } // of try
   } // of uploadImage
+
+  Future<bool?> uploadImage2(
+      String imageName, DateTime modifiedDate, List<int> fileContents) async {
+    var postUri = Uri.parse("http://localhost:8000/upload2/");
+    var request = http.MultipartRequest("POST", postUri);
+    request.fields['filename'] = imageName;
+    request.fields['modified'] = modifiedDate.toIso8601String();
+    request.files.add(http.MultipartFile.fromBytes('myfile', fileContents,
+        contentType: MediaType('image', 'jpeg')));
+    var response = await request.send();
+    if (response.statusCode == 200)
+      log.message("Uploaded $imageName");
+    else
+      log.error('Failed to upload $imageName  - code ${response.statusCode}');
+    return (response.statusCode == 200);
+  } //of uploadImageFile
 } // of syncDriver

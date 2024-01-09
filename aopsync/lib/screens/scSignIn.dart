@@ -12,8 +12,8 @@ import '../utils/WidgetSupport.dart';
 import '../utils/Config.dart';
 
 List<String> _fieldDefs = [
-//  'AOP Server:host',
-//  'Port:port',
+  'AOP Server:host',
+  'Port:port',
   'User name:sesuser',
   'Password:sespassword',
   'Device:sesdevice',

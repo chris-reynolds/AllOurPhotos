@@ -8,7 +8,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/services.dart';
-import 'package:photo_manager/photo_manager.dart' as PM;
+//photo_manager import 'package:photo_manager/photo_manager.dart' as PM;
 
 class GalleryItem {
   Uint8List data;
@@ -33,7 +33,8 @@ class IosGallery {
   String error = '';
   //JpegLoader _jpegLoader = JpegLoader();
   //bool _isLoaded = false;
-  List<PM.AssetEntity> _items = [];
+  // List<PM.AssetEntity> _items = [];
+  var _items = [];
   int get count => _items.length;
 
   Future<void> loadFrom(DateTime startDate) async {
@@ -42,24 +43,25 @@ class IosGallery {
     log.message('IOS Gallery querying from ${dbDate(startDate)}');
     // startDate = DateTime.now();
     this.startDate = startDate;
-    var dateFilter = PM.FilterOptionGroup(
-        createTimeCond: PM.DateTimeCond(min: startDate, max: DateTime.now()));
-    PM.AssetPathEntity root = (await PM.PhotoManager.getAssetPathList(
-        onlyAll: true, filterOption: dateFilter))[0];
-    _items =
-        await root.getAssetListRange(start: 0, end: await root.assetCountAsync);
+    //   var dateFilter = PM.FilterOptionGroup(
+    //       createTimeCond: PM.DateTimeCond(min: startDate, max: DateTime.now()));
+    //   PM.AssetPathEntity root = (await PM.PhotoManager.getAssetPathList(
+    //       onlyAll: true, filterOption: dateFilter))[0];
+    //   _items =
+    //       await root.getAssetListRange(start: 0, end: await root.assetCountAsync);
   }
 
   Future<GalleryItem?> operator [](int index) async {
     if (index < 0 || index >= count) return null;
-    PM.AssetEntity item = _items[index];
+    var item = _items[index];
     var ff = (await item.originFile)!;
     var ff2 = await ff.readAsBytes();
     var jpegLoader = JpegLoader();
     await jpegLoader.extractTags(ff2);
     log.message('tags = ${jpegLoader.tags.length}');
-    var jpegBytes = (await item
-        .thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height)))!;
+    // var jpegBytes = (await item
+    //     .thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height)))!;
+    Uint8List jpegBytes = Uint8List(1); //photo_manager
     var createdDate = fromSwiftDate(item.createDateSecond!);
     var galleryItem = GalleryItem(jpegBytes, item.id, createdDate, jpegLoader);
     log.message(
