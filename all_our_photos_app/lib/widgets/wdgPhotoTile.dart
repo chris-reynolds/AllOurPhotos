@@ -15,7 +15,7 @@ nullSnapCallBack(AopSnap snap) {} // used for initialising callbacks
 const double HEADER_OFFSET = 50;
 
 class PhotoTile extends StatefulWidget {
-  PhotoTile(
+  const PhotoTile(
       {Key? key,
       required this.snapList,
       required this.index,
@@ -27,13 +27,12 @@ class PhotoTile extends StatefulWidget {
       : super(key: key);
   final List<AopSnap> snapList;
   final int index;
-  bool isSelected;
-  bool inSelectMode = false;
+  final bool isSelected;
+  final bool inSelectMode;
   final bool highResolution;
-  BannerTapCallback onBannerTap =
-      nullSnapCallBack; // User taps on the photo's header or footer.
-  BannerTapCallback onBannerLongPress = nullSnapCallBack;
-
+  final BannerTapCallback
+      onBannerTap; // User taps on the photo's header or footer.
+  final BannerTapCallback onBannerLongPress;
   @override
   State<PhotoTile> createState() => _PhotoTileState();
 }
