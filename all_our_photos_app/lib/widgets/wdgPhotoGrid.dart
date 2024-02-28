@@ -50,6 +50,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         _imageFilter.setSelected(snap, true);
       }
     }
+
     if (repaint) setState(() {});
   } // of selectAll
 
@@ -181,12 +182,12 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                     handleMultiRemoveFromAlbum(
                         context, widget._album!, _imageFilter.selectionList);
                   }),
-            IconButton(
-                icon: Icon(Icons.star, color: Colors.green),
-                tooltip: 'Set selected images green',
-                onPressed: () {
-                  handleMultiSetGreen(context, _imageFilter.selectionList);
-                }),
+            // IconButton(
+            //     icon: Icon(Icons.star, color: Colors.green),
+            //     tooltip: 'Set selected images green',
+            //     onPressed: () {
+            //       handleMultiSetGreen(context, _imageFilter.selectionList);
+            //     }),
             IconButton(
                 icon: Icon(Icons.text_fields),
                 tooltip: 'add a caption to selected images',
@@ -267,22 +268,45 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                         }
                     },
                     // of bannerTap
-                    onBannerLongPress: (AopSnap imageFile) {
+                    onBannerLongPress: (AopSnap imageFile) async {
                       int endIndex = -1; // find where we are in the grid
-                      for (int ix = 0;
-                          ix < _imageFilter.items.length && endIndex == -1;
-                          ix++) {
-                        if (_imageFilter.items[ix].id == imageFile.id)
-                          endIndex = ix;
+                      int count = 0;
+                      String progressMsg = 'Starting';
+                      try {
+                        for (int ix = 0;
+                            ix < _imageFilter.items.length && endIndex == -1;
+                            ix++) {
+                          if (_imageFilter.items[ix].id == imageFile.id)
+                            endIndex = ix;
+                        }
+                        progressMsg = 'endindex is $endIndex';
+                        // now loop back selecting until start or already selected
+                        if (!_imageFilter
+                            .isSelected(_imageFilter.items[endIndex])) {
+                          _imageFilter.setSelected(
+                              _imageFilter.items[endIndex], true);
+                          count++;
+                        }
+                        for (int ix = endIndex - 1; ix >= 0; ix--) {
+                          if (_imageFilter.isSelected(_imageFilter.items[ix]))
+                            break;
+                          _imageFilter.setSelected(
+                              _imageFilter.items[ix], true);
+                          count++;
+                          progressMsg = 'selecting image $ix';
+                        }
+                        progressMsg = 'start repaint';
+                        setState(() {});
+                        progressMsg = 'double-click selection $count images';
+                        await showMessage(context, progressMsg);
+                      } catch (ex) {
+                        log.error('$ex for progress $progressMsg');
+                        await showMessage(
+                            context, '$ex for progress $progressMsg');
+                        rethrow;
                       }
-                      // now loop back selecting until start or already selected
-                      for (int ix = endIndex; ix >= 0; ix--) {
-                        if (_imageFilter.isSelected(_imageFilter.items[ix]))
-                          break;
-                        _imageFilter.setSelected(_imageFilter.items[ix], true);
-                      }
-                      setState(() {});
-                    }),
+                    } // onBannerLongPress
+                    ),
             ],
           ),
         ),
@@ -320,6 +344,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         }
       } // of for loop
     } // of done loop
+    _imageFilter.clearSelected();
     setState(() {});
   } // handleMultiCaption
 
