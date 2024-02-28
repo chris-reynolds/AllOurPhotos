@@ -122,7 +122,7 @@ class YearGridState extends State<YearGrid> {
 
   @override
   Widget build(BuildContext context) {
-    bool smallScreen = (MediaQuery.of(context).size.width < 800);
+    bool smallScreen = (MediaQuery.of(context).size.width < 765); // 800
     gridFontSize = smallScreen ? 12 : 24;
     gridIconSize = smallScreen ? 24 : 32;
     List<Widget> monthNamesHeader = [
