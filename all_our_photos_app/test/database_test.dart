@@ -1,6 +1,6 @@
-/// Created by Chris on 14/09/2018.
-/// *
-/// unit testing for the database layer
+// Created by Chris on 14/09/2018.
+// *
+// unit testing for the database layer
 
 import 'package:test/test.dart';
 //import 'package:aopmodel/dbAllOurPhotos.dart';

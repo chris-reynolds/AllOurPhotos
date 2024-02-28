@@ -66,10 +66,7 @@ class AlbumListState extends State<AlbumList> {
       padding: const EdgeInsets.all(8.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         buildSearchBar(context),
-        ...stuff
-            .where(albumSelected)
-            .map((album) => buildAlbumLine(album))
-            .toList(),
+        ...stuff.where(albumSelected).map((album) => buildAlbumLine(album)),
       ]),
     );
   }

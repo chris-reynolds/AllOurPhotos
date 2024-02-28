@@ -1,4 +1,4 @@
-/// Created by Chris on 10/01/2019
+// Created by Chris on 10/01/2019
 import 'package:aopcommon/aopcommon.dart';
 
 abstract class Timing {
