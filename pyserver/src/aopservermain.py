@@ -17,7 +17,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 #from fastapi.middleware.cors import CORSMiddleware
 #from fastapi.responses import FileResponse
-import os;
+import os
+import typing
 
 MxString = str
 MxDatetime = float
@@ -230,11 +231,27 @@ def username_and_id(request: Request):
 def photos(request: Request,aPath:str):
     fullFileName = config['photos']+aPath
     #print(fullFileName)
+    cacheHeaders: dict[str,str] = {}
+    if aPath.lower().endswith('txt'):
+        cacheHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        cacheHeaders['Pragma'] = 'no-cache'
+        cacheHeaders['Expires'] = '0'
     if os.path.isfile(fullFileName):
-        return FileResponse(path=fullFileName)
+        return FileResponse(path=fullFileName,headers=cacheHeaders)
     else:
         raise HTTPException(status_code=404,detail=f"'{aPath}' is not found.")
 
+@app.put('/photos/{aPath:path}')
+async def photos_put(request: Request,aPath:str):
+    fullFileName = config['photos']+aPath
+    print('photos_put '+fullFileName)
+    if os.path.isfile(fullFileName):
+      contents: bytes = await request.body()
+      print(len(contents))
+      with open(fullFileName, "wb") as binFile:
+        binFile.write(contents)
+    else:
+        raise HTTPException(status_code=404,detail=f"'{aPath}' is not found.")
 
 
 #                                 '*** End Custom Code
