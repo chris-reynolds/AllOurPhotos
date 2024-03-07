@@ -10,6 +10,6 @@ if not exist z:\software net use z: \\rpi4.local\aop
 rem now do the copy
 robocopy  src z:\software\server\src *.py /e
 
-set /p 
+rem set /p
 
 pause

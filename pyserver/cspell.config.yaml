@@ -1,0 +1,7 @@
+version: "0.2"
+ignorePaths: ["*.py","*.service"]
+dictionaryDefinitions: []
+dictionaries: []
+words: []
+ignoreWords: []
+import: []

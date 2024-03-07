@@ -1,4 +1,1 @@
-DELETE FROM aopalbums WHERE id>109;
-DELETE FROM aopalbum_items WHERE id>3236;
-DELETE FROM aopsnaps WHERE id>33126;
-COMMIT;
+SELECT spsessioncreate('ben','00ben00','heidi');

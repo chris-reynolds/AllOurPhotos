@@ -5,7 +5,7 @@ import mysql.connector
 import json
 import shutil
 from PIL import Image,ExifTags,TiffImagePlugin
-# from PIL.ExifTags import TAGS
+from PIL.ExifTags import TAGS
 import io
 from datetime import datetime
 from src.aopmodel import *
@@ -59,9 +59,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get('/hello')
-async def hello():
-    return 'hello aop'
+@app.get('/version')
+async def version():
+    filename = os.path.basename(__file__)
+    modified_ts = os.path.getmtime(__file__)
+    modified_dt = datetime.fromtimestamp(modified_ts)
+    return f'AllOurPhotos {filename} @ {modified_dt}'
+
+@app.get('/favicon.ico', include_in_schema=False)
+async def favicon():
+    return FileResponse('favicon.ico')
 
 @app.get('/ses/{user}/{password}/{source}')
 async def makeSession(response: Response, user,password,source):
@@ -88,23 +95,29 @@ async def find(request: Request, key:str):
         sql = sql.replace('@'+key,valueMap[key])
     return raw_sql(sql,asDictionary=False)
 
+def forceDir(pathname: str):
+    if not os.path.isdir(pathname):
+        os.mkdir(pathname)
+
 @app.post('/upload2/{modified}/{filename}/{sourceDevice}')
-async def uploader(modified: str, filename: str, sourceDevice: str, myfile:UploadFile): #modified: str,filename: str, 
+async def uploader(request: Request, modified: str, filename: str, sourceDevice: str, myfile:UploadFile): #modified: str,filename: str, 
     request_object_content = await myfile.read()
     mediaLength = len(request_object_content)
     img = Image.open(io.BytesIO(request_object_content))
-    img_exif = img.getexif()
+    img_exif = img._getexif() # pyright: ignore
     await myfile.seek(0)  # rest file cursor to get get full copy after reading exif
     taken = img_exif.get(306)  #DateTime
     date_original = img_exif.get(36867)  #DateTimeOriginal
     takendate = datetime.strptime(date_original or taken or modified,'%Y:%m:%d %H:%M:%S')
     monthDir = takendate.strftime('%Y-%m')
     modified_ts = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S').timestamp()
-#    myfile: UploadFile = aform.get('myfile')
     print(f"uploading ({modified})")
     targetFile = ROOT_DIR+monthDir+'\\'+filename
     targetThumbnail = ROOT_DIR+monthDir+'\\thumbnails\\'+filename
     targetMetadata = ROOT_DIR+monthDir+'\\metadata\\' +filename +'.json'
+    forceDir(ROOT_DIR+monthDir)
+    forceDir(ROOT_DIR+monthDir+'\\thumbnails\\')
+    forceDir(ROOT_DIR+monthDir+'\\metadata\\')
     if not os.path.exists(targetFile):
       with open(targetFile, "wb") as buffer:
         shutil.copyfileobj(myfile.file, buffer)
@@ -112,17 +125,20 @@ async def uploader(modified: str, filename: str, sourceDevice: str, myfile:Uploa
     if not os.path.exists(targetThumbnail):
         makeThumbnail(img,img_exif,targetThumbnail)
     filteredMetadata: dict[str,str] = filterMetadata(img_exif)
+    jdata = json.dumps(filteredMetadata,indent=4,ensure_ascii=False, sort_keys=True)
     if not os.path.exists(targetMetadata):
         with open(targetMetadata, 'w') as targ:
-            json.dump(filteredMetadata, targ, sort_keys=True, ensure_ascii=False, indent=4)
-    await makeDatabaseRow(img,filteredMetadata,sourceDevice,monthDir,filename,takendate,modified,mediaLength) 
+            targ.write(jdata)
+            targ.close()
+    snap = await makeSnapDatabaseRow(img,filteredMetadata,sourceDevice,monthDir,filename,takendate,modified,mediaLength)
+    newsnap = create_snap(request,snap) 
     print(f"uploaded ({modified})")
     return f"uploaded ({modified} {targetFile})"
     
 def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
     origWidth = image.width
     origHeight = image.height
-    isLandscape: bool = origWidth>origHeight
+    isLandscape: bool = origWidth > origHeight
     targetSize = {'width':640,'height':480} if isLandscape else {'width':480,'height':640}
     scale = min(origWidth/targetSize['width'],origHeight/targetSize['height'])
     newSize = int(origWidth/scale),int(origHeight/scale)
@@ -144,17 +160,28 @@ def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
                 v[kk] = exif_cast(vv)
             return v
         else: 
-            return v
+            return  v if not isinstance(v,str) else strip_null(v)
+        
+    def strip_null(v: str):
+      result = v.rstrip()
+      if result.find('\x00')>-1:
+          result = result.replace('\x00','')
+      if result.find('\\u0000')>-1:
+          result = result.replace('\\u0000','')  
+      return result
+    
     result = {}
     for keyid,value in imageExif.items():
-        value2 = exif_cast(value)
-        tagName = ExifTags.TAGS.get(keyid,keyid)
-        if (not value2 is str) or len(value2)<100:
-            result[tagName] = value2
+        if keyid != 50341 and keyid < 59000 and keyid != 37500 and keyid != 37510:  #printimagematching makernote
+            value2 = exif_cast(value)
+            tagName = ExifTags.TAGS.get(keyid,keyid)
+            if (not value2 is str) or len(value2)<100:
+                print(f'{tagName} is {type(value2)} was is {type(value)}')
+                result[tagName] = value2
     return result
  
 
-async def makeDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sourceDevice: str, monthDir: str,filename: str,takenDate: datetime,modified: str, mediaLength: int):
+async def makeSnapDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sourceDevice: str, monthDir: str,filename: str,takenDate: datetime,modified: str, mediaLength: int):
       model = filteredExif.get('Model',None)
       deviceName: str = model or sourceDevice or 'No Device';
       importSource: str = sourceDevice or model or 'No source';
@@ -176,14 +203,24 @@ async def makeDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sourceDe
       newSnap.original_taken_date = newSnap.taken_date;
       # checkl for duplicate
       newSnap.media_length = mediaLength
-      if filteredExif.get('GPSInfo',False):
-        newSnap.latitude,newSnap.longitude = dmsToDeg(filteredExif['GPSInfo'])
-      if (newSnap.latitude != None and abs(newSnap.latitude) > 1e-6):
-        location = await getLocation(newSnap.longitude or 0, newSnap.latitude);
-        if (location != None):
-            newSnap.location = trimLocation(location);
-        print('found location : ${newSnap.location}');
-      
+      try:
+        gpsInfo = filteredExif['GPSInfo']
+        if gpsInfo is not None and len(gpsInfo)>1:
+            newSnap.latitude,newSnap.longitude = dmsToDeg(gpsInfo)
+        if (newSnap.latitude != None and abs(newSnap.latitude) > 1e-6):
+            location = await getLocation(newSnap.longitude or 0, newSnap.latitude)
+            if (location != None):
+                newSnap.location = trimLocation(location);
+            print(f'found location : {newSnap.location}');
+      finally:
+          print('gps ignored')
+      jdata = json.dumps(filteredExif,indent=4,ensure_ascii=False, sort_keys=True)  
+      newSnap.metadata = jdata   
+      fn,fext = os.path.splitext(newSnap.file_name)
+      newSnap.media_type = fext[1:].lower()  #remove the dot
+      newSnap.caption = ''
+      newSnap.tag_list = ''
+      return newSnap 
 
 def raw_sql(sqlText: str, values = None, asDictionary: bool = True):
     try:
@@ -531,6 +568,7 @@ def create_snap(request:Request, snap: Snap) -> Snap:
     try:
         (snap.updated_user,user_id) = username_and_id(request)
         if hasattr(snap,'user_id'): snap.user_id = user_id 
+        snap.session_id = get_session_from_request(request).id
         query = "INSERT INTO aopsnaps (created_on,updated_on,updated_user,file_name,directory,taken_date,original_taken_date,modified_date,device_name,caption,ranking,longitude,latitude,width,height,location,rotation,import_source,media_type,imported_date,media_length,tag_list,metadata,session_id,user_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         values = (datetime.now(),datetime.now(),snap.updated_user,snap.file_name,snap.directory,snap.taken_date,snap.original_taken_date,snap.modified_date,snap.device_name,snap.caption,snap.ranking,snap.longitude,snap.latitude,snap.width,snap.height,snap.location,snap.rotation,snap.import_source,snap.media_type,snap.imported_date,snap.media_length,snap.tag_list,snap.metadata,snap.session_id,snap.user_id)
         thisid = -1
