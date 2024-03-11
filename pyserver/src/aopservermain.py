@@ -176,7 +176,7 @@ def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
             value2 = exif_cast(value)
             tagName = ExifTags.TAGS.get(keyid,keyid)
             if (not value2 is str) or len(value2)<100:
-                print(f'{tagName} is {type(value2)} was is {type(value)}')
+                # print(f'{tagName} is {type(value2)} was is {type(value)}')
                 result[tagName] = value2
     return result
  
@@ -212,7 +212,7 @@ async def makeSnapDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sour
             if (location != None):
                 newSnap.location = trimLocation(location);
             print(f'found location : {newSnap.location}');
-      finally:
+      except Exception as ex:
           print('gps ignored')
       jdata = json.dumps(filteredExif,indent=4,ensure_ascii=False, sort_keys=True)  
       newSnap.metadata = jdata   
