@@ -724,10 +724,10 @@ class AopSnap extends DomainObject {
 
   static Future<bool?> nameSameDayExists(
       DateTime taken, String filename) async {
-    String startTime = formatDate(taken.add(Duration(days: -2)),
+    String startTime = formatDate(taken.add(Duration(hours: -24)),
         format: 'yyyy-mm-dd hh:nn:ss');
-    String endTime =
-        formatDate(taken.add(Duration(days: 2)), format: 'yyyy-mm-dd hh:nn:ss');
+    String endTime = formatDate(taken.add(Duration(hours: 24)),
+        format: 'yyyy-mm-dd hh:nn:ss');
     // var r = await snapProvider.rawExecute(
     //     'select count(*) from aopsnaps '
     //     "where (original_taken_date between ? and ?) and file_name=?",

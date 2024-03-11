@@ -1,13 +1,14 @@
 /*
   Created by chrisreynolds on 2019-09-27
   
-  Purpose: This is the actual sync driving engine
+  Purpose: This is the actual sync driving engine for aopsync
 
 */
 
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+//import 'dart:js_interop';
 // import 'package:meta/meta.dart';
 import 'package:image/image.dart';
 import 'package:aopcommon/aopcommon.dart';
@@ -44,20 +45,26 @@ class SyncDriver {
       if (imageName.startsWith('.')) continue; // skip all that start with .
       log.message('checking $imageName');
       FileStat stats = fse.statSync();
+      RegExp regYymmdd = RegExp(r'\d{8}_\d{6}');
+      String? embeddedDate = regYymmdd.stringMatch(imageName);
+      DateTime fileDate = stats.modified;
+      if (embeddedDate != null) {
+        fileDate = DateTime.parse(embeddedDate.replaceAll('_', 'T'));
+      }
       // use 'continue' to jump to the end of the loop and not save this file to the list.
-      if (stats.modified.isBefore(fromDate)) {
+      if (fileDate.isBefore(fromDate)) {
         priorImages += 1;
-        // todo this continue is needed  continue;
+        continue;
       }
       totalChecked += 1;
       if (fse.path.contains('thumbnails')) continue;
       String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
       if (!['jpg', 'png'].contains(thisExt)) continue;
       bool alreadyExists =
-          (await AopSnap.nameSameDayExists(stats.modified, imageName))!;
+          (await AopSnap.nameSameDayExists(fileDate, imageName))!;
       if (alreadyExists) {
         log.message(
-            'skipping $imageName size=${stats.size} modified=${stats.modified}');
+            'skipping $imageName size=${stats.size} modified=$fileDate');
         continue;
       }
       log.message(
@@ -96,7 +103,8 @@ class SyncDriver {
     FileStat thisPicStats = thisPicFile.statSync();
     List<int> fileContents = thisPicFile.readAsBytesSync();
     String imageName = fileName(thisPicFile.path);
-    return await uploadImage2(imageName, thisPicStats.modified, fileContents);
+    return await uploadImage2(
+        imageName, thisPicStats.modified, thisPicFile.path, fileContents);
   }
 
   Future<bool?> uploadImage(
@@ -217,13 +225,21 @@ class SyncDriver {
     } // of try
   } // of uploadImage
 
-  Future<bool?> uploadImage2(
-      String imageName, DateTime modifiedDate, List<int> fileContents) async {
-    var postUri = Uri.parse("http://localhost:8000/upload2/");
-    var request = http.MultipartRequest("POST", postUri);
-    request.fields['filename'] = imageName;
-    request.fields['modified'] = modifiedDate.toIso8601String();
-    request.files.add(http.MultipartFile.fromBytes('myfile', fileContents,
+  Future<bool?> uploadImage2(String imageName, DateTime modifiedDate,
+      String filename, List<int> fileContents) async {
+    String thisDevice = 'blahblah';
+    String fileDateStr =
+        formatDate(modifiedDate, format: 'yyyy:mm:dd hh:nn:ss');
+    var postUrl =
+        "http://localhost:8000/upload2/$fileDateStr/$imageName/$thisDevice";
+    var request = http.MultipartRequest("POST", Uri.parse(postUrl));
+    request.headers.addAll({
+      'Accept': 'application/json',
+      'Preserve': '{"jam":"$modelSessionid"}'
+    });
+    // request.files.add(http.MultipartFile.fromBytes('myfile', fileContents,
+    //     contentType: MediaType('image', 'jpeg')));
+    request.files.add(await http.MultipartFile.fromPath('myfile', filename,
         contentType: MediaType('image', 'jpeg')));
     var response = await request.send();
     if (response.statusCode == 200)
