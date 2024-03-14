@@ -118,31 +118,34 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
     forceDir(ROOT_DIR+monthDir)
     forceDir(ROOT_DIR+monthDir+'\\thumbnails\\')
     forceDir(ROOT_DIR+monthDir+'\\metadata\\')
-    if not os.path.exists(targetFile):
-      with open(targetFile, "wb") as buffer:
+    # if not os.path.exists(targetFile):
+    with open(targetFile, "wb") as buffer:
         shutil.copyfileobj(myfile.file, buffer)
-      os.utime(targetFile, (modified_ts, modified_ts))
-    if not os.path.exists(targetThumbnail):
-        makeThumbnail(img,img_exif,targetThumbnail)
+    os.utime(targetFile, (modified_ts, modified_ts))
+    # if not os.path.exists(targetThumbnail):
+    makeThumbnail(img,img_exif,targetThumbnail)
     filteredMetadata: dict[str,str] = filterMetadata(img_exif)
     jdata = json.dumps(filteredMetadata,indent=4,ensure_ascii=False, sort_keys=True)
-    if not os.path.exists(targetMetadata):
-        with open(targetMetadata, 'w') as targ:
-            targ.write(jdata)
-            targ.close()
+    # if not os.path.exists(targetMetadata):
+    with open(targetMetadata, 'w') as targ:
+        targ.write(jdata)
+        targ.close()
     snap = await makeSnapDatabaseRow(img,filteredMetadata,sourceDevice,monthDir,filename,takendate,modified,mediaLength)
     newsnap = create_snap(request,snap) 
     print(f"uploaded ({modified})")
     return f"uploaded ({modified} {targetFile})"
     
 def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
-    origWidth = image.width
-    origHeight = image.height
-    isLandscape: bool = origWidth > origHeight
-    targetSize = {'width':640,'height':480} if isLandscape else {'width':480,'height':640}
-    scale = min(origWidth/targetSize['width'],origHeight/targetSize['height'])
-    newSize = int(origWidth/scale),int(origHeight/scale)
+    scale = max(image.height,image.width)/640
+    newSize = int(image.width/scale),int(image.height/scale)
     image.thumbnail(newSize,Image.Resampling.LANCZOS)
+    exif_orientation = imageExif[274]
+    if (exif_orientation == 6): 
+       image = image.rotate(270)
+    if (exif_orientation == 3): 
+        image = image.rotate(180)    
+    if (exif_orientation == 8): 
+        image = image.rotate(90)
     image.save(target,quality=50)
     return True
 
