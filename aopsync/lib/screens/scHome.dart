@@ -280,9 +280,8 @@ class HomePageState extends State<HomePage> {
       messages.add('IOS Processing in progress. Please wait...');
       for (int i = 0; i < iosGallery.count; i++) {
         GalleryItem item = (await iosGallery[i])!;
-        switch (await syncDriver.uploadImage(
-            item.safeFilename, item.createdDate, item.data,
-            jpegLoader: item.loader)) {
+        switch (await syncDriver.uploadImage2(item.safeFilename,
+            item.createdDate, item.safeFilename, item.data)) {
           case true:
             upLoadCount++;
             break;

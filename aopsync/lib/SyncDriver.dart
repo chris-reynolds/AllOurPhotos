@@ -10,7 +10,7 @@ import 'dart:io';
 import 'dart:convert';
 //import 'dart:js_interop';
 // import 'package:meta/meta.dart';
-import 'package:image/image.dart';
+//import 'package:image/image.dart';
 import 'package:aopcommon/aopcommon.dart';
 // import 'package:device_info/device_info.dart';
 import 'package:aopmodel/aopmodel.dart';
@@ -19,9 +19,13 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 class SyncDriver {
+  static final supportedMediaTypes = <String, MediaType>{
+    'jpg': MediaType('image', 'jpeg'),
+    'png': MediaType('image', 'png')
+  };
   String localFileRoot;
   DateTime fromDate;
-  final GeocodingSession _geo = GeocodingSession();
+  // final GeocodingSession _geo = GeocodingSession();
   StreamController<String> messageController = StreamController<String>();
 
   SyncDriver({required this.localFileRoot, required this.fromDate});
@@ -56,10 +60,10 @@ class SyncDriver {
         priorImages += 1;
         continue;
       }
-      totalChecked += 1;
       if (fse.path.contains('thumbnails')) continue;
-      String thisExt = fse.path.substring(fse.path.length - 3).toLowerCase();
-      if (!['jpg', 'png'].contains(thisExt)) continue;
+      String thisExt = fse.path.split('.').last.toLowerCase();
+      if (!supportedMediaTypes.containsKey(thisExt)) continue;
+      totalChecked += 1;
       bool alreadyExists =
           (await AopSnap.nameSameDayExists(fileDate, imageName))!;
       if (alreadyExists) {
@@ -72,7 +76,7 @@ class SyncDriver {
       result.add(fse);
       resultDates.add(stats.modified);
     } //
-    logAndDisplay('Sorting ${result.length}');
+//    logAndDisplay('Sorting ${result.length}');
     // don't us sort function because we have a result and a resultDate array to reduce calls to 'stat'
     DateTime swapDate;
     FileSystemEntity swapFse;
@@ -99,6 +103,13 @@ class SyncDriver {
     log.message(message);
   } // of logAndDisplay
 
+  Future<String> streamToString(Stream stream) async {
+    StringBuffer sb = StringBuffer();
+    await for (var data in stream.transform(utf8.decoder)) 
+      sb.write(data);
+    return sb.toString();
+  } // of streamToString
+
   Future<bool?> uploadImageFile(File thisPicFile) async {
     FileStat thisPicStats = thisPicFile.statSync();
     List<int> fileContents = thisPicFile.readAsBytesSync();
@@ -107,127 +118,9 @@ class SyncDriver {
         imageName, thisPicStats.modified, thisPicFile.path, fileContents);
   }
 
-  Future<bool?> uploadImage(
-      String imageName, DateTime createdDate, List<int> fileContents,
-      {JpegLoader? jpegLoader}) async {
-    try {
-      log.message(
-          'Start processing $imageName ------------------------------------------');
-      // if ((await AopSnap.sizeOrNameOrDeviceAtTimeExists(
-      //     createdDate, 0, imageName, 'vvvgnv'))!) {
-      //   log.message('fast dup check - true');
-      //   return null;
-      // }
-      Image thisImage = decodeImage(fileContents)!;
-      log.message('decoded');
-      List<int> jpeg = encodeJpg(thisImage, quality: 100);
-      int imageSize = jpeg
-          .length; // decode/encode seems to be the only way to get reliable length
-      log.message('encoded $imageName');
-      jpegLoader ??= JpegLoader();
-//      JpegLoader jpegLoader = loader ?? JpegLoader();
-      if (jpegLoader.tags.isEmpty) // IOS should have preped these earlier
-        await jpegLoader.extractTags(fileContents);
-      log.message('extracted tags $imageName ');
-      String deviceName =
-          jpegLoader.tag('Model') ?? config['sesdevice'] ?? 'No Device';
-      String importSource =
-          config['sesdevice'] ?? jpegLoader.tag('Model') ?? 'No source';
-//      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-//
-//      if (!Platform.isIOS) {
-//        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-//        deviceName = androidInfo.device;
-////      print('Running on ${androidInfo.model}');  // e.g. "Moto G (4)"
-//      } else {
-//        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-//        deviceName = iosInfo.name;
-////      print('Running on ${iosInfo.utsname.machine}');  // e.g. "iPod7,1"
-//      }
-      String dateTakenStr = jpegLoader.tag('dateTimeOriginal') ??
-          jpegLoader.tag('dateTime') ??
-          '';
-      DateTime takenDate = dateTimeFromExif(dateTakenStr) ?? createdDate;
-      // log.message('check for dup-1');
-      // bool alReadyExists = (await AopSnap.sizeOrNameOrDeviceAtTimeExists(
-      //     takenDate, imageSize, imageName, deviceName))!;
-      // if (alReadyExists) {
-      //   log.message('sizeOrNameOrDeviceAtTimeExists for $imageName');
-      //   return null;
-      // }
-      AopSnap newSnap = AopSnap(data: {})
-        ..fileName = imageName
-        ..directory = '1982-01'
-        ..width = thisImage.width
-        ..height = thisImage.height
-        ..takenDate = takenDate
-        ..modifiedDate = createdDate
-        ..deviceName = deviceName
-        ..rotation = '0' // todo support enumeration
-        ..importSource = importSource
-        ..importedDate = DateTime.now();
-
-      if ((jpegLoader.tag('device.software') ?? '')
-          .toLowerCase()
-          .contains('scan'))
-        newSnap.importSource = newSnap.importSource ?? '' ' scanned';
-
-      newSnap.originalTakenDate = newSnap.takenDate;
-      newSnap.directory =
-          formatDate(newSnap.originalTakenDate!, format: 'yyyy-mm');
-      // checkl for duplicate
-      newSnap.mediaLength = imageSize;
-      if (jpegLoader.tag("GPSLatitudeRef") != null) {
-        newSnap.latitude = jpegLoader.dmsToDeg(
-            jpegLoader.tag('GPSLatitude'), jpegLoader.tag('GPSLatitudeRef'));
-        newSnap.longitude = jpegLoader.dmsToDeg(
-            jpegLoader.tag('GPSLongitude'), jpegLoader.tag('GPSLongitudeRef'));
-      }
-      if (newSnap.latitude != null && newSnap.latitude!.abs() > 1e-6) {
-        String? location =
-            await _geo.getLocation(newSnap.longitude!, newSnap.latitude!);
-        if (location != null) newSnap.trimSetLocation(location);
-        log.message('found location : ${newSnap.location}');
-      }
-
-      if (newSnap.originalTakenDate != null &&
-          newSnap.originalTakenDate!.year > 1980) {
-        if ((await AopSnap.dateTimeExists(
-            newSnap.originalTakenDate!, newSnap.mediaLength))!) {
-          log.message('duplicate dateTime+length');
-          return null;
-        }
-      }
-      if ((await AopSnap.nameExists(
-          newSnap.fileName!, newSnap.mediaLength ?? -1))!) {
-        log.message('duplicate name+length');
-        return null;
-      }
-      jpegLoader.cleanTags();
-      String myMeta = jsonEncode(jpegLoader.tags);
-      Image thumbnail = copyResize(thisImage,
-          width: (newSnap.width! > newSnap.height!) ? 640 : 480);
-      log.message('made thumbnail');
-      await saveWebImage(newSnap.thumbnailURL, image: thumbnail, quality: 50);
-      log.message('-> thumbnail');
-      await saveWebImage(newSnap.fullSizeURL, image: thisImage);
-      log.message('-> full image');
-      await saveWebImage(newSnap.metadataURL, metaData: myMeta);
-      log.message('-> meta');
-      newSnap.metadata = myMeta;
-      await newSnap.save();
-      log.message('-> database');
-
-      return true;
-    } catch (ex, st) {
-      log.error('Failed save for $imageName - $ex \n$st\n\n');
-      return false;
-    } // of try
-  } // of uploadImage
-
   Future<bool?> uploadImage2(String imageName, DateTime modifiedDate,
       String filename, List<int> fileContents) async {
-    String thisDevice = 'blahblah';
+    String thisDevice = config['sesdevice'];
     String fileDateStr =
         formatDate(modifiedDate, format: 'yyyy:mm:dd hh:nn:ss');
     var postUrl =
@@ -242,10 +135,17 @@ class SyncDriver {
     request.files.add(await http.MultipartFile.fromPath('myfile', filename,
         contentType: MediaType('image', 'jpeg')));
     var response = await request.send();
-    if (response.statusCode == 200)
+    if (response.statusCode == 200) {
       log.message("Uploaded $imageName");
-    else
-      log.error('Failed to upload $imageName  - code ${response.statusCode}');
-    return (response.statusCode == 200);
+      return true;
+    } else {
+      var errorMessage = await streamToString(response.stream);
+      log.error(
+          'Failed to upload $imageName  - code ${response.statusCode}\n $errorMessage');
+      if (errorMessage.contains('Duplicate entry'))
+        return null;  // signal dup
+      else
+        return false; // signal error
+    }
   } //of uploadImageFile
 } // of syncDriver
