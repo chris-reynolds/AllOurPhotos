@@ -12,8 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../utils/Config.dart';
 import '../SyncDriver.dart';
-import '../IosGallery.dart';
+// import '../IosGallery.dart';
 import 'scLogger.dart';
+import 'package:aopsync/fileFate.dart';
 
 //import 'MultiGallerySelectPage.dart';
 
@@ -30,20 +31,20 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  static List<FileSystemEntity> latestFileList = [];
+  static List<File> latestFileList = [];
   DateTime lastRunTime = DateTime(1980);
   late DateTime thisRunTime;
   bool _inProgress = false;
   bool _hasWebServer = false;
   double _progressValue = 0.0;
-  var iosGallery = IosGallery(); // do nothing yet
+//  var iosGallery = IosGallery(); // do nothing yet
   late SyncDriver syncDriver;
 
   int get photoCount {
-    if (Platform.isIOS)
-      return iosGallery.count;
-    else
-      return latestFileList.length;
+    // if (Platform.isIOS)
+    //   return iosGallery.count;
+    // else
+    return latestFileList.length;
   } // of photoCount
 
   void setInProgress(bool value) {
@@ -141,7 +142,7 @@ class HomePageState extends State<HomePage> {
                         Spacer(),
                         if (photoCount > 0 && !_inProgress && _hasWebServer)
                           ElevatedButton(
-                            onPressed: processPhotos,
+                            onPressed: processFilePhotos,
                             child: Text('Process Photos'),
                           ),
                         if (_inProgress)
@@ -211,12 +212,12 @@ class HomePageState extends State<HomePage> {
       messages.add('loading photos...');
       thisRunTime = DateTime.now();
       setInProgress(true);
-      if (Platform.isIOS) {
-        await iosGallery.loadFrom(lastRunTime);
-      } else {
-        syncDriver.fromDate = lastRunTime;
-        latestFileList = await syncDriver.loadFileList(lastRunTime);
-      }
+      // if (Platform.isIOS) {
+      //   await iosGallery.loadFrom(lastRunTime);
+      // } else {
+      syncDriver.fromDate = lastRunTime;
+      latestFileList = await syncDriver.loadFileList(lastRunTime);
+      // }
       messages.add(
           'I found $photoCount photos  ${_hasWebServer ? "" : " BUT NO SERVER"}');
     } catch (ex) {
@@ -226,40 +227,47 @@ class HomePageState extends State<HomePage> {
     setInProgress(false);
   } // of outStandingPhotoCheck
 
-  Future<void> processPhotos() async {
-    if (Platform.isIOS)
-      await processIOSImages();
-    else
-      await processFilePhotos();
-  }
+  // Future<void> processPhotos() async {
+  //   if (Platform.isIOS)
+  //     await processIOSImages();
+  //   else
+  //     await processFilePhotos();
+  // }
 
   Future<void> processFilePhotos() async {
     int errCount = 0, dupCount = 0, upLoadCount = 0;
     String progressMessage = '';
     try {
       setInProgress(true);
+      fateList.clear(); // clean history
       messages.add('File Processing in progress. Please wait...');
       for (int i = 0; i < latestFileList.length; i++) {
-        FileSystemEntity item = latestFileList[i];
-        switch (await syncDriver.uploadImageFile(item as File)) {
-          case true:
+        File thisPicFile = latestFileList[i];
+        FileStat thisPicStats = thisPicFile.statSync();
+        List<int> fileContents = thisPicFile.readAsBytesSync();
+        String imageName = onlyFileName(thisPicFile.path);
+        FileFate fileFate = await syncDriver.uploadImage2(
+            imageName, thisPicStats.modified, thisPicFile.path, fileContents);
+        switch (fileFate.fate) {
+          case Fate.Uploaded:
             upLoadCount++;
             break;
-          case false:
+          case Fate.Error:
             errCount++;
             break;
-          default:
+          case Fate.Duplicate:
             dupCount++;
             break;
+          default:  // should never happen
+            throw Exception('unknown fate for file ${thisPicFile.path}');
         } // of switch
         progressMessage =
             'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
             '\nRemaining ${latestFileList.length - i - 1}';
         messages.add(progressMessage);
         updateProgressVar(i + 1, latestFileList.length);
-        log.message(item.path);
+        log.message(thisPicFile.path);
       }
-      iosGallery.clearCollection();
       messages.add('$progressMessage \n\nProcessing completed');
       config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
       // persist this run time so that we know how far back to go next time}
@@ -272,42 +280,42 @@ class HomePageState extends State<HomePage> {
     setInProgress(false);
   } // of processFilePhotos
 
-  Future<void> processIOSImages() async {
-    int errCount = 0, dupCount = 0, upLoadCount = 0;
-    String progressMessage = '';
-    try {
-      setInProgress(true);
-      messages.add('IOS Processing in progress. Please wait...');
-      for (int i = 0; i < iosGallery.count; i++) {
-        GalleryItem item = (await iosGallery[i])!;
-        switch (await syncDriver.uploadImage2(item.safeFilename,
-            item.createdDate, item.safeFilename, item.data)) {
-          case true:
-            upLoadCount++;
-            break;
-          case false:
-            errCount++;
-            break;
-          default:
-            dupCount++;
-            break;
-        } // of switch
-        progressMessage =
-            'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
-            '\nRemaining ${iosGallery.count - i - 1}';
-        messages.add(progressMessage);
-        updateProgressVar(i + 1, iosGallery.count);
-        log.message(item.safeFilename);
-      }
-      iosGallery.clearCollection();
-      messages.add('$progressMessage \n\nProcessing completed');
-      config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
-      // persist this run time so that we know how far back to go next time},
-      await config.save();
-      latestFileList = [];
-    } catch (ex) {
-      syncDriver.messageController.add('Error : $ex');
-    }
-    setInProgress(false);
-  } // of processIOSImages
+  // Future<void> processIOSImages() async {
+  //   int errCount = 0, dupCount = 0, upLoadCount = 0;
+  //   String progressMessage = '';
+  //   try {
+  //     setInProgress(true);
+  //     messages.add('IOS Processing in progress. Please wait...');
+  //     for (int i = 0; i < iosGallery.count; i++) {
+  //       GalleryItem item = (await iosGallery[i])!;
+  //       switch (await syncDriver.uploadImage2(item.safeFilename,
+  //           item.createdDate, item.safeFilename, item.data)) {
+  //         case true:
+  //           upLoadCount++;
+  //           break;
+  //         case false:
+  //           errCount++;
+  //           break;
+  //         default:
+  //           dupCount++;
+  //           break;
+  //       } // of switch
+  //       progressMessage =
+  //           'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
+  //           '\nRemaining ${iosGallery.count - i - 1}';
+  //       messages.add(progressMessage);
+  //       updateProgressVar(i + 1, iosGallery.count);
+  //       log.message(item.safeFilename);
+  //     }
+  //     iosGallery.clearCollection();
+  //     messages.add('$progressMessage \n\nProcessing completed');
+  //     config[LAST_RUN] = formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');
+  //     // persist this run time so that we know how far back to go next time},
+  //     await config.save();
+  //     latestFileList = [];
+  //   } catch (ex) {
+  //     syncDriver.messageController.add('Error : $ex');
+  //   }
+  //   setInProgress(false);
+  // } // of processIOSImages
 } // of _HomePageState
