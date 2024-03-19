@@ -32,6 +32,8 @@ abstract class DomainObject {
 
   void fromMap(Map<String, dynamic> map);
 
+  Future<bool> delete();
+
   void fromRow(dynamic row) {
     String fld = '';
     try {
@@ -128,8 +130,9 @@ class DOProvider<TDO extends DomainObject> {
               encoding: Encoding.getByName('utf-8'));
           break;
       }
-      log.message('Response status: ${response?.statusCode}');
-      // log.message('Response body: ${response?.body}');
+      if (response?.statusCode != 200) {
+        log.error('Response status: ${response?.statusCode}');
+      }
       switch (response?.statusCode) {
         case 200:
           var xxx = json
@@ -234,14 +237,13 @@ class RestURLFactory {
   RestURLFactory(this._tableName);
 
   (String, String) deleteStatement(int id) =>
-      ('DELETE', '${rootUrl}$_tableName/$id');
+      ('DELETE', '$rootUrl$_tableName/$id');
 
-  (String, String) insertStatement() => ('POST', '${rootUrl}$_tableName');
+  (String, String) insertStatement() => ('POST', '$rootUrl$_tableName');
 
-  (String, String) updateStatement(int id) => ('PUT', '${rootUrl}$_tableName');
+  (String, String) updateStatement(int id) => ('PUT', '$rootUrl$_tableName');
 
-  (String, String) getIdStatement(int id) =>
-      ('GET', '${rootUrl}$_tableName/$id');
+  (String, String) getIdStatement(int id) => ('GET', '$rootUrl$_tableName/$id');
 
   (String, String) getSomeStatement(String whereClause,
           {String orderBy = 'created_on'}) =>
