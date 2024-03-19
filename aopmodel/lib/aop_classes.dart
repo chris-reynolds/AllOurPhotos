@@ -449,7 +449,10 @@ class AopSession extends DomainObject {
 
 //                                '*** Start Custom Code session custom procedures
   static Future<AopSession> createSession(
-      String username, String password, String source) async {
+      // NOT USED
+      String username,
+      String password,
+      String source) async {
     try {
       var login = await sessionProvider
           .rawRequest('/sessioncreate/{username}/{password}/{source}');
