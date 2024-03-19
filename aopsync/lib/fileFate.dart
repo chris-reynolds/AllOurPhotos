@@ -5,7 +5,7 @@
 
 */
 
-enum Fate { Uploaded, Duplicate, Error}
+enum Fate { Uploaded, Duplicate, Error }
 
 class FileFate {
   String filename;
@@ -21,10 +21,10 @@ List<FileFate> fateList = [];
 Map<String, int> summary() {
   var result = <String, int>{};
   for (var fileFate in fateList) {
-    if (!result.containsKey(fileFate.fate))
+    if (!result.containsKey(fileFate.fate.name))
       result[fileFate.fate.name] = 1;
     else
-      result[fileFate.fate.name] = result[fileFate.fate]! + 1;
+      result[fileFate.fate.name] = result[fileFate.fate.name]! + 1;
   }
   return result;
 }
