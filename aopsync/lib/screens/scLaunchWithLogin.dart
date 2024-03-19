@@ -22,7 +22,7 @@ class LaunchWithLogin extends StatelessWidget {
   LaunchWithLogin(this.title, {Key? key}) : super(key: key);
   Future<void> initConfig() async {
     await config.load('aop_config.json');
-    log.message('loaded config $config');
+    log.debug('loaded config $config');
   } // of initConfig
 
   Future<void> tryLogin() async {
@@ -44,10 +44,11 @@ class LaunchWithLogin extends StatelessWidget {
       if (!config['sessionid'].startsWith('2'))
         throw Exception('Invalid session Id');
       modelSessionid = config['sessionid'];
+      WebFile.setPreserve('{jam:"$modelSessionid"}');
       _streamController.add(AuthenticationState.authenticated());
 
       await config.save();
-      log.message('Config saved');
+      log.debug('Config saved');
     } catch (ex) {
       log.error('Failed to login $ex');
       _streamController.add(AuthenticationState.failed());
@@ -59,7 +60,7 @@ class LaunchWithLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     initConfig().then((xx) => tryLogin());
-    log.message('building after tryLogin');
+    log.debug('building after tryLogin');
     return StreamBuilder<AuthenticationState>(
         stream: _streamController.stream,
 //        initialData: new AuthenticationState.initial(),

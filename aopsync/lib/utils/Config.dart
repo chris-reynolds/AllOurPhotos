@@ -34,7 +34,7 @@ class Config {
         _preferences = await SharedPreferences.getInstance();
         _map = json.decode(_preferences?.getString(skey) ??
             '{"host":"localhost","port":"8000"}');
-        log.message('config has ${_map.length} entries');
+        log.debug('config has ${_map.length} entries');
       }
     } catch (ex) {
       log.error('failed get config $ex');

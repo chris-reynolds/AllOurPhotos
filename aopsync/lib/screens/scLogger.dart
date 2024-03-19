@@ -18,11 +18,11 @@ class LoggerList extends StatefulWidget {
 class LoggerListState extends State<LoggerList> {
   Widget appBarTitle = Text(
     "Logger (with filter and clear)",
-    style: TextStyle(color: Colors.white),
+    style: TextStyle(color: Colors.black),
   );
   Icon actionIcon = Icon(
     Icons.search,
-    color: Colors.white,
+    color: Colors.black,
   );
   final key = GlobalKey<ScaffoldState>();
   final TextEditingController _searchQuery = TextEditingController();
@@ -105,23 +105,32 @@ class LoggerListState extends State<LoggerList> {
         },
       ),
       IconButton(
+        icon: Icon(Icons.tornado),
+        onPressed: () {
+          setState(() {
+            log.verbose = !log.verbose;
+          });
+        },
+        color: log.verbose ? Colors.red : Colors.black,
+      ),
+      IconButton(
         icon: actionIcon,
         onPressed: () {
           setState(() {
             if (actionIcon.icon == Icons.search) {
               actionIcon = Icon(
                 Icons.close,
-                color: Colors.white,
+                color: Colors.black,
               );
               appBarTitle = TextField(
                 controller: _searchQuery,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
                 decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search, color: Colors.white),
+                    prefixIcon: Icon(Icons.search, color: Colors.black),
                     hintText: "Filter...",
-                    hintStyle: TextStyle(color: Colors.white)),
+                    hintStyle: TextStyle(color: Colors.black)),
               );
               _handleSearchStart();
             } else {
@@ -162,6 +171,6 @@ class ChildItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(title: Text(name));
+    return Text(name);
   }
 }

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../utils/WidgetSupport.dart';
 import '../utils/Config.dart';
+import 'scLogger.dart';
 
 List<String> _fieldDefs = [
   'AOP Server:host',
@@ -36,18 +37,18 @@ class SignInPage extends StatelessWidget {
   signIn2() async {
     var formValueMap = _fieldSet.values;
 //    var formValueMap = wsFormValues(_loginFormKey.currentState); // _loginFormKey.currentState;
-    log.message('my form state $formValueMap');
+    log.debug('my form state $formValueMap');
     config.addAll(formValueMap);
     await loginCallback();
-    log.message('just executed login callback');
+    log.debug('just executed login callback');
   }
 
-  // void _showLogger(BuildContext context) {
-  //   Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //           builder: (context) => LoggerList(), fullscreenDialog: true));
-  // }
+  void _showLogger(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LoggerList(), fullscreenDialog: true));
+  }
 
 //   List<Widget> registerLoginWidgets() {
 //     List<String> fieldDefs = [
@@ -71,9 +72,12 @@ class SignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: Text('Sign in'),
-          actions: [navIconButton(context, 'testlog', Icons.list)]),
+      appBar: AppBar(title: Text('Sign in'), actions: [
+        IconButton(
+          icon: Icon(Icons.list),
+          onPressed: () => _showLogger(context),
+        ),
+      ]),
       body: SafeArea(
         child: Form(
 //          onChanged: handleFormChanged,
@@ -86,7 +90,7 @@ class SignInPage extends StatelessWidget {
               ElevatedButton(
                 child: Text('Sign in'),
                 onPressed: () async {
-                  log.message('sign in 23 callback');
+                  log.debug('sign in 23 callback');
                   await signIn2();
                 },
               ),
