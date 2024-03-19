@@ -40,7 +40,7 @@ class IosGallery {
   Future<void> loadFrom(DateTime startDate) async {
     startDate = startDate.add(Duration(
         hours: -48)); // todo: get the time zone as IosGallery uses utc dates
-    log.message('IOS Gallery querying from ${dbDate(startDate)}');
+    log.debug('IOS Gallery querying from ${dbDate(startDate)}');
     // startDate = DateTime.now();
     this.startDate = startDate;
     //   var dateFilter = PM.FilterOptionGroup(
@@ -58,13 +58,13 @@ class IosGallery {
     var ff2 = await ff.readAsBytes();
     var jpegLoader = JpegLoader();
     await jpegLoader.extractTags(ff2);
-    log.message('tags = ${jpegLoader.tags.length}');
+    log.debug('tags = ${jpegLoader.tags.length}');
     // var jpegBytes = (await item
     //     .thumbnailDataWithSize(PM.ThumbnailSize(item.width, item.height)))!;
     Uint8List jpegBytes = Uint8List(1); //photo_manager
     var createdDate = fromSwiftDate(item.createDateSecond!);
     var galleryItem = GalleryItem(jpegBytes, item.id, createdDate, jpegLoader);
-    log.message(
+    log.debug(
         'loading $index size of ${galleryItem.safeFilename} is ${galleryItem.data.length}');
     var file = await item.file;
     if (Platform.isIOS && file!.existsSync()) // IOS picture file is temporary
@@ -73,7 +73,7 @@ class IosGallery {
   }
 
   DateTime fromSwiftDate(int swiftNo) {
-    log.message('from swift ms $swiftNo');
+    log.debug('from swift ms $swiftNo');
     DateTime baseDate = DateTime(1970);
     DateTime newDate = baseDate
         .add(Duration(milliseconds: (1000 * swiftNo).floor()))
