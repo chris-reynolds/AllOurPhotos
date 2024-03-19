@@ -19,17 +19,22 @@ import 'utils/Config.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
+typedef FileAnDate = ({DateTime date, File file});
+typedef ProgressIndicator = void Function(int current, int max);
+
 class SyncDriver {
   static final supportedMediaTypes = <String, MediaType>{
     'jpg': MediaType('image', 'jpeg'),
     'png': MediaType('image', 'png')
   };
   String localFileRoot;
-  DateTime fromDate;
-  // final GeocodingSession _geo = GeocodingSession();
-  StreamController<String> messageController = StreamController<String>();
-
-  SyncDriver({required this.localFileRoot, required this.fromDate});
+  List<FileAnDate> latestFileList = [];
+  StreamController<String> messageStream;
+  ProgressIndicator indicateProgress;
+  SyncDriver(
+      {required this.localFileRoot,
+      required this.messageStream,
+      required this.indicateProgress}); //, required this.fromDate});
 
   DateTime? dateTimeFromFilename(String filename) {
     RegExp regYymmdd = RegExp(r'\d{8}_\d{6}');
@@ -41,67 +46,88 @@ class SyncDriver {
     }
   } // of dateTimeFromFilename
 
-  Future<List<File>> loadFileList(DateTime fromDate) async {
+  DateTime dateTimeFromFile(File file) {
+    DateTime? dt = dateTimeFromFilename(file.path);
+    DateTime result = dt ?? FileStat.statSync(file.path).modified;
+    return result;
+  } // of dateTimeFromFile
+
+  Future<void> loadFileList(DateTime fromDate) async {
 //    if (allPhotos) fromDate = DateTime(1900);
     logAndDisplay(
         'Loading files from $localFileRoot with date after ${formatDate(fromDate)}');
-    Stream<FileSystemEntity> origin =
-        Directory(localFileRoot).list(recursive: true);
-    List<File> result = [];
-    List<DateTime> resultDates = []; // parallel array for sorting
-    int totalChecked = 0;
-    int priorImages = 0;
-    await for (var fse in origin) {
+    // load only files from
+    List<FileSystemEntity> origin = await Directory(localFileRoot)
+        .list(recursive: true)
+        .where((fse) {
+          return (fse is File) && dateTimeFromFile(fse).isAfter(fromDate);
+        })
+        .where((fse) => !fse.path.toLowerCase().contains('thumbnail'))
+        .where((fse) => supportedMediaTypes
+            .containsKey(onlyExtension(fse.path).toLowerCase()))
+        .toList();
+    List<FileAnDate> results = [];
+    for (var fse in origin) {
       String imageName = onlyFileName(fse.path);
-      if (imageName.startsWith('.')) continue; // skip all that start with .
-      log.message('checking $imageName');
-      DateTime fileDate =
-          dateTimeFromFilename(imageName) ?? fse.statSync().modified;
-      // use 'continue' to jump to the end of the loop and not save this file to the list.
-      if (fileDate.isBefore(fromDate)) {
-        priorImages += 1;
-        continue;
-      }
-      if (fse.path.contains('thumbnails')) continue;
-      String thisExt = fse.path.split('.').last.toLowerCase();
-      if (!supportedMediaTypes.containsKey(thisExt)) continue;
-      totalChecked += 1;
-      bool alreadyExists =
-          (await AopSnap.nameSameDayExists(fileDate, imageName))!;
-      if (alreadyExists) {
-        log.message('skipping $imageName  date=$fileDate');
-        continue;
-      }
-      log.message('adding $imageName date=$fileDate');
-      result.add(fse as File);
-      resultDates.add(fileDate);
+      log.debug('checking $imageName');
+      DateTime fileDate = dateTimeFromFile(fse as File);
+      log.debug('adding $imageName date=$fileDate');
+      results.add((date: fileDate, file: fse));
     } //
-//    logAndDisplay('Sorting ${result.length}');
-    // don't us sort function because we have a result and a resultDate array to reduce calls to 'stat'
-    DateTime swapDate;
-    File swapFse;
-    for (int i = 0; i < result.length; i++) {
-      for (int j = i + 1; j < result.length; j++) {
-        if (resultDates[i].isAfter(resultDates[j])) {
-          swapDate = resultDates[i];
-          resultDates[i] = resultDates[j];
-          resultDates[j] = swapDate;
-          swapFse = result[i];
-          result[i] = result[j];
-          result[j] = swapFse;
-        }
-      }
-    }
-    logAndDisplay('Sorted ${result.length}');
-    log.message(
-        'Found ${result.length} new pictures, skipped ${totalChecked - result.length}. Prior images=$priorImages ');
-    return result; // finished the where filter
+    results.sort((a, b) => a.date.compareTo(b.date));
+    logAndDisplay('Sorted ${results.length}');
+    log.debug('Found ${results.length} pictures ');
+    latestFileList = results;
   } // loadFileList
 
   void logAndDisplay(String message) {
-    messageController.add(message);
+    messageStream.add(message);
     log.message(message);
   } // of logAndDisplay
+
+  int get count => latestFileList.length;
+
+  Future<bool> processFilePhotos() async {
+    int errCount = 0, dupCount = 0, upLoadCount = 0;
+    String progressMessage = '';
+    try {
+      fateList.clear(); // clean history
+      messageStream.add('File Processing in progress. Please wait...');
+      for (int i = 0; i < latestFileList.length; i++) {
+        File thisPicFile = latestFileList[i].file;
+        DateTime thisPicDate = latestFileList[i].date;
+        List<int> fileContents = thisPicFile.readAsBytesSync();
+        String imageName = onlyFileName(thisPicFile.path);
+        FileFate fileFate = await uploadImage2(
+            imageName, thisPicDate, thisPicFile.path, fileContents);
+        switch (fileFate.fate) {
+          case Fate.Uploaded:
+            upLoadCount++;
+            break;
+          case Fate.Error:
+            errCount++;
+            break;
+          case Fate.Duplicate:
+            dupCount++;
+            break;
+          default: // should never happen
+            throw Exception('unknown fate for file ${thisPicFile.path}');
+        } // of switch
+        progressMessage =
+            'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
+            '\nRemaining ${latestFileList.length - i - 1}';
+        messageStream.add(progressMessage);
+        indicateProgress(i + 1, latestFileList.length);
+        log.debug(thisPicFile.path);
+      }
+      latestFileList = [];
+      log.save();
+      return true;
+    } catch (ex) {
+      messageStream.add('Error : $ex');
+      return false;
+    }
+  } // of processFilePhotos
 
   Future<String> streamToString(Stream stream) async {
     StringBuffer sb = StringBuffer();
@@ -119,11 +145,19 @@ class SyncDriver {
 
   Future<FileFate> uploadImage2(String imageName, DateTime modifiedDate,
       String filename, List<int> fileContents) async {
+    bool alreadyExists =
+        (await AopSnap.nameSameDayExists(modifiedDate, imageName))!;
+    if (alreadyExists) {
+      log.debug('sameday exists $imageName  date=$modifiedDate');
+      return FileFate(filename, Fate.Duplicate,
+          reason: 'same day match for filename');
+    }
     String thisDevice = config['sesdevice'];
     String fileDateStr =
         formatDate(modifiedDate, format: 'yyyy:mm:dd hh:nn:ss');
+
     var postUrl =
-        "http://localhost:8000/upload2/$fileDateStr/$imageName/$thisDevice";
+        "http://${config['host']}:${config['port']}/upload2/$fileDateStr/$imageName/$thisDevice";
     var request = http.MultipartRequest("POST", Uri.parse(postUrl));
     request.headers.addAll({
       'Accept': 'application/json',
@@ -135,7 +169,7 @@ class SyncDriver {
         contentType: MediaType('image', 'jpeg')));
     var response = await request.send();
     if (response.statusCode == 200) {
-      log.message("Uploaded $imageName");
+      log.debug("Uploaded $imageName");
       return FileFate(imageName, Fate.Uploaded);
     } else {
       var errorMessage = await streamToString(response.stream);
