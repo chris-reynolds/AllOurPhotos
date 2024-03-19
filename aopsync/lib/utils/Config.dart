@@ -1,4 +1,4 @@
-/// Config cmap using localstorage
+// Config cmap using localstorage
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aopcommon/aopcommon.dart' show log;

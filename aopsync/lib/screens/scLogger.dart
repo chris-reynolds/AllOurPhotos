@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:aopcommon/aopcommon.dart';
 
 class LoggerList extends StatefulWidget {
-  const LoggerList({Key? key}) : super(key: key);
+  const LoggerList({super.key});
 
   @override
   LoggerListState createState() => LoggerListState();
@@ -167,7 +167,7 @@ class LoggerListState extends State<LoggerList> {
 class ChildItem extends StatelessWidget {
   final String name;
 
-  const ChildItem(this.name, {Key? key}) : super(key: key);
+  const ChildItem(this.name, {super.key});
 
   @override
   Widget build(BuildContext context) {

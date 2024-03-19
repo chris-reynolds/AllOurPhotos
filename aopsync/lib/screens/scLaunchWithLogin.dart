@@ -19,7 +19,7 @@ class LaunchWithLogin extends StatelessWidget {
   final StreamController<AuthenticationState> _streamController =
       StreamController<AuthenticationState>();
   final String title;
-  LaunchWithLogin(this.title, {Key? key}) : super(key: key);
+  LaunchWithLogin(this.title, {super.key});
   Future<void> initConfig() async {
     await config.load('aop_config.json');
     log.debug('loaded config $config');

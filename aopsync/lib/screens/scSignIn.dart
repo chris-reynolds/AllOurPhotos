@@ -27,12 +27,8 @@ class SignInPage extends StatelessWidget {
   final AsyncCallback loginCallback;
   final WsFieldSet _fieldSet;
 
-  SignInPage(this.loginCallback, {Key? key})
-      :
-
-//    if (!Platform.isIOS) fieldDefs.add('Local Directory:lcldirectory');
-        _fieldSet = WsFieldSet(_fieldDefs, values: config.values(), spacer: 1),
-        super(key: key);
+  SignInPage(this.loginCallback, {super.key})
+      : _fieldSet = WsFieldSet(_fieldDefs, values: config.values(), spacer: 1);
 
   signIn2() async {
     var formValueMap = _fieldSet.values;

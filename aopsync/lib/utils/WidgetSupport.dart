@@ -13,8 +13,8 @@ class AssetWidget extends StatelessWidget {
   final String name;
   final double size;
   final Color color;
-  const AssetWidget(this.name, {Key? key, this.size = 50, required this.color})
-      : super(key: key);
+  const AssetWidget(this.name,
+      {super.key, this.size = 50, required this.color});
 
   @override
   Widget build(BuildContext context) {
