@@ -6,9 +6,12 @@
 */
 
 import 'dart:async';
+import 'dart:io';
 import 'package:aopmodel/aop_classes.dart';
 import 'package:aopmodel/domain_object.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:aopcommon/aopcommon.dart' show log, WebFile;
 import '../authentication_state.dart';
 import '../utils/Config.dart';
@@ -25,11 +28,29 @@ class LaunchWithLogin extends StatelessWidget {
     log.debug('loaded config $config');
   } // of initConfig
 
+  Future<bool> checkPermissions(List<Permission> permissionList) async {
+    for (var permission in permissionList) {
+      var fred = await permission.status;
+      if (await permission.status.isDenied) {
+        await permission.request();
+      }
+      if (!await permission.status.isGranted) return false;
+    }
+    return true;
+  } // of checkPermissions
+
   Future<void> tryLogin() async {
     try {
-//      var db = DbAllOurPhotos();
-//      await db.initConnection(config);
-//      await db.startSession(config);
+      if (Platform.isAndroid) {
+        var androidInfo = await DeviceInfoPlugin().androidInfo;
+        Permission photoPermission = androidInfo.version.sdkInt >= 32
+            ? Permission.photos
+            : Permission.storage;
+        if (!await checkPermissions([photoPermission])) {
+          _streamController.add(AuthenticationState.noPermission());
+          return;
+        }
+      }
       if (config['sesuser'] == null) throw Exception('No User');
       if (Uri.base.host.isNotEmpty) {
         rootUrl = '${Uri.base}';
@@ -75,7 +96,7 @@ class LaunchWithLogin extends StatelessWidget {
               title: title,
             );
           else
-            return SignInPage(/*_streamController,*/ tryLogin);
+            return SignInPage(tryLogin);
         });
   }
 }

@@ -15,5 +15,6 @@ class AuthenticationState {
   AuthenticationState.failed({this.authenticated = false});
 
   AuthenticationState.signedOut({this.authenticated = false});
-}
 
+  AuthenticationState.noPermission({this.authenticated = false});
+}
