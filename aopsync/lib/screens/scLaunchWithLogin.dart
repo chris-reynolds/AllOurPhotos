@@ -30,7 +30,7 @@ class LaunchWithLogin extends StatelessWidget {
 
   Future<bool> checkPermissions(List<Permission> permissionList) async {
     for (var permission in permissionList) {
-      var fred = await permission.status;
+      // var fred = await permission.status;
       if (await permission.status.isDenied) {
         await permission.request();
       }
@@ -46,7 +46,8 @@ class LaunchWithLogin extends StatelessWidget {
         Permission photoPermission = androidInfo.version.sdkInt >= 32
             ? Permission.photos
             : Permission.storage;
-        if (!await checkPermissions([photoPermission])) {
+        if (!await checkPermissions(
+            [photoPermission, Permission.accessMediaLocation])) {
           _streamController.add(AuthenticationState.noPermission());
           return;
         }
