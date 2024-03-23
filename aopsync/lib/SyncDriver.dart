@@ -63,6 +63,7 @@ class SyncDriver {
           return (fse is File) && dateTimeFromFile(fse).isAfter(fromDate);
         })
         .where((fse) => !fse.path.toLowerCase().contains('thumbnail'))
+        .where((fse) => !onlyFileName(fse.path).startsWith('.')) // .trashed
         .where((fse) => supportedMediaTypes
             .containsKey(onlyExtension(fse.path).toLowerCase()))
         .toList();
@@ -145,42 +146,49 @@ class SyncDriver {
 
   Future<FileFate> uploadImage2(String imageName, DateTime modifiedDate,
       String filename, List<int> fileContents) async {
-    bool alreadyExists =
-        (await AopSnap.nameSameDayExists(modifiedDate, imageName))!;
-    if (alreadyExists) {
-      log.debug('sameday exists $imageName  date=$modifiedDate');
-      return FileFate(filename, Fate.Duplicate,
-          reason: 'same day match for filename');
-    }
-    String thisDevice = config['sesdevice'];
-    String fileDateStr =
-        formatDate(modifiedDate, format: 'yyyy:mm:dd hh:nn:ss');
+    try {
+      bool alreadyExists =
+          (await AopSnap.nameSameDayExists(modifiedDate, imageName))!;
+      if (alreadyExists) {
+        log.debug('sameday exists $imageName  date=$modifiedDate');
+        return FileFate(filename, Fate.Duplicate,
+            reason: 'same day match for filename');
+      }
+      String thisDevice = config['sesdevice'];
+      String fileDateStr =
+          formatDate(modifiedDate, format: 'yyyy:mm:dd hh:nn:ss');
 
-    var postUrl =
-        "http://${config['host']}:${config['port']}/upload2/$fileDateStr/$imageName/$thisDevice";
-    var request = http.MultipartRequest("POST", Uri.parse(postUrl));
-    request.headers.addAll({
-      'Accept': 'application/json',
-      'Preserve': '{"jam":"$modelSessionid"}'
-    });
-    // request.files.add(http.MultipartFile.fromBytes('myfile', fileContents,
-    //     contentType: MediaType('image', 'jpeg')));
-    request.files.add(await http.MultipartFile.fromPath('myfile', filename,
-        contentType: MediaType('image', 'jpeg')));
-    var response = await request.send();
-    if (response.statusCode == 200) {
-      log.debug("Uploaded $imageName");
-      return FileFate(imageName, Fate.Uploaded);
-    } else {
-      var errorMessage = await streamToString(response.stream);
-      log.error(
-          'Failed to upload $imageName  - code ${response.statusCode}\n $errorMessage');
-      if (errorMessage.contains('Duplicate entry'))
-        return FileFate(imageName, Fate.Duplicate,
-            reason: errorMessage); // signal dup
-      else
-        return FileFate(imageName, Fate.Error,
-            reason: errorMessage); // signal error
+      var postUrl =
+          "http://${config['host']}:${config['port']}/upload2/$fileDateStr/$imageName/$thisDevice";
+      var request = http.MultipartRequest("POST", Uri.parse(postUrl));
+      request.headers.addAll({
+        'Accept': 'application/json',
+        'Preserve': '{"jam":"$modelSessionid"}'
+      });
+      // request.files.add(http.MultipartFile.fromBytes('myfile', fileContents,
+      //     contentType: MediaType('image', 'jpeg')));
+      request.files.add(await http.MultipartFile.fromPath('myfile', filename,
+          contentType: MediaType('image', 'jpeg')));
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        log.debug("Uploaded $imageName");
+        return FileFate(imageName, Fate.Uploaded);
+      } else {
+        var errorMessage = await streamToString(response.stream);
+        log.error(
+            'Failed to upload $imageName  - code ${response.statusCode}\n $errorMessage');
+        if (errorMessage.contains('Duplicate entry'))
+          return FileFate(imageName, Fate.Duplicate,
+              reason: errorMessage); // signal dup
+        else
+          return FileFate(imageName, Fate.Error,
+              reason: errorMessage); // signal error
+      }
+    } catch (ex, st) {
+      log.error('$ex\n$st');
+      messageStream.add('$ex\n$st');
+      return FileFate(imageName, Fate.Error,
+          reason: '$ex\n$st'); // signal error
     }
   } //of uploadImageFile
 } // of syncDriver
