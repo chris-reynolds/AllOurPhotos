@@ -49,7 +49,7 @@ origins = [
     "http://localhost:*",
 ]
 
-ROOT_DIR = 'c:\\data\\photos\\'
+ROOT_DIR = config['photos']  
 
 app.add_middleware(
     CORSMiddleware,
