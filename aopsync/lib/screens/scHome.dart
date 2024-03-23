@@ -182,7 +182,7 @@ class HomePageState extends State<HomePage> {
     try {
       lastRunTime = DateTime.parse(config[LAST_RUN]);
     } catch (ex) {
-      lastRunTime = DateTime(1930, 1, 1);
+      lastRunTime = DateTime(1980, 1, 1);
     }
     WebFile.hasWebServer.then((result) {
       _hasWebServer = result;

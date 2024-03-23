@@ -5,7 +5,7 @@ void main() {
   runApp(AopSyncApp());
 } // of main
 
-const APP_VERSION = 'AOP Sync 20 Mar 24';
+const APP_VERSION = 'AOP Sync 23 Mar 24.v4';
 
 class AopSyncApp extends StatefulWidget {
   const AopSyncApp({super.key});
