@@ -112,12 +112,12 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
     monthDir = takendate.strftime('%Y-%m')
     modified_ts = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S').timestamp()
     print(f"uploading ({modified})")
-    targetFile = ROOT_DIR+monthDir+'\\'+filename
-    targetThumbnail = ROOT_DIR+monthDir+'\\thumbnails\\'+filename
-    targetMetadata = ROOT_DIR+monthDir+'\\metadata\\' +filename +'.json'
+    targetFile = ROOT_DIR+monthDir+'/'+filename
+    targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+filename
+    targetMetadata = ROOT_DIR+monthDir+'/metadata/' +filename +'.json'
     forceDir(ROOT_DIR+monthDir)
-    forceDir(ROOT_DIR+monthDir+'\\thumbnails\\')
-    forceDir(ROOT_DIR+monthDir+'\\metadata\\')
+    forceDir(ROOT_DIR+monthDir+'/thumbnails/')
+    forceDir(ROOT_DIR+monthDir+'/metadata/')
     # if not os.path.exists(targetFile):
     with open(targetFile, "wb") as buffer:
         shutil.copyfileobj(myfile.file, buffer)
