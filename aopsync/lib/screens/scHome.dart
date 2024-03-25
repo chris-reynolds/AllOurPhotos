@@ -8,6 +8,7 @@
 import 'dart:async';
 //import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../utils/Config.dart';
 import '../SyncDriver.dart';
@@ -40,6 +41,10 @@ class HomePageState extends State<HomePage> {
   void setInProgress(bool value) {
     setState(() {
       _inProgress = value;
+      if (_inProgress)
+        WakelockPlus.enable();
+      else
+        WakelockPlus.disable();
     });
   } // of setInProgress
 

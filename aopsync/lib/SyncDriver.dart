@@ -170,19 +170,19 @@ class SyncDriver {
       request.files.add(await http.MultipartFile.fromPath('myfile', filename,
           contentType: MediaType('image', 'jpeg')));
       var response = await request.send();
+      var responseBody = await streamToString(response.stream);
       if (response.statusCode == 200) {
         log.debug("Uploaded $imageName");
         return FileFate(imageName, Fate.Uploaded);
       } else {
-        var errorMessage = await streamToString(response.stream);
         log.error(
-            'Failed to upload $imageName  - code ${response.statusCode}\n $errorMessage');
-        if (errorMessage.contains('Duplicate entry'))
+            'Failed to upload $imageName  - code ${response.statusCode}\n $responseBody');
+        if (responseBody.contains('Duplicate entry'))
           return FileFate(imageName, Fate.Duplicate,
-              reason: errorMessage); // signal dup
+              reason: responseBody); // signal dup
         else
           return FileFate(imageName, Fate.Error,
-              reason: errorMessage); // signal error
+              reason: responseBody); // signal error
       }
     } catch (ex, st) {
       log.error('$ex\n$st');
