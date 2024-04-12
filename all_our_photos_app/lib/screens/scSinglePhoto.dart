@@ -5,6 +5,9 @@
 */
 
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:aopmodel/aopmodel.dart';
+
 import '../utils/ExportPic.dart';
 import '../widgets/PhotoViewWithRectWidget.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,8 @@ import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../widgets/wdgImageFilter.dart'; // only for the icons
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class SinglePhotoWidget extends StatefulWidget {
   const SinglePhotoWidget({Key? key}) : super(key: key);
@@ -159,9 +164,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     currentSnap = snapList![_snapIndex];
     return Scaffold(
         appBar: buildAppBar(context) as PreferredSizeWidget?,
-        body: GestureDetector(
-//          onVerticalDragStart: (cursorPos) =>
-//              yPos = cursorPos.localPosition.direction,
+        body: /* GestureDetector(
           onVerticalDragUpdate: (cursorPos) {
             if (cursorPos.delta.dy > 100)
               snapIndex = _snapIndex + 1;
@@ -169,50 +172,51 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
             log.message(
                 'onVerticalDragUpdate $_snapIndex ${cursorPos.delta.dy}');
           },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                IconButton(
-                  onPressed: () {
-                    _changeRanking(context);
-                  },
-                  icon: Icon(Icons.star,
-                      color: filterColors[currentSnap!.ranking!], size: 40.0),
-                ),
-                Text(
-                  '${currentSnap!.caption ?? ''}\n${currentSnap!.location ?? ''}',
-                  style: TextStyle(
-                      color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
-                ),
-              ]),
-              Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  onVerticalDragEnd: (dragDetails) {
-                    if (dragDetails.primaryVelocity! < 0) {
-                      // swipe up
-                      if (_snapIndex < snapList!.length - 1)
-                        snapIndex = _snapIndex + 1;
-                    } else if (dragDetails.primaryVelocity! > 0) {
-                      // swipe down
-                      if (_snapIndex > 0) snapIndex = _snapIndex - 1;
-                    }
-                  },
-                  child: Transform.rotate(
-                    angle: currentSnap!.angle,
-                    child: PhotoViewerWithRect(
-                      key: pvKey,
-                      url: currentSnap!.fullSizeURL,
-                      onScale: setIsPhotoScaled,
-                    ), // of PhotoViewerWithRect
-                  ), // of Transform
-                ), // of GestureDetector
-              ), // of Expanded
-              if (_isClippingInProgress)
-                Center(child: CircularProgressIndicator()),
-            ],
-          ),
+          child: */
+            Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+              IconButton(
+                onPressed: () {
+                  _changeRanking(context);
+                },
+                icon: Icon(Icons.star,
+                    color: filterColors[currentSnap!.ranking!], size: 40.0),
+              ),
+              Text(
+                '${currentSnap!.caption ?? ''}\n${currentSnap!.location ?? ''}',
+                style: TextStyle(
+                    color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
+              ),
+            ]),
+            Expanded(
+              flex: 1,
+              // child: GestureDetector(
+              //   onVerticalDragEnd: (dragDetails) {
+              //     if (dragDetails.primaryVelocity! < 0) {
+              //       // swipe up
+              //       if (_snapIndex < snapList!.length - 1)
+              //         snapIndex = _snapIndex + 1;
+              //     } else if (dragDetails.primaryVelocity! > 0) {
+              //       // swipe down
+              //       if (_snapIndex > 0) snapIndex = _snapIndex - 1;
+              //     }
+              //   },
+              child: Transform.rotate(
+                angle: currentSnap!.angle,
+                child: PhotoViewerWithRect(
+                  key: pvKey,
+                  url: currentSnap!.fullSizeURL,
+                  onScale: setIsPhotoScaled,
+                ), // of PhotoViewerWithRect
+              ), // of Transform
+            ), // of GestureDetector
+            // ), // of Expanded
+            if (_isClippingInProgress)
+              Center(child: CircularProgressIndicator()),
+          ],
+//          ),
         ));
   } // of build
 
@@ -224,7 +228,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   }
 
   void cropMe(BuildContext context, AopSnap? snap) async {
-    if (isPhotoScaled)
+    if (!isPhotoScaled)
       showMessage(context, 'Nothing to do. \nZoom before clicking',
           title: 'Picture is all showing');
     else {
@@ -248,36 +252,31 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       BuildContext context, AopSnap? originalSnap, Rect? rect) async {
     if (rect == null) return null;
     try {
-      Im.Image originalImage = (await loadWebImage(originalSnap!.fullSizeURL))!;
+      log.message('re-loading ${originalSnap!.fileName}');
+      Im.Image originalImage = (await loadWebImage(originalSnap.fullSizeURL))!;
+      // log.message('re-loading with image.network ${originalSnap.fileName}');
+      // Image xxx = Image.network(originalSnap.fullSizeURL);
       log.message('clipping ${originalSnap.fileName} ${originalImage.length}');
       Im.Image newFullImage = Im.copyCrop(originalImage,
           x: rect.right.round(),
           y: rect.top.round(),
           width: (rect.left - rect.right).round(),
           height: (rect.bottom - rect.top).round());
-      Im.Image newThumbnail = Im.copyResize(newFullImage,
-          width: (originalImage.width >= originalImage.height) ? 640 : 480);
-      Map<String, dynamic> buffer = originalSnap.toMap();
-      buffer.remove('id'); //
-      var newSnap = AopSnap(data: buffer);
       // sourceMarker is used for tracking where photos came from
-      String sourcerMarker = 'Crop+${originalSnap.id}';
-      newSnap.fileName =
-          await calcNewFilenameForSnap(originalSnap, sourcerMarker);
+      log.message(
+          'clipped ${originalSnap.fileName} ${newFullImage.length} ${rect.right} ${rect.top} ${newFullImage.width} ${newFullImage.height}');
+      String sourceMarker = 'Crop+${originalSnap.id}';
+      String newFilename =
+          await calcNewFilenameForSnap(originalSnap, sourceMarker);
       Map<String, dynamic> metaMap = jsonDecode(originalSnap.metadata!);
       metaMap['width'] = newFullImage.width;
       metaMap['height'] = newFullImage.height;
       metaMap['cropped'] = formatDate(DateTime.now());
-      newSnap.metadata = jsonEncode(metaMap);
-      newSnap.importSource = sourcerMarker;
-      log.message('clipping saving thumbnail');
-      await saveWebImage(newSnap.thumbnailURL, image: newThumbnail);
-      log.message('clipping saving fullimage');
-      await saveWebImage(newSnap.fullSizeURL, image: newFullImage);
-      log.message('clipping saving mketa');
-      await saveWebImage(newSnap.metadataURL, metaData: newSnap.metadata);
-      log.message('clipping saving db');
-      await newSnap.save();
+      Uint8List payload = Im.encodeJpg(newFullImage);
+      String uploadResult = await uploadImage4(
+          newFilename, DateTime.now(), payload, sourceMarker);
+      if (uploadResult.startsWith('Error')) throw uploadResult;
+      AopSnap newSnap = AopSnap(data: jsonDecode(uploadResult));
       snapList!.add(newSnap);
       // is it part of the current album. If so add it to album
       if (maybeCurrentAlbum != null) {
@@ -295,6 +294,36 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       return null;
     }
   }
+
+  Future<String> uploadImage4(String imageName, DateTime modifiedDate,
+      Uint8List fileContents, String importSource) async {
+    try {
+      String fileDateStr =
+          formatDate(modifiedDate, format: 'yyyy:mm:dd hh:nn:ss');
+      var postUrl =
+          "${WebFile.rootUrl}upload2/$fileDateStr/$imageName/$importSource";
+      var request = http.MultipartRequest("POST", Uri.parse(postUrl));
+      request.headers
+          .addAll({'Accept': 'application/json', 'Preserve': WebFile.preserve});
+      request.files.add(http.MultipartFile.fromBytes('myfile', fileContents,
+          filename: 'not_used_filename_on_url',
+          contentType: MediaType('image', 'jpeg')));
+      // request.files.add(await http.MultipartFile.fromPath('myfile', filePath));
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+      if (response.statusCode == 200) {
+        log.debug("Uploaded $imageName");
+        return responseBody;
+      } else {
+        log.error(
+            'Failed to upload $imageName  - code ${response.statusCode}\n $responseBody');
+        return "Error: $imageName \n reason: $responseBody"; // signal error
+      }
+    } catch (ex, st) {
+      log.error('$ex\n$st');
+      return "Error $imageName exception \n reason: '$ex\n$st"; // signal error
+    }
+  } //of uploadImageFile
 
   Future<String> calcNewFilenameForSnap(
       AopSnap snap, String sourceMarker) async {
