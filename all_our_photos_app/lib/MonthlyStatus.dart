@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'utils/PersistentMap.dart';
 import 'utils/Config.dart';
 
-PersistentMap _monthlyStatus = PersistentMap('monthly.txt');
+PersistentMap _monthlyStatus = PersistentMap('photos/monthly.txt');
 String currentUser = '?';
 
 class MonthlyStatus {

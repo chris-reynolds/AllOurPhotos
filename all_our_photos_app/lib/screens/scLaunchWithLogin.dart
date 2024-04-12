@@ -6,6 +6,7 @@
 */
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:aopmodel/aop_classes.dart';
 import 'package:aopmodel/domain_object.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +38,10 @@ class LaunchWithLogin extends StatelessWidget {
             '8000'); // allow interactive debugging on port 86886 with affecting server
       } else
         rootUrl = 'http://${config['host']}:${config['port']}/';
-      WebFile.setRootUrl('${rootUrl}photos/');
+      WebFile.setRootUrl(rootUrl);
       Map<String, dynamic> sessionRequest = await sessionProvider.rawRequest(
           'ses/${config['sesuser']}/${config['sespassword']}/${config['sesdevice']}');
+      WebFile.setPreserve(jsonEncode(sessionRequest));
       config['sessionid'] = sessionRequest['jam'] ?? '';
       if (!config['sessionid'].startsWith('2'))
         throw Exception('Invalid session Id');
