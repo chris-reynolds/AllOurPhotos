@@ -48,6 +48,7 @@ dependencies:
     path: ../aopmodel
   aopcommon:
     path: ../../aop/aopcommon
+  http_parser: ^4.0.2
 
 
 dev_dependencies:
