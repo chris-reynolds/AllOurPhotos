@@ -101,54 +101,66 @@ def forceDir(pathname: str):
 
 @app.post('/upload2/{modified}/{filename}/{sourceDevice}')
 async def uploader(request: Request, modified: str, filename: str, sourceDevice: str, myfile:UploadFile): #modified: str,filename: str, 
-    request_object_content = await myfile.read()
-    mediaLength = len(request_object_content)
-    img = Image.open(io.BytesIO(request_object_content))
-    img_exif = img._getexif() # pyright: ignore
-    await myfile.seek(0)  # rest file cursor to get get full copy after reading exif
-    taken = img_exif.get(306)  #DateTime
-    date_original = img_exif.get(36867)  #DateTimeOriginal
-    takendate = datetime.strptime(date_original or taken or modified,'%Y:%m:%d %H:%M:%S')
-    monthDir = takendate.strftime('%Y-%m')
-    modified_ts = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S').timestamp()
-    print(f"uploading ({modified})")
-    targetFile = ROOT_DIR+monthDir+'/'+filename
-    targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+filename
-    targetMetadata = ROOT_DIR+monthDir+'/metadata/' +filename +'.json'
-    forceDir(ROOT_DIR+monthDir)
-    forceDir(ROOT_DIR+monthDir+'/thumbnails/')
-    forceDir(ROOT_DIR+monthDir+'/metadata/')
-    # if not os.path.exists(targetFile):
-    with open(targetFile, "wb") as buffer:
-        shutil.copyfileobj(myfile.file, buffer)
-    os.utime(targetFile, (modified_ts, modified_ts))
-    # if not os.path.exists(targetThumbnail):
-    makeThumbnail(img,img_exif,targetThumbnail)
-    filteredMetadata: dict[str,str] = filterMetadata(img_exif)
-    jdata = json.dumps(filteredMetadata,indent=4,ensure_ascii=False, sort_keys=True)
-    # if not os.path.exists(targetMetadata):
-    with open(targetMetadata, 'w') as targ:
-        targ.write(jdata)
-        targ.close()
-    snap = await makeSnapDatabaseRow(img,filteredMetadata,sourceDevice,monthDir,filename,takendate,modified,mediaLength)
-    newsnap = create_snap(request,snap) 
-    print(f"uploaded ({modified})")
-    return f"uploaded ({modified} {targetFile})"
+    try:
+        request_object_content = await myfile.read()
+        mediaLength = len(request_object_content)
+        img = Image.open(io.BytesIO(request_object_content))
+        img_exif = img._getexif() # pyright: ignore
+        await myfile.seek(0)  # rest file cursor to get get full copy after reading exif
+        taken = img_exif.get(306)  #DateTime
+        date_original = img_exif.get(36867)  #DateTimeOriginal
+        takendate = datetime.strptime(date_original or taken or modified,'%Y:%m:%d %H:%M:%S')
+        monthDir = takendate.strftime('%Y-%m')
+        modified_ts = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S').timestamp()
+        print(f"uploading ({modified})")
+        targetFile = ROOT_DIR+monthDir+'/'+filename
+        targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+filename
+        targetMetadata = ROOT_DIR+monthDir+'/metadata/' +filename +'.json'
+        forceDir(ROOT_DIR+monthDir)
+        forceDir(ROOT_DIR+monthDir+'/thumbnails/')
+        forceDir(ROOT_DIR+monthDir+'/metadata/')
+        # if not os.path.exists(targetFile):
+        with open(targetFile, "wb") as buffer:
+            shutil.copyfileobj(myfile.file, buffer)
+        os.utime(targetFile, (modified_ts, modified_ts))
+        # if not os.path.exists(targetThumbnail):
+        makeThumbnail(img,img_exif,targetThumbnail)
+        filteredMetadata: dict[str,str] = filterMetadata(img_exif)
+        jdata = json.dumps(filteredMetadata,indent=4,ensure_ascii=False, sort_keys=True)
+        # if not os.path.exists(targetMetadata):
+        with open(targetMetadata, 'w') as targ:
+            targ.write(jdata)
+            targ.close()
+        snap = await makeSnapDatabaseRow(img,filteredMetadata,sourceDevice,monthDir,filename,takendate,modified,mediaLength)
+        newsnap = create_snap(request,snap) 
+        print(f"uploaded ({modified})")
+        return newsnap
+    except HTTPException: raise
+    except Exception as ex:
+        exmess: str = str(ex)
+        print("Error: in uploader()", exmess)
+        raise HTTPException(status_code=500, detail=f"{ex}") from ex
     
 def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
-    scale = max(image.height,image.width)/640
-    newSize = int(image.width/scale),int(image.height/scale)
-    image.thumbnail(newSize,Image.Resampling.LANCZOS)
-    exif_orientation = imageExif[274]
-    if (exif_orientation == 6): 
-       image = image.rotate(270)
-    if (exif_orientation == 3): 
-        image = image.rotate(180)    
-    if (exif_orientation == 8): 
-        image = image.rotate(90)
-    image.save(target,quality=50)
-    return True
-
+    try:
+        scale = max(image.height,image.width)/640
+        newSize = int(image.width/scale),int(image.height/scale)
+        image.thumbnail(newSize,Image.Resampling.LANCZOS)
+        if 274 in imageExif:
+            exif_orientation = imageExif[274]
+            if (exif_orientation == 6): 
+                image = image.rotate(270)
+            if (exif_orientation == 3): 
+                image = image.rotate(180)    
+            if (exif_orientation == 8): 
+                image = image.rotate(90)
+        image.save(target,quality=50)
+        return True
+    except HTTPException: raise
+    except Exception as ex:
+        exmess: str = str(ex)
+        print("Error: in makeThumbnail()", exmess)
+        raise HTTPException(status_code=500, detail=f"{ex}") from ex
 
 def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
     def exif_cast(v):
@@ -185,46 +197,53 @@ def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
  
 
 async def makeSnapDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sourceDevice: str, monthDir: str,filename: str,takenDate: datetime,modified: str, mediaLength: int):
-      model = filteredExif.get('Model',None)
-      deviceName: str = model or sourceDevice or 'No Device';
-      importSource: str = sourceDevice or model or 'No source';
-      newSnap = Snap()
-      newSnap.file_name = filename
-      newSnap.directory = monthDir
-      newSnap.width = img.width
-      newSnap.height = img.height
-      newSnap.taken_date = takenDate
-      newSnap.modified_date = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S')
-      newSnap.device_name = deviceName
-      newSnap.rotation = '0' 
-      newSnap.import_source = importSource
-      newSnap.imported_date = datetime.now()
+    try:
+        model = filteredExif.get('Model',None)
+        make = filteredExif.get('Make',None)
+        deviceName: str = model or make or sourceDevice or 'No Device';
+        importSource: str = sourceDevice or model or 'No source';
+        newSnap = Snap()
+        newSnap.file_name = filename
+        newSnap.directory = monthDir
+        newSnap.width = img.width
+        newSnap.height = img.height
+        newSnap.taken_date = takenDate
+        newSnap.modified_date = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S')
+        newSnap.device_name = deviceName
+        newSnap.rotation = '0' 
+        newSnap.import_source = importSource
+        newSnap.imported_date = datetime.now()
 
-      software = filteredExif.get('device.software','').lower()
-      if 'scan' in software:
-        newSnap.import_source = (newSnap.import_source or '')  + ' scanned';
-      newSnap.original_taken_date = newSnap.taken_date;
-      # checkl for duplicate
-      newSnap.media_length = mediaLength
-      try:
-        gpsInfo = filteredExif['GPSInfo']
-        if gpsInfo is not None and len(gpsInfo)>1:
-            newSnap.latitude,newSnap.longitude = dmsToDeg(gpsInfo)
-        if (newSnap.latitude != None and abs(newSnap.latitude) > 1e-6):
-            location = await getLocation(newSnap.longitude or 0, newSnap.latitude)
-            if (location != None):
-                newSnap.location = trimLocation(location);
-            print(f'found location : {newSnap.location}');
-      except Exception as ex:
-          print('gps ignored')
-      jdata = json.dumps(filteredExif,indent=4,ensure_ascii=False, sort_keys=True)  
-      newSnap.metadata = jdata   
-      fn,fext = os.path.splitext(newSnap.file_name)
-      newSnap.media_type = fext[1:].lower()  #remove the dot
-      newSnap.caption = ''
-      newSnap.tag_list = ''
-      return newSnap 
-
+        software = filteredExif.get('device.software','').lower()
+        if 'scan' in software:
+            newSnap.import_source = (newSnap.import_source or '')  + ' scanned';
+        newSnap.original_taken_date = newSnap.taken_date;
+        # checkl for duplicate
+        newSnap.media_length = mediaLength
+        try:
+            gpsInfo = filteredExif['GPSInfo']
+            if gpsInfo is not None and len(gpsInfo)>1:
+                newSnap.latitude,newSnap.longitude = dmsToDeg(gpsInfo)
+            if (newSnap.latitude != None and abs(newSnap.latitude) > 1e-6):
+                location = await getLocation(newSnap.longitude or 0, newSnap.latitude)
+                if (location != None):
+                    newSnap.location = trimLocation(location);
+                print(f'found location : {newSnap.location}');
+        except Exception as ex:
+            print('gps ignored')
+        jdata = json.dumps(filteredExif,indent=4,ensure_ascii=False, sort_keys=True)  
+        newSnap.metadata = jdata   
+        fn,fext = os.path.splitext(newSnap.file_name)
+        newSnap.media_type = fext[1:].lower()  #remove the dot
+        newSnap.caption = ''
+        newSnap.tag_list = ''
+        return newSnap 
+    except HTTPException: raise
+    except Exception as ex:
+        exmess: str = str(ex)
+        print("Error: in makeSnapDatabaseRow()", exmess)
+        raise HTTPException(status_code=500, detail=f"{ex}") from ex
+    
 def raw_sql(sqlText: str, values = None, asDictionary: bool = True):
     try:
         with connection_pool.get_connection() as connection:
