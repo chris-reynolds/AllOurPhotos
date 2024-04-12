@@ -795,24 +795,21 @@ class AopSnap extends DomainObject {
   } // of monthgrid
 
   static Future<int> getPreviousCropCount(String source) async {
-    var r = await snapProvider.rawExecute(
-        "select count(*) from aopsnaps where import_source='$source'");
-    for (var row in r) {
-      return row[0];
-    }
-    return -1; // never used but required for static analysis
+    source = source.replaceAll('+', '%2B');
+    var r = await snapProvider.rawRequest('find/cropCount?source=$source');
+    return r[0][0];
   } // of yearGrid
 
   String get fullSizeURL {
-    return '${WebFile.rootUrl}$directory/$fileName';
+    return '${WebFile.rootUrl}photos/$directory/$fileName';
   } // of fullSizeURL
 
   String get thumbnailURL {
-    return '${WebFile.rootUrl}$directory/thumbnails/$fileName';
+    return '${WebFile.rootUrl}photos/$directory/thumbnails/$fileName';
   } // of thumbnailURL
 
   String get metadataURL {
-    return '${WebFile.rootUrl}$directory/metadata/$fileName.json';
+    return '${WebFile.rootUrl}photos/$directory/metadata/$fileName.json';
   } // of metadataURL
 
   void trimSetLocation(String? newLocation) {
