@@ -17,11 +17,13 @@ class PhotoViewerWithRect extends StatelessWidget {
   final String url;
   final CallBackWithBool onScale;
 
-  PhotoViewerWithRect({required GlobalKey key,required this.url, required this.onScale}):super(key:key) {
-    pvcs.outputScaleStateStream.listen((value){
-      onScale(value == PhotoViewScaleState.initial);
+  PhotoViewerWithRect(
+      {required GlobalKey key, required this.url, required this.onScale})
+      : super(key: key) {
+    pvcs.outputScaleStateStream.listen((value) {
+      onScale(value == PhotoViewScaleState.zoomedIn ||
+          value == PhotoViewScaleState.zoomedOut);
     });
-
   } // of constructor
 
   Rect? currentRect(Size pictureSize) {
@@ -30,18 +32,24 @@ class PhotoViewerWithRect extends StatelessWidget {
       return null; // Rect.fromLTWH(0, 0, pictureSize.width, pictureSize.height);
     Offset centrePoint = pvc.position;
     double scale = pvc.scale!;
-    RenderBox renderBox = (key as GlobalKey).currentContext!.findRenderObject() as RenderBox;
+    RenderBox renderBox =
+        (key as GlobalKey).currentContext!.findRenderObject() as RenderBox;
     Size widgetSize = renderBox.size;
-    double leftEdge = (-centrePoint.dx+0.5*widgetSize.width)/scale+pictureSize.width/2;
-    double rightEdge = (-centrePoint.dx-0.5*widgetSize.width)/scale+pictureSize.width/2;
-    double topEdge = -(centrePoint.dy+0.5*widgetSize.height)/scale+pictureSize.height/2;
-    double bottomEdge = -(centrePoint.dy-0.5*widgetSize.height)/scale+pictureSize.height/2;
+    double leftEdge = (-centrePoint.dx + 0.5 * widgetSize.width) / scale +
+        pictureSize.width / 2;
+    double rightEdge = (-centrePoint.dx - 0.5 * widgetSize.width) / scale +
+        pictureSize.width / 2;
+    double topEdge = -(centrePoint.dy + 0.5 * widgetSize.height) / scale +
+        pictureSize.height / 2;
+    double bottomEdge = -(centrePoint.dy - 0.5 * widgetSize.height) / scale +
+        pictureSize.height / 2;
     // ensure inbounds if zoomed out
-    if (leftEdge>pictureSize.width) leftEdge = pictureSize.width;
-    if (rightEdge<0) rightEdge = 0;
-    if (topEdge<0) topEdge = 0;
-    if (bottomEdge>pictureSize.height) bottomEdge = pictureSize.height;
-    log.message('centre $centrePoint scale $scale  picture $pictureSize \nfrom ($rightEdge,$topEdge) to ($leftEdge,$bottomEdge)');
+    if (leftEdge > pictureSize.width) leftEdge = pictureSize.width;
+    if (rightEdge < 0) rightEdge = 0;
+    if (topEdge < 0) topEdge = 0;
+    if (bottomEdge > pictureSize.height) bottomEdge = pictureSize.height;
+    log.message(
+        'centre $centrePoint scale $scale  picture $pictureSize \nfrom ($rightEdge,$topEdge) to ($leftEdge,$bottomEdge)');
     return Rect.fromLTRB(leftEdge, topEdge, rightEdge, bottomEdge);
   } // of currentRect
 
@@ -54,6 +62,6 @@ class PhotoViewerWithRect extends StatelessWidget {
       scaleStateController: pvcs,
     );
   } // of build
+
+  // todo Image? get originalImage =>
 } // of PhotoViewerWithRect
-
-
