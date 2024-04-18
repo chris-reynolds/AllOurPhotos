@@ -170,7 +170,7 @@ class SyncDriver {
       request.files.add(await http.MultipartFile.fromPath('myfile', filename,
           contentType: MediaType('image', 'jpeg')));
       var response = await request.send();
-      var responseBody = await streamToString(response.stream);
+      var responseBody = response.stream.toString();
       if (response.statusCode == 200) {
         log.debug("Uploaded $imageName");
         return FileFate(imageName, Fate.Uploaded);
