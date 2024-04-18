@@ -70,7 +70,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
   void initState() {
     super.initState();
     _initLocations();
-    ChipProvider.remoteLocation = 'tagList.txt';
+    ChipProvider.remoteLocation = 'photos/tagList.txt';
     ChipProvider.enableLogging = true;
     ChipProvider.load().then((chips) {
       _baseChips = chips;

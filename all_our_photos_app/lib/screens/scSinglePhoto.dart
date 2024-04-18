@@ -38,9 +38,9 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   bool _isClippingInProgress = false;
 
   set isClippingInProgress(bool value) {
-    setState(() {
-      _isClippingInProgress = value;
-    });
+    //setState(() {
+    _isClippingInProgress = value;
+    // });
   }
 
   void _initParams() {
@@ -75,6 +75,12 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     return AppBar(
       title: Text('${currentSnap!.fileName} ${currentSnap!.caption}'),
       actions: <Widget>[
+        IconButton(
+          onPressed: () {
+            _changeRanking(context);
+          },
+          icon: Icon(Icons.star, color: filterColors[currentSnap!.ranking!]),
+        ),
         IconButton(
           icon: Icon(Icons.arrow_upward),
           onPressed: (_snapIndex == 0)
@@ -176,20 +182,20 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
             Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              IconButton(
-                onPressed: () {
-                  _changeRanking(context);
-                },
-                icon: Icon(Icons.star,
-                    color: filterColors[currentSnap!.ranking!], size: 40.0),
-              ),
-              Text(
-                '${currentSnap!.caption ?? ''}\n${currentSnap!.location ?? ''}',
-                style: TextStyle(
-                    color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
-              ),
-            ]),
+            // Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            //   IconButton(
+            //     onPressed: () {
+            //       _changeRanking(context);
+            //     },
+            //     icon: Icon(Icons.star,
+            //         color: filterColors[currentSnap!.ranking!], size: 40.0),
+            //   ),
+            //   Text(
+            //     '${currentSnap!.caption ?? ''}\n${currentSnap!.location ?? ''}',
+            //     style: TextStyle(
+            //         color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
+            //   ),
+            // ]),
             Expanded(
               flex: 1,
               // child: GestureDetector(
