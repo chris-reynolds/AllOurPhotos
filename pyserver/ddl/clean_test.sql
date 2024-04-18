@@ -1,1 +1,1 @@
-SELECT spsessioncreate('ben','00ben00','heidi');
+SELECT spsessioncreate('chris','chris00','heidi');
