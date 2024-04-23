@@ -105,6 +105,8 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
         request_object_content = await myfile.read()
         mediaLength = len(request_object_content)
         img = Image.open(io.BytesIO(request_object_content))
+        fullWidth = img.width
+        fullHeight = img.height 
         img_exif = img._getexif() # pyright: ignore
         await myfile.seek(0)  # rest file cursor to get get full copy after reading exif
         taken = img_exif.get(306)  #DateTime
@@ -131,7 +133,8 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
         with open(targetMetadata, 'w') as targ:
             targ.write(jdata)
             targ.close()
-        snap = await makeSnapDatabaseRow(img,filteredMetadata,sourceDevice,monthDir,filename,takendate,modified,mediaLength)
+        snap = await makeSnapDatabaseRow(fullWidth,fullHeight,filteredMetadata,sourceDevice,
+                                         monthDir,filename,takendate,modified,mediaLength)
         newsnap = create_snap(request,snap) 
         print(f"uploaded ({modified})")
         return newsnap
@@ -196,7 +199,7 @@ def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
     return result
  
 
-async def makeSnapDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sourceDevice: str, monthDir: str,filename: str,takenDate: datetime,modified: str, mediaLength: int):
+async def makeSnapDatabaseRow(width: int, height: int,filteredExif: dict[str,str], sourceDevice: str, monthDir: str,filename: str,takenDate: datetime,modified: str, mediaLength: int):
     try:
         model = filteredExif.get('Model',None)
         make = filteredExif.get('Make',None)
@@ -205,8 +208,8 @@ async def makeSnapDatabaseRow(img: Image.Image,filteredExif: dict[str,str], sour
         newSnap = Snap()
         newSnap.file_name = filename
         newSnap.directory = monthDir
-        newSnap.width = img.width
-        newSnap.height = img.height
+        newSnap.width = width
+        newSnap.height = height
         newSnap.taken_date = takenDate
         newSnap.modified_date = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S')
         newSnap.device_name = deviceName

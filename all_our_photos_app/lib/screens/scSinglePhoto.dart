@@ -260,17 +260,21 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     try {
       log.message('re-loading ${originalSnap!.fileName}');
       Im.Image originalImage = (await loadWebImage(originalSnap.fullSizeURL))!;
-      // log.message('re-loading with image.network ${originalSnap.fileName}');
-      // Image xxx = Image.network(originalSnap.fullSizeURL);
-      log.message('clipping ${originalSnap.fileName} ${originalImage.length}');
+      num degreesRotation = double.parse(originalSnap.rotation ?? '0') * 90;
+      if (degreesRotation.abs() > 1e-1) {
+        originalImage = Im.copyRotate(originalImage, angle: degreesRotation);
+        log.message('rotated before crop');
+      }
+      log.message('clipped ${originalSnap.fileName} ${originalImage.length} '
+          ' width:${originalImage.width} height:${originalImage.height}');
       Im.Image newFullImage = Im.copyCrop(originalImage,
           x: rect.right.round(),
           y: rect.top.round(),
           width: (rect.left - rect.right).round(),
           height: (rect.bottom - rect.top).round());
       // sourceMarker is used for tracking where photos came from
-      log.message(
-          'clipped ${originalSnap.fileName} ${newFullImage.length} ${rect.right} ${rect.top} ${newFullImage.width} ${newFullImage.height}');
+      log.message('clipped ${originalSnap.fileName} ${newFullImage.length} '
+          'right:${rect.right} top:${rect.top} width:${newFullImage.width} height:${newFullImage.height}');
       String sourceMarker = 'Crop+${originalSnap.id}';
       String newFilename =
           await calcNewFilenameForSnap(originalSnap, sourceMarker);
