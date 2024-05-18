@@ -5,7 +5,7 @@ import '../flutter_common/WidgetSupport.dart';
 import 'scSimpleDlg.dart';
 
 class AlbumList extends StatefulWidget {
-  const AlbumList({Key? key}) : super(key: key);
+  const AlbumList({super.key});
 
   @override
   AlbumListState createState() => AlbumListState();
@@ -158,7 +158,7 @@ class AlbumListState extends State<AlbumList> {
 class ChildItem extends StatelessWidget {
   final AopAlbum album;
   final AlbumListState parent;
-  const ChildItem(this.album, this.parent, {Key? key}) : super(key: key);
+  const ChildItem(this.album, this.parent, {super.key});
 
   @override
   Widget build(BuildContext context) {

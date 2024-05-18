@@ -16,15 +16,14 @@ const double HEADER_OFFSET = 50;
 
 class PhotoTile extends StatefulWidget {
   const PhotoTile(
-      {Key? key,
+      {super.key,
       required this.snapList,
       required this.index,
       this.isSelected = false,
       this.inSelectMode = false,
       this.highResolution = false,
       required this.onBannerTap,
-      required this.onBannerLongPress})
-      : super(key: key);
+      required this.onBannerLongPress});
   final List<AopSnap> snapList;
   final int index;
   final bool isSelected;

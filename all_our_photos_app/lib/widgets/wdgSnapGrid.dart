@@ -14,8 +14,7 @@ class SsSnapGrid extends StatelessWidget {
   final dynamic parentGrid;
   final AopAlbum? possibleParentAlbum;
   const SsSnapGrid(this.snapList, this.parentGrid, this.possibleParentAlbum,
-      {Key? key})
-      : super(key: key);
+      {super.key});
 
   Widget snapTile(BuildContext context, int index) {
     AopSnap snap = snapList![index];

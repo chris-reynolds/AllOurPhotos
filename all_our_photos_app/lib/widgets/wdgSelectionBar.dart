@@ -11,19 +11,20 @@ class SelectionBar extends StatelessWidget {
   final Selection parentGrid;
   final Function onAccept;
   // we can only use this common for a widget that uses the Selection mixin
-  const SelectionBar(this.parentGrid,{required this.onAccept, Key? key}):super(key: key);
+  const SelectionBar(this.parentGrid, {required this.onAccept, super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       actions: <Widget>[
         Text('${parentGrid.selectionList.length} items selected'),
-        IconButton(icon:Icon(Icons.check),onPressed: (){}),
-        IconButton(icon:Icon(Icons.close),onPressed: (){
-          parentGrid.clearSelected();}),
+        IconButton(icon: Icon(Icons.check), onPressed: () {}),
+        IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              parentGrid.clearSelected();
+            }),
       ],
     ); // of row
   }
 }
-
-

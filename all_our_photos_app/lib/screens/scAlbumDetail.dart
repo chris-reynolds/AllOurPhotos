@@ -13,7 +13,7 @@ import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class AlbumDetail extends StatefulWidget {
-  const AlbumDetail({Key? key}) : super(key: key);
+  const AlbumDetail({super.key});
 
   @override
   AlbumDetailState createState() => AlbumDetailState();

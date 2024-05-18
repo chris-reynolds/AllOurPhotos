@@ -13,7 +13,7 @@ import '../ImageFilter.dart';
 import '../widgets/wdgSnapGrid.dart';
 
 class AlbumAddPhoto extends StatefulWidget {
-  const AlbumAddPhoto({Key? key}) : super(key: key);
+  const AlbumAddPhoto({super.key});
 
   @override
   AlbumAddPhotoState createState() => AlbumAddPhotoState();

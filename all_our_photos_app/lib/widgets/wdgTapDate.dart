@@ -12,8 +12,7 @@ typedef DateChangedEvent = Function(DateTime);
 class TapDateWidget extends StatefulWidget {
   final DateTime _initDate;
   final DateChangedEvent _onChange;
-  const TapDateWidget(this._initDate, this._onChange, {Key? key})
-      : super(key: key);
+  const TapDateWidget(this._initDate, this._onChange, {super.key});
 
   @override
   State<StatefulWidget> createState() {

@@ -3,7 +3,7 @@ import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
 
 class SearchList extends StatefulWidget {
-  const SearchList({Key? key}) : super(key: key);
+  const SearchList({super.key});
 
   @override
   SearchListState createState() => SearchListState();

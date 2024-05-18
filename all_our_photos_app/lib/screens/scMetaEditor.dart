@@ -15,7 +15,7 @@ import '../flutter_common/WidgetSupport.dart';
 import 'package:aopcommon/aopcommon.dart';
 
 class MetaEditorWidget extends StatefulWidget {
-  const MetaEditorWidget({Key? key}) : super(key: key);
+  const MetaEditorWidget({super.key});
 
   @override
   MetaEditorWidgetState createState() => MetaEditorWidgetState();

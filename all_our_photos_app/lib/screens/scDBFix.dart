@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class DbFixFormWidget extends StatefulWidget {
-  const DbFixFormWidget({Key? key}) : super(key: key);
+  const DbFixFormWidget({super.key});
 
   @override
   State<StatefulWidget> createState() {

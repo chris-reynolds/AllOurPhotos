@@ -12,7 +12,7 @@ typedef QuarterCallback = void Function(int);
 class MonthSelector extends StatefulWidget {
   final QuarterCallback onPressed;
 
-  const MonthSelector({Key? key, required this.onPressed}) : super(key: key);
+  const MonthSelector({super.key, required this.onPressed});
 
   @override
   MonthSelectorState createState() => MonthSelectorState();
