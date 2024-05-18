@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:aopcommon/aopcommon.dart';
+// import 'package:aopcommon/aopcommon.dart';
 import 'scAlbumList.dart';
 import 'scTesting.dart';
 import 'scDBFix.dart';
@@ -7,7 +7,7 @@ import '../widgets/wdgYearGrid.dart';
 import '../flutter_common/WidgetSupport.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key, this.title, this.logoutFn}) : super(key: key);
+  const HomeScreen({super.key, this.title, this.logoutFn});
   final Function? logoutFn;
   final String? title;
 
@@ -50,12 +50,11 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double dwidth = MediaQuery.of(context).size.width;
-    log.message('width=$dwidth **************************');
+    UIPreferences.setContext(context);
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
-            child: Text('${widget.title!} and $dwidth',
+            child: Text(widget.title ?? '',
                 style: Theme.of(context).tabBarTheme.labelStyle),
             onDoubleTap: () {
               setState(() {

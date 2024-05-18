@@ -7,6 +7,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:aopmodel/aopmodel.dart';
+//import 'package:flutter/widgets.dart';
 
 import '../utils/ExportPic.dart';
 import '../widgets/PhotoViewWithRectWidget.dart';
@@ -20,7 +21,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 class SinglePhotoWidget extends StatefulWidget {
-  const SinglePhotoWidget({Key? key}) : super(key: key);
+  const SinglePhotoWidget({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -71,81 +72,83 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       });
   }
 
+  Future<void> _doDownload(BuildContext context) async {
+    try {
+      var success = await ExportPic.export(currentSnap!, 'AllOurPhotos');
+      if (!success) showMessage(context, "Download failed");
+    } catch (ex) {
+      log.error('$ex');
+      showMessage(context, '$ex');
+    }
+  } // of download
+
   Widget buildAppBar(BuildContext context) {
-    return AppBar(
-      title: Text('${currentSnap!.fileName} ${currentSnap!.caption}'),
-      actions: <Widget>[
-        IconButton(
+    return Row(
+      children: [
+        MyIconButton(Icons.arrow_back, onPressed: () {
+          Navigator.pop(context);
+        }),
+        Spacer(),
+        if (!UIPreferences.isSmallScreen)
+          Text('${currentSnap!.fileName} ${currentSnap!.caption}'),
+        MyIconButton(Icons.star, onPressed: () {
+          _changeRanking(context);
+        }, color: filterColors[currentSnap!.ranking!]),
+        MyIconButton(
+          Icons.arrow_upward,
+          enabled: (_snapIndex > 0),
           onPressed: () {
-            _changeRanking(context);
+            snapIndex = _snapIndex - 1;
           },
-          icon: Icon(Icons.star, color: filterColors[currentSnap!.ranking!]),
         ),
-        IconButton(
-          icon: Icon(Icons.arrow_upward),
-          onPressed: (_snapIndex == 0)
-              ? null
-              : () {
-                  snapIndex = _snapIndex - 1;
-                },
-        ),
-        IconButton(
-            icon: Icon(Icons.arrow_downward),
-            onPressed: (_snapIndex >= snapList!.length - 1)
-                ? null
-                : () {
-                    snapIndex = _snapIndex + 1;
-                  }),
-        IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () async {
-              await Navigator.pushNamed(context, 'MetaEditor',
-                  arguments: currentSnap);
-              setState(() {}); //force repaint on return
-            }),
-        IconButton(
-          icon: Icon(Icons.rotate_left),
+        MyIconButton(Icons.arrow_downward,
+            enabled: (_snapIndex < snapList!.length - 1), onPressed: () {
+          snapIndex = _snapIndex + 1;
+        }),
+        MyIconButton(Icons.edit, onPressed: () async {
+          await Navigator.pushNamed(context, 'MetaEditor',
+              arguments: currentSnap);
+          setState(() {}); //force repaint on return
+        }), // edit iconButton
+        MyIconButton(
+          Icons.rotate_left,
           onPressed: () async {
             currentSnap!.rotate(-1);
             _saveWithError(context);
           },
         ),
-        IconButton(
-          icon: Icon(Icons.rotate_right),
+        MyIconButton(
+          Icons.rotate_right,
           onPressed: () async {
             currentSnap!.rotate(1);
             _saveWithError(context);
           },
         ),
-        IconButton(
-          icon: Icon(Icons.download_outlined),
+        // if (!UIPreferences.isSmallScreen)
+        MyIconButton(
+          Icons.download_outlined,
           onPressed: () async {
-            try {
-              var success =
-                  await ExportPic.export(currentSnap!, 'AllOurPhotos');
-              if (!success) showMessage(context, "Download failed");
-            } catch (ex) {
-              log.error('$ex');
-              showMessage(context, '$ex');
-            }
-          }, // of onPressed download
+            await _doDownload(context);
+          },
         ),
-        IconButton(
-            icon: Icon(Icons.crop),
-            onPressed: () {
-              cropMe(context, currentSnap);
-            }),
-        IconButton(
-            icon: Icon(Icons.palette),
-            onPressed: (_snapIndex == 1) ? () {} : null),
+        MyIconButton(Icons.crop, onPressed: () {
+          cropMe(context, currentSnap);
+        }),
         PopupMenuButton<String>(
-          onSelected: (String result) {
+          onSelected: (String result) async {
             if (result == 'exif') {
               showExif(context, currentSnap!);
-            } else if (result == 'exif-thumb')
+            } else if (result == 'exif-thumb') {
               showThumbnailExif(context, currentSnap!);
+            } else if (result == 'download') {
+              await _doDownload(context);
+            }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            PopupMenuItem<String>(
+              value: 'download',
+              child: Text('Download'),
+            ),
             PopupMenuItem<String>(
               value: 'exif',
               enabled: (currentSnap!.metadata != null),
@@ -169,7 +172,6 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];
     return Scaffold(
-        appBar: buildAppBar(context) as PreferredSizeWidget?,
         body: /* GestureDetector(
           onVerticalDragUpdate: (cursorPos) {
             if (cursorPos.delta.dy > 100)
@@ -180,50 +182,50 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           },
           child: */
             Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            // Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            //   IconButton(
-            //     onPressed: () {
-            //       _changeRanking(context);
-            //     },
-            //     icon: Icon(Icons.star,
-            //         color: filterColors[currentSnap!.ranking!], size: 40.0),
-            //   ),
-            //   Text(
-            //     '${currentSnap!.caption ?? ''}\n${currentSnap!.location ?? ''}',
-            //     style: TextStyle(
-            //         color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
-            //   ),
-            // ]),
-            Expanded(
-              flex: 1,
-              // child: GestureDetector(
-              //   onVerticalDragEnd: (dragDetails) {
-              //     if (dragDetails.primaryVelocity! < 0) {
-              //       // swipe up
-              //       if (_snapIndex < snapList!.length - 1)
-              //         snapIndex = _snapIndex + 1;
-              //     } else if (dragDetails.primaryVelocity! > 0) {
-              //       // swipe down
-              //       if (_snapIndex > 0) snapIndex = _snapIndex - 1;
-              //     }
-              //   },
-              child: Transform.rotate(
-                angle: currentSnap!.angle,
-                child: PhotoViewerWithRect(
-                  key: pvKey,
-                  url: currentSnap!.fullSizeURL,
-                  onScale: setIsPhotoScaled,
-                ), // of PhotoViewerWithRect
-              ), // of Transform
-            ), // of GestureDetector
-            // ), // of Expanded
-            if (_isClippingInProgress)
-              Center(child: CircularProgressIndicator()),
-          ],
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        buildAppBar(context),
+        // Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        //   IconButton(
+        //     onPressed: () {
+        //       _changeRanking(context);
+        //     },
+        //     icon: Icon(Icons.star,
+        //         color: filterColors[currentSnap!.ranking!], size: 40.0),
+        //   ),
+        //   Text(
+        //     '${currentSnap!.caption ?? ''}\n${currentSnap!.location ?? ''}',
+        //     style: TextStyle(
+        //         color: Colors.greenAccent.withOpacity(1.0), fontSize: 20),
+        //   ),
+        // ]),
+        Expanded(
+          flex: 1,
+          // child: GestureDetector(
+          //   onVerticalDragEnd: (dragDetails) {
+          //     if (dragDetails.primaryVelocity! < 0) {
+          //       // swipe up
+          //       if (_snapIndex < snapList!.length - 1)
+          //         snapIndex = _snapIndex + 1;
+          //     } else if (dragDetails.primaryVelocity! > 0) {
+          //       // swipe down
+          //       if (_snapIndex > 0) snapIndex = _snapIndex - 1;
+          //     }
+          //   },
+          child: Transform.rotate(
+            angle: currentSnap!.angle,
+            child: PhotoViewerWithRect(
+              key: pvKey,
+              url: currentSnap!.fullSizeURL,
+              onScale: setIsPhotoScaled,
+            ), // of PhotoViewerWithRect
+          ), // of Transform
+        ), // of GestureDetector
+        // ), // of Expanded
+        if (_isClippingInProgress) Center(child: CircularProgressIndicator()),
+      ],
 //          ),
-        ));
+    ));
   } // of build
 
   void setIsPhotoScaled(bool value) {

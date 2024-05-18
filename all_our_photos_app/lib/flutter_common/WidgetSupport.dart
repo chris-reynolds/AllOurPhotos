@@ -6,15 +6,86 @@ Purpose: This file provides some utilities to make Flutter less verbose
 */
 
 import 'package:flutter/material.dart';
+import 'package:aopcommon/aopcommon.dart';
 
 // import 'package:flutter_form_builder/flutter_form_builder.dart';
+
+class UIPreferences {
+  static String mode = 'Unset';
+  static double iconSize = 20;
+  static double iconBorder = 2;
+  static double textSize = 20;
+  static int maxGridColumns = 5;
+  static int defaultGridColumns = 2;
+  static bool isSmallScreen = false;
+  static bool isMediumScreen = false;
+  static bool isLargeScreen = false;
+  static get borderedIcon => iconSize + 2 * iconBorder;
+  static void setContext(BuildContext context) {
+    double width = MediaQuery.sizeOf(context).width;
+    isSmallScreen = false;
+    isMediumScreen = false;
+    isLargeScreen = false;
+    if (width < 600) {
+      mode = 'Phone';
+      iconSize = 24;
+      textSize = 12;
+      maxGridColumns = 3;
+      defaultGridColumns = 1;
+      isSmallScreen = true;
+    } else if (width <= 1200) {
+      mode = 'Tablet';
+      iconSize = 36;
+      textSize = 24;
+      maxGridColumns = 5;
+      defaultGridColumns = 2;
+      isMediumScreen = true;
+    } else {
+      mode = 'Desktop';
+      iconSize = 36;
+      textSize = 24;
+      maxGridColumns = 6;
+      defaultGridColumns = 3;
+      isLargeScreen = true;
+    }
+    log.message('width=$width mode=$mode **************************');
+  } // of setWidth
+} // ofr UIPreferences
+
+class MyIconButton extends SizedBox {
+  MyIconButton(IconData icondata,
+      {void Function()? onPressed, Color? color, bool enabled = true})
+      : super(
+          width: UIPreferences.borderedIcon,
+          height: UIPreferences.borderedIcon,
+          child: InkWell(
+              onTap: enabled ? onPressed : null,
+              enableFeedback: enabled,
+              child: enabled
+                  ? ((color == null)
+                      ? Icon(
+                          icondata,
+                          size: UIPreferences.iconSize,
+                        )
+                      : Icon(
+                          icondata,
+                          color: color,
+                          size: UIPreferences.iconSize,
+                        ))
+                  : Icon(icondata,
+                      size: UIPreferences.iconSize, color: Colors.black12)),
+        );
+}
+
+Text myText(String data) =>
+    Text(data, style: TextStyle(fontSize: UIPreferences.textSize));
 
 class AssetWidget extends StatelessWidget {
   final String name;
   final double size;
   final Color color;
-  const AssetWidget(this.name, {Key? key, this.size = 50, required this.color})
-      : super(key: key);
+  const AssetWidget(this.name,
+      {super.key, this.size = 50, required this.color});
 
   @override
   Widget build(BuildContext context) {

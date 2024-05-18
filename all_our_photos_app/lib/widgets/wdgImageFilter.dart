@@ -10,7 +10,13 @@ import '../ImageFilter.dart';
 import 'wdgTapDate.dart';
 
 // blue gray not actually used. just holding the zero position
-const filterColors = <Color>[Colors.blueGrey, Colors.red, Colors.orange, Colors.green, Colors.pink];
+const filterColors = <Color>[
+  Colors.blueGrey,
+  Colors.red,
+  Colors.orange,
+  Colors.green,
+  Colors.pink
+];
 
 IconData _rankIcon(bool selected) => selected ? Icons.star : Icons.star_border;
 
@@ -18,7 +24,8 @@ class ImageFilterWidget extends StatefulWidget {
   final ImageFilter _initImageFilter;
   final VoidCallback onRefresh;
 
-  const ImageFilterWidget(this._initImageFilter, {required this.onRefresh, Key? key}): super(key: key);
+  const ImageFilterWidget(this._initImageFilter,
+      {required this.onRefresh, super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -93,11 +100,26 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
           child: !changeMode
               ? Row(
                   children: [
-                    IconButton(icon: Icon(Icons.first_page),onPressed: (){onMonthMove(-1);},tooltip: 'Back 1 month', iconSize: 36,),
-                    Text(
-                      '  Filter : ${_imageFilter.searchText} ${formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}' ' upto ${formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
+                    IconButton(
+                      icon: Icon(Icons.first_page),
+                      onPressed: () {
+                        onMonthMove(-1);
+                      },
+                      tooltip: 'Back 1 month',
+                      iconSize: 36,
                     ),
-                    IconButton(icon: Icon(Icons.last_page),onPressed: (){onMonthMove(1);},tooltip: 'Advance 1 month',iconSize: 36,),
+                    Text(
+                      '${_imageFilter.searchText} ${formatDate(_imageFilter.fromDate, format: 'd-mmm-yyyy')}'
+                      ' upto ${formatDate(_imageFilter.toDate, format: 'd-mmm-yyyy')}',
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.last_page),
+                      onPressed: () {
+                        onMonthMove(1);
+                      },
+                      tooltip: 'Advance 1 month',
+                      iconSize: 36,
+                    ),
                     Expanded(child: Text('')),
                     IconButton(
                       icon: Icon(Icons.search),
@@ -162,7 +184,8 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 IconButton(
-                                    icon: Icon(Icons.refresh, size: 40.0), onPressed: onRefresh),
+                                    icon: Icon(Icons.refresh, size: 40.0),
+                                    onPressed: onRefresh),
                               ],
                             ),
                           )

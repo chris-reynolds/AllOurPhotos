@@ -7,8 +7,9 @@ import 'screens/scMetaEditor.dart';
 import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
+//import 'package:aopcommon/aopcommon.dart';
 
-const VERSION = 'All Our Photos 18 Apr 2024';
+const VERSION = 'All Our Photos 18a May 2024';
 
 void main() {
   MaterialApp application = MaterialApp(
@@ -17,6 +18,7 @@ void main() {
     //showSemanticsDebugger: true,
     theme: ThemeData(
       primarySwatch: Colors.blue,
+      iconTheme: IconThemeData(size: 20),
     ),
     //   fontFamily: 'Helvetica', //'Helvetica',
     //   primaryColor: const Color(0xFF02BB9F),

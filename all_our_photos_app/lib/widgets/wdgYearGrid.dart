@@ -20,7 +20,7 @@ class YearEntry {
 } // of yearEntry
 
 class YearGrid extends StatefulWidget {
-  const YearGrid({Key? key}) : super(key: key);
+  const YearGrid({super.key});
 
   @override
   YearGridState createState() => YearGridState();
@@ -29,13 +29,21 @@ class YearGrid extends StatefulWidget {
 class YearGridState extends State<YearGrid> {
   late Future<List<YearEntry>> yearList = buildYears();
   late Future<int> monthlyStatusIndic = MonthlyStatus.init();
-  double gridFontSize = 20.0;
-  double gridIconSize = 20.0;
   int _currentYear = 0;
   int _currentMonth = 0;
   void setCurrent(int year, int month) {
     _currentYear = year;
     _currentMonth = month;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   bool isCurrent(int year, int month) =>
@@ -81,60 +89,91 @@ class YearGridState extends State<YearGrid> {
         : Colors.amber; // todo
   }
 
+  Widget paintMonthIcon(int yearNo, int monthNo, {bool isEmpty = false}) {
+    return InkWell(
+        onTap: () => handleMonthClick(yearNo, monthNo),
+        child: SizedBox(
+          width: UIPreferences.borderedIcon,
+          height: UIPreferences.borderedIcon,
+          child: Icon(
+              isEmpty
+                  ? Icons.radio_button_unchecked
+                  : isCurrent(yearNo, monthNo)
+                      ? Icons.ac_unit
+                      : MonthlyStatus.icon(yearNo, monthNo),
+              size: UIPreferences.iconSize,
+              color: isEmpty
+                  ? Color(0xFFE0E0E0)
+                  : monthProgressColor(yearNo, monthNo)),
+        ));
+  }
+
   Row yearRowBuilder(YearEntry thisYear) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      Text('${thisYear.yearno}',
-          style:
-              TextStyle(fontSize: gridFontSize, fontWeight: FontWeight.bold)),
-      for (int monthIx = 1; monthIx <= 12; monthIx++)
-        if (thisYear.months[monthIx] > 0)
-          IconButton(
-            constraints: BoxConstraints(
-                maxHeight: gridIconSize + 8,
-                maxWidth: gridIconSize + 4,
-                minHeight: gridIconSize + 8,
-                minWidth: gridIconSize + 4),
-            padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
-            icon: Icon(
-                isCurrent(thisYear.yearno, monthIx)
-                    ? Icons.ac_unit
-                    : MonthlyStatus.icon(thisYear.yearno, monthIx),
-                size: gridIconSize,
-                color: monthProgressColor(thisYear.yearno, monthIx)),
-            // tooltip: 'Todo: Maybe location info',
-            onPressed: () {
-              handleMonthClick(thisYear.yearno, monthIx);
-            },
-          )
-        else
-          IconButton(
-            constraints: BoxConstraints(
-                maxHeight: gridIconSize + 8,
-                maxWidth: gridIconSize + 4,
-                minHeight: gridIconSize + 8,
-                minWidth: gridIconSize + 4),
-            padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
-            icon: Icon(Icons.radio_button_unchecked, size: gridIconSize),
-            onPressed: () {},
-          ),
-    ]);
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('${thisYear.yearno}',
+              style: TextStyle(
+                  fontSize: UIPreferences.textSize,
+                  fontWeight: FontWeight.bold)),
+          for (int monthIx = 1; monthIx <= 12; monthIx++)
+            paintMonthIcon(thisYear.yearno, monthIx,
+                isEmpty: thisYear.months[monthIx] <= 0)
+          // IconButton(
+          //   constraints: BoxConstraints(),
+          //   // maxHeight: gridIconSize + 10,
+          //   // maxWidth: gridIconSize + 5,
+          //   // minHeight: gridIconSize + 10,
+          //   // minWidth: gridIconSize + 5),
+          //   style: IconButton.styleFrom(backgroundColor: Colors.redAccent),
+          //   padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
+          //   icon: Icon(
+          //       isCurrent(thisYear.yearno, monthIx)
+          //           ? Icons.ac_unit
+          //           : MonthlyStatus.icon(thisYear.yearno, monthIx),
+          //       size: gridIconSize,
+          //       color: monthProgressColor(thisYear.yearno, monthIx)),
+          //   // tooltip: 'Todo: Maybe location info',
+          //   onPressed: () {
+          //     handleMonthClick(thisYear.yearno, monthIx);
+          //   },
+          // )
+          // else
+          //   Container(
+          //     width: gridIconSize + 4,
+          //     height: gridIconSize + 4,
+          //     decoration: BoxDecoration(
+          //         shape: BoxShape.circle,
+          //         color: Color.fromRGBO(193, 191, 191, 0.2)),
+          //     // constraints: BoxConstraints(),
+          //     // // maxHeight: gridIconSize + 10,
+          //     // // maxWidth: gridIconSize + 5,
+          //     // // minHeight: gridIconSize + 10,
+          //     // // minWidth: gridIconSize + 5),
+          //     // padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
+          //     // icon: Icon(Icons.radio_button_unchecked, size: gridIconSize),
+          //     // onPressed: () {},
+          //   ),
+        ]);
   } // of yearRowBuilder
 
   @override
   Widget build(BuildContext context) {
-    bool smallScreen = (MediaQuery.of(context).size.width < 765); // 800
-    gridFontSize = smallScreen ? 12 : 24;
-    gridIconSize = smallScreen ? 24 : 32;
     List<Widget> monthNamesHeader = [
       InkWell(
         child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: monthNames
-                .map((monthName) => Text(
+                .map((monthName) => SizedBox(
+                    width: UIPreferences.borderedIcon,
+                    height: UIPreferences.borderedIcon,
+                    child: Text(
                       monthName,
                       style: TextStyle(
-                          fontSize: gridFontSize, fontWeight: FontWeight.bold),
-                    ))
+                          fontSize: UIPreferences.textSize,
+                          fontWeight: FontWeight.bold),
+                    )))
                 .toList()),
         onTap: () {
           log.message('resetting yearlist');

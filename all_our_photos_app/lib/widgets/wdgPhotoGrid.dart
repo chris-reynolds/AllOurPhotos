@@ -24,10 +24,9 @@ class PhotoGrid extends StatefulWidget {
   final CallBack? removeAlbumItems;
 
   PhotoGrid(this._initImageFilter,
-      {AopAlbum? album, CallBack? refreshNow, this.removeAlbumItems, Key? key})
+      {AopAlbum? album, CallBack? refreshNow, this.removeAlbumItems, super.key})
       : _album = album,
-        _refreshNow = refreshNow,
-        super(key: key) {
+        _refreshNow = refreshNow {
 //    log.message('PhotoGrid constructor by filter');
   }
 
@@ -54,8 +53,8 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     if (repaint) setState(() {});
   } // of selectAll
 
-  int _picsPerRow = -1; // can be toggled
-  int _maxPicsPerRow = 5;
+  int _picsPerRow = UIPreferences.defaultGridColumns;
+  int _maxPicsPerRow = UIPreferences.maxGridColumns;
 
   void changePicsPerRow() {
     setState(() {
@@ -155,7 +154,6 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
             ? const Text('Grid list')
             : Row(
                 children: <Widget>[
-                  //          Text('Select All'),
                   IconButton(
                       icon: Icon(Icons.select_all),
                       tooltip: 'Select/Clear All',
@@ -246,7 +244,8 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                     snapList: _imageFilter.items,
                     index: idx,
                     inSelectMode: _inSelectMode,
-                    highResolution: (_picsPerRow == 1),
+                    highResolution:
+                        (_picsPerRow == 1 && !UIPreferences.isSmallScreen),
                     onBannerTap: (AopSnap imageFile) async {
                       if (_inSelectMode) {
                         _imageFilter.setSelected(_imageFilter.items[idx],
