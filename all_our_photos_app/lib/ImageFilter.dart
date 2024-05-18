@@ -81,7 +81,7 @@ class ImageFilter
     _images = await snapProvider.getSome(whereClause(),
         orderBy: 'taken_date,id'); //todo: reverse order
     clearSelected();
-    // todo check ascending or descending date sort
+    // TODO: check ascending or descending date sort
     //   _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
     _refreshRequired = false;
     log.message('returning ${_images.length} images');
@@ -100,7 +100,7 @@ class ImageFilter
     for (int rankNo = 1; rankNo <= 3; rankNo++)
       if (_rank[rankNo]) result += '$rankNo,';
     result += '-999) ';
-    // todo string search criteria
+    // TODO: string search criteria
     return result;
   } // of whereClause
 

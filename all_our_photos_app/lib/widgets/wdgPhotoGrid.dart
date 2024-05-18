@@ -94,7 +94,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
 
   void changeSelectMode() {
     setState(() {
-      // todo check clear selection maybe
+      // TODO: check clear selection maybe
       _imageFilter.clearSelected();
       _inSelectMode = !_inSelectMode;
     });

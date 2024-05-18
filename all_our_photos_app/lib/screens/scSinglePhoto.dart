@@ -166,7 +166,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // todo:  double yPos;
+    // TODO:  double yPos;
     if (snapList == null)
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];

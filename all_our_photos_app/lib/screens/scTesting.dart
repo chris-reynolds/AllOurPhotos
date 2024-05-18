@@ -129,7 +129,7 @@ class SearchListState extends State<SearchList> {
         await snapProvider.getSome('location is null and latitude is not null');
     GeocodingSession geo = GeocodingSession();
     int sofar = 0;
-    // todo populate the cache
+    // TODO: populate the cache
     dynamic r = await AopSnap.existingLocations;
     for (dynamic row in r.rows) geo.setLocation(row[1], row[2], row[0]);
     log.message('${snapList.length} snaps to code');

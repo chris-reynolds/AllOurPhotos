@@ -95,7 +95,7 @@ class AlbumDetailState extends State<AlbumDetail>
     });
   } // of handleAddAlbumItem
 
-  // todo : review album delete
+  // TODO: review album delete
   // Future<void> handleDelete(BuildContext context) async {
   //   bool deleteAlbum = false;
   //   if (selectionList == null) return; // nothing to delete

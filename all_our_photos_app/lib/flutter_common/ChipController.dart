@@ -62,7 +62,7 @@ class ChipSetSummary {
     }
     _total += 1;
   }
-  // todo: review what coverage is all about
+  // TODO: review what coverage is all about
   /*
   eCoverage coverage(String chip) {
     if (!items.containsKey(chip) || _total==0)
