@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:aopcommon/aopcommon.dart';
 import 'scAlbumList.dart';
 import 'scTesting.dart';
 import 'scDBFix.dart';
@@ -16,8 +15,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  //inside _HomeScreenState class
-
   PageController? _pageController;
   int _page = 0;
   bool _debugMode = false;

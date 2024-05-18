@@ -5,6 +5,7 @@
 
 */
 
+import 'package:all_our_photos_app/flutter_common/WidgetSupport.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
@@ -44,7 +45,6 @@ class SsSnapGrid extends StatelessWidget {
           parentGrid.setState(() {});
         },
       ), // of checkbox
-      //title: Text('${snap.caption}'),
       //),
     ]);
   } // of snapTile
@@ -58,7 +58,7 @@ class SsSnapGrid extends StatelessWidget {
     else
       return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+            crossAxisCount: UIPreferences.isSmallScreen ? 1 : 2,
             mainAxisSpacing: 3.0,
             crossAxisSpacing: 3.0,
             childAspectRatio: 1.33),

@@ -107,7 +107,6 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
     _imageFilter.onRefreshed = filterRefreshCallback;
     _inSelectMode =
         (widget._album != null); // album always starts in select mode
-    //   log.message('PhotoGrid copying initFilter');
   }
 
   @override
@@ -120,8 +119,6 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
       log.message('filterRefresh triggered ');
     });
   }
-
-//  List<AopSnap> get onlySelectedSnaps => _imageFilter.items.where(isSelected).toList();
 
   void editorCallback(String caption, String location) {
     int updateCount = 0;
@@ -180,12 +177,6 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                     handleMultiRemoveFromAlbum(
                         context, widget._album!, _imageFilter.selectionList);
                   }),
-            // IconButton(
-            //     icon: Icon(Icons.star, color: Colors.green),
-            //     tooltip: 'Set selected images green',
-            //     onPressed: () {
-            //       handleMultiSetGreen(context, _imageFilter.selectionList);
-            //     }),
             IconButton(
                 icon: Icon(Icons.text_fields),
                 tooltip: 'add a caption to selected images',
@@ -251,7 +242,6 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                         _imageFilter.setSelected(_imageFilter.items[idx],
                             !_imageFilter.isSelected(_imageFilter.items[idx]));
                         setState(() {});
-                        //                     toggleSelected(imageFile);
                       } else
                         try {
                           int newRanking = (imageFile.ranking! + 1) % 3 + 1;

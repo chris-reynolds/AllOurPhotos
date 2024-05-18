@@ -75,20 +75,15 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
         changeMode = false;
       });
     });
-    //just added this cos of Dart analysis. Not sure if it used.
-//    if (widget.onRefresh != null) widget.onRefresh();
   } // onRefresh
 
   void onSearchTextChanged(String value) {
-    setState(() {
-//      _imageFilter.searchText = value;
-    });
+    setState(() {});
   } // of onSearchTextChanged
 
   //  @override
   @override
   Widget build(BuildContext context) {
-//    print('building ImageFilter with changeMode=$changeMode and refreshRequired=${_imageFilter.refreshRequired}');
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -141,7 +136,6 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                       Flexible(
                           child: TextField(
                         controller: textController,
-//                  onChanged: onSearchTextChanged,
                         style: Theme.of(context).textTheme.bodyMedium,
                       )),
                       qText('Rank:'),
@@ -164,32 +158,30 @@ class ImageFilterWidgetState extends State<ImageFilterWidget> {
                             toggleRank(3);
                           }),
                     ]),
-                    Row(
-//            mainAxisAlignment: MainAxisAlignment.
-                        children: [
-                          qText('From '),
-                          TapDateWidget(_imageFilter.fromDate, (changedDate) {
-                            setState(() {
-                              _imageFilter.fromDate = changedDate;
-                            });
-                          }), // of TapDateWidget
-                          qText('upto '),
-                          TapDateWidget(_imageFilter.toDate, (changedDate) {
-                            setState(() {
-                              _imageFilter.toDate = changedDate;
-                            });
-                          }), // of TapDateWidget
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                    icon: Icon(Icons.refresh, size: 40.0),
-                                    onPressed: onRefresh),
-                              ],
-                            ),
-                          )
-                        ]), // Date filter
+                    Row(children: [
+                      qText('From '),
+                      TapDateWidget(_imageFilter.fromDate, (changedDate) {
+                        setState(() {
+                          _imageFilter.fromDate = changedDate;
+                        });
+                      }), // of TapDateWidget
+                      qText('upto '),
+                      TapDateWidget(_imageFilter.toDate, (changedDate) {
+                        setState(() {
+                          _imageFilter.toDate = changedDate;
+                        });
+                      }), // of TapDateWidget
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                                icon: Icon(Icons.refresh, size: 40.0),
+                                onPressed: onRefresh),
+                          ],
+                        ),
+                      )
+                    ]), // Date filter
                   ],
                 )),
     );

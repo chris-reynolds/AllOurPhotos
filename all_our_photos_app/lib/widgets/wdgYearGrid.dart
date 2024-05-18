@@ -36,16 +36,6 @@ class YearGridState extends State<YearGrid> {
     _currentMonth = month;
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   bool isCurrent(int year, int month) =>
       (_currentYear == year && _currentMonth == month);
 
@@ -120,41 +110,6 @@ class YearGridState extends State<YearGrid> {
           for (int monthIx = 1; monthIx <= 12; monthIx++)
             paintMonthIcon(thisYear.yearno, monthIx,
                 isEmpty: thisYear.months[monthIx] <= 0)
-          // IconButton(
-          //   constraints: BoxConstraints(),
-          //   // maxHeight: gridIconSize + 10,
-          //   // maxWidth: gridIconSize + 5,
-          //   // minHeight: gridIconSize + 10,
-          //   // minWidth: gridIconSize + 5),
-          //   style: IconButton.styleFrom(backgroundColor: Colors.redAccent),
-          //   padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
-          //   icon: Icon(
-          //       isCurrent(thisYear.yearno, monthIx)
-          //           ? Icons.ac_unit
-          //           : MonthlyStatus.icon(thisYear.yearno, monthIx),
-          //       size: gridIconSize,
-          //       color: monthProgressColor(thisYear.yearno, monthIx)),
-          //   // tooltip: 'Todo: Maybe location info',
-          //   onPressed: () {
-          //     handleMonthClick(thisYear.yearno, monthIx);
-          //   },
-          // )
-          // else
-          //   Container(
-          //     width: gridIconSize + 4,
-          //     height: gridIconSize + 4,
-          //     decoration: BoxDecoration(
-          //         shape: BoxShape.circle,
-          //         color: Color.fromRGBO(193, 191, 191, 0.2)),
-          //     // constraints: BoxConstraints(),
-          //     // // maxHeight: gridIconSize + 10,
-          //     // // maxWidth: gridIconSize + 5,
-          //     // // minHeight: gridIconSize + 10,
-          //     // // minWidth: gridIconSize + 5),
-          //     // padding: EdgeInsets.fromLTRB(2, 4, 2, 4),
-          //     // icon: Icon(Icons.radio_button_unchecked, size: gridIconSize),
-          //     // onPressed: () {},
-          //   ),
         ]);
   } // of yearRowBuilder
 

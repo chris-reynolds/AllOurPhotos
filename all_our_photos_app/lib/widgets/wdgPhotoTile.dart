@@ -82,8 +82,6 @@ class _PhotoTileState extends State<PhotoTile> {
         widget.isSelected ? Icons.check_box : Icons.check_box_outline_blank;
     String descriptor =
         '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
-//    if (descriptor == null || descriptor.length == 0)
-//      descriptor = '${formatDate(snap.takenDate,format:'dmmm yy')} ${snap.location??''}';
     if (!widget.inSelectMode) {
       return GridTile(
         header: GestureDetector(
@@ -91,7 +89,6 @@ class _PhotoTileState extends State<PhotoTile> {
             widget.onBannerTap(snap);
           },
           child: GridTileBar(
-              //backgroundColor: Colors.lime.shade50,
               title: Text(descriptor,
                   style:
                       TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
@@ -114,7 +111,6 @@ class _PhotoTileState extends State<PhotoTile> {
             widget.onBannerLongPress(snap);
           },
           child: GridTileBar(
-            //     backgroundColor: isSelected ? Colors.lime.shade100 :Colors.lime.shade50,
             title: Text(descriptor,
                 style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
             subtitle: Text(snap.caption ?? snap.location ?? '',

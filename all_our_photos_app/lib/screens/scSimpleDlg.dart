@@ -72,7 +72,6 @@ class DgSimpleState extends State<DgSimple> {
         TextField(
           controller: _nameController,
           autofocus: true,
-//          onEditingComplete: (value){return (value.length<10)?"Must be at least10 characters":null;},
           onSubmitted: handleSavePressed,
         ),
         Text(

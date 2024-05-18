@@ -55,13 +55,10 @@ class PhotoViewerWithRect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-//    print('Building photoViewerWithRect');
     return PhotoView(
       imageProvider: NetworkImage(url),
       controller: pvc,
       scaleStateController: pvcs,
     );
   } // of build
-
-  // todo Image? get originalImage =>
 } // of PhotoViewerWithRect

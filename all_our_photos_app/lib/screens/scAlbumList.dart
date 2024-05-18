@@ -75,7 +75,6 @@ class AlbumListState extends State<AlbumList> {
     return Row(
       children: [
         TextButton(
-            //padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
             child:
                 Text(album.name, style: Theme.of(context).textTheme.titleLarge),
             onPressed: () =>
@@ -165,7 +164,6 @@ class ChildItem extends StatelessWidget {
     return Row(
       children: [
         TextButton(
-            //padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0),
             child:
                 Text(album.name, style: Theme.of(context).textTheme.titleLarge),
             onPressed: () =>
@@ -201,15 +199,13 @@ void handleMultiRemoveFromAlbum(BuildContext context, AopAlbum argAlbum,
       Navigator.pop(context, true);
     } else {
       await showMessage(context, message);
-//      if (widget._refreshNow != null) widget._refreshNow!();
-//      clearSelected();
-//      setState(() {});
     }
   } catch (ex) {
     showMessage(context, 'Error: $ex');
   }
 } // of handleMultiRemoveFromAlbum*/
 
+// todo: Try and get album create in correct location
 // Future<AopAlbum?> showAlbumCreate(BuildContext context) async {
 //   var nameController = TextEditingController(text: 'fred');
 //   await showDialog(

@@ -28,9 +28,6 @@ class LaunchWithLogin extends StatelessWidget {
 
   Future<void> tryLogin() async {
     try {
-//      var db = DbAllOurPhotos();
-//      await db.initConnection(config);
-//      await db.startSession(config);
       if (config['sesuser'] == null) throw Exception('No User');
       if (Uri.base.host.isNotEmpty) {
         rootUrl = '${Uri.base}';
@@ -64,7 +61,6 @@ class LaunchWithLogin extends StatelessWidget {
     log.message('building after tryLogin');
     return StreamBuilder<AuthenticationState>(
         stream: _streamController.stream,
-//        initialData: new AuthenticationState.initial(),
         builder: (BuildContext context,
             AsyncSnapshot<AuthenticationState> snapshot) {
           final state = snapshot.data;
@@ -76,7 +72,7 @@ class LaunchWithLogin extends StatelessWidget {
               title: title,
             );
           else
-            return SignInPage(/*_streamController,*/ tryLogin);
+            return SignInPage(tryLogin);
         });
   }
 }

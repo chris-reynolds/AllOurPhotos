@@ -20,7 +20,6 @@ class MonthSelector extends StatefulWidget {
 
 class MonthSelectorState extends State<MonthSelector> {
   final List<bool> _monthList = [true, false, false, false];
-//  bool _multiMonth = true;
   final List<String> _monthNames = 'Jan-Mar Apr-Jun Jul-Sep Oct-Dec'.split(' ');
 
   @override

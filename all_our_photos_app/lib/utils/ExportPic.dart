@@ -6,7 +6,6 @@
 */
 import 'dart:io';
 import 'package:aopmodel/aop_classes.dart';
-// import 'package:aopmodel/domain_object.dart';
 import 'package:path_provider/path_provider.dart' as Path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -44,8 +43,6 @@ class ExportPic {
     try {
       if (kIsWeb) {
         String relativeUrl = url;
-//        if (relativeUrl.startsWith(rootUrl))
-//          relativeUrl = relativeUrl.substring(rootUrl.length - 1);
         log.message('Attrempting to download $relativeUrl');
         html.AnchorElement anchorElement = html.AnchorElement()
           ..href = relativeUrl
@@ -92,11 +89,7 @@ class ExportPic {
       if (await directory.exists()) {
         File saveFile = File("${directory.path}/$fileName");
         await Dio().download(url, saveFile.path,
-            onReceiveProgress: (value1, value2) {
-//            setState(() {
-//              progress = value1 / value2;
-//            });
-        });
+            onReceiveProgress: (value1, value2) {});
         if (Platform.isIOS) {
           await ImageGallerySaver.saveFile(saveFile.path,
               isReturnPathOfIOS: true);
@@ -108,7 +101,6 @@ class ExportPic {
       var target = fileName;
       if (directory != null) target = '${directory.path}/$fileName';
       log.error('Failed to save $target \n Error is $e');
-      //print('Failed to save $target \n Error is $e');
       rethrow;
     }
     return false;

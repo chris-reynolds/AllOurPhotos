@@ -45,8 +45,6 @@ class AlbumDetailState extends State<AlbumDetail>
       return Scaffold(
         key: scaffoldKey,
         appBar: buildBar(context),
-//        body: snapGrid(context, _list, this),
-//        body: SsSnapGrid(_list, this, argAlbum),
         body: PhotoGrid(this, album: argAlbum, refreshNow: refreshNow),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_a_photo),
@@ -56,7 +54,6 @@ class AlbumDetailState extends State<AlbumDetail>
   } // of build
 
   PreferredSizeWidget buildBar(BuildContext context) {
-    //   if (selectionList.isEmpty)
     log.message('build bar for album detail');
     return AppBar(
         centerTitle: true,
@@ -76,24 +73,6 @@ class AlbumDetailState extends State<AlbumDetail>
                   moveToAnotherAlbum(context);
                 }),
         ]);
-    // else
-    //   return AppBar(
-    //     title: Text('${selectionList.length} items selected'),
-    //     actions: <Widget>[
-    //       IconButton(
-    //           icon: Icon(Icons.redo),
-    //           onPressed: () {moveToAnotherAlbum(context);}),
-    //       // IconButton(
-    //       //     icon: Icon(Icons.delete),
-    //       //     onPressed: () async {await handleDelete(context);}),
-    //       IconButton(
-    //           icon: Icon(Icons.close),
-    //           onPressed: () {
-    //             clearSelected();
-    //             refreshList();
-    //           }),
-    //     ],
-    //   );
   }
 
   @override
@@ -116,6 +95,7 @@ class AlbumDetailState extends State<AlbumDetail>
     });
   } // of handleAddAlbumItem
 
+  // todo : review album delete
   // Future<void> handleDelete(BuildContext context) async {
   //   bool deleteAlbum = false;
   //   if (selectionList == null) return; // nothing to delete

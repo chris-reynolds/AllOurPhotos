@@ -110,16 +110,6 @@ IconButton navIconButton(
 /// WSValidator typedef is used to inject validators into a form definition
 typedef WsValidator = String Function(dynamic value);
 
-// class MyForm extends Form {
-//   MyForm({Widget child,Key key}):super(child:child,key:key);
-//   @override
-//   FormState createState() => MyFormState();
-// }
-// class MyFormState extends FormState {
-//   @override
-//   final Set<FormFieldState<dynamic>> _fields = <FormFieldState<dynamic>>{};
-//   Set<FormFieldState<dynamic>> get fields => _fields;
-// }
 class WsFieldDef {
   late List<String> bits;
   WsFieldDef(String fieldDef) {
@@ -180,12 +170,6 @@ Widget wsMakeField(String fieldDef, {required Map values, double? spacer}) {
       key: bits[1], spacer: spacer, initValue: initValue);
 } // of wsFieldList
 
-// Map<String, dynamic> wsFormValues(FormState fbs) {
-//   Map<String, dynamic> result = {};
-//   fbs.fields.forEach((fieldState) {
-//     result[fieldState.widget.key.toString()] = fieldState.value;
-//   });
-//   return result;
 // } // wsFormValues
 
 WsValidator? makeValidator(String vets) {

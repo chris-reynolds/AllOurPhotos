@@ -7,9 +7,9 @@
 
 //import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
-//import '../utils/WebFile.dart';
 
-const String DEFAULT_CHIPS = "+,-,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams";
+const String DEFAULT_CHIPS =
+    "+,-,Annie,Ben,Josie,J+K,E+M,Sunset,Camping,Reynwars,Williams";
 late String remoteUrl;
 bool logging = false;
 late WebFile remoteChipFile;
@@ -19,11 +19,12 @@ class ChipSet {
   late Set<String> chips;
 
   ChipSet(String s) {
-    if ( s == '') {
+    if (s == '') {
       chips = <String>{};
-    } else { // now extra tags with extraneous spaces
+    } else {
+      // now extra tags with extraneous spaces
       var arr = s.split(DELIM);
-      for (int ix=0; ix<arr.length; ix++) arr[ix] = arr[ix].trim();
+      for (int ix = 0; ix < arr.length; ix++) arr[ix] = arr[ix].trim();
       chips = arr.toSet();
     }
     if (logging) {
@@ -46,21 +47,22 @@ class ChipSet {
 class ChipSetSummary {
   // ignore: unused_field
   int _total = 0;
-  Map<String,int> items = {};
+  Map<String, int> items = {};
   ChipSetSummary(ChipSet defaults) {
     for (var chip in defaults.chips) {
-      items[chip] = 0;  //dont count base
+      items[chip] = 0; //dont count base
     }
   }
   void merge(ChipSet chipset) {
     for (var chip in chipset.chips) {
       if (items.containsKey(chip))
-        items[chip] = items[chip]??0 + 1;
+        items[chip] = items[chip] ?? 0 + 1;
       else
         items[chip] = 1;
     }
     _total += 1;
   }
+  // todo: review what coverage is all about
   /*
   eCoverage coverage(String chip) {
     if (!items.containsKey(chip) || _total==0)
@@ -71,9 +73,7 @@ class ChipSetSummary {
     else return eCoverage.ecSome;
   }  // of coverage
   */
-
 } // of ChipSetSummary
-
 
 abstract class ChipProvider {
   static set remoteLocation(String url) => remoteUrl = url;
@@ -89,11 +89,11 @@ abstract class ChipProvider {
     remoteChipFile.contents = chips.toString();
     bool result = await saveWebFile(remoteChipFile, silent: true);
     if (logging) {
-      log.message('Saving (${remoteChipFile.contents}) to ${remoteChipFile.url} result=$result');
+      log.message(
+          'Saving (${remoteChipFile.contents}) to ${remoteChipFile.url} result=$result');
     }
     return result;
   } // of save
-
 }
 /*
 enum eCoverage { ecNone, ecSome, ecAll }

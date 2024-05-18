@@ -124,7 +124,6 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
             _saveWithError(context);
           },
         ),
-        // if (!UIPreferences.isSmallScreen)
         MyIconButton(
           Icons.download_outlined,
           onPressed: () async {
