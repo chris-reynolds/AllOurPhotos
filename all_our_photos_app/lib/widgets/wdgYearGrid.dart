@@ -100,7 +100,7 @@ class YearGridState extends State<YearGrid> {
 
   Row yearRowBuilder(YearEntry thisYear) {
     return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text('${thisYear.yearno}',
@@ -118,7 +118,8 @@ class YearGridState extends State<YearGrid> {
     List<Widget> monthNamesHeader = [
       InkWell(
         child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisSize: MainAxisSize.min,
             children: monthNames
                 .map((monthName) => SizedBox(
                     width: UIPreferences.borderedIcon,

@@ -9,7 +9,7 @@ import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 //import 'package:aopcommon/aopcommon.dart';
 
-const VERSION = 'All Our Photos 18a May 2024';
+const VERSION = 'All Our Photos 21a May 2024';
 
 void main() {
   MaterialApp application = MaterialApp(

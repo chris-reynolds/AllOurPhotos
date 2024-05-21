@@ -28,7 +28,7 @@ class UIPreferences {
     isLargeScreen = false;
     if (width < 600) {
       mode = 'Phone';
-      iconSize = 24;
+      iconSize = 20;
       textSize = 12;
       maxGridColumns = 3;
       defaultGridColumns = 1;
@@ -36,13 +36,13 @@ class UIPreferences {
     } else if (width <= 1200) {
       mode = 'Tablet';
       iconSize = 36;
-      textSize = 24;
+      textSize = 20;
       maxGridColumns = 5;
       defaultGridColumns = 2;
       isMediumScreen = true;
     } else {
       mode = 'Desktop';
-      iconSize = 36;
+      iconSize = 40;
       textSize = 24;
       maxGridColumns = 6;
       defaultGridColumns = 3;
