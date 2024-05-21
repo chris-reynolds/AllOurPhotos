@@ -166,7 +166,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO:  double yPos;
+    // TODO:  restore swipes for single photo
     if (snapList == null)
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];
@@ -239,6 +239,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       showMessage(context, 'Nothing to do. \nZoom before clicking',
           title: 'Picture is all showing');
     else {
+      Stopwatch stopwatch = Stopwatch()..start();
       try {
         isClippingInProgress = true;
         await snapCrop(
@@ -250,6 +251,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         showMessage(context, '$ex \n $stack', title: 'Failed to clip');
       } finally {
         isClippingInProgress = false;
+        log.message('cropping took ${stopwatch.elapsed}');
       } // of try
 //      Navigator.pop(context,{});
     }

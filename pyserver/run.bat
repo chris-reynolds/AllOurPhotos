@@ -1,1 +1,1 @@
-uvicorn src.aopservermain:app
+uvicorn src.aopservermain:app --host 0.0.0.0

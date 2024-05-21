@@ -75,8 +75,8 @@ class YearGridState extends State<YearGrid> {
 
   Color monthProgressColor(int yearNo, int monthNo) {
     return MonthlyStatus.read(yearNo, monthNo)
-        ? Colors.blue
-        : Colors.amber; // TODO: use theme for color
+        ? UIPreferences.monthDone
+        : UIPreferences.monthToDo;
   }
 
   Widget paintMonthIcon(int yearNo, int monthNo, {bool isEmpty = false}) {
@@ -93,7 +93,7 @@ class YearGridState extends State<YearGrid> {
                       : MonthlyStatus.icon(yearNo, monthNo),
               size: UIPreferences.iconSize,
               color: isEmpty
-                  ? Color(0xFFE0E0E0)
+                  ? UIPreferences.monthEmpty
                   : monthProgressColor(yearNo, monthNo)),
         ));
   }
