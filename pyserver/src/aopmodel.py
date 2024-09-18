@@ -73,6 +73,7 @@ class Snap(BaseModel):
     height: Union[MxInteger, None] = None
     location: Union[MxString, None] = None
     rotation: Union[MxString, None] = None
+    degrees: MxInteger = 0
     import_source: Union[MxString, None] = None
     media_type: Union [MxString, None] = None
     imported_date: Union[MxDatetime, None] = None

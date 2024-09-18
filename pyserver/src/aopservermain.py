@@ -6,7 +6,9 @@ import json
 import shutil
 from PIL import Image,ExifTags,TiffImagePlugin
 from PIL.ExifTags import TAGS
+import piexif
 import io
+import math
 from datetime import datetime
 from src.aopmodel import *
 from src.geo import dmsToDeg,getLocation,trimLocation
@@ -19,7 +21,8 @@ from fastapi.staticfiles import StaticFiles
 #from fastapi.responses import FileResponse
 import os
 import typing
-
+import traceback
+import sys
 MxString = str
 MxDatetime = float
 MxFloat = float
@@ -58,6 +61,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def calcBadLine():
+    (exc_type, exc_obj, exc_tb) = sys.exc_info()
+    fname = exc_tb.tb_frame.f_code.co_filename
+    lineno = exc_tb.tb_lineno
+    print(f"Exception type: {exc_type.__name__}")
+    print(f"File name: {fname}")
+    print(f"Line number: {lineno}")
+    return f" in line {lineno} of {fname}"
 
 @app.get('/version')
 async def version():
@@ -99,18 +111,138 @@ def forceDir(pathname: str):
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
 
+# @app.get('/cropxx/{left:int}/{top:int}/{right:int}/{bottom:int}/{aPath:path}')
+# async def cropPicxx(left: int,top: int, right: int, bottom: int, aPath: str):
+#     try:
+#         q = f'path is <{aPath}> and box is {left},{top},{right},{bottom}'
+#         targetFilename = ROOT_DIR + aPath;
+#         if not os.path.isfile(targetFilename):
+#             raise HTTPException(status_code=404,detail=f'{aPath} not found in cropPic')
+#         img = Image.open(targetFilename)
+#         img2 = img.crop((left,top,right,bottom))
+#         img2.save('fred.jpg')
+#         return FileResponse('fred.jpg')
+#         # TODO: return memory image return Response(content=img2.getdata(),media_type='image/jpg')
+#     #except HTTPException: raise
+#     except Exception as ex:
+#         exmess: str = repr(ex)
+#         print("Error: in cropPic()", exmess)
+#         raise HTTPException(status_code=500, detail=f'{exmess} \n {calcBadLine()}') from ex
+
+@app.get('/crop/{id:int}/{left:int}/{top:int}/{right:int}/{bottom:int}')
+async def cropPic(request: Request,id:int, left: int,top: int, right: int, bottom: int) -> Snap:
+    try:
+        progress = 'check security'
+        session = get_session_from_request(request)
+        current_user = get_user_from_session(session)
+        original_snap = get_snap(request,id)
+        aPath = original_snap.file_name
+        progress = 'check prior crops'
+        newSource = f'Crop+{id}'
+        priorCrops = get_snaps(request,f"import_source='{newSource}'")
+        # newFilename =  f"{original_snap.file_name}_cp {priorCrops.count}"
+        # aPath = (original_snap.directory or 'undefined') + '/' + newFilename
+        # q = f'path is <{aPath}> and box is {left},{top},{right},{bottom}'
+        progress = 'compute filenames'
+        sourceFullPath: str = ROOT_DIR + (original_snap.directory or '??') + '/' + (original_snap.file_name or '??')
+        delimPos = sourceFullPath.rindex('.')   #find the extension
+        targetFullPath = sourceFullPath[0:delimPos] + '_cp' +str(len(priorCrops)+1) + sourceFullPath[delimPos:];
+        delimPos = sourceFullPath.rindex('/')   #find the filename after the last slash
+        targetFilename = targetFullPath[delimPos+1:]
+        if not os.path.isfile(sourceFullPath):
+            raise HTTPException(status_code=404,detail=f'{sourceFullPath} not found in cropPic')
+        progress = 'load original image'
+        img = Image.open(sourceFullPath)
+        progress = 'compute exif'
+        img_exif = img._getexif() # pyright: ignore
+
+        progress='do crop'
+        img2 = img.crop((left,top,right,bottom))
+        progress = 'update exif'
+        img_exif2 = piexif.load(img.info['exif'])
+        img_exif2['0th'][piexif.ImageIFD.ImageWidth] = img.width
+        img_exif2['0th'][piexif.ImageIFD.ImageLength] = img.height
+        img_exif2_bytes = piexif.dump(img_exif2)
+        progress = 'save cropped image'
+        img2.save(targetFullPath,exif=img_exif2_bytes,quality=100,progressive=True)
+        progress = 'setup database snap'
+        new_snap = original_snap
+        new_snap.file_name = targetFilename
+        new_snap.import_source = newSource
+        new_snap.width = img2.width
+        new_snap.height = img2.height
+        new_snap.media_length = os.path.getsize(targetFullPath)
+        new_snap.session_id = session.id
+        new_snap.user_id = current_user.id
+        new_snap.id = -1
+        progress = 'save db snap'
+        saved_snap = create_snap(request,new_snap)
+        monthDir = new_snap.directory
+        targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+targetFilename
+        targetMetadata = ROOT_DIR+monthDir+'/metadata/' +targetFilename +'.json'
+        progress = 'make thumbnail'
+        makeThumbnail(img2,img_exif,targetThumbnail)
+        progress = 'writing the metadata'
+        filteredMetadata: dict[str,str] = filterMetadata(img_exif)
+        jdata = json.dumps(filteredMetadata,indent=4,ensure_ascii=False, sort_keys=True)
+        # if not os.path.exists(targetMetadata):
+        with open(targetMetadata, 'w') as targ:
+            targ.write(jdata)
+            targ.close()
+        return saved_snap
+        # TODO: return memory image return Response(content=img2.getdata(),media_type='image/jpg')
+    #except HTTPException: raise
+    except Exception as ex:
+        exmess: str = repr(ex)
+        print("Error: in cropPic()", exmess)
+        raise HTTPException(status_code=500, detail=f'cropPic()-{progress}-{exmess} \n {calcBadLine()}') from ex
+    
+@app.get('/rotate/{angle}/{aPath:path}')
+async def rotatePic(angle: int, aPath: str):
+    try:
+        q = f'path is <{aPath}> and angle is {angle}'
+        targetFilename = ROOT_DIR + aPath;
+        if not os.path.isfile(targetFilename):
+            raise HTTPException(status_code=404,detail=f'{aPath} not found')
+        if angle==0:
+            return FileResponse(targetFilename)
+        subangle = (angle % 90)
+        if subangle == 5:
+            subangle = -10
+        img = Image.open(targetFilename)
+        img_exif = piexif.load(img.info['exif'])
+        img_exif_bytes = piexif.dump(img_exif)     
+        border_proportion = abs(math.tan(subangle*math.pi/180)/2)  # convert to radians
+        top_border = int(img.width*border_proportion)
+        side_border = int(img.height*border_proportion)
+        img2 = img.rotate(angle)
+        cropRect = (side_border,top_border,img.width-2*side_border,img.height-2*top_border)
+        img = img2.crop(cropRect)
+        img.save('fred.jpg',exif=img_exif_bytes,quality=100)
+        return FileResponse('fred.jpg')
+    #except HTTPException: raise
+    except Exception as ex:
+        exmess: str = repr(ex)
+        print("Error: in rotatePic()", exmess)
+        raise HTTPException(status_code=500, detail=f'{exmess} \n {calcBadLine()}') from ex
+    
 @app.post('/upload2/{modified}/{filename}/{sourceDevice}')
 async def uploader(request: Request, modified: str, filename: str, sourceDevice: str, myfile:UploadFile): #modified: str,filename: str, 
     try:
+        progress : str = 'reading image'
         request_object_content = await myfile.read()
         mediaLength = len(request_object_content)
+        progress = 'decoding image'
         img = Image.open(io.BytesIO(request_object_content))
         fullWidth = img.width
         fullHeight = img.height 
+        progress = 'getting exif'
         img_exif = img._getexif() # pyright: ignore
         await myfile.seek(0)  # rest file cursor to get get full copy after reading exif
-        taken = img_exif.get(306)  #DateTime
-        date_original = img_exif.get(36867)  #DateTimeOriginal
+        progress = 'reading exif'
+        taken = img_exif.get(306) if img_exif != None else modified  #DateTime
+        date_original = img_exif.get(36867)  if img_exif != None else modified #DateTimeOriginal
+        progress = 'reading exif dates'
         takendate = datetime.strptime(date_original or taken or modified,'%Y:%m:%d %H:%M:%S')
         monthDir = takendate.strftime('%Y-%m')
         modified_ts = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S').timestamp()
@@ -118,38 +250,45 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
         targetFile = ROOT_DIR+monthDir+'/'+filename
         targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+filename
         targetMetadata = ROOT_DIR+monthDir+'/metadata/' +filename +'.json'
+        progress = 'creating directories as required'
         forceDir(ROOT_DIR+monthDir)
         forceDir(ROOT_DIR+monthDir+'/thumbnails/')
         forceDir(ROOT_DIR+monthDir+'/metadata/')
         # if not os.path.exists(targetFile):
+        progress = 'writing image file'
         with open(targetFile, "wb") as buffer:
             shutil.copyfileobj(myfile.file, buffer)
+        progress = 'touching targetfile to change date'
         os.utime(targetFile, (modified_ts, modified_ts))
         # if not os.path.exists(targetThumbnail):
+        progress = 'make thumbnail'
         makeThumbnail(img,img_exif,targetThumbnail)
+        progress = 'writing the metadata'
         filteredMetadata: dict[str,str] = filterMetadata(img_exif)
         jdata = json.dumps(filteredMetadata,indent=4,ensure_ascii=False, sort_keys=True)
         # if not os.path.exists(targetMetadata):
         with open(targetMetadata, 'w') as targ:
             targ.write(jdata)
             targ.close()
+        progress = 'writing the database row'
         snap = await makeSnapDatabaseRow(fullWidth,fullHeight,filteredMetadata,sourceDevice,
                                          monthDir,filename,takendate,modified,mediaLength)
+        progress = 'reading database row'
         newsnap = create_snap(request,snap) 
         print(f"uploaded ({modified})")
         return newsnap
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
-        print("Error: in uploader()", exmess)
-        raise HTTPException(status_code=500, detail=f"{ex}") from ex
+        exmess: str = repr(ex)
+        print("Error: in uploader()", progress, exmess)
+        raise HTTPException(status_code=500, detail=f"During {progress}:{exmess}") from ex
     
 def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
     try:
         scale = max(image.height,image.width)/640
         newSize = int(image.width/scale),int(image.height/scale)
         image.thumbnail(newSize,Image.Resampling.LANCZOS)
-        if 274 in imageExif:
+        if imageExif != None and 274 in imageExif:
             exif_orientation = imageExif[274]
             if (exif_orientation == 6): 
                 image = image.rotate(270)
@@ -161,9 +300,10 @@ def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
         return True
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
+        exmess: str = repr(ex)
+
         print("Error: in makeThumbnail()", exmess)
-        raise HTTPException(status_code=500, detail=f"{ex}") from ex
+        raise HTTPException(status_code=500, detail=f"makeThumbnail: {repr(ex)}") from ex
 
 def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
     def exif_cast(v):
@@ -189,6 +329,7 @@ def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
       return result
     
     result = {}
+    if imageExif is None: return {}   # nothing to parse
     for keyid,value in imageExif.items():
         if keyid != 50341 and keyid < 59000 and keyid != 37500 and keyid != 37510:  #printimagematching makernote
             value2 = exif_cast(value)
@@ -214,6 +355,7 @@ async def makeSnapDatabaseRow(width: int, height: int,filteredExif: dict[str,str
         newSnap.modified_date = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S')
         newSnap.device_name = deviceName
         newSnap.rotation = '0' 
+        newSnap.degrees = 0
         newSnap.import_source = importSource
         newSnap.imported_date = datetime.now()
 
@@ -243,9 +385,9 @@ async def makeSnapDatabaseRow(width: int, height: int,filteredExif: dict[str,str
         return newSnap 
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
+        exmess: str = repr(ex)
         print("Error: in makeSnapDatabaseRow()", exmess)
-        raise HTTPException(status_code=500, detail=f"{ex}") from ex
+        raise HTTPException(status_code=500, detail=f'{exmess} \n {calcBadLine()}') from ex
     
 def raw_sql(sqlText: str, values = None, asDictionary: bool = True):
     try:
@@ -257,7 +399,7 @@ def raw_sql(sqlText: str, values = None, asDictionary: bool = True):
         return result
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex} for {sqlText}")
+        raise HTTPException(status_code=500, detail=f"{repr(ex)} for {sqlText}")
 
 user_list = raw_sql('select * from aopusers')
 
@@ -287,7 +429,7 @@ def username_and_id(request: Request):
     except HTTPException:
         raise
     except Exception as ex:
-        raise HTTPException(status_code=403, detail=f"{ex}")
+        raise HTTPException(status_code=403, detail=f"{repr(ex)}")
     
 @app.get('/photos/{aPath:path}')
 def photos(request: Request,aPath:str):
@@ -337,12 +479,12 @@ def create_album(request:Request, album: Album) -> Album:
         return get_album(request, thisid)
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
+        exmess: str = repr(ex)
         print("Error:", exmess)
         if exmess.find('Duplicate entry')>0:
-            raise HTTPException(status_code=409, detail=f"{ex}")
+            raise HTTPException(status_code=409, detail=f"{repr(ex)}")
         else:
-            raise HTTPException(status_code=500, detail=f"{ex}")
+            raise HTTPException(status_code=500, detail=f'{exmess} \n {calcBadLine()}')
 
 @app.get("/albums/{id}", response_model=Album)
 def get_album(request:Request, id: int) -> Album:
@@ -367,7 +509,7 @@ def get_albums(request:Request, where: str = '1=0', orderby: str = 'id', limit: 
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to delete a album
@@ -384,7 +526,7 @@ def delete_album(request:Request, id: int):
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 # API route to update a album
 @app.put("/albums", response_model=Album)
@@ -405,7 +547,7 @@ def update_album(request:Request, newAlbum: Album) -> Album:
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to create a new albumItem
@@ -427,12 +569,12 @@ def create_albumItem(request:Request, albumItem: AlbumItem) -> AlbumItem:
         return get_albumItem(request, thisid)
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
+        exmess: str = repr(ex)
         print("Error:", exmess)
         if exmess.find('Duplicate entry')>0:
-            raise HTTPException(status_code=409, detail=f"{ex}")
+            raise HTTPException(status_code=409, detail=f"{repr(ex)}")
         else:
-            raise HTTPException(status_code=500, detail=f"{ex}")
+            raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 @app.get("/album_items/{id}", response_model=AlbumItem)
 def get_albumItem(request:Request, id: int) -> AlbumItem:
@@ -457,7 +599,7 @@ def get_albumItems(request:Request, where: str = '1=0', orderby: str = 'id', lim
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to delete a albumItem
@@ -474,7 +616,7 @@ def delete_albumItem(request:Request, id: int):
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 # API route to update a albumItem
 @app.put("/album_items", response_model=AlbumItem)
@@ -495,7 +637,7 @@ def update_albumItem(request:Request, newAlbumItem: AlbumItem) -> AlbumItem:
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to create a new session
@@ -517,12 +659,12 @@ def create_session(request:Request, session: Session) -> Session:
         return get_session(request, thisid)
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
+        exmess: str = repr(ex)
         print("Error:", exmess)
         if exmess.find('Duplicate entry')>0:
-            raise HTTPException(status_code=409, detail=f"{ex}")
+            raise HTTPException(status_code=409, detail=f"{repr(ex)}")
         else:
-            raise HTTPException(status_code=500, detail=f"{ex}")
+            raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 @app.get("/sessions/{id}", response_model=Session)
 def get_session(request:Request, id: int) -> Session:
@@ -546,7 +688,7 @@ def get_sessions(request:Request, where: str = '1=0', orderby: str = 'id', limit
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to delete a session
@@ -563,7 +705,7 @@ def delete_session(request:Request, id: int):
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 # API route to update a session
 @app.put("/sessions", response_model=Session)
@@ -584,7 +726,7 @@ def update_session(request:Request, newSession: Session) -> Session:
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to create a new snap
@@ -594,8 +736,8 @@ def create_snap(request:Request, snap: Snap) -> Snap:
         (snap.updated_user,user_id) = username_and_id(request)
         if hasattr(snap,'user_id'): snap.user_id = user_id 
         snap.session_id = get_session_from_request(request).id
-        query = "INSERT INTO aopsnaps (created_on,updated_on,updated_user,file_name,directory,taken_date,original_taken_date,modified_date,device_name,caption,ranking,longitude,latitude,width,height,location,rotation,import_source,media_type,imported_date,media_length,tag_list,metadata,session_id,user_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-        values = (datetime.now(),datetime.now(),snap.updated_user,snap.file_name,snap.directory,snap.taken_date,snap.original_taken_date,snap.modified_date,snap.device_name,snap.caption,snap.ranking,snap.longitude,snap.latitude,snap.width,snap.height,snap.location,snap.rotation,snap.import_source,snap.media_type,snap.imported_date,snap.media_length,snap.tag_list,snap.metadata,snap.session_id,snap.user_id)
+        query = "INSERT INTO aopsnaps (created_on,updated_on,updated_user,file_name,directory,taken_date,original_taken_date,modified_date,device_name,caption,ranking,longitude,latitude,width,height,location,rotation,degrees,import_source,media_type,imported_date,media_length,tag_list,metadata,session_id,user_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        values = (datetime.now(),datetime.now(),snap.updated_user,snap.file_name,snap.directory,snap.taken_date,snap.original_taken_date,snap.modified_date,snap.device_name,snap.caption,snap.ranking,snap.longitude,snap.latitude,snap.width,snap.height,snap.location,snap.rotation,snap.degrees,snap.import_source,snap.media_type,snap.imported_date,snap.media_length,snap.tag_list,snap.metadata,snap.session_id,snap.user_id)
         thisid = -1
         with connection_pool.get_connection() as conn:
             with conn.cursor() as cursor:
@@ -607,12 +749,12 @@ def create_snap(request:Request, snap: Snap) -> Snap:
         return get_snap(request, thisid)
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
+        exmess: str = repr(ex)
         print("Error:", exmess)
         if exmess.find('Duplicate entry')>0:
-            raise HTTPException(status_code=409, detail=f"{ex}")
+            raise HTTPException(status_code=409, detail=f"{repr(ex)}")
         else:
-            raise HTTPException(status_code=500, detail=f"{ex}")
+            raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 @app.get("/snaps/{id}", response_model=Snap)
 def get_snap(request:Request, id: int) -> Snap:
@@ -625,7 +767,7 @@ def get_snap(request:Request, id: int) -> Snap:
 # API route to get some snaps
 @app.get("/snaps/", response_model=List[Snap])
 def get_snaps(request:Request, where: str = '1=0', orderby: str = 'id', limit: int = 1001, offset: int = 0) -> List[Snap]:
-    session: Session = get_session_from_request(request) 
+#    session: Session = get_session_from_request(request) 
     queryText = f"SELECT * FROM aopsnaps where {where} order by {orderby}  LIMIT {limit} OFFSET {offset} "
     try:
         with connection_pool.get_connection() as connection:
@@ -637,7 +779,7 @@ def get_snaps(request:Request, where: str = '1=0', orderby: str = 'id', limit: i
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f"aaa {repr(ex)}")
 
 
 # API route to delete a snap
@@ -654,7 +796,7 @@ def delete_snap(request:Request, id: int):
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 # API route to update a snap
 @app.put("/snaps", response_model=Snap)
@@ -664,9 +806,9 @@ def update_snap(request:Request, newSnap: Snap) -> Snap:
         (updating_user,user_id) = username_and_id(request)
         oldSnap = get_snap(request,thisId)
         last_updated_on = oldSnap.updated_on
-        query = "update aopsnaps set   file_name=%s, directory=%s, taken_date=%s, original_taken_date=%s, modified_date=%s, device_name=%s, caption=%s, ranking=%s, longitude=%s, latitude=%s, width=%s, height=%s, location=%s, rotation=%s, import_source=%s, media_type=%s, imported_date=%s, media_length=%s, tag_list=%s, metadata=%s, session_id= %s,user_id= %s," 
+        query = "update aopsnaps set   file_name=%s, directory=%s, taken_date=%s, original_taken_date=%s, modified_date=%s, device_name=%s, caption=%s, ranking=%s, longitude=%s, latitude=%s, width=%s, height=%s, location=%s, rotation=%s, degrees=%s, import_source=%s, media_type=%s, imported_date=%s, media_length=%s, tag_list=%s, metadata=%s, session_id= %s,user_id= %s," 
         query += "updated_on=%s, updated_user=%s WHERE id = %s and updated_on = %s"
-        values = (newSnap.file_name, newSnap.directory, newSnap.taken_date, newSnap.original_taken_date, newSnap.modified_date, newSnap.device_name, newSnap.caption, newSnap.ranking, newSnap.longitude, newSnap.latitude, newSnap.width, newSnap.height, newSnap.location, newSnap.rotation, newSnap.import_source, newSnap.media_type, newSnap.imported_date, newSnap.media_length, newSnap.tag_list, newSnap.metadata, newSnap.session_id,newSnap.user_id,datetime.now(), updating_user, thisId, oldSnap.updated_on)
+        values = (newSnap.file_name, newSnap.directory, newSnap.taken_date, newSnap.original_taken_date, newSnap.modified_date, newSnap.device_name, newSnap.caption, newSnap.ranking, newSnap.longitude, newSnap.latitude, newSnap.width, newSnap.height, newSnap.location, newSnap.rotation, newSnap.degrees, newSnap.import_source, newSnap.media_type, newSnap.imported_date, newSnap.media_length, newSnap.tag_list, newSnap.metadata, newSnap.session_id,newSnap.user_id,datetime.now(), updating_user, thisId, oldSnap.updated_on)
         with connection_pool.get_connection() as connection:
           with connection.cursor() as cursor:          
             cursor.execute(query, values)  # Now update the snap
@@ -675,7 +817,7 @@ def update_snap(request:Request, newSnap: Snap) -> Snap:
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to create a new user
@@ -697,12 +839,12 @@ def create_user(request:Request, user: User) -> User:
         return get_user(request, thisid)
     except HTTPException: raise
     except Exception as ex:
-        exmess: str = str(ex)
+        exmess: str = repr(ex)
         print("Error:", exmess)
         if exmess.find('Duplicate entry')>0:
-            raise HTTPException(status_code=409, detail=f"{ex}")
+            raise HTTPException(status_code=409, detail=f"{repr(ex)}")
         else:
-            raise HTTPException(status_code=500, detail=f"{ex}")
+            raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 @app.get("/users/{id}", response_model=User)
 def get_user(request:Request, id: int) -> User:
@@ -727,7 +869,7 @@ def get_users(request:Request, where: str = '1=0', orderby: str = 'id', limit: i
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 # API route to delete a user
@@ -744,7 +886,7 @@ def delete_user(request:Request, id: int):
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 # API route to update a user
 @app.put("/users", response_model=User)
@@ -765,7 +907,7 @@ def update_user(request:Request, newUser: User) -> User:
     except HTTPException: raise
     except Exception as ex:
         print("Error:", ex)
-        raise HTTPException(status_code=500, detail=f"{ex}")
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}')
 
 
 app.mount("/", StaticFiles(directory=config['frontend'],html=True,follow_symlink=True), name="frontend")
