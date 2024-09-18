@@ -13,6 +13,7 @@ dependencies:
   aopcommon:
     path: ../../aop/aopcommon
   http: ^1.1.0
+  shared_preferences: ^2.2.3
 #  mysql1: ^0.20.0
 
 dev_dependencies:

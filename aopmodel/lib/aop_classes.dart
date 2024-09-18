@@ -56,6 +56,7 @@ var snapProvider = DOProvider<AopSnap>(
       "height",
       "location",
       "rotation",
+      "degrees",
       "import_source",
       "media_type",
       "imported_date",
@@ -484,6 +485,7 @@ class AopSnap extends DomainObject {
   int? height;
   String? location;
   String? rotation;
+  int degrees = 0;
   String? importSource;
   String? mediaType;
   DateTime? importedDate;
@@ -550,6 +552,7 @@ class AopSnap extends DomainObject {
     height = map['height'];
     location = map['location'];
     rotation = map['rotation'];
+    degrees = map['degrees'];
     importSource = map['import_source'];
     mediaType = map['media_type'];
     importedDate = fromDbDate(map['imported_date']);
@@ -581,6 +584,7 @@ class AopSnap extends DomainObject {
     result['height'] = height;
     result['location'] = location;
     result['rotation'] = rotation;
+    result['degrees'] = degrees;
     result['import_source'] = importSource;
     result['media_type'] = mediaType;
     result['imported_date'] = dbDate(importedDate);
@@ -625,22 +629,24 @@ class AopSnap extends DomainObject {
       location = row[16];
       fld = 'rotation';
       rotation = row[17];
+      fld = 'degrees';
+      degrees = int.parse(row[18]);
       fld = 'importSource';
-      importSource = row[18];
+      importSource = row[19];
       fld = 'mediaType';
-      mediaType = row[19];
+      mediaType = row[20];
       fld = 'importedDate';
-      importedDate = row[20];
+      importedDate = row[21];
       fld = 'mediaLength';
-      mediaLength = row[21];
+      mediaLength = row[22];
       fld = 'tagList';
-      tagList = row[22];
+      tagList = row[23];
       fld = 'metadata';
-      metadata = row[23];
+      metadata = row[24];
       fld = '_sessionId';
-      _sessionId = row[24];
+      _sessionId = row[25];
       fld = '_userId';
-      _userId = row[25];
+      _userId = row[26];
     } catch (ex) {
       throw Exception('Failed to assign field $fld : $ex');
     }
@@ -664,6 +670,7 @@ class AopSnap extends DomainObject {
     result.add(height);
     result.add(location);
     result.add(rotation);
+    result.add(degrees);
     result.add(importSource);
     result.add(mediaType);
     result.add(dbDate(importedDate!));
@@ -801,7 +808,7 @@ class AopSnap extends DomainObject {
   } // of yearGrid
 
   String get fullSizeURL {
-    return '${WebFile.rootUrl}photos/$directory/$fileName';
+    return '${WebFile.rootUrl}rotate/$degrees/$directory/$fileName';
   } // of fullSizeURL
 
   String get thumbnailURL {
@@ -812,6 +819,12 @@ class AopSnap extends DomainObject {
     return '${WebFile.rootUrl}photos/$directory/metadata/$fileName.json';
   } // of metadataURL
 
+  static Future<AopSnap> snapCropper(int id, int l, int t, int r, int b) async {
+    String url = 'crop/$id/$l/$t/$r/$b';
+    var resp = await snapProvider.rawRequest(url);
+    return AopSnap(data: resp);
+  } // of yearGrid
+
   void trimSetLocation(String? newLocation) {
     if (newLocation != null && newLocation.length > 200) {
       newLocation = newLocation.substring(newLocation.length - 200);
@@ -819,7 +832,7 @@ class AopSnap extends DomainObject {
     location = newLocation;
   } // of trimSetLocation
 
-  double get angle => (int.parse(rotation ?? '0')) * math.pi / 2;
+  double get angle => (degrees) * math.pi / 180; // radians
 
   void rotate(int direction) {
     int newRotation = (int.parse(rotation ?? '0')) + direction;
