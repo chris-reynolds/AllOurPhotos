@@ -78,15 +78,18 @@ class ImageFilter
   Future<void> checkImages() async {
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
-    _images = await snapProvider.getSome(whereClause(),
-        orderBy: 'taken_date,id'); //todo: reverse order
-    clearSelected();
-    // TODO: check ascending or descending date sort
-    //   _images.sort((img1,img2) => img1.takenDate.difference(img2.takenDate).inMinutes);
-    _refreshRequired = false;
-    log.message('returning ${_images.length} images');
-    //if (onRefreshed != null)
-    onRefreshed(); // alert listen of changes
+    try {
+      _images = await snapProvider.getSome(whereClause(),
+          orderBy: 'taken_date,id'); //todo: reverse order
+      clearSelected();
+      _refreshRequired = false;
+      log.message('returning ${_images.length} images');
+      //if (onRefreshed != null)
+      onRefreshed(); // alert listen of changes
+    } catch (ex, st) {
+      log.error('$ex \n $st');
+      rethrow;
+    }
   } // of calcImages
 
   String whereClause() {
@@ -115,4 +118,3 @@ class ImageFilter
     _refreshRequired = true;
   } // of moveMonth
 } // of ImageFilter
-

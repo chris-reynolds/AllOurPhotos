@@ -19,7 +19,7 @@ version: 1.0.1
 
 environment:
 #  sdk: ">=2.15.0-268.0.dev <3.0.0"
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,21 +34,21 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  image: ^4.0.17
-  http:  ^1.1.0
-#  exifdart: ^0.7.0+3
-  dio: ^5.3.0
-  path_provider: ^2.0.6
-  permission_handler: ^11.3.0
-  image_gallery_saver: ^2.0.3
+  cupertino_icons: 
+  image: 
+  http:  
+  dio: 
+  path_provider: 
+  permission_handler: 
+  image_gallery_saver: 
   shared_preferences: 
-  photo_view: ^0.15.0
+  photo_view: 
   aopmodel:
     path: ../aopmodel
   aopcommon:
     path: ../../aop/aopcommon
-  http_parser: ^4.0.2
+  http_parser: 
+  provider: 
 
 
 dev_dependencies:
@@ -60,8 +60,8 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.1
-  test: ^1.24.9
+  flutter_lints: 
+  test: 
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

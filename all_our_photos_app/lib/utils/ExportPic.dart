@@ -43,7 +43,7 @@ class ExportPic {
     try {
       if (kIsWeb) {
         String relativeUrl = url;
-        log.message('Attrempting to download $relativeUrl');
+        log.message('Attempting to download $relativeUrl');
         html.AnchorElement anchorElement = html.AnchorElement()
           ..href = relativeUrl
           ..setAttribute('download', fileName);

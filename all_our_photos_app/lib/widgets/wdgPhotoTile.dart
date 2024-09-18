@@ -4,9 +4,11 @@
   Purpose: PhotoTile widget is a tile of a PhotoGrid
 */
 
+import 'package:all_our_photos_app/utils/snapProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
+import 'package:provider/provider.dart';
 import 'wdgImageFilter.dart' show filterColors;
 
 typedef BannerTapCallback = void Function(AopSnap snap);
@@ -83,23 +85,26 @@ class _PhotoTileState extends State<PhotoTile> {
     String descriptor =
         '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
     if (!widget.inSelectMode) {
-      return GridTile(
-        header: GestureDetector(
-          onTap: () {
-            widget.onBannerTap(snap);
-          },
-          child: GridTileBar(
-              title: Text(descriptor,
-                  style:
-                      TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
-              subtitle: Text(snap.caption ?? snap.location ?? '',
-                  style:
-                      TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
-              trailing: Row(children: [
-                Icon(icon, color: filterColors[snap.ranking!], size: 40.0),
-              ])),
+      return ChangeNotifierProvider(
+        create: (context) => SnapProvider(snap),
+        child: GridTile(
+          header: GestureDetector(
+            onTap: () {
+              widget.onBannerTap(snap);
+            },
+            child: GridTileBar(
+                title: Text(descriptor,
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'Helvetica')),
+                subtitle: Text(snap.caption ?? snap.location ?? '',
+                    style: TextStyle(
+                        color: Colors.black, fontFamily: 'Helvetica')),
+                trailing: Row(children: [
+                  Icon(icon, color: filterColors[snap.ranking!], size: 40.0),
+                ])),
+          ),
+          child: imageWidget,
         ),
-        child: imageWidget,
       );
     } else {
       return GridTile(

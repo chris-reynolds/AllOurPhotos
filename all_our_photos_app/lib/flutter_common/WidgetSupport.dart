@@ -20,6 +20,9 @@ class UIPreferences {
   static bool isSmallScreen = false;
   static bool isMediumScreen = false;
   static bool isLargeScreen = false;
+  static Color monthDone = Colors.blue;
+  static Color monthToDo = Colors.amber;
+  static Color monthEmpty = Color(0xFFE0E0E0);
   static get borderedIcon => iconSize + 2 * iconBorder;
   static void setContext(BuildContext context) {
     double width = MediaQuery.sizeOf(context).width;
