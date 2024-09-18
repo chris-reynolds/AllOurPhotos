@@ -18,6 +18,8 @@ import 'package:aopmodel/aop_classes.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../widgets/wdgImageFilter.dart'; // only for the icons
 import '../widgets/wdgClipper.dart';
+import '../widgets/wdgImageRotator.dart';
+
 //import 'package:http/http.dart' as http;
 //import 'package:http_parser/http_parser.dart';
 
@@ -37,6 +39,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   AopAlbum? maybeCurrentAlbum;
   final GlobalKey pvKey = GlobalKey();
   bool isPhotoScaled = false;
+  bool isRotatorVisible = false;
   bool _isClippingInProgress = false;
   Rect? _currentCroppingRect;
 
@@ -113,6 +116,14 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           setState(() {}); //force repaint on return
         }), // edit iconButton
         MyIconButton(
+          Icons.rotate_left_sharp,
+          onPressed: () async {
+            setState(() {
+              isRotatorVisible = !isRotatorVisible;
+            });
+          },
+        ),
+        MyIconButton(
           Icons.rotate_left,
           onPressed: () async {
             currentSnap!.rotate(-1);
@@ -153,23 +164,27 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Expanded(
+            if (!isRotatorVisible)
+              Expanded(
                 child: Clipper(
-              imageUrl: currentSnap!.fullSizeURL,
-              rectCallback: currentRect,
-              canCropCallBack: canCropCallback,
-              // verticalSwipeCallBack: (value) {
-              //   snapIndex = _snapIndex + ((value < 0) ? 1 : -1);
-              // },
-              show: (s) => print('------------------ $s ---------------------'),
-            )
-                // child: PhotoViewerWithRect(
-                //   key: pvKey,
-                //   url: currentSnap!.fullSizeURL,
-                //   onScale: setIsPhotoScaled,
-                // ),
-                //), // of GestureDetector
-                ), // of Expanded
+                  imageUrl: currentSnap!.fullSizeURL,
+                  rectCallback: currentRect,
+                  canCropCallBack: canCropCallback,
+                  // verticalSwipeCallBack: (value) {
+                  //   snapIndex = _snapIndex + ((value < 0) ? 1 : -1);
+                  // },
+                  show: (s) =>
+                      print('------------------ $s ---------------------'),
+                ),
+              ),
+            if (isRotatorVisible)
+              Expanded(
+                  child: ImageRotator(
+                url: currentSnap!.fullSizeURL,
+                postAngle: (angle) {
+                  print('post angle $angle');
+                },
+              )),
 //        buildAppBar(context),
             if (_isClippingInProgress)
               Center(child: CircularProgressIndicator()),
