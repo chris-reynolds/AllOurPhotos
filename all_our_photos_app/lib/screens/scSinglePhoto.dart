@@ -87,7 +87,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     }
   } // of download
 
-  Widget buildAppBar(BuildContext context) {
+  Widget? buildAppBar(BuildContext context) {
+    if (isRotatorVisible) return null; // no app bar wile doing rotation
     return AppBar(
       leading: MyIconButton(Icons.arrow_back, onPressed: () {
         Navigator.pop(context);
@@ -119,24 +120,24 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           Icons.rotate_left_sharp,
           onPressed: () async {
             setState(() {
-              isRotatorVisible = !isRotatorVisible;
+              isRotatorVisible = true;
             });
           },
         ),
-        MyIconButton(
-          Icons.rotate_left,
-          onPressed: () async {
-            currentSnap!.rotate(-1);
-            _saveWithError(context);
-          },
-        ),
-        MyIconButton(
-          Icons.rotate_right,
-          onPressed: () async {
-            currentSnap!.rotate(1);
-            _saveWithError(context);
-          },
-        ),
+        // MyIconButton(
+        //   Icons.rotate_left,
+        //   onPressed: () async {
+        //     currentSnap!.rotate(-1);
+        //     _saveWithError(context);
+        //   },
+        // ),
+        // MyIconButton(
+        //   Icons.rotate_right,
+        //   onPressed: () async {
+        //     currentSnap!.rotate(1);
+        //     _saveWithError(context);
+        //   },
+        // ),
         MyIconButton(
           Icons.download_outlined,
           onPressed: () async {
@@ -160,7 +161,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];
     return Scaffold(
-        appBar: buildAppBar(context) as PreferredSizeWidget,
+        appBar: buildAppBar(context) as PreferredSizeWidget?,
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
@@ -181,8 +182,12 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
               Expanded(
                   child: ImageRotator(
                 url: currentSnap!.fullSizeURL,
-                postAngle: (angle) {
-                  print('post angle $angle');
+                postAngle: (int angle) {
+                  currentSnap!.degrees += angle;
+                  _saveWithError(context);
+                  setState(() {
+                    isRotatorVisible = false;
+                  });
                 },
               )),
 //        buildAppBar(context),
