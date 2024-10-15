@@ -835,9 +835,9 @@ class AopSnap extends DomainObject {
   double get angle => (degrees) * math.pi / 180; // radians
 
   void rotate(int direction) {
-    int newRotation = (int.parse(rotation ?? '0')) + direction;
-    newRotation = newRotation % 4; // wrap 360
-    rotation = '$newRotation';
+    int newRotation = angle.round() + direction;
+    newRotation = newRotation % 360; // wrap 360
+    rotation = 'dead';
   }
 //                                '*** End Custom Code
 } // of class snap
