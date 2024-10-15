@@ -206,17 +206,24 @@ async def rotatePic(angle: int, aPath: str):
             raise HTTPException(status_code=404,detail=f'{aPath} not found')
         if angle==0:
             return FileResponse(targetFilename)
+        while angle<0: 
+            angle +=360
+        while angle>360:
+            angle -=360
         subangle = (angle % 90)
-        if subangle == 5:
-            subangle = -10
+        if subangle > 45:
+            subangle = 90-subangle
         img = Image.open(targetFilename)
         img_exif = piexif.load(img.info['exif'])
         img_exif_bytes = piexif.dump(img_exif)     
         border_proportion = abs(math.tan(subangle*math.pi/180)/2)  # convert to radians
+        if border_proportion> 0.1:
+            border_proportion = 0.1
         top_border = int(img.width*border_proportion)
         side_border = int(img.height*border_proportion)
         img2 = img.rotate(angle)
         cropRect = (side_border,top_border,img.width-2*side_border,img.height-2*top_border)
+        print(cropRect)
         img = img2.crop(cropRect)
         img.save('fred.jpg',exif=img_exif_bytes,quality=100)
         return FileResponse('fred.jpg')
@@ -334,7 +341,7 @@ def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
         if keyid != 50341 and keyid < 59000 and keyid != 37500 and keyid != 37510:  #printimagematching makernote
             value2 = exif_cast(value)
             tagName = ExifTags.TAGS.get(keyid,keyid)
-            if (not value2 is str) or len(value2)<100:
+            if (not value2 is str) or len(str(value2))<100:
                 # print(f'{tagName} is {type(value2)} was is {type(value)}')
                 result[tagName] = value2
     return result
