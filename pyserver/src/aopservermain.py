@@ -198,14 +198,15 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         raise HTTPException(status_code=500, detail=f'cropPic()-{progress}-{exmess} \n {calcBadLine()}') from ex
     
 @app.get('/rotate/{angle}/{aPath:path}')
-async def rotatePic(angle: int, aPath: str):
+async def rotatePic(request: Request,angle: int, aPath: str):
+    if angle==0:
+        return photos(request,aPath)
     try:
-        q = f'path is <{aPath}> and angle is {angle}'
         targetFilename = ROOT_DIR + aPath;
         if not os.path.isfile(targetFilename):
             raise HTTPException(status_code=404,detail=f'{aPath} not found')
-        if angle==0:
-            return FileResponse(targetFilename)
+        q = f'path is <{aPath}> and angle is {angle}'
+        print(q)
         while angle<0: 
             angle +=360
         while angle>360:
@@ -214,8 +215,11 @@ async def rotatePic(angle: int, aPath: str):
         if subangle > 45:
             subangle = 90-subangle
         img = Image.open(targetFilename)
-        img_exif = piexif.load(img.info['exif'])
-        img_exif_bytes = piexif.dump(img_exif)     
+        exif_found = False  # default to empty dictionary
+        if 'exif' in img.info:
+            img_exif = piexif.load(img.info['exif'])
+            img_exif_bytes = piexif.dump(img_exif)
+            exif_found = True     
         border_proportion = abs(math.tan(subangle*math.pi/180)/2)  # convert to radians
         if border_proportion> 0.1:
             border_proportion = 0.1
@@ -225,7 +229,10 @@ async def rotatePic(angle: int, aPath: str):
         cropRect = (side_border,top_border,img.width-2*side_border,img.height-2*top_border)
         print(cropRect)
         img = img2.crop(cropRect)
-        img.save('fred.jpg',exif=img_exif_bytes,quality=100)
+        if exif_found:
+            img.save('fred.jpg',exif=img_exif_bytes,quality=100)
+        else:
+            img.save('fred.jpg',quality=100)
         return FileResponse('fred.jpg')
     #except HTTPException: raise
     except Exception as ex:
