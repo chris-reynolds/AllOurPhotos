@@ -232,7 +232,7 @@ async def rotatePic(request: Request,angle: int, aPath: str):
         if exif_found:
             img.save('fred.jpg',exif=img_exif_bytes,quality=100)
         else:
-            img.save('fred.jpg',quality=100)
+            img.save('fred.jpg',quality=100,)
         return FileResponse('fred.jpg')
     #except HTTPException: raise
     except Exception as ex:

@@ -70,12 +70,12 @@ class _PhotoTileState extends State<PhotoTile> {
               decoration: BoxDecoration(
                   color: Colors.lime.shade50), //.fromRGBO(0, 0, 0, 1.0)),
               key: Key(snap.thumbnailURL),
-              child: Transform.rotate(
-                angle: snap.angle,
-                child: Image.network(
-                  widget.highResolution ? snap.fullSizeURL : snap.thumbnailURL,
-                  fit: BoxFit.scaleDown,
-                ),
+//              child: Transform.rotate(
+//                angle: 0, //-snap.angle,
+              child: Image.network(
+                widget.highResolution ? snap.fullSizeURL : snap.thumbnailURL,
+                fit: BoxFit.scaleDown,
+//                ),
               )),
         ));
 

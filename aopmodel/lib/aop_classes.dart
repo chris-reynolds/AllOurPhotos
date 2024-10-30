@@ -812,7 +812,7 @@ class AopSnap extends DomainObject {
   } // of fullSizeURL
 
   String get thumbnailURL {
-    return '${WebFile.rootUrl}photos/$directory/thumbnails/$fileName';
+      return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$fileName';
   } // of thumbnailURL
 
   String get metadataURL {

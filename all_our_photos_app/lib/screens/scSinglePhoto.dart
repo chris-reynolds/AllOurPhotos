@@ -117,7 +117,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           setState(() {}); //force repaint on return
         }), // edit iconButton
         MyIconButton(
-          Icons.rotate_left_sharp,
+          Icons.sync,
           onPressed: () async {
             setState(() {
               isRotatorVisible = true;
@@ -174,17 +174,15 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   // verticalSwipeCallBack: (value) {
                   //   snapIndex = _snapIndex + ((value < 0) ? 1 : -1);
                   // },
-                  show: (s) =>
-                      print('------------------ $s ---------------------'),
+                  show: (s) => log
+                      .message('------------------ $s ---------------------'),
                 ),
               ),
-            if (isRotatorVisible)
+            if (isRotatorVisible && currentSnap != null)
               Expanded(
                   child: ImageRotator(
-                url: currentSnap!.fullSizeURL,
-                postAngle: (int angle) {
-                  currentSnap!.degrees += angle;
-                  _saveWithError(context);
+                snap: currentSnap!,
+                closeRotator: () {
                   setState(() {
                     isRotatorVisible = false;
                   });

@@ -9,8 +9,9 @@ import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
 //import 'package:aopcommon/aopcommon.dart';
 
-const VERSION = 'All Our Photos 2 Oct 2024';
+const VERSION = 'All Our Photos 30 Oct 2024';
 
+// TODO: replace serviceWorkerVersion in index.html
 void main() {
   MaterialApp application = MaterialApp(
     title: 'All Our Photos',
