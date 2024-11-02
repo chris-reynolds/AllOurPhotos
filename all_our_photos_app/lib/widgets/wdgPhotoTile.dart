@@ -51,8 +51,10 @@ class _PhotoTileState extends State<PhotoTile> {
           } else {
             await Navigator.pushNamed(context, 'SinglePhoto', arguments: [
               widget.snapList,
-              widget.index
+              widget.index,
+              //             _fred
             ]); // weakly types params. yuk.
+            setState(() {});
           }
         },
         onDoubleTap: () {
