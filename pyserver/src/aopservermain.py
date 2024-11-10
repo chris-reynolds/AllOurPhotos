@@ -9,6 +9,7 @@ from PIL.ExifTags import TAGS
 import piexif
 import io
 import math
+import random
 from datetime import datetime
 from src.aopmodel import *
 from src.geo import dmsToDeg,getLocation,trimLocation
@@ -229,11 +230,12 @@ async def rotatePic(request: Request,angle: int, aPath: str):
         cropRect = (side_border,top_border,img.width-2*side_border,img.height-2*top_border)
         print(cropRect)
         img = img2.crop(cropRect)
+        rnd = random.randint(0,999)
         if exif_found:
-            img.save('fred.jpg',exif=img_exif_bytes,quality=100)
+            img.save(f'temp/fred{rnd}.jpg',exif=img_exif_bytes,quality=100)
         else:
-            img.save('fred.jpg',quality=100,)
-        return FileResponse('fred.jpg')
+            img.save(f'temp/fred{rnd}.jpg',quality=100,)
+        return FileResponse(f'temp/fred{rnd}.jpg')
     #except HTTPException: raise
     except Exception as ex:
         exmess: str = repr(ex)
