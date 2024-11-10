@@ -79,8 +79,13 @@ class ImageFilter
 //    print('checking images with refreshRequired set to $_refreshRequired');
     if (!_refreshRequired) return;
     try {
-      _images = await snapProvider.getSome(whereClause(),
-          orderBy: 'taken_date,id'); //todo: reverse order
+      if (whereClause().contains('debug-rotate')) {
+        _images = await snapProvider.getSome('degrees<>0',
+            orderBy: 'taken_date,id'); //todo: reverse order
+      } else {
+        _images = await snapProvider.getSome(whereClause(),
+            orderBy: 'taken_date,id'); //todo: reverse order
+      }
       clearSelected();
       _refreshRequired = false;
       log.message('returning ${_images.length} images');
