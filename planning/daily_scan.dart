@@ -7,8 +7,8 @@ Date: 29th March 2019
 import 'dart:io';
 
 final String DELIMITER = ',';
-final DateTime STARTDATE = DateTime(2020, 4, 1);
-final DateTime ENDDATE = DateTime(2020, 7, 1);
+DateTime STARTDATE = DateTime(2020, 4, 1);
+DateTime ENDDATE = DateTime(2020, 7, 1);
 final int PROJECTDURATION = ENDDATE.difference(STARTDATE).inDays;
 
 void main() async {
@@ -95,12 +95,27 @@ class Task {
   String group = '';
   DateTime? finishedOn;
 
+  static processCommand(List<String> columns) {
+    switch (columns[0]) {
+      case '@start':
+        STARTDATE = DateTime.parse(columns[1]);
+      case '@end':
+        ENDDATE = DateTime.parse(columns[1]);
+      default:
+        throw ('Invalid command ${columns[0]}');
+    }
+  } // of processCommand
+
   static List<Task> loadTasks(List<String> lines) {
     var result = <Task>[];
     for (int lineIx = 0; lineIx < lines.length; lineIx++)
       if (lines[lineIx].length > 0)
         try {
-          result.add(Task.fromLine(lines[lineIx].split(DELIMITER)));
+          if (lines[lineIx].startsWith('@')) {
+            processCommand(lines[lineIx].split(DELIMITER));
+          } else {
+            result.add(Task.fromLine(lines[lineIx].split(DELIMITER)));
+          }
         } catch (ex) {
           throw Exception('Failed on task line ${lineIx + 1} with error $ex');
         }
