@@ -16,14 +16,16 @@ from src.geo import dmsToDeg,getLocation,trimLocation
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 #                                 '*** Start Custom Code importing
-
+import ffmpeg
 from fastapi.staticfiles import StaticFiles
 #from fastapi.middleware.cors import CORSMiddleware
 #from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 import os
 import typing
 import traceback
 import sys
+from pathlib import Path
 MxString = str
 MxDatetime = float
 MxFloat = float
@@ -111,24 +113,6 @@ async def find(request: Request, key:str):
 def forceDir(pathname: str):
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
-
-# @app.get('/cropxx/{left:int}/{top:int}/{right:int}/{bottom:int}/{aPath:path}')
-# async def cropPicxx(left: int,top: int, right: int, bottom: int, aPath: str):
-#     try:
-#         q = f'path is <{aPath}> and box is {left},{top},{right},{bottom}'
-#         targetFilename = ROOT_DIR + aPath;
-#         if not os.path.isfile(targetFilename):
-#             raise HTTPException(status_code=404,detail=f'{aPath} not found in cropPic')
-#         img = Image.open(targetFilename)
-#         img2 = img.crop((left,top,right,bottom))
-#         img2.save('fred.jpg')
-#         return FileResponse('fred.jpg')
-#         # TODO: return memory image return Response(content=img2.getdata(),media_type='image/jpg')
-#     #except HTTPException: raise
-#     except Exception as ex:
-#         exmess: str = repr(ex)
-#         print("Error: in cropPic()", exmess)
-#         raise HTTPException(status_code=500, detail=f'{exmess} \n {calcBadLine()}') from ex
 
 @app.get('/crop/{id:int}/{left:int}/{top:int}/{right:int}/{bottom:int}')
 async def cropPic(request: Request,id:int, left: int,top: int, right: int, bottom: int) -> Snap:
@@ -290,7 +274,11 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
         snap = await makeSnapDatabaseRow(fullWidth,fullHeight,filteredMetadata,sourceDevice,
                                          monthDir,filename,takendate,modified,mediaLength)
         progress = 'reading database row'
-        newsnap = create_snap(request,snap) 
+        # Check for duplicate entry before creating a new snap
+        existing_snaps = get_snaps(request, where=f"file_name='{filename}' AND directory='{monthDir}'")
+        if existing_snaps:
+            raise HTTPException(status_code=409, detail=f"Duplicate entry for file '{filename}' in directory '{monthDir}'")
+        newsnap = create_snap(request, snap)
         print(f"uploaded ({modified})")
         return newsnap
     except HTTPException: raise
@@ -298,7 +286,65 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
         exmess: str = repr(ex)
         print("Error: in uploader()", progress, exmess)
         raise HTTPException(status_code=500, detail=f"During {progress}:{exmess}") from ex
-    
+
+@app.post('/upload_video/{modified}/{filename}/{sourceDevice}')
+async def upload_video(request: Request, modified: str, filename: str, sourceDevice: str, video: UploadFile = File(...)):
+    try:
+        # Read the uploaded video file
+        video_content = await video.read()
+        
+        # Save the video temporarily to extract metadata
+        temp_path = f'temp/{filename}'
+        os.makedirs(os.path.dirname(temp_path), exist_ok=True)
+        with open(temp_path, 'wb') as temp_file:
+            temp_file.write(video_content)
+        
+        # Extract metadata using ffmpeg
+        metadata = ffmpeg.probe(temp_path)
+        creation_time = None
+        tags = {} 
+        for stream in metadata['streams']:
+            if 'tags' in stream:
+                tags = stream['tags']
+        if 'creation_time' in tags:
+            creation_time = tags['creation_time']
+        print(f'tags: {tags}')
+        if creation_time:
+            taken_datetime = datetime.strptime(creation_time, '%Y-%m-%dT%H:%M:%S.%fZ')
+        else:
+            taken_datetime = datetime.now()
+        
+        # Create directory based on the month the video was taken
+        save_dir = ROOT_DIR+taken_datetime.strftime('%Y-%m')
+        print(f"-------------------save_dir: {save_dir}")
+        os.makedirs(save_dir, exist_ok=True)
+        
+        # Save the video to the new directory
+        save_path = os.path.join(save_dir, filename)
+        with open(save_path, 'wb') as f:
+            f.write(video_content)
+            
+        # Generate and save a thumbnail
+        filename_noext = Path(save_path).with_suffix('').name
+        thumbnail_path = os.path.join(save_dir, f'thumbnails/{filename_noext}.jpg')
+        (
+            ffmpeg
+            .input(save_path, ss=1)  # Extract frame at 1 second
+            .output(thumbnail_path, vframes=1)
+            .run()
+        )        
+
+        # write the metadata
+        metadata_path = os.path.join(save_dir, f'metadata/{filename_noext}.json')
+        with open(metadata_path, 'w') as g:
+            json.dump(tags, g, indent=4)    
+        
+        return JSONResponse(content={"message": "Video uploaded successfully"}, status_code=200)
+    except Exception as ex:
+        exmess: str = repr(ex)
+        print("Error: in upload_video()", exmess)
+        raise HTTPException(status_code=500, detail=f'{exmess}')
+
 def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
     try:
         scale = max(image.height,image.width)/640

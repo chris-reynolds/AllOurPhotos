@@ -4,13 +4,13 @@ import json
 import datetime as dt
 from fastapi.testclient import TestClient
 from src.aopservermain import app
+# import test_utils as tu
 
 # tests for aopsync
 client = TestClient(app)
 
 def loginpair():
-  x = os.environ['aop_login'] or 'blah-blah'
-  x = 'test-testpw'
+  x = os.environ['aop_test_login'] or 'blah-blah'
   x= x.split('-',1)
   return {'U':x[0],'P':x[1]}
 
@@ -24,12 +24,10 @@ def loginCheck(response, expected):
       assert(int(jam_object['jam']) == -1) 
         
 
-def test_fred():
-    print(loginpair())
-    response = client.get('/hello')
-    assert response.status_code == 200
-    
-    
+#def clean():
+  #  tu.init_env(loginpair())
+  #  tu.clear_testdata()
+
 def test_login_bad_user():
     uspw = loginpair()
     url = '/ses/baduser/blah/pytest_bad_user'
@@ -49,7 +47,7 @@ def test_login_good_user_bad_password():
     jam_object = json.loads(response.content)
     assert(jam_object['jam'] == '-1') 
 
-def test_login_good_user_good_password():
+def login_good_user_good_password():
     uspw = loginpair()
     url = f'/ses/{uspw["U"]}/{uspw["P"]}/pytest_unquoted_device'
     response = client.get(url)
@@ -64,7 +62,7 @@ def test_login_good_user_good_password_quoted_device():
     loginCheck(response, True)
 
 def test_existance_check1_using_filename_date_modified():
-    test_login_good_user_good_password()
+    login_good_user_good_password()
     myFilename = 'IMG_0700.JPG'
     myTakendate = '1980-01-01 00:00:19'
     url = f'/find/nameExists?filename={myFilename}&start={myTakendate}&end={myTakendate}'
@@ -77,8 +75,8 @@ def test_existance_check1_using_filename_date_modified():
     assert values[0][0] == 0, 'Count should be  zero for non-existant photo'
 
 
-def test_camera_post():
-    session = test_login_good_user_good_password()
+def test_camera_post(clean):
+    session = login_good_user_good_password()
     testFilename = 'P5074819.JPG'
     testFile = open(f'testdata/{testFilename}','rb')
     modified_time = os.path.getmtime(f'testdata/{testFilename}')
@@ -88,7 +86,7 @@ def test_camera_post():
     assert response.status_code == 200, f'Failed http {response.status_code}\n{response.content}'
 
 def test_samsung_post():
-    session = test_login_good_user_good_password()
+    session = login_good_user_good_password()
     print(os.curdir)
     testFilename = '20230510_111443.jpg'
     testFile = open(f'testdata/{testFilename}','rb')
@@ -99,13 +97,23 @@ def test_samsung_post():
     assert response.status_code == 200, f'Failed http {response.status_code}\n{response.content}'
 
 def test_huawei_post():
-    session = test_login_good_user_good_password()
+    session = login_good_user_good_password()
     testFilename = 'IMG_20230511_172050.jpg'
     testFile = open(f'testdata/{testFilename}','rb')
     modified_time = os.path.getmtime(f'testdata/{testFilename}')
     modified_timeStr = dt.datetime.fromtimestamp(modified_time).strftime('%Y:%m:%d %H:%M:%S')
     url = f'/upload2/{modified_timeStr}/{testFilename}/pytest'
     response = client.post(url,files={'myfile': testFile},headers=[(b'Preserve',session)]) 
+    assert response.status_code == 200, f'Failed http {response.status_code}\n{response.content}'
+
+def test_video_mp4():
+    session = login_good_user_good_password()
+    testFilename = 'agopro.mp4'
+    testFile = open(f'testdata/{testFilename}','rb')
+    modified_time = os.path.getmtime(f'testdata/{testFilename}')
+    modified_timeStr = dt.datetime.fromtimestamp(modified_time).strftime('%Y:%m:%d %H:%M:%S')
+    url = f'/upload_video/{modified_timeStr}/{testFilename}/pytest'
+    response = client.post(url,files={'video': testFile},headers=[(b'Preserve',session)]) 
     assert response.status_code == 200, f'Failed http {response.status_code}\n{response.content}'
 
 def test_add_file_folder():
