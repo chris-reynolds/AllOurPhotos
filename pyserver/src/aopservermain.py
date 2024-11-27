@@ -287,9 +287,21 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
         print("Error: in uploader()", progress, exmess)
         raise HTTPException(status_code=500, detail=f"During {progress}:{exmess}") from ex
 
+def flatten_dict(d: dict) -> dict:
+    items = []
+    for k, v in d.items():
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v).items())
+        elif isinstance(v, list):
+            [items.extend(flatten_dict(x).items()) for x in v]
+        else:
+            items.append((k, v))
+    return dict(items)
+        
 @app.post('/upload_video/{modified}/{filename}/{sourceDevice}')
 async def upload_video(request: Request, modified: str, filename: str, sourceDevice: str, video: UploadFile = File(...)):
     try:
+        progress : str = 'reading video'
         # Read the uploaded video file
         video_content = await video.read()
         
@@ -302,10 +314,9 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
         # Extract metadata using ffmpeg
         metadata = ffmpeg.probe(temp_path)
         creation_time = None
-        tags = {} 
-        for stream in metadata['streams']:
-            if 'tags' in stream:
-                tags = stream['tags']
+        tags = flatten_dict(metadata)
+        tags = dict(sorted(tags.items()))
+
         if 'creation_time' in tags:
             creation_time = tags['creation_time']
         print(f'tags: {tags}')
@@ -313,12 +324,13 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
             taken_datetime = datetime.strptime(creation_time, '%Y-%m-%dT%H:%M:%S.%fZ')
         else:
             taken_datetime = datetime.now()
-        
+    
         # Create directory based on the month the video was taken
-        save_dir = ROOT_DIR+taken_datetime.strftime('%Y-%m')
-        print(f"-------------------save_dir: {save_dir}")
+        monthDir = taken_datetime.strftime('%Y-%m')
+        save_dir = ROOT_DIR+monthDir
         os.makedirs(save_dir, exist_ok=True)
-        
+                os.makedirs(save_dir, exist_ok=True)
+                os.makedirs(save_dir, exist_ok=True)
         # Save the video to the new directory
         save_path = os.path.join(save_dir, filename)
         with open(save_path, 'wb') as f:
@@ -331,6 +343,7 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
             ffmpeg
             .input(save_path, ss=1)  # Extract frame at 1 second
             .output(thumbnail_path, vframes=1)
+            .overwrite_output()
             .run()
         )        
 
@@ -339,11 +352,22 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
         with open(metadata_path, 'w') as g:
             json.dump(tags, g, indent=4)    
         
-        return JSONResponse(content={"message": "Video uploaded successfully"}, status_code=200)
+        progress = 'writing the database row'
+        snap = await makeSnapDatabaseRow(tags['width'],tags['height'],tags,sourceDevice,
+                                         monthDir,filename,taken_datetime,modified,tags['size'])
+        progress = 'reading database row'
+        # Check for duplicate entry before creating a new snap
+        existing_snaps = get_snaps(request, where=f"file_name='{filename}' AND directory='{monthDir}'")
+        if existing_snaps:
+            raise HTTPException(status_code=409, detail=f"Duplicate entry for file '{filename}' in directory '{monthDir}'")
+        newsnap = create_snap(request, snap)
+        print(f"uploaded ({modified})")
+        return newsnap
+    except HTTPException: raise
     except Exception as ex:
         exmess: str = repr(ex)
-        print("Error: in upload_video()", exmess)
-        raise HTTPException(status_code=500, detail=f'{exmess}')
+        print("Error: in uploader()", progress, exmess)
+        raise HTTPException(status_code=500, detail=f"During {progress}:{exmess}") from ex
 
 def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
     try:

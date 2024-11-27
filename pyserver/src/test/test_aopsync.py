@@ -4,7 +4,7 @@ import json
 import datetime as dt
 from fastapi.testclient import TestClient
 from src.aopservermain import app
-# import test_utils as tu
+# from test_utils as tu
 
 # tests for aopsync
 client = TestClient(app)
@@ -24,9 +24,11 @@ def loginCheck(response, expected):
       assert(int(jam_object['jam']) == -1) 
         
 
-#def clean():
-  #  tu.init_env(loginpair())
-  #  tu.clear_testdata()
+@pytest.fixture
+def clean():
+    pass
+#    tu.init_env(loginpair())
+#    tu.clear_testdata()
 
 def test_login_bad_user():
     uspw = loginpair()
@@ -106,9 +108,9 @@ def test_huawei_post():
     response = client.post(url,files={'myfile': testFile},headers=[(b'Preserve',session)]) 
     assert response.status_code == 200, f'Failed http {response.status_code}\n{response.content}'
 
-def test_video_mp4():
+def test_video(clean):
     session = login_good_user_good_password()
-    testFilename = 'agopro.mp4'
+    testFilename = 'adji.mov' #'agopro.mp4'
     testFile = open(f'testdata/{testFilename}','rb')
     modified_time = os.path.getmtime(f'testdata/{testFilename}')
     modified_timeStr = dt.datetime.fromtimestamp(modified_time).strftime('%Y:%m:%d %H:%M:%S')
@@ -122,10 +124,10 @@ def test_add_file_folder():
 def test_add_thumbnail():
     raise Exception('To do')
 
-def test_test_add_metadata():
+def test_add_metadata():
     raise Exception('To do')
 
-def test_test_add_to_db_correctly():
+def test_add_to_db_correctly():
     raise Exception('To do')
 
 def test_location_deduced_and_stored():
