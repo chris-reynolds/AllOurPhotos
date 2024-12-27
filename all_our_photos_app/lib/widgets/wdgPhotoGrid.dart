@@ -114,9 +114,14 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
   }
 
   void filterRefreshCallback() {
-    setState(() {
-      log.message('filterRefresh triggered ');
-    });
+    try {
+      setState(() {
+        log.message('filterRefresh triggered ');
+      });
+    } catch (ex) {
+      log.error('Error in filterRefreshCallback: $ex');
+      showMessage(context, 'Error in filterRefreshCallback: $ex');
+    }
   }
 
   void editorCallback(String caption, String location) {

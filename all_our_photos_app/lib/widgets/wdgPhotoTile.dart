@@ -4,6 +4,7 @@
   Purpose: PhotoTile widget is a tile of a PhotoGrid
 */
 
+import 'package:all_our_photos_app/screens/scSingleVideo.dart';
 import 'package:all_our_photos_app/utils/snapProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
@@ -105,7 +106,31 @@ class _PhotoTileState extends State<PhotoTile> {
                   Icon(icon, color: filterColors[snap.ranking!], size: 40.0),
                 ])),
           ),
-          child: imageWidget,
+          child: !snap.isVideo
+              ? imageWidget
+              : Stack(
+                  children: [
+                    imageWidget,
+                    Positioned(
+                      right: 8,
+                      bottom: 8,
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      SingleVideoWidget(snap.fullSizeURL)));
+                        },
+                        icon: Icon(
+                          Icons.play_arrow,
+                          color: Theme.of(context).colorScheme.secondary,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ], // of stack children
+                ),
         ),
       );
     } else {
@@ -126,7 +151,20 @@ class _PhotoTileState extends State<PhotoTile> {
             trailing: Icon(iconSelect, color: Colors.black),
           ),
         ),
-        child: imageWidget,
+        child: !snap.isVideo
+            ? imageWidget
+            : Stack(
+                children: [
+                  imageWidget,
+                  Center(
+                    child: Icon(
+                      Icons.play_arrow,
+                      color: const Color.fromARGB(255, 196, 44, 44),
+                      size: 60,
+                    ),
+                  ),
+                ], // of stack children
+              ),
       );
     }
   }

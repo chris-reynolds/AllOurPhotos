@@ -808,11 +808,22 @@ class AopSnap extends DomainObject {
   } // of yearGrid
 
   String get fullSizeURL {
-    return '${WebFile.rootUrl}rotate/$degrees/$directory/$fileName';
+    if (degrees == 0) {
+      return '${WebFile.rootUrl}photos/$directory/$fileName';
+    } else {
+      return '${WebFile.rootUrl}rotate/$degrees/$directory/$fileName';
+    }
   } // of fullSizeURL
 
   String get thumbnailURL {
-      return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$fileName';
+    // thumbnail is always jpe
+    String thumbName = path.setExtension(fileName!, '.jpg');
+    if (degrees == 0) {
+      return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName';
+    } else {
+      return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$thumbName';
+    }
+//    return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$thumbName';
   } // of thumbnailURL
 
   String get metadataURL {
@@ -839,7 +850,10 @@ class AopSnap extends DomainObject {
     newRotation = newRotation % 360; // wrap 360
     rotation = 'dead';
   }
-//                                '*** End Custom Code
+
+  bool get isVideo => mediaType == 'mp4' || mediaType == 'mov';
+
+  //                                '*** End Custom Code
 } // of class snap
 
 //-------------------------------------------------------------------

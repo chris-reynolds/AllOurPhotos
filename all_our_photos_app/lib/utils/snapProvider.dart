@@ -12,6 +12,7 @@ class SnapProvider extends ChangeNotifier {
   final AopSnap _snap;
   AopSnap get snap => _snap;
   SnapProvider(this._snap) : super();
+
   void save() async {
     await _snap.save();
     notifyListeners();

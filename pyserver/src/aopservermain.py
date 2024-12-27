@@ -323,14 +323,14 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
         if creation_time:
             taken_datetime = datetime.strptime(creation_time, '%Y-%m-%dT%H:%M:%S.%fZ')
         else:
-            taken_datetime = datetime.now()
+            taken_2datetime = datetime.now()
     
         # Create directory based on the month the video was taken
         monthDir = taken_datetime.strftime('%Y-%m')
         save_dir = ROOT_DIR+monthDir
         os.makedirs(save_dir, exist_ok=True)
-                os.makedirs(save_dir, exist_ok=True)
-                os.makedirs(save_dir, exist_ok=True)
+#        os.makedirs(os.path.join(save_dir,'thumbnails'), exist_ok=True)
+#        os.makedirs(os.path.join(save_dir,'metadata'), exist_ok=True)
         # Save the video to the new directory
         save_path = os.path.join(save_dir, filename)
         with open(save_path, 'wb') as f:

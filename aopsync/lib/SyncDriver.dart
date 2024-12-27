@@ -24,8 +24,10 @@ typedef ProgressIndicator = void Function(int current, int max);
 
 class SyncDriver {
   static final supportedMediaTypes = <String, MediaType>{
-    'jpg': MediaType('image', 'jpeg'),
-    'png': MediaType('image', 'png')
+//    'jpg': MediaType('image', 'jpeg'),
+//    'png': MediaType('image', 'png'),
+    'mp4': MediaType('video', 'mp4'),
+    'mov': MediaType('video', 'mov')
   };
   String localFileRoot;
   List<FileAnDate> latestFileList = [];
@@ -157,9 +159,17 @@ class SyncDriver {
       String thisDevice = config['sesdevice'];
       String fileDateStr =
           formatDate(modifiedDate, format: 'yyyy:mm:dd hh:nn:ss');
-
+      String fileExt = onlyExtension(filename).toLowerCase();
+      MediaType? mediaType = supportedMediaTypes[fileExt];
+      if (mediaType == null) {
+        log.error('Unsupported media type $fileExt');
+        return FileFate(imageName, Fate.Error,
+            reason: 'Unsupported media type $fileExt');
+      }
+      bool isVideo = mediaType.type == 'video';
+      String targetRoute = isVideo ? 'upload_video' : 'upload2';
       var postUrl =
-          "http://${config['host']}:${config['port']}/upload2/$fileDateStr/$imageName/$thisDevice";
+          "http://${config['host']}:${config['port']}/$targetRoute/$fileDateStr/$imageName/$thisDevice";
       var request = http.MultipartRequest("POST", Uri.parse(postUrl));
       request.headers.addAll({
         'Accept': 'application/json',
@@ -167,10 +177,12 @@ class SyncDriver {
       });
       // request.files.add(http.MultipartFile.fromBytes('myfile', fileContents,
       //     contentType: MediaType('image', 'jpeg')));
-      request.files.add(await http.MultipartFile.fromPath('myfile', filename,
-          contentType: MediaType('image', 'jpeg')));
+      request.files.add(await http.MultipartFile.fromPath(
+          isVideo ? 'video' : 'myfile', filename,
+          contentType: mediaType));
       var response = await request.send();
-      var responseBody = response.stream.toString();
+      String responseBody = await response.stream.bytesToString();
+//      var responseBody = response.stream.toString();
       if (response.statusCode == 200) {
         log.debug("Uploaded $imageName");
         return FileFate(imageName, Fate.Uploaded);

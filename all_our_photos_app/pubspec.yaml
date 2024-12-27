@@ -49,6 +49,7 @@ dependencies:
     path: ../../aop/aopcommon
   http_parser: 
   provider: 
+  video_player: ^2.9.2
 
 
 dev_dependencies:
