@@ -10,7 +10,7 @@ import 'screens/scLaunchWithLogin.dart';
 
 //import 'package:aopcommon/aopcommon.dart';
 
-const VERSION = 'All Our Photos 21 Dec 2024';
+const VERSION = 'All Our Photos 30a Dec 2024';
 
 void main() {
   MaterialApp application = MaterialApp(

@@ -35,6 +35,7 @@ class HomePageState extends State<HomePage> {
   bool _inProgress = false;
   bool _hasWebServer = false;
   double _progressValue = 0.0;
+  String searchMode = 'Photos and Videos';
 //  var iosGallery = IosGallery(); // do nothing yet
   late SyncDriver syncDriver;
 
@@ -74,16 +75,20 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(widget.title), actions: <IconButton>[
-          IconButton(
-            icon: Icon(Icons.list),
-            onPressed: () => _showLogger(context),
-          ),
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: widget.tryLogout as void Function()?,
-          ),
-        ]),
+        appBar: AppBar(
+            title: Text(
+              widget.title,
+            ),
+            actions: <IconButton>[
+              IconButton(
+                icon: Icon(Icons.list),
+                onPressed: () => _showLogger(context),
+              ),
+              IconButton(
+                icon: Icon(Icons.exit_to_app),
+                onPressed: widget.tryLogout as void Function()?,
+              ),
+            ]),
         body: Stack(children: [
           StreamBuilder<String>(
               stream: messages.stream,
@@ -112,16 +117,49 @@ class HomePageState extends State<HomePage> {
                           ],
                         ),
                         Spacer(),
-                        Text('Last run: ${prettyDate(lastRunTime)}  '),
+                        TextButton(
+                          onPressed: () {},
+                          onLongPress: () {
+                            setState(() {
+                              switch (searchMode) {
+                                case 'Photos and Videos':
+                                  searchMode = 'Photos';
+                                  break;
+                                case 'Photos':
+                                  searchMode = 'Videos';
+                                  break;
+                                case 'Videos':
+                                  searchMode = 'Photos and Videos';
+                                  break;
+                              }
+                              syncDriver.clear();
+                              messages.add('Search mode is now $searchMode');
+                            });
+                          },
+                          child: Text(searchMode),
+                        ),
+                        TextButton(
+                            onPressed: () {}, // do nothing for simple press
+                            onLongPress: () {
+                              setState(() {
+                                lastRunTime = DateTime(1980);
+                              });
+                            },
+                            child:
+                                Text('Last run: ${prettyDate(lastRunTime)}  ')),
                         Spacer(flex: 3),
-
                         if (!_inProgress)
                           ElevatedButton(
-                            child: Text('Check for Photos'),
+                            child: Text('Scan...'),
                             onPressed: () {
                               setInProgress(true);
                               outStandingPhotoCheck();
                             },
+                            // onLongPress: () {
+                            //   lastRunTime = DateTime(1980);
+                            //   setInProgress(true);
+                            //   outStandingPhotoCheck();
+                            // },
                           ), // of raisedButton
                         Spacer(),
                         if (messageSnapshot.data!.isNotEmpty)
@@ -141,7 +179,8 @@ class HomePageState extends State<HomePage> {
                             _hasWebServer)
                           ElevatedButton(
                             onPressed: processPhotos,
-                            child: Text('Process Photos'),
+                            child:
+                                Text('Process ${syncDriver.count} $searchMode'),
                           ),
                         if (_inProgress)
                           Padding(
@@ -208,12 +247,14 @@ class HomePageState extends State<HomePage> {
 
   void outStandingPhotoCheck() async {
     try {
-      messages.add('loading photos...');
+      messages.add('outStandingPhotoCheck for $searchMode...');
       thisRunTime = DateTime.now();
+      bool wantPhotos = searchMode.toLowerCase().contains('photo');
+      bool wantVideos = searchMode.toLowerCase().contains('video');
       setInProgress(true);
-      await syncDriver.loadFileList(lastRunTime);
+      await syncDriver.loadFileList(lastRunTime, wantPhotos, wantVideos);
       messages.add(
-          'I found ${syncDriver.count} photos  ${_hasWebServer ? "" : " BUT NO SERVER"}');
+          'I found ${syncDriver.count} $searchMode  ${_hasWebServer ? "" : " BUT NO SERVER"}');
     } catch (ex) {
       messages.add('Error : $ex');
       log.error('$ex');
@@ -225,7 +266,7 @@ class HomePageState extends State<HomePage> {
     setInProgress(true);
     try {
       bool result = await syncDriver.processFilePhotos();
-      if (result) {
+      if (result && searchMode == 'Photos and Videos') {
 //        messages.add('Processing finished');
         config[LAST_RUN] =
             formatDate(thisRunTime, format: 'yyyy-mm-dd hh:nn:ss');

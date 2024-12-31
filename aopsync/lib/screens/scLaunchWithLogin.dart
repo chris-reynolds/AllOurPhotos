@@ -24,6 +24,7 @@ class LaunchWithLogin extends StatelessWidget {
   final String title;
   LaunchWithLogin(this.title, {super.key});
   Future<void> initConfig() async {
+    log.debug('starting version $title');
     await config.load('aop_config.json');
     log.debug('loaded config $config');
   } // of initConfig
@@ -43,11 +44,11 @@ class LaunchWithLogin extends StatelessWidget {
     try {
       if (Platform.isAndroid) {
         var androidInfo = await DeviceInfoPlugin().androidInfo;
-        Permission photoPermission = androidInfo.version.sdkInt >= 32
-            ? Permission.photos
-            : Permission.storage;
+        List<Permission> photoPermissions = androidInfo.version.sdkInt >= 32
+            ? [Permission.photos, Permission.videos]
+            : [Permission.storage];
         if (!await checkPermissions(
-            [photoPermission, Permission.accessMediaLocation])) {
+            [...photoPermissions, Permission.accessMediaLocation])) {
           _streamController.add(AuthenticationState.noPermission());
           return;
         }
@@ -56,7 +57,7 @@ class LaunchWithLogin extends StatelessWidget {
       if (Uri.base.host.isNotEmpty) {
         rootUrl = '${Uri.base}';
         rootUrl = rootUrl.replaceAll('8686',
-            '8000'); // allow interactive debugging on port 86886 with affecting server
+            '8000'); // allow interactive debugging on port 8686 with affecting server
       } else
         rootUrl = 'http://${config['host']}:${config['port']}/';
       WebFile.setRootUrl('${rootUrl}photos/');

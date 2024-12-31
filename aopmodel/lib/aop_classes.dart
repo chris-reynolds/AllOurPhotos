@@ -816,8 +816,11 @@ class AopSnap extends DomainObject {
   } // of fullSizeURL
 
   String get thumbnailURL {
-    // thumbnail is always jpe
-    String thumbName = path.setExtension(fileName!, '.jpg');
+    // thumbnail is always jpeg
+    String thumbName = fileName ?? 'noname';
+    if (!thumbName.toLowerCase().endsWith('.jpg')) {
+      thumbName = path.setExtension(fileName!, '.jpg');
+    }
     if (degrees == 0) {
       return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName';
     } else {

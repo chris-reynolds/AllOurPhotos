@@ -23,12 +23,7 @@ typedef FileAnDate = ({DateTime date, File file});
 typedef ProgressIndicator = void Function(int current, int max);
 
 class SyncDriver {
-  static final supportedMediaTypes = <String, MediaType>{
-//    'jpg': MediaType('image', 'jpeg'),
-//    'png': MediaType('image', 'png'),
-    'mp4': MediaType('video', 'mp4'),
-    'mov': MediaType('video', 'mov')
-  };
+  static Map<String, MediaType> supportedMediaTypes = {};
   String localFileRoot;
   List<FileAnDate> latestFileList = [];
   StreamController<String> messageStream;
@@ -37,6 +32,10 @@ class SyncDriver {
       {required this.localFileRoot,
       required this.messageStream,
       required this.indicateProgress}); //, required this.fromDate});
+
+  void clear() {
+    latestFileList.clear();
+  }
 
   DateTime? dateTimeFromFilename(String filename) {
     RegExp regYymmdd = RegExp(r'\d{8}_\d{6}');
@@ -54,21 +53,39 @@ class SyncDriver {
     return result;
   } // of dateTimeFromFile
 
-  Future<void> loadFileList(DateTime fromDate) async {
-//    if (allPhotos) fromDate = DateTime(1900);
+  Future<void> loadFileList(
+      DateTime fromDate, bool wantPhotos, bool wantVideos) async {
+    supportedMediaTypes = {};
+    if (wantPhotos) {
+      supportedMediaTypes['jpg'] = MediaType('image', 'jpeg');
+      supportedMediaTypes['png'] = MediaType('image', 'png');
+    }
+    if (wantVideos) {
+      supportedMediaTypes['mp4'] = MediaType('video', 'mp4');
+      supportedMediaTypes['mov'] = MediaType('video', 'mov');
+    }
     logAndDisplay(
-        'Loading files from $localFileRoot with date after ${formatDate(fromDate)}');
+        'Loading files from $localFileRoot with date after ${formatDate(fromDate)} -${supportedMediaTypes.keys.join(',')}');
     // load only files from
-    List<FileSystemEntity> origin = await Directory(localFileRoot)
-        .list(recursive: true)
-        .where((fse) {
-          return (fse is File) && dateTimeFromFile(fse).isAfter(fromDate);
-        })
-        .where((fse) => !fse.path.toLowerCase().contains('thumbnail'))
-        .where((fse) => !onlyFileName(fse.path).startsWith('.')) // .trashed
-        .where((fse) => supportedMediaTypes
-            .containsKey(onlyExtension(fse.path).toLowerCase()))
-        .toList();
+    List<FileSystemEntity> origin =
+        await Directory(localFileRoot).list(recursive: true).where((fse) {
+      return (fse is File) && dateTimeFromFile(fse).isAfter(fromDate);
+    }).toList();
+    // .where((fse) => !fse.path.toLowerCase().contains('thumbnail'))
+    // .where((fse) => !onlyFileName(fse.path).startsWith('.')) // .trashed
+    // .where((fse) => supportedMediaTypes
+    //     .containsKey(onlyExtension(fse.path).toLowerCase()))
+    // .toList();
+    logAndDisplay('${origin.length} files found');
+    for (var i = origin.length - 1; i >= 0; i--) {
+      if (origin[i].path.toLowerCase().contains('thumbnail') ||
+          onlyFileName(origin[i].path).startsWith('.') ||
+          !supportedMediaTypes
+              .containsKey(onlyExtension(origin[i].path).toLowerCase())) {
+        origin.removeAt(i);
+      }
+    }
+    logAndDisplay('${origin.length} files kept');
     List<FileAnDate> results = [];
     for (var fse in origin) {
       String imageName = onlyFileName(fse.path);
@@ -79,7 +96,7 @@ class SyncDriver {
     } //
     results.sort((a, b) => a.date.compareTo(b.date));
     logAndDisplay('Sorted ${results.length}');
-    log.debug('Found ${results.length} pictures ');
+    log.debug('Found ${results.length} items ');
     latestFileList = results;
   } // loadFileList
 
@@ -113,8 +130,8 @@ class SyncDriver {
           case Fate.Duplicate:
             dupCount++;
             break;
-          default: // should never happen
-            throw Exception('unknown fate for file ${thisPicFile.path}');
+          // default: // should never happen
+          //   throw Exception('unknown fate for file ${thisPicFile.path}');
         } // of switch
         progressMessage =
             'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
