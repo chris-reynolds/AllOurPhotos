@@ -1,5 +1,5 @@
 name: aopmodel
-description: A starting point for Dart libraries or applications.
+description: This package provides the client-side model for the AOP application.
 version: 1.0.0
 publish_to: none
 # repository: https://github.com/my_org/my_repo
@@ -7,14 +7,12 @@ publish_to: none
 environment:
   sdk: ^3.1.0
 
-# Add regular dependencies here.
 dependencies:
   path: ^1.8.0
   aopcommon:
-    path: ../../aop/aopcommon
+    path: ../aopcommon
   http: ^1.1.0
   shared_preferences: ^2.2.3
-#  mysql1: ^0.20.0
 
 dev_dependencies:
   lints: ^2.0.0
