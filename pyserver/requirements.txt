@@ -7,6 +7,8 @@ colorama==0.4.6
 dnspython==2.4.2
 email-validator==2.0.0.post2
 fastapi==0.115.2
+ffmpeg-python==0.2.0
+future==1.0.0
 h11==0.14.0
 httpcore==0.18.0
 httptools==0.6.0
