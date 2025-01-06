@@ -153,7 +153,7 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
               validator: _checkCaption,
               maxLength: 100,
             ),
-            // TODO: decide how to handle location lookup
+            // TO-DO: decide how to handle location lookup
             /*TypeAheadTextField(
               key: locationKey,
               focusNode: _focusNode,

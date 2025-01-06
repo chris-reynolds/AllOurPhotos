@@ -156,7 +156,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO:  restore swipes for single photo
+    // TO-DO:  restore swipes for single photo
     if (snapList == null)
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];

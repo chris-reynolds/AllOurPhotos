@@ -108,7 +108,6 @@ class ImageFilter
     for (int rankNo = 1; rankNo <= 3; rankNo++)
       if (_rank[rankNo]) result += '$rankNo,';
     result += '-999) ';
-    // TODO: string search criteria
     return result;
   } // of whereClause
 

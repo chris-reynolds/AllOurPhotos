@@ -176,7 +176,7 @@ Widget wsMakeField(String fieldDef, {required Map values, double? spacer}) {
 // } // wsFormValues
 
 WsValidator? makeValidator(String vets) {
-  return null; // TODO: setup validators. Mainly required, min length, regex
+  return null; // TO-DO: setup validators. Mainly required, min length, regex
 } // make validator
 
 Future<bool?> confirmYesNo1(BuildContext context, String question) async {
