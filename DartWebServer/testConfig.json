@@ -1,6 +1,0 @@
-{
-	"webserver_port": "4444",
-	"fileserver_root": "../testdata",
-	"password.chris": "temp",
-	"password.janet": "temp"
-}
