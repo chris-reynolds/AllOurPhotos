@@ -64,6 +64,9 @@ class SyncDriver {
       supportedMediaTypes['mp4'] = MediaType('video', 'mp4');
       supportedMediaTypes['mov'] = MediaType('video', 'mov');
     }
+
+    // var processInfo = ProcessInfo.currentRss;
+    // logAndDisplay('Memory usage 1: ${processInfo / (1024 * 1024)} MB');
     logAndDisplay(
         'Loading files from $localFileRoot with date after ${formatDate(fromDate)} -${supportedMediaTypes.keys.join(',')}');
     // load only files from
@@ -76,6 +79,8 @@ class SyncDriver {
     // .where((fse) => supportedMediaTypes
     //     .containsKey(onlyExtension(fse.path).toLowerCase()))
     // .toList();
+    // processInfo = ProcessInfo.currentRss;
+    // logAndDisplay('Memory usage 2: ${processInfo / (1024 * 1024)} MB');
     logAndDisplay('${origin.length} files found');
     for (var i = origin.length - 1; i >= 0; i--) {
       if (origin[i].path.toLowerCase().contains('thumbnail') ||
@@ -85,6 +90,8 @@ class SyncDriver {
         origin.removeAt(i);
       }
     }
+    // processInfo = ProcessInfo.currentRss;
+    // logAndDisplay('Memory usage 3: ${processInfo / (1024 * 1024)} MB');
     logAndDisplay('${origin.length} files kept');
     List<FileAnDate> results = [];
     for (var fse in origin) {
@@ -94,10 +101,15 @@ class SyncDriver {
       log.debug('adding $imageName date=$fileDate');
       results.add((date: fileDate, file: fse));
     } //
+    // processInfo = ProcessInfo.currentRss;
+    // logAndDisplay('Memory usage 4: ${processInfo / (1024 * 1024)} MB');
+
     results.sort((a, b) => a.date.compareTo(b.date));
     logAndDisplay('Sorted ${results.length}');
     log.debug('Found ${results.length} items ');
     latestFileList = results;
+    // processInfo = ProcessInfo.currentRss;
+    // logAndDisplay('Memory usage 5: ${processInfo / (1024 * 1024)} MB');
   } // loadFileList
 
   void logAndDisplay(String message) {
@@ -115,6 +127,8 @@ class SyncDriver {
       messageStream.add('File Processing in progress. Please wait...');
       for (int i = 0; i < latestFileList.length; i++) {
         File thisPicFile = latestFileList[i].file;
+        logAndDisplay(
+            'processing ${latestFileList[i].file.path} len=${latestFileList[i].file.lengthSync()}');
         DateTime thisPicDate = latestFileList[i].date;
         List<int> fileContents = thisPicFile.readAsBytesSync();
         String imageName = onlyFileName(thisPicFile.path);
@@ -143,8 +157,8 @@ class SyncDriver {
       latestFileList = [];
       log.save();
       return true;
-    } catch (ex) {
-      messageStream.add('Error : $ex');
+    } catch (ex, st) {
+      messageStream.add('Error : $ex \n $st');
       return false;
     }
   } // of processFilePhotos
