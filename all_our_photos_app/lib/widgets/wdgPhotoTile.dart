@@ -5,7 +5,7 @@
 */
 
 import 'package:all_our_photos_app/screens/scSingleVideo.dart';
-import 'package:all_our_photos_app/utils/snapProvider.dart';
+import 'package:all_our_photos_app/providers/snapProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';

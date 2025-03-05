@@ -3,6 +3,8 @@ import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
 import '../flutter_common/WidgetSupport.dart';
 import 'scSimpleDlg.dart';
+import 'package:provider/provider.dart';
+import '../providers/albumProvider.dart';
 
 class AlbumList extends StatefulWidget {
   const AlbumList({super.key});
@@ -27,28 +29,21 @@ class AlbumListState extends State<AlbumList> {
     });
   }
 
+  Future<void> buildAlbumList() async {
+    _list = await AopAlbum.all();
+    _list.sort((AopAlbum a, AopAlbum b) => -a.name.compareTo(b.name));
+  } // of buildAlbumList
+
   @override
   void initState() {
     super.initState();
     _isSearching = false;
-    AopAlbum.all().then((result) {
-      setState(() {
-        _list = result;
-      }); // of setState
-    }); // of then
+    buildAlbumList();
   } // of initState
 
   void toggleSearching() => setState(() {
         _isSearching = !_isSearching;
       });
-
-  Future<List<AopAlbum>> noisyLoadList() async {
-    log.message('noisy list');
-    var newList = await AopAlbum.all();
-    newList.sort((AopAlbum a, AopAlbum b) => b.name.compareTo(a.name));
-    log.message('${newList.length} albums loaded');
-    return newList;
-  } // of refreshList
 
   @override
   Widget build(BuildContext context) {
@@ -71,18 +66,23 @@ class AlbumListState extends State<AlbumList> {
     );
   }
 
+  showAlbum(AopAlbum album) {
+    Provider.of<AlbumProvider>(context, listen: false).setAlbum(album);
+    Navigator.pushNamed(context, 'AlbumDetail', arguments: album).then((value) {
+      log.message('popping at show album');
+      setState(() async {
+        await buildAlbumList();
+      });
+    });
+  }
+
   Widget buildAlbumLine(AopAlbum album) {
     return Row(
       children: [
         TextButton(
             child:
                 Text(album.name, style: Theme.of(context).textTheme.titleLarge),
-            onPressed: () =>
-                Navigator.pushNamed(context, 'AlbumDetail', arguments: album)
-                    .then((value) {
-                  log.message('popping at list selectttttttttttttt');
-                  setState(() {});
-                })),
+            onPressed: () => showAlbum(album)),
       ],
     );
   } // of buildAlbumLine
@@ -122,6 +122,7 @@ class AlbumListState extends State<AlbumList> {
     bool done = false;
     while (!done) {
       name = await showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) =>
               DgSimple('Album name', name, errorMessage: errorMessage));
@@ -135,11 +136,13 @@ class AlbumListState extends State<AlbumList> {
         try {
           await newAlbum.save();
           _list.add(newAlbum);
-          Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
-              .then((value) async {
-            log.message('popping at album list add');
-            setState(() {});
-          });
+          showAlbum(newAlbum);
+          // Provider.of<AlbumProvider>(context, listen: false).setAlbum(newAlbum);
+          // Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
+          //     .then((value) async {
+          //   log.message('popping at album list add');
+          //   setState(() {});
+          // });
           done = true;
         } catch (ex) {
           errorMessage = '$ex';
@@ -164,13 +167,14 @@ class ChildItem extends StatelessWidget {
     return Row(
       children: [
         TextButton(
-            child:
-                Text(album.name, style: Theme.of(context).textTheme.titleLarge),
-            onPressed: () =>
-                Navigator.pushNamed(context, 'AlbumDetail', arguments: album)
-                    .then((value) {
-                  log.message('popping at list selectttttttttttttt');
-                })),
+          child:
+              Text(album.name, style: Theme.of(context).textTheme.titleLarge),
+          onPressed: () => parent.showAlbum(album),
+          // Navigator.pushNamed(context, 'AlbumDetail', arguments: album)
+          //     .then((value) {
+          //   log.message('popping at list selectttttttttttttt 2');
+          // })
+        ),
       ],
     );
   }
@@ -193,7 +197,6 @@ void handleMultiRemoveFromAlbum(BuildContext context, AopAlbum argAlbum,
     if (deleteAlbum) {
       await argAlbum.delete();
       message += 'Album deleted';
-      //;
       log.message('popping from grid after delete album');
       await showMessage(context, message);
       Navigator.pop(context, true);
