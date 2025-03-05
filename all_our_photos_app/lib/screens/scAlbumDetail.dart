@@ -56,6 +56,7 @@ class AlbumDetailState extends State<AlbumDetail>
   PreferredSizeWidget buildBar(BuildContext context) {
     log.message('build bar for album detail');
     return AppBar(
+        leading: Text(''), //supress the back button
         centerTitle: true,
         title: Text(argAlbum!.name),
         actions: <Widget>[
@@ -64,6 +65,13 @@ class AlbumDetailState extends State<AlbumDetail>
               tooltip: 'Rename album',
               onPressed: () async {
                 await handleRenameAlbum(context);
+                setState(() {});
+              }),
+          IconButton(
+              icon: Icon(Icons.delete),
+              tooltip: 'Delete album',
+              onPressed: () async {
+                await handleDelete(context);
                 setState(() {});
               }),
           if (selectionList.isNotEmpty)
@@ -95,28 +103,29 @@ class AlbumDetailState extends State<AlbumDetail>
     });
   } // of handleAddAlbumItem
 
-  // TO-DO: review album delete
-  // Future<void> handleDelete(BuildContext context) async {
-  //   bool deleteAlbum = false;
-  //   if (selectionList == null) return; // nothing to delete
-  //   if (_list.length == selectionList.length) {
-  //     if (await confirmYesNo(context, 'Delete album?',
-  //         description: 'All photos for this album have been\n selected for deletion'))
-  //       deleteAlbum = true;
-  //   }
-  //   int count = await argAlbum.removeSnaps(selectionList);
-  //   showSnackBar("$count photos removed",context);
-  //   if (deleteAlbum) {
-  //     showSnackBar('Album deleted',context);
-  //     print('album delete');
-  //     var fred = await argAlbum.delete();
-  //     print('now pop');
-  //     Navigator.pop(context,true);
-  //   } else {
-  //     clearSelected();
-  //     refreshList();
-  //   }
-  // } // of handleDelete
+  Future<void> handleDelete(BuildContext context) async {
+    bool deleteAlbum = false;
+    if (_list == null || (_list!.isNotEmpty && selectionList.isEmpty))
+      return; // nothing to delete
+    if (_list!.length == selectionList.length) {
+      if (await confirmYesNo(context, 'Delete album?',
+              description:
+                  'All photos for this album have been\n selected for deletion') ??
+          false) deleteAlbum = true;
+    }
+    int count = await argAlbum!.removeSnaps(selectionList);
+    showSnackBar("$count photos removed", context);
+    if (deleteAlbum) {
+      showSnackBar('Album deleted', context);
+      log.message('album delete');
+      await argAlbum!.delete();
+      log.message('now pop');
+      Navigator.pop(context, true);
+    } else {
+      clearSelected();
+      refreshList();
+    }
+  } // of handleDelete
 
   Future<void> moveToAnotherAlbum(BuildContext context) async {
     List<AopAlbum> allAlbums = await AopAlbum.all();

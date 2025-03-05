@@ -66,3 +66,6 @@ pyserver/pyserver/Scripts/pip3.exe
 /all_our_photos_app/webx
 /pyserver/pyserver/Scripts
 *.exe
+/pyserver/pyserver2xxxx
+/pyserver/pyserver/Scripts
+/pyserver/pyserver/Scripts
