@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
+import 'package:provider/provider.dart';
 import '../ImageFilter.dart';
+import '../providers/albumProvider.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'package:aopmodel/aop_classes.dart';
 import '../MonthlyStatus.dart';
@@ -59,6 +61,7 @@ class YearGridState extends State<YearGrid> {
   } // of buildYears
 
   void handleMonthClick(int yearNo, int monthNo) {
+    Provider.of<AlbumProvider>(context, listen: false).setAlbum(null);
     if (monthNo > 0) {
       // dont navigate if clicking on yearNo
       setCurrent(yearNo, monthNo);
