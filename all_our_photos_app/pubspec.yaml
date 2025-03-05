@@ -35,6 +35,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 
+  web:
   image: 
   http:  
   dio: 
@@ -49,7 +50,7 @@ dependencies:
     path: ../aopcommon
   http_parser: 
   provider: 
-  video_player: ^2.9.2
+  video_player: ^2.9.3
 
 
 dev_dependencies:

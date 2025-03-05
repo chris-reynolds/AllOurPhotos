@@ -3,6 +3,8 @@
   
   Purpose: This is to isolate the Exporting logic
 
+  25th Feb 2025 - migrate to package:web but leave the test for later 
+
 */
 import 'dart:io';
 import 'package:aopmodel/aop_classes.dart';
@@ -12,7 +14,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dio/dio.dart';
-import 'dart:html' as html;
+import 'package:web/web.dart' as html;
 
 class ExportPic {
   static Future<bool> _requestPermission(Permission permission) async {
@@ -44,7 +46,7 @@ class ExportPic {
       if (kIsWeb) {
         String relativeUrl = url;
         log.message('Attempting to download $relativeUrl');
-        html.AnchorElement anchorElement = html.AnchorElement()
+        html.HTMLAnchorElement anchorElement = html.HTMLAnchorElement()
           ..href = relativeUrl
           ..setAttribute('download', fileName);
         html.document.body!.append(anchorElement);
