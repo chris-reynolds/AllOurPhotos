@@ -61,7 +61,8 @@ class YearGridState extends State<YearGrid> {
   } // of buildYears
 
   void handleMonthClick(int yearNo, int monthNo) {
-    Provider.of<AlbumProvider>(context, listen: false).setAlbum(null);
+    // clear current album so downstream widgets know we are not working on an album
+    context.read<AlbumProvider>().setAlbum(null);
     if (monthNo > 0) {
       // dont navigate if clicking on yearNo
       setCurrent(yearNo, monthNo);

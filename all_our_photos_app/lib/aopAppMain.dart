@@ -7,10 +7,12 @@ import 'screens/scMetaEditor.dart';
 import 'screens/scSinglePhoto.dart';
 import 'screens/scDBFix.dart';
 import 'screens/scLaunchWithLogin.dart';
+import 'package:provider/provider.dart';
+import '../providers/albumProvider.dart';
+import '../providers/snapProvider.dart';
+import 'package:aopmodel/aop_classes.dart';
 
-//import 'package:aopcommon/aopcommon.dart';
-
-const VERSION = 'All Our Photos 30a Dec 2024';
+const VERSION = 'All Our Photos 6 Mar 2025';
 
 void main() {
   MaterialApp application = MaterialApp(
@@ -33,7 +35,14 @@ void main() {
       'testlog': (BuildContext context) => SearchList(),
     },
   );
-  runApp(application);
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AlbumProvider()),
+        ChangeNotifierProvider(
+            create: (context) => SnapProvider(AopSnap(data: {}))),
+      ],
+      child: application,
+    ),
+  );
 } // of main
-
-

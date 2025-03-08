@@ -11,6 +11,8 @@ import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
 import '../flutter_common/WidgetSupport.dart';
+import 'package:provider/provider.dart';
+import '../providers/albumProvider.dart';
 
 class AlbumDetail extends StatefulWidget {
   const AlbumDetail({super.key});
@@ -24,33 +26,31 @@ class AlbumDetailState extends State<AlbumDetail>
     implements SelectableListProvider<AopSnap> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  AopAlbum? argAlbum;
-  List<AopSnap>? _list;
+  late AopAlbum argAlbum;
+  List<AopSnap>? _snapList;
 
   @override
-  List<AopSnap> get items => _list ?? [];
+  List<AopSnap> get items => _snapList ?? [];
 
   @override
   CallBack onRefreshed = () {};
 
   void refreshNow() async {
-    _list = await argAlbum!.snaps;
+    _snapList = await argAlbum.snaps;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (argAlbum == null)
-      return Text('Loading...');
-    else
-      return Scaffold(
-        key: scaffoldKey,
-        appBar: buildBar(context),
-        body: PhotoGrid(this, album: argAlbum, refreshNow: refreshNow),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add_a_photo),
-          onPressed: () => handleAddAlbumItem(context),
-        ),
-      );
+    argAlbum = Provider.of<AlbumProvider>(context).aopAlbum!;
+    return Scaffold(
+      key: scaffoldKey,
+      appBar: buildBar(context),
+      body: PhotoGrid(this, album: argAlbum, refreshNow: refreshNow),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add_a_photo),
+        onPressed: () => handleAddAlbumItem(context),
+      ),
+    );
   } // of build
 
   PreferredSizeWidget buildBar(BuildContext context) {
@@ -58,7 +58,7 @@ class AlbumDetailState extends State<AlbumDetail>
     return AppBar(
         leading: Text(''), //supress the back button
         centerTitle: true,
-        title: Text(argAlbum!.name),
+        title: Text(argAlbum.name),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.edit),
@@ -72,7 +72,6 @@ class AlbumDetailState extends State<AlbumDetail>
               tooltip: 'Delete album',
               onPressed: () async {
                 await handleDelete(context);
-                setState(() {});
               }),
           if (selectionList.isNotEmpty)
             IconButton(
@@ -83,19 +82,19 @@ class AlbumDetailState extends State<AlbumDetail>
         ]);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    argAlbum = ModalRoute.of(context)!.settings.arguments as AopAlbum?;
-    refreshList();
-  } // of didChangeDependencies
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   argAlbum = ModalRoute.of(context)!.settings.arguments as AopAlbum?;
+  //   refreshList();
+  // } // of didChangeDependencies
 
   void handleAddAlbumItem(BuildContext context) {
     Navigator.pushNamed(context, 'AlbumItemCreate', arguments: argAlbum)
         .then((selectedSnaps) {
       List<int> snapIds = selectedSnaps as List<int>? ?? [];
       log.message('${snapIds.length} snaps returned');
-      argAlbum!.addSnaps(snapIds).then((count) {
+      argAlbum.addSnaps(snapIds).then((count) {
         clearSelected();
         refreshList();
         showSnackBar("$count photos added", context);
@@ -105,21 +104,21 @@ class AlbumDetailState extends State<AlbumDetail>
 
   Future<void> handleDelete(BuildContext context) async {
     bool deleteAlbum = false;
-    if (_list == null || (_list!.isNotEmpty && selectionList.isEmpty))
+    if (_snapList == null || (_snapList!.isNotEmpty && selectionList.isEmpty))
       return; // nothing to delete
-    if (_list!.length == selectionList.length) {
+    if (_snapList!.length == selectionList.length) {
       if (await confirmYesNo(context, 'Delete album?',
               description:
                   'All photos for this album have been\n selected for deletion') ??
           false) deleteAlbum = true;
     }
-    int count = await argAlbum!.removeSnaps(selectionList);
+    int count = await argAlbum.removeSnaps(selectionList);
     showSnackBar("$count photos removed", context);
     if (deleteAlbum) {
       showSnackBar('Album deleted', context);
-      log.message('album delete');
-      await argAlbum!.delete();
-      log.message('now pop');
+      log.message('album delete ');
+      await argAlbum.delete();
+      log.message('albumdetail pop ');
       Navigator.pop(context, true);
     } else {
       clearSelected();
@@ -137,20 +136,20 @@ class AlbumDetailState extends State<AlbumDetail>
         (AopAlbum album) => album.name);
     if (newAlbum == null)
       showSnackBar('Move abandoned', context);
-    else if (newAlbum.id == argAlbum!.id)
+    else if (newAlbum.id == argAlbum.id)
       showSnackBar('You cant move to the same album', context);
     else {
       // check if everything is moving
       bool deleteAlbum = false;
-      if (_list!.length == selectionList.length) {
+      if (_snapList!.length == selectionList.length) {
         if ((await confirmYesNo(context, 'Delete album after move',
             description:
-                'All photos for this album have been\n selected for deletion'))!)
+                'All photos for this album have been\n selected for removal'))!)
           deleteAlbum = true;
       }
       // now we need to move the items before the optional delete
       int counter = 0;
-      List<AopAlbumItem> oldItems = await argAlbum!.albumItems;
+      List<AopAlbumItem> oldItems = await argAlbum.albumItems;
       List<int> selectedIds = idList(selectionList) as List<int>;
       for (AopAlbumItem albumItem in oldItems) {
         if (selectedIds.contains(albumItem.snapId)) {
@@ -160,7 +159,7 @@ class AlbumDetailState extends State<AlbumDetail>
       } // of search loop
       showSnackBar('$counter photos moved to (${newAlbum.name})', context);
       if (deleteAlbum) {
-        await argAlbum!.delete();
+        await argAlbum.delete();
         Navigator.pop(context, true);
       } else
         refreshList();
@@ -175,22 +174,22 @@ class AlbumDetailState extends State<AlbumDetail>
       newName = await showDialog(
           context: context,
           builder: (BuildContext context) => DgSimple(
-              'Album name', argAlbum!.name,
+              'Album name', argAlbum.name,
               errorMessage: errorMessage));
       if (newName == EXIT_CODE) return; // jump straight out
       log.message('new name is: $newName');
-      argAlbum!.name = newName ?? 'null album name';
-      await argAlbum!.validate();
-      if (argAlbum!.isValid) {
+      argAlbum.name = newName ?? 'null album name';
+      await argAlbum.validate();
+      if (argAlbum.isValid) {
         try {
-          await argAlbum!.save();
+          await argAlbum.save();
           refreshList();
           done = true;
         } catch (ex) {
           errorMessage = '$ex';
         }
       } else
-        errorMessage = argAlbum!.lastErrors.join('\n');
+        errorMessage = argAlbum.lastErrors.join('\n');
     } // of done loop
   } // handleRenameAlbum
 
@@ -200,10 +199,10 @@ class AlbumDetailState extends State<AlbumDetail>
   }
 
   void refreshList() {
-    argAlbum!.snaps.then((newList) {
+    argAlbum.snaps.then((newList) {
       setState(() {
-        _list = newList;
-        log.message('${_list!.length} album items loaded');
+        _snapList = newList;
+        log.message('${_snapList!.length} album items loaded');
       });
     });
     // if there is a listener, let then know
@@ -211,7 +210,7 @@ class AlbumDetailState extends State<AlbumDetail>
     onRefreshed();
   } // of refreshList
 
-  Widget snapTile(AopSnap snap) {
+  Widget snapTileX(AopSnap snap) {
     return Column(children: [
       ListTile(
         leading: Checkbox(

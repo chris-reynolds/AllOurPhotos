@@ -48,4 +48,4 @@ class SnapListProvider extends ChangeNotifier {
       rethrow;
     }
   }
-}  // of SnapListProvider
+} // of SnapListProvider

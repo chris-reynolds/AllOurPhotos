@@ -9,24 +9,21 @@ import 'package:all_our_photos_app/flutter_common/WidgetSupport.dart';
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
+//import 'package:provider/provider.dart';
+//import '../providers/snapProvider.dart';
 
 class SsSnapGrid extends StatelessWidget {
-  final List<AopSnap>? snapList;
+  final List<AopSnap> snapList;
   final dynamic parentGrid;
-  final AopAlbum? possibleParentAlbum;
-  const SsSnapGrid(this.snapList, this.parentGrid, this.possibleParentAlbum,
-      {super.key});
+  const SsSnapGrid(this.snapList, this.parentGrid, {super.key});
 
   Widget snapTile(BuildContext context, int index) {
-    AopSnap snap = snapList![index];
+    AopSnap snap = snapList[index];
     return Stack(children: [
       GestureDetector(
           onTap: () {
-            Navigator.of(context).pushNamed('SinglePhoto', arguments: [
-              snapList,
-              index,
-              possibleParentAlbum
-            ]); // weakly types params. yuk.
+            Navigator.of(context).pushNamed('SinglePhoto',
+                arguments: [snapList, index]); // weakly types params. yuk.
           },
           child: Hero(
               key: Key(snap.thumbnailURL),
@@ -51,9 +48,11 @@ class SsSnapGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //snapProvider = context.read<SnapProvider>();
+
     assert(parentGrid is Selection<int>);
 
-    if (snapList == null)
+    if (snapList.isEmpty)
       return Container();
     else
       return GridView.builder(
@@ -62,7 +61,7 @@ class SsSnapGrid extends StatelessWidget {
             mainAxisSpacing: 3.0,
             crossAxisSpacing: 3.0,
             childAspectRatio: 1.33),
-        itemCount: snapList!.length,
+        itemCount: snapList.length,
         itemBuilder: snapTile,
       );
   }

@@ -32,7 +32,7 @@ class LaunchWithLogin extends StatelessWidget {
       if (Uri.base.host.isNotEmpty) {
         rootUrl = '${Uri.base}';
         rootUrl = rootUrl.replaceAll('8686',
-            '8000'); // allow interactive debugging on port 86886 with affecting server
+            '8000'); // allow interactive debugging on port 8686 with affecting server
       } else
         rootUrl = 'http://${config['host']}:${config['port']}/';
       WebFile.setRootUrl(rootUrl);

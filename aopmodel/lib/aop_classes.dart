@@ -234,13 +234,17 @@ class AopAlbum extends DomainObject {
   Future<void> validate() async {
     await super.validate(); // clear last errors
     if (name.length < 10) lastErrors.add('name must be 10 characters long');
-    String yearStr = name.substring(0, 4);
-    int yearNo = int.tryParse(yearStr) ?? -1;
+    //  String yearStr = name.substring(0, 4);
+    //  int yearNo = int.tryParse(yearStr) ?? -1;
     if (yearNo < 1900 || yearNo > 2099) {
       lastErrors.add('name should start with 4 digit year');
     }
   } // of validate
 
+  int get yearNo {
+    String yearStr = name.substring(0, 4);
+    return int.tryParse(yearStr) ?? -1;
+  } // of yearNo
 //                                '*** End Custom Code
 } // of class album
 

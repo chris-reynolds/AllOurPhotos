@@ -8,6 +8,9 @@
 import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
+import 'package:provider/provider.dart';
+import '../providers/albumProvider.dart';
+//import '../providers/snapProvider.dart';
 import '../widgets/wdgMonthSelector.dart';
 import '../ImageFilter.dart';
 import '../widgets/wdgSnapGrid.dart';
@@ -20,16 +23,16 @@ class AlbumAddPhoto extends StatefulWidget {
 }
 
 class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
-  AopAlbum? album;
+  late AopAlbum album;
   late ImageFilter imgFilter;
   int yearNo = DateTime.now().year;
-  List<AopSnap>? _list;
+  List<AopSnap> _list = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildBar(context),
-      body: SsSnapGrid(_list, this, album),
+      body: SsSnapGrid(_list, this),
     );
   } // of build
 
@@ -83,16 +86,14 @@ class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (album == null) {
-      album = ModalRoute.of(context)!.settings.arguments as AopAlbum?;
-      yearNo = int.tryParse(album!.name.substring(0, 4)) ?? DateTime.now().year;
-      DateTime startDate = DateTime(yearNo, 1, 1);
-      imgFilter = ImageFilter.yearMonth(yearNo, 1, refresh: refreshList);
-      imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds: -1));
-      log.message('Album assigned');
-      imgFilter.setRank(2, false);
-      refreshList();
-    }
+    album = Provider.of<AlbumProvider>(context).aopAlbum!;
+    // snapProvider = Provider.of<SnapProvider>(context);
+    DateTime startDate = DateTime(album.yearNo, 1, 1);
+    imgFilter = ImageFilter.yearMonth(album.yearNo, 1, refresh: refreshList);
+    imgFilter.toDate = addMonths(startDate, 3).add(Duration(seconds: -1));
+    log.message('Album assigned');
+    imgFilter.setRank(2, false);
+    refreshList();
   } // of didChangeDependencies
 
   void extendEndDate() {
@@ -103,7 +104,7 @@ class AlbumAddPhotoState extends State<AlbumAddPhoto> with Selection<int> {
   @override
   void initState() {
     super.initState();
-    log.message('I was here without a list = ${_list == null}');
+    log.message('I was here without a list = ${_list.isEmpty}');
   }
 
   Future<void> refreshList() async {

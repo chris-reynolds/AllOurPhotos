@@ -19,6 +19,7 @@ class AlbumListState extends State<AlbumList> {
   final _scrollController = ScrollController();
   List<AopAlbum> _list = [];
   late bool _isSearching;
+  bool loading = true;
   String _searchText = "";
 
   AlbumListState() {
@@ -30,8 +31,11 @@ class AlbumListState extends State<AlbumList> {
   }
 
   Future<void> buildAlbumList() async {
+    loading = true;
     _list = await AopAlbum.all();
     _list.sort((AopAlbum a, AopAlbum b) => -a.name.compareTo(b.name));
+    loading = false;
+    setState(() {});
   } // of buildAlbumList
 
   @override
@@ -47,7 +51,7 @@ class AlbumListState extends State<AlbumList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_list.isEmpty)
+    if (loading)
       return Center(
         child: CircularProgressIndicator(),
       );
@@ -68,11 +72,9 @@ class AlbumListState extends State<AlbumList> {
 
   showAlbum(AopAlbum album) {
     Provider.of<AlbumProvider>(context, listen: false).setAlbum(album);
-    Navigator.pushNamed(context, 'AlbumDetail', arguments: album).then((value) {
+    Navigator.pushNamed(context, 'AlbumDetail').then((value) {
       log.message('popping at show album');
-      setState(() async {
-        await buildAlbumList();
-      });
+      buildAlbumList();
     });
   }
 
@@ -137,12 +139,6 @@ class AlbumListState extends State<AlbumList> {
           await newAlbum.save();
           _list.add(newAlbum);
           showAlbum(newAlbum);
-          // Provider.of<AlbumProvider>(context, listen: false).setAlbum(newAlbum);
-          // Navigator.pushNamed(context, 'AlbumDetail', arguments: newAlbum)
-          //     .then((value) async {
-          //   log.message('popping at album list add');
-          //   setState(() {});
-          // });
           done = true;
         } catch (ex) {
           errorMessage = '$ex';
