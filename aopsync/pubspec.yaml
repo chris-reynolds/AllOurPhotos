@@ -114,3 +114,5 @@ launch_icon:
     - windows/*/Icon-App*.png
     - windows/*/LaunchImage*.png
     - windows/*/favicon.png
+    - windows\**\app_icon.ico
+
