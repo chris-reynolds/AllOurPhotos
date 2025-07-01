@@ -41,7 +41,7 @@ class AlbumDetailState extends State<AlbumDetail>
 
   @override
   Widget build(BuildContext context) {
-    argAlbum = Provider.of<AlbumProvider>(context).aopAlbum!;
+  //  argAlbum = Provider.of<AlbumProvider>(context).aopAlbum!;
     return Scaffold(
       key: scaffoldKey,
       appBar: buildBar(context),
@@ -82,12 +82,12 @@ class AlbumDetailState extends State<AlbumDetail>
         ]);
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   argAlbum = ModalRoute.of(context)!.settings.arguments as AopAlbum?;
-  //   refreshList();
-  // } // of didChangeDependencies
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    argAlbum = context.read<AlbumProvider>().aopAlbum!;
+    refreshList();
+  } // of didChangeDependencies
 
   void handleAddAlbumItem(BuildContext context) {
     Navigator.pushNamed(context, 'AlbumItemCreate', arguments: argAlbum)
@@ -224,5 +224,5 @@ class AlbumDetailState extends State<AlbumDetail>
       ),
       Image.network(snap.thumbnailURL),
     ]);
-  } // of snapTile
+  } // of snapTileX
 }
