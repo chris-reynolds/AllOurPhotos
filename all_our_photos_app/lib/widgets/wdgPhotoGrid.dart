@@ -470,7 +470,9 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         await showMessage(context, message);
         if (widget._refreshNow != null) widget._refreshNow!();
         clearSelected();
-        setState(() {});
+        setState(() async {
+          
+        });
       }
     } catch (ex) {
       showMessage(context, 'Error: $ex');

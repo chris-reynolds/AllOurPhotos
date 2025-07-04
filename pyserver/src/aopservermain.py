@@ -91,12 +91,12 @@ async def makeSession(response: Response, user,password,source):
     sqlText = f"select spsessioncreate('{user}','{password}','{source}') as sessionid"
     rows = raw_sql(sqlText)
     sessionid = rows[0]['sessionid']  
+    response_data = {"jam":f"{sessionid}" }
     if sessionid < 0:
-        response.delete_cookie (key='jam')
+        response.delete_cookie (key='Preserve')
     else:   
         response.set_cookie (key='jam', value=f"{sessionid}")
-#    sess = temp   # todo put in array
-    return {"jam":f"{sessionid}" }     # f"{session.id}"}
+    return response_data
 
 @app.get('/find/{key}')
 async def find(request: Request, key:str):
@@ -480,6 +480,7 @@ def raw_sql(sqlText: str, values = None, asDictionary: bool = True):
         with connection_pool.get_connection() as connection:
           with connection.cursor(dictionary=asDictionary) as cursor:
             cursor.execute(sqlText,values)
+            print(f'raw_sql: {sqlText}')        
             result = cursor.fetchall()
 #            cursor.commit()
         return result
@@ -491,12 +492,18 @@ user_list = raw_sql('select * from aopusers')
 
 def get_session_from_request(request: Request) -> Session:
     jam = None
-    preserve = request.headers['Preserve']
-    if preserve != None:
+    preserve = request.cookies.get('Preserve')
+    if preserve is None:
+        if 'Preserve' not in request.headers:
+            raise HTTPException(status_code=401, detail='Unauthorized: No Preserve cookie or header found')
+        preserve = request.headers['Preserve']
+
+    try:
         jam1 = json.loads(preserve)
         jam = jam1['jam']
-        #    jam = request.cookies.get('jam')
-    if jam == None : raise HTTPException(status_code=403,detail='No musicians')
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=401, detail='Unauthorized: Invalid Preserve format')
+    if jam is None : raise HTTPException(status_code=403,detail='No musicians')
     return get_session(request,int(jam))    # type: ignore
 
 
