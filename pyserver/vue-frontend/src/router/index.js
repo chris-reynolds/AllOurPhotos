@@ -4,6 +4,7 @@ import AlbumDetailView from '../views/AlbumDetailView.vue'
 import SnapsView from '../views/SnapsView.vue'
 import SnapDetailView from '../views/SnapDetailView.vue'
 import UsersView from '../views/UsersView.vue'
+import MonthGridView from '../views/MonthGridView.vue'
 import LoginView from '../views/LoginView.vue'
 
 const router = createRouter({
@@ -45,6 +46,12 @@ const router = createRouter({
       path: '/users',
       name: 'users',
       component: UsersView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: MonthGridView,
       meta: { requiresAuth: true }
     },
     {

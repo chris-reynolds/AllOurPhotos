@@ -28,6 +28,7 @@ const toggleAuthLinks = () => {
         <RouterLink to="/albums">Albums</RouterLink>
         <RouterLink to="/snaps">Snaps</RouterLink>
         <RouterLink to="/users">Users</RouterLink>
+        <RouterLink to="/history">History</RouterLink>
       </nav>
     </div>
     <div class="toolbar-right">
