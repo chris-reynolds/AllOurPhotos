@@ -1,26 +1,50 @@
 <template>
-  <div>
-    <header class="toolbar">
-      <h2>{{ album?.name }}</h2>
-      <button @click="$router.back()">Back to Albums</button>
-    </header>
+  <v-container>
+    <v-toolbar flat>
+      <v-toolbar-title>{{ album?.name }}</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="$router.back()">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+    </v-toolbar>
 
-    <div class="thumbnail-grid">
-      <div v-for="snap in snaps" :key="snap.id" class="thumbnail-item">
-        <RouterLink :to="`/snaps/${snap.id}`">
-          <img :src="getThumbnailUrl(snap)" :alt="snap.caption" />
-          <p>{{ snap.caption }}</p>
-        </RouterLink>
-      </div>
-    </div>
-  </div>
+    <v-row dense>
+      <v-col
+        v-for="snap in snaps"
+        :key="snap.id"
+        cols="auto"
+        class="d-flex child-flex"
+      >
+        <v-card flat tile class="d-flex flex-column">
+          <router-link :to="`/snaps/${snap.id}`">
+            <v-img
+              :src="getThumbnailUrl(snap)"
+              :alt="snap.caption || snap.file_name"
+              aspect-ratio="1"
+              class="grey lighten-2"
+            >
+              <template v-slot:placeholder>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-progress-circular
+                    indeterminate
+                    color="grey lighten-5"
+                  ></v-progress-circular>
+                </v-row>
+              </template>
+            </v-img>
+          </router-link>
+          <v-card-text class="text-center py-1">{{ snap.caption || snap.file_name }}</v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { getAlbum } from '@/services/album.service';
-import { getAlbumSnaps } from '@/services/snap.service';
+import { getSnaps } from '@/services/snap.service';
 
 const route = useRoute();
 const album = ref(null);
@@ -29,13 +53,13 @@ const snaps = ref([]);
 const fetchAlbumDetails = async (albumId) => {
   try {
     album.value = await getAlbum(albumId);
-    snaps.value = await getAlbumSnaps(albumId)
+    snaps.value = await getSnaps(`id IN (SELECT snap_id FROM aopalbum_items WHERE album_id=${albumId})&orderby=taken_date desc`);
   } catch (error) {
     console.error(error);
   }
 };
 
-const getThumbnailUrl = (snap) => {  
+const getThumbnailUrl = (snap) => {
   return `http://localhost:8000/photos/${snap.directory}/thumbnails/${snap.file_name}`;
 };
 
@@ -51,34 +75,3 @@ watch(
 );
 </script>
 
-<style scoped>
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f2f2f2;
-  padding: 1rem;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 1rem;
-}
-
-.thumbnail-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-}
-
-.thumbnail-item {
-  text-align: center;
-  border: 1px solid #eee;
-  padding: 0.5rem;
-  border-radius: 5px;
-}
-
-.thumbnail-item img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-</style>

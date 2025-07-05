@@ -1,24 +1,69 @@
 <template>
-  <div>
-    <header class="toolbar">
-      <h2>{{ snap?.caption || snap?.file_name }}</h2>
-      <button @click="$router.back()">Back</button>
-    </header>
+  <v-container>
+    <v-toolbar flat>
+      <v-toolbar-title>{{ snap?.caption || snap?.file_name }}</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="$router.back()">
+        <v-icon>mdi-arrow-left</v-icon>
+      </v-btn>
+    </v-toolbar>
 
-    <div v-if="snap" class="snap-detail">
-      <img :src="getFullImageUrl(snap)" :alt="snap.caption || snap.file_name" />
-      <p>File Name: {{ snap.file_name }}</p>
-      <p>Directory: {{ snap.directory }}</p>
-      <p>Taken Date: {{ snap.taken_date }}</p>
-      <p>Device: {{ snap.device_name }}</p>
-      <p>Location: {{ snap.location }}</p>
-      <p>Width: {{ snap.width }}</p>
-      <p>Height: {{ snap.height }}</p>
-    </div>
+    <v-card v-if="snap" class="mt-3">
+      <v-img
+        :src="getFullImageUrl(snap)"
+        :alt="snap.caption || snap.file_name"
+        class="white--text align-end"
+        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+        height="400px"
+      >
+        <v-card-title class="text-h6">{{ snap.caption || snap.file_name }}</v-card-title>
+      </v-img>
+
+      <v-card-text>
+        <v-list dense>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>File Name:</v-list-item-title>
+              <v-list-item-subtitle>{{ snap.file_name }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Directory:</v-list-item-title>
+              <v-list-item-subtitle>{{ snap.directory }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Taken Date:</v-list-item-title>
+              <v-list-item-subtitle>{{ snap.taken_date }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Device:</v-list-item-title>
+              <v-list-item-subtitle>{{ snap.device_name }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Location:</v-list-item-title>
+              <v-list-item-subtitle>{{ snap.location }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Dimensions:</v-list-item-title>
+              <v-list-item-subtitle>{{ snap.width }}x{{ snap.height }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
     <div v-else>
       <p>Loading snap details...</p>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script setup>
@@ -54,24 +99,5 @@ watch(
 </script>
 
 <style scoped>
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #f2f2f2;
-  padding: 1rem;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 1rem;
-}
-
-.snap-detail {
-  text-align: center;
-}
-
-.snap-detail img {
-  max-width: 80%;
-  height: auto;
-  border: 1px solid #eee;
-  margin-bottom: 1rem;
-}
+/* No custom styles needed with Vuetify */
 </style>

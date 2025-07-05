@@ -1,22 +1,18 @@
 <template>
-  <div>
-    <h1>Albums</h1>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="album in albums" :key="album.id">
-          <td>
-            <RouterLink :to="`/albums/${album.id}`">{{ album.name }}</RouterLink>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <v-container>
+    <v-card>
+      <v-card-title class="text-h5">Albums</v-card-title>
+      <v-card-text>
+        <v-list dense>
+          <v-list-item v-for="album in albums" :key="album.id" :to="`/albums/${album.id}`">
+            <v-list-item-content>
+              <v-list-item-title>{{ album.name }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script setup>
@@ -37,17 +33,5 @@ onMounted(fetchAlbums);
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-th {
-  background-color: #f2f2f2;
-}
+/* No custom styles needed with Vuetify */
 </style>

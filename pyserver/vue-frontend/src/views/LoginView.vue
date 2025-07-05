@@ -1,19 +1,32 @@
 <template>
-  <div>
-    <h1>Login</h1>
-    <form @submit.prevent="handleLogin">
-      <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" v-model="username" required>
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" v-model="password" required>
-      </div>
-      <button type="submit">Login</button>
-    </form>
-    <p v-if="error">{{ error }}</p>
-  </div>
+  <v-container>
+    <v-row justify="center">
+      <v-col cols="12" sm="8" md="6">
+        <v-card>
+          <v-card-title class="text-h5">Login</v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="handleLogin">
+              <v-text-field
+                v-model="username"
+                label="Username"
+                required
+                prepend-icon="mdi-account"
+              ></v-text-field>
+              <v-text-field
+                v-model="password"
+                label="Password"
+                type="password"
+                required
+                prepend-icon="mdi-lock"
+              ></v-text-field>
+              <v-btn type="submit" color="primary" block class="mt-3">Login</v-btn>
+            </v-form>
+            <v-alert v-if="error" type="error" class="mt-3">{{ error }}</v-alert>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
