@@ -6,6 +6,8 @@ import SnapDetailView from '../views/SnapDetailView.vue'
 import UsersView from '../views/UsersView.vue'
 import MonthGridView from '../views/MonthGridView.vue'
 import LoginView from '../views/LoginView.vue'
+import ErrorLogView from '../views/ErrorLogView.vue'
+import MonthDetailsView from '../views/MonthDetailsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,9 +57,21 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/history/:year/:month',
+      name: 'month-details',
+      component: MonthDetailsView,
+      props: true,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/login',
       name: 'login',
       component: LoginView
+    },
+    {
+      path: '/errors',
+      name: 'errors',
+      component: ErrorLogView
     }
   ]
 })

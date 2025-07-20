@@ -23,9 +23,22 @@
           </thead>
           <tbody>
             <tr v-for="(row, rowIndex) in sortedMonthGrid" :key="rowIndex">
-              <td v-for="(cell, cellIndex) in row" :key="cellIndex">
-                <template v-if="cellIndex === 0">{{ cell }}</template>
-                <template v-else>{{ cell === 0 ? '' : cell }}</template>
+              <td>{{ row[0] }}</td>
+              <td
+                v-for="(cell, cellIndex) in row.slice(1)"
+                :key="cellIndex"
+                :class="getMonthStatus(row[0], cellIndex + 1, cell).class"
+              >
+                <router-link v-if="cell !== 0" :to="`/history/${row[0]}/${cellIndex + 1}`">
+                  {{ cell }}
+                  <span class="ml-1 text-caption">({{ getInitials(row[0], cellIndex + 1) }})</span>
+                  <v-icon small :color="getMonthStatus(row[0], cellIndex + 1, cell).iconColor">
+                    {{ getMonthStatus(row[0], cellIndex + 1, cell).icon }}
+                  </v-icon>
+                </router-link>
+                <template v-else>
+                  {{ cell }}
+                </template>
               </td>
             </tr>
           </tbody>
@@ -37,21 +50,15 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { recordedFetch, API_URL } from '@/services/api';
+import { monthStatusService } from '@/services/monthStatus.service';
+import { userStore } from '@/stores/user.store';
 
 const monthGrid = ref([]);
 
 const fetchMonthGrid = async () => {
   try {
-    const jam = localStorage.getItem('jam');
-    const headers = {
-      'Content-Type': 'application/json',
-      'Preserve': jam ? jam : ''
-    };
-    const response = await fetch('http://localhost:8000/find/monthgrid', { headers });
-    if (!response.ok) {
-      throw new Error('Failed to fetch month grid data');
-    }
-    const data = await response.json();
+    const data = await recordedFetch('fetch month grid data', `${API_URL}/find/monthgrid`);
     // Remove the last column (row total) and store the rest
     monthGrid.value = data.map(row => row.slice(0, 13));
   } catch (error) {
@@ -63,9 +70,66 @@ const sortedMonthGrid = computed(() => {
   return [...monthGrid.value].sort((a, b) => b[0] - a[0]);
 });
 
-onMounted(fetchMonthGrid);
+const getInitials = (year, month) => {
+  const yyyymm = `${year}${String(month).padStart(2, '0')}`;
+  return monthStatusService.getInitialsForMonth(yyyymm);
+};
+
+const getMonthStatus = (year, month, photoCount) => {
+  const yyyymm = `${year}${String(month).padStart(2, '0')}`;
+  const initials = monthStatusService.getInitialsForMonth(yyyymm);
+  const isSignedOffByCurrentUser = userStore.initial && initials.includes(userStore.initial);
+
+  let icon = '';
+  let iconColor = '';
+  let className = '';
+
+  if (photoCount === 0) {
+    className = 'no-photos';
+  } else {
+    if (initials.length === 0) {
+      icon = 'mdi-emoticon-sad';
+      iconColor = 'red';
+      className = 'not-signed-off';
+    } else if (initials.length === 1) {
+      icon = 'mdi-emoticon-neutral';
+      iconColor = 'orange';
+      className = 'signed-off-by-others';
+    } else {
+      icon = 'mdi-emoticon-happy';
+      iconColor = 'green';
+      className = 'signed-off-by-others';
+    }
+
+    if (isSignedOffByCurrentUser) {
+      className = 'signed-off-by-me';
+    }
+  }
+
+  return { icon, iconColor, class: className };
+};
+
+onMounted(async () => {
+  await fetchMonthGrid();
+  monthStatusService.fetchMonthlyStatus();
+});
+
+// watch(
+//   () => monthStatusService.monthlyStatus, // Watch for changes in the reactive map
+//   () => {},
+//   { deep: true } // Deep watch for changes within the map
+// );
 </script>
 
 <style scoped>
-/* No custom styles needed with Vuetify */
+.signed-off-by-me {
+  background-color: #e8f5e9; /* Light green */
+}
+.signed-off-by-others {
+  background-color: #fffde7; /* Light yellow */
+}
+.not-signed-off {
+  background-color: #ffebee; /* Light red */
+}
+
 </style>

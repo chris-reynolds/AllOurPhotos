@@ -1,66 +1,39 @@
-const API_URL = 'http://localhost:8000'; // Assuming your FastAPI server is running on this address
-
-const getHeaders = () => {
-  const jam = localStorage.getItem('jam');
-  return {
-    'Content-Type': 'application/json',
-    'Preserve': jam ? jam : ''
-  };
-};
+import { API_URL, recordedFetch } from './api';
 
 export const getSnaps = async () => {
-  const response = await fetch(`${API_URL}/snaps/`, { headers: getHeaders() });
-  if (!response.ok) {
-    throw new Error('Failed to fetch snaps');
-  }
-  return response.json();
+  const targetUrl = `${API_URL}/snaps/`;
+  return recordedFetch('get snaps', targetUrl);
 };
 
 export const getAlbumSnaps = async (album_id) => {
-  const response = await fetch(`${API_URL}/snaps/?where=id in (select snap_id from aopalbum_items where album_id=${album_id})&orderby=taken_date`, { headers: getHeaders() });
-  if (!response.ok) {
-    throw new Error('Failed to fetch album snaps');
-  }
-  return response.json();
+  const targetUrl = `${API_URL}/snaps/?where=id in (select snap_id from aopalbum_items where album_id=${album_id})&orderby=taken_date`;
+  return recordedFetch('get album snaps', targetUrl);
 };
+
 export const getSnap = async (id) => {
-  const response = await fetch(`${API_URL}/snaps/${id}`, { headers: getHeaders() });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch snap with id ${id}`);
-  }
-  return response.json();
+  const targetUrl = `${API_URL}/snaps/${id}`;
+  return recordedFetch('get snap', targetUrl);
 };
 
 export const createSnap = async (snap) => {
-  const response = await fetch(`${API_URL}/snaps`, {
+  const targetUrl = `${API_URL}/snaps`;
+  return recordedFetch('create snap', targetUrl, {
     method: 'POST',
-    headers: getHeaders(),
     body: JSON.stringify(snap),
   });
-  if (!response.ok) {
-    throw new Error('Failed to create snap');
-  }
-  return response.json();
 };
 
 export const updateSnap = async (snap) => {
-  const response = await fetch(`${API_URL}/snaps`, {
+  const targetUrl = `${API_URL}/snaps`;
+  return recordedFetch('update snap', targetUrl, {
     method: 'PUT',
-    headers: getHeaders(),
     body: JSON.stringify(snap),
   });
-  if (!response.ok) {
-    throw new Error(`Failed to update snap with id ${snap.id}`);
-  }
-  return response.json();
 };
 
 export const deleteSnap = async (id) => {
-  const response = await fetch(`${API_URL}/snaps/${id}`, {
+  const targetUrl = `${API_URL}/snaps/${id}`;
+  return recordedFetch('delete snap', targetUrl, {
     method: 'DELETE',
-    headers: getHeaders(),
   });
-  if (!response.ok) {
-    throw new Error(`Failed to delete snap with id ${id}`);
-  }
 };

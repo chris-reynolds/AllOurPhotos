@@ -1,59 +1,38 @@
-const API_URL = 'http://localhost:8000'; // Assuming your FastAPI server is running on this address
-
-const getHeaders = () => {
-  const jam = localStorage.getItem('jam');
-  return {
-    'Content-Type': 'application/json',
-    'Preserve': jam ? jam : ''
-  };
-};
+import { API_URL, recordedFetch } from './api';
 
 export const getUsers = async () => {
-  const response = await fetch(`${API_URL}/users/?where=1=1`, { headers: getHeaders() });
-  if (!response.ok) {
-    throw new Error('Failed to fetch users');
-  }
-  return response.json();
+  const targetUrl = `${API_URL}/users/?where=1=1`;
+  return recordedFetch('get users', targetUrl);
 };
 
 export const getUser = async (id) => {
-  const response = await fetch(`${API_URL}/users/${id}`, { headers: getHeaders() });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch user with id ${id}`);
-  }
-  return response.json();
+  const targetUrl = `${API_URL}/users/${id}`;
+  return recordedFetch('get user', targetUrl);
 };
 
+export const getSessionUser = async (session_id) => {
+  const targetUrl = `${API_URL}/find/sessionUser?session_id=${session_id}`;
+  return recordedFetch('get sessionUser', targetUrl);
+};
 export const createUser = async (user) => {
-  const response = await fetch(`${API_URL}/users`, {
+  const targetUrl = `${API_URL}/users`;
+  return recordedFetch('create user', targetUrl, {
     method: 'POST',
-    headers: getHeaders(),
     body: JSON.stringify(user),
   });
-  if (!response.ok) {
-    throw new Error('Failed to create user');
-  }
-  return response.json();
 };
 
 export const updateUser = async (user) => {
-  const response = await fetch(`${API_URL}/users`, {
+  const targetUrl = `${API_URL}/users`;
+  return recordedFetch('update user', targetUrl, {
     method: 'PUT',
-    headers: getHeaders(),
     body: JSON.stringify(user),
   });
-  if (!response.ok) {
-    throw new Error(`Failed to update user with id ${user.id}`);
-  }
-  return response.json();
 };
 
 export const deleteUser = async (id) => {
-  const response = await fetch(`${API_URL}/users/${id}`, {
+  const targetUrl = `${API_URL}/users/${id}`;
+  return recordedFetch('delete user', targetUrl, {
     method: 'DELETE',
-    headers: getHeaders(),
   });
-  if (!response.ok) {
-    throw new Error(`Failed to delete user with id ${id}`);
-  }
 };

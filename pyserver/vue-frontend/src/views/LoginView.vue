@@ -32,6 +32,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { userStore } from '@/stores/user.store';
+import { getSessionUser } from '@/services/user.service';
+
 
 const username = ref('');
 const password = ref('');
@@ -50,6 +53,11 @@ const handleLogin = async () => {
       return;
     }
     localStorage.setItem('jam', JSON.stringify({ jam: data.jam }));
+
+    // Fetch user details and populate the store
+    const user = await getSessionUser(data.jam);
+    userStore.setUser(user.id, user.username);
+   
     router.push('/');
   } catch (err) {
     error.value = (err).message;

@@ -3,11 +3,15 @@
     <v-card>
       <v-card-title class="text-h5">Albums</v-card-title>
       <v-card-text>
-        <v-list dense>
-          <v-list-item v-for="album in albums" :key="album.id" :to="`/albums/${album.id}`">
-            <v-list-item-content>
+        <v-text-field
+          v-model="search"
+          label="Filter albums"
+          clearable
+          class="mb-4"
+        ></v-text-field>
+        <v-list>
+          <v-list-item v-for="album in filteredAlbums" :key="album.id" :to="`/albums/${album.id}`" class="py-0">
               <v-list-item-title>{{ album.name }}</v-list-item-title>
-            </v-list-item-content>
           </v-list-item>
         </v-list>
       </v-card-text>
@@ -16,10 +20,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getAlbums } from '@/services/album.service';
 
 const albums = ref([]);
+const search = ref('');
+
+const filteredAlbums = computed(() => {
+  if (!search.value) {
+    return albums.value;
+  }
+  return albums.value.filter(album =>
+    album.name.toLowerCase().includes(search.value.toLowerCase())
+  );
+});
 
 const fetchAlbums = async () => {
   try {
