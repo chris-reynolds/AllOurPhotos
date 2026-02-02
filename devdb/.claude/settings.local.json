@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dart pub get:*)",
+      "Bash(dart run:*)",
+      "Bash(dir \"C:\\\\backups\\\\rpi4\\\\aop\\\\data\\\\photos\\\\1980-01\\\\thumbnails\" /b)",
+      "Bash(powershell -Command \"\\(Get-ChildItem -Path ''C:\\\\data\\\\photos'' -Recurse | Measure-Object -Property Length -Sum\\).Sum / 1GB\")"
+    ]
+  }
+}

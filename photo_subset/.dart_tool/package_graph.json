@@ -1,0 +1,34 @@
+{
+  "roots": [
+    "photo_subset"
+  ],
+  "packages": [
+    {
+      "name": "photo_subset",
+      "version": "1.0.0",
+      "dependencies": [
+        "args",
+        "path"
+      ],
+      "devDependencies": [
+        "lints"
+      ]
+    },
+    {
+      "name": "lints",
+      "version": "2.1.1",
+      "dependencies": []
+    },
+    {
+      "name": "path",
+      "version": "1.9.1",
+      "dependencies": []
+    },
+    {
+      "name": "args",
+      "version": "2.7.0",
+      "dependencies": []
+    }
+  ],
+  "configVersion": 1
+}
