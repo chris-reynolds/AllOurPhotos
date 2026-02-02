@@ -10,6 +10,38 @@ export const getAlbumSnaps = async (album_id) => {
   return recordedFetch('get album snaps', targetUrl);
 };
 
+export const filterSnaps = async (filter) => {
+  const conditions = [];
+  if (filter.startdate) {
+    conditions.push(`taken_date >= '${filter.startdate.toISOString()}'`);
+  }
+  if (filter.enddate) {
+    conditions.push(`taken_date < '${filter.enddate.toISOString()}'`);
+  }
+  if (filter.description) {
+    conditions.push(`description like '%${filter.description}%'`);
+  }
+  if (filter.ranking) {
+    conditions.push(`ranking in (${filter.ranking})`);
+  }
+  if (filter.albumid) {
+    conditions.push(`id in (select snap_id from aopalbum_items where album_id=${filter.albumid})`);
+  }
+
+  let query = '';
+  if (conditions.length > 0) {
+    query = `?where=${conditions.join(' and ')}`;
+  }
+
+  if (filter.orderby) {
+    query += `${query ? '&' : '?'}orderby=${filter.orderby}`;
+  }
+
+  const targetUrl = `${API_URL}/snaps/${query}`;
+  return recordedFetch('filter snaps', targetUrl);
+};
+
+
 export const getSnap = async (id) => {
   const targetUrl = `${API_URL}/snaps/${id}`;
   return recordedFetch('get snap', targetUrl);
@@ -36,4 +68,12 @@ export const deleteSnap = async (id) => {
   return recordedFetch('delete snap', targetUrl, {
     method: 'DELETE',
   });
+};
+
+export const getThumbnailUrl = (snap) => {
+  return `${API_URL}/photos/${snap.directory}/thumbnails/${snap.file_name}`;
+};
+
+export const getFullUrl = (snap) => {
+  return `${API_URL}/photos/${snap.directory}/${snap.file_name}`;
 };

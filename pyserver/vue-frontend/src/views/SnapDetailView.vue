@@ -83,7 +83,7 @@ const fetchSnapDetails = async (snapId) => {
 };
 
 const getFullImageUrl = (snap) => {
-  return `http://localhost:8000/photos/${snap.directory}/${snap.file_name}`;
+  return `http://${API_URL}/photos/${snap.directory}/${snap.file_name}`;
 };
 
 onMounted(() => {

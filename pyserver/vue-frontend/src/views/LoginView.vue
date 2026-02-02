@@ -43,7 +43,7 @@ const router = useRouter();
 
 const handleLogin = async () => {
   try {
-    const response = await fetch(`http://localhost:8000/ses/${username.value}/${password.value}/vue`);
+    const response = await fetch(`http://${API_URL}/ses/${username.value}/${password.value}/vue`);
     if (!response.ok) {
       throw new Error('Login failed');
     }

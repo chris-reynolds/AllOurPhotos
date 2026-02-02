@@ -3,46 +3,36 @@
     <v-card>
       <v-card-title class="text-h5">Photo History by Month</v-card-title>
       <v-card-text>
-        <v-table dense>
-          <thead>
-            <tr>
-              <th>Year</th>
-              <th>Jan</th>
-              <th>Feb</th>
-              <th>Mar</th>
-              <th>Apr</th>
-              <th>May</th>
-              <th>Jun</th>
-              <th>Jul</th>
-              <th>Aug</th>
-              <th>Sep</th>
-              <th>Oct</th>
-              <th>Nov</th>
-              <th>Dec</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(row, rowIndex) in sortedMonthGrid" :key="rowIndex">
-              <td>{{ row[0] }}</td>
-              <td
-                v-for="(cell, cellIndex) in row.slice(1)"
-                :key="cellIndex"
-                :class="getMonthStatus(row[0], cellIndex + 1, cell).class"
-              >
-                <router-link v-if="cell !== 0" :to="`/history/${row[0]}/${cellIndex + 1}`">
-                  {{ cell }}
-                  <span class="ml-1 text-caption">({{ getInitials(row[0], cellIndex + 1) }})</span>
-                  <v-icon small :color="getMonthStatus(row[0], cellIndex + 1, cell).iconColor">
-                    {{ getMonthStatus(row[0], cellIndex + 1, cell).icon }}
-                  </v-icon>
-                </router-link>
-                <template v-else>
-                  {{ cell }}
-                </template>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
+        <div class="month-grid">
+          <div class="grid-header year-column">Year</div>
+          <div class="grid-header">Jan</div>
+          <div class="grid-header">Feb</div>
+          <div class="grid-header">Mar</div>
+          <div class="grid-header">Apr</div>
+          <div class="grid-header">May</div>
+          <div class="grid-header">Jun</div>
+          <div class="grid-header">Jul</div>
+          <div class="grid-header">Aug</div>
+          <div class="grid-header">Sep</div>
+          <div class="grid-header">Oct</div>
+          <div class="grid-header">Nov</div>
+          <div class="grid-header">Dec</div>
+
+          <template v-for="(row, rowIndex) in sortedMonthGrid" :key="rowIndex">
+            <div class="year-column">{{ row[0] }}</div>
+            <div
+              v-for="(cell, cellIndex) in row.slice(1)"
+              :key="cellIndex"
+              :class="['grid-cell', getMonthStatus(row[0], cellIndex + 1, cell).class]"
+            >
+              <router-link v-if="cell !== 0" :to="`/history/${row[0]}/${cellIndex + 1}`">
+                <v-icon small :color="getMonthStatus(row[0], cellIndex + 1, cell).iconColor">
+                  {{ getMonthStatus(row[0], cellIndex + 1, cell).icon }}
+                </v-icon>
+              </router-link>
+            </div>
+          </template>
+        </div>
       </v-card-text>
     </v-card>
   </v-container>
@@ -59,7 +49,6 @@ const monthGrid = ref([]);
 const fetchMonthGrid = async () => {
   try {
     const data = await recordedFetch('fetch month grid data', `${API_URL}/find/monthgrid`);
-    // Remove the last column (row total) and store the rest
     monthGrid.value = data.map(row => row.slice(0, 13));
   } catch (error) {
     console.error(error);
@@ -70,11 +59,6 @@ const sortedMonthGrid = computed(() => {
   return [...monthGrid.value].sort((a, b) => b[0] - a[0]);
 });
 
-const getInitials = (year, month) => {
-  const yyyymm = `${year}${String(month).padStart(2, '0')}`;
-  return monthStatusService.getInitialsForMonth(yyyymm);
-};
-
 const getMonthStatus = (year, month, photoCount) => {
   const yyyymm = `${year}${String(month).padStart(2, '0')}`;
   const initials = monthStatusService.getInitialsForMonth(yyyymm);
@@ -84,9 +68,7 @@ const getMonthStatus = (year, month, photoCount) => {
   let iconColor = '';
   let className = '';
 
-  if (photoCount === 0) {
-    className = 'no-photos';
-  } else {
+  if (photoCount > 0) {
     if (initials.length === 0) {
       icon = 'mdi-emoticon-sad';
       iconColor = 'red';
@@ -106,22 +88,35 @@ const getMonthStatus = (year, month, photoCount) => {
     }
   }
 
-  return { icon, iconColor, class: className };
+  return { icon, iconColor, class: className, initials };
 };
 
 onMounted(async () => {
   await fetchMonthGrid();
   monthStatusService.fetchMonthlyStatus();
 });
-
-// watch(
-//   () => monthStatusService.monthlyStatus, // Watch for changes in the reactive map
-//   () => {},
-//   { deep: true } // Deep watch for changes within the map
-// );
 </script>
 
 <style scoped>
+.month-grid {
+  display: grid;
+  grid-template-columns: 60px repeat(12, 1fr);
+  gap: 2px;
+}
+
+.grid-header, .grid-cell {
+  text-align: center;
+  padding: 4px;
+}
+
+.grid-header {
+  font-weight: bold;
+}
+
+.year-column {
+  font-weight: bold;
+}
+
 .signed-off-by-me {
   background-color: #e8f5e9; /* Light green */
 }
@@ -132,4 +127,14 @@ onMounted(async () => {
   background-color: #ffebee; /* Light red */
 }
 
+@media (max-width: 600px) {
+  .month-grid {
+    grid-template-columns: 40px repeat(12, 1fr);
+    gap: 1px;
+  }
+  .grid-header, .grid-cell {
+    padding: 2px;
+    font-size: 0.8em;
+  }
+}
 </style>

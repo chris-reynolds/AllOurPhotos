@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build"
+    "build": "vite build",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:clean": "docker-compose down && docker system prune -f"
   },
   "dependencies": {
     "sass": "^1.89.2",
@@ -15,6 +19,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
-    "vite": "^7.0.0"
+    "vite": "^6.0.0"
   }
 }
