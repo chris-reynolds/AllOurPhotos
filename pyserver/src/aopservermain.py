@@ -66,10 +66,17 @@ app.add_middleware(
 )
 
 def calcBadLine():
-    (exc_type, exc_obj, exc_tb) = sys.exc_info()
-    fname = exc_tb.tb_frame.f_code.co_filename
-    lineno = exc_tb.tb_lineno
-    print(f"Exception type: {exc_type.__name__}")
+    (exec_ttype, exc_obj, exc_tb) = sys.exc_info()
+    if exc_tb is None:
+        fname = 'unknown'
+        lineno = 'unknown'
+    else:
+        fname = exc_tb.tb_frame.f_code.co_filename
+        lineno = exc_tb.tb_lineno
+    if exec_ttype is None:
+        print(f"Exception type: unknown")
+    else:
+        print(f"Exception type: {exec_ttype.__name__}")
     print(f"File name: {fname}")
     print(f"Line number: {lineno}")
     return f" in line {lineno} of {fname}"
@@ -167,10 +174,12 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         targetMetadata = ROOT_DIR+monthDir+'/metadata/' +targetFilename +'.json'
         progress = 'make thumbnail'
         makeThumbnail(img2,img_exif,targetThumbnail)
-        progress = 'writing the metadata'
+        progress = 'filtering the metadata'
         filteredMetadata: dict[str,str] = filterMetadata(img_exif)
+        progress = 'formatting the metadata'
         jdata = json.dumps(filteredMetadata,indent=4,ensure_ascii=False, sort_keys=True)
         # if not os.path.exists(targetMetadata):
+        progress = 'writing the metadata'
         with open(targetMetadata, 'w') as targ:
             targ.write(jdata)
             targ.close()
@@ -394,7 +403,7 @@ def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
 def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
     def exif_cast(v):
         if isinstance(v, TiffImagePlugin.IFDRational):
-            return float(v)
+            return float(v) if v.denominator != 0 else 0.0
         elif isinstance(v, tuple):
             return tuple(exif_cast(t) for t in v)
         elif isinstance(v, bytes):
