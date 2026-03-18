@@ -1,15 +1,14 @@
 // attempt to build a clipping widget
 // created by chris R. 21st June 2024
 
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../utils/fingers.dart';
 import 'package:provider/provider.dart';
 
 class Clipper extends StatefulWidget {
   final String imageUrl;
+  final int imageWidth;
+  final int imageHeight;
   final ValueSetter<bool> canCropCallBack;
   final ValueSetter<Rect> rectCallback;
   final ValueSetter<Map<String, String>>? show;
@@ -17,6 +16,8 @@ class Clipper extends StatefulWidget {
   const Clipper({
     super.key,
     required this.imageUrl,
+    required this.imageWidth,
+    required this.imageHeight,
     required this.rectCallback,
     required this.canCropCallBack,
     this.show,
@@ -29,7 +30,6 @@ class Clipper extends StatefulWidget {
 class _ClipperState extends State<Clipper> {
   RenderBox? _clipperRb;
   final _fingerGestureList = FingerGestureList();
-  Uint8List? imageBytes;
   Size? _imageSize;
   double? _initialScale;
   Matrix4 _currentTransform = Matrix4.identity();
@@ -104,21 +104,6 @@ class _ClipperState extends State<Clipper> {
     _checkLastTransform();
   } // of fingerAdd
 
-  void _loadMemoryImage(String imageUrl) {
-    http.get(Uri.parse(imageUrl)).then((response) {
-      imageBytes = response.bodyBytes;
-      decodeImageFromList(imageBytes!).then((yy) {
-        _imageSize = Size(yy.width * 1.0, yy.height * 1.0);
-        _dPrintValue('loaded image size', '$_imageSize');
-        _calcInitialScale();
-        setState(() {});
-      });
-    }).onError((ex, StackTrace st) {
-      _dPrintError('_loadMemoryImage: $ex for url $imageUrl');
-      throw Exception('_loadMemoryImage: $ex for url $imageUrl');
-    });
-  } // of loadMemoryImage
-
   double _min(a, b) => a > b ? b : a;
 
   double _minScale(Size original, Size target) =>
@@ -144,7 +129,7 @@ class _ClipperState extends State<Clipper> {
   void initState() {
     super.initState();
     _fingerGestureList.logger = _dPrint; // for debugging
-    _loadMemoryImage(widget.imageUrl);
+    _imageSize = Size(widget.imageWidth.toDouble(), widget.imageHeight.toDouble());
   }
 
   @override
@@ -165,13 +150,17 @@ class _ClipperState extends State<Clipper> {
     _dPrint('didupdatewidget');
     super.didUpdateWidget(oldWidget);
     _fingerGestureList.reset();
+    _initialScale = null;
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _imageSize = Size(widget.imageWidth.toDouble(), widget.imageHeight.toDouble());
+    }
     _calcInitialScale();
   }
 
   @override
   Widget build(BuildContext context) {
     // _dPrint('build()');
-    if (_initialScale == null) return Container();
+    if (_initialScale == null) return const Center(child: CircularProgressIndicator());
     var currentScale = _fingerGestureList.totalScale();
     return LayoutBuilder(builder: (context, boxConstraints) {
       return Container(
@@ -230,11 +219,22 @@ class _ClipperState extends State<Clipper> {
             },
             child: Transform(
               transform: _fingerGestureList.totalTransform(),
-              child: Image(
-                image: NetworkImage(widget.imageUrl),
+              child: Image.network(
+                widget.imageUrl,
                 width: boxConstraints.maxWidth,
                 height: boxConstraints.maxHeight,
-                fit: BoxFit.contain, // otherwise image holds subset of picture
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
               ),
             ),
           ),

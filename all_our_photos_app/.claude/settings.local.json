@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"def.*rotate\\\\|app.get.*rotate\\\\|app.get.*photos\" /c/Users/chris/projects/AllOurPhotos/backend/src --include=*.js)",
+      "Bash(grep:*)"
+    ]
+  }
+}

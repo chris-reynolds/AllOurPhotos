@@ -8,7 +8,6 @@ import 'dart:convert';
 //import 'dart:typed_data';
 import 'package:aopmodel/aopmodel.dart';
 //import 'package:flutter/widgets.dart';
-import 'dart:math';
 import '../utils/ExportPic.dart';
 //import '../widgets/PhotoViewWithRectWidget.dart';
 import 'package:flutter/material.dart';
@@ -161,7 +160,6 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];
     var thisURL = currentSnap!.fullSizeURL;
-    thisURL += '?fred=${Random().nextInt(1000)}';
     log.message('single photo $thisURL');
     return Scaffold(
         appBar: buildAppBar(context) as PreferredSizeWidget?,
@@ -172,6 +170,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
               Expanded(
                 child: Clipper(
                   imageUrl: thisURL,
+                  imageWidth: currentSnap!.width ?? 0,
+                  imageHeight: currentSnap!.height ?? 0,
                   rectCallback: currentRect,
                   canCropCallBack: canCropCallback,
                   // verticalSwipeCallBack: (value) {

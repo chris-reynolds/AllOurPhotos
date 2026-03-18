@@ -57,6 +57,11 @@ Future<WebFile> loadWebFile(String url, String? defaultValue,
   try {
     response = await httpClient.get(uri).timeout(Duration(seconds: timeOut));
     if (response.statusCode > 399) {
+      if (defaultValue != null) {
+        WebFile result = WebFile._(url);
+        result.contents = defaultValue;
+        return result;
+      }
       throw Exception('Response ${response.statusCode} \n ${response.body}');
     }
     log.debug('Response Code ${response.statusCode}');
