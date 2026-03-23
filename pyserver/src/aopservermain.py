@@ -156,12 +156,18 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         progress='do crop'
         img2 = img.crop((left,top,right,bottom))
         progress = 'update exif'
-        img_exif2 = piexif.load(img.info['exif'])
-        img_exif2['0th'][piexif.ImageIFD.ImageWidth] = img.width
-        img_exif2['0th'][piexif.ImageIFD.ImageLength] = img.height
-        img_exif2_bytes = piexif.dump(img_exif2)
+        if 'exif' in img.info:
+            img_exif2 = piexif.load(img.info['exif'])
+            img_exif2['0th'][piexif.ImageIFD.ImageWidth] = img.width
+            img_exif2['0th'][piexif.ImageIFD.ImageLength] = img.height
+            img_exif2_bytes = piexif.dump(img_exif2)
+        else:
+            img_exif2_bytes = None
         progress = 'save cropped image'
-        img2.save(targetFullPath,exif=img_exif2_bytes,quality=100,progressive=True)
+        if img_exif2_bytes:
+            img2.save(targetFullPath,exif=img_exif2_bytes,quality=100,progressive=True)
+        else:
+            img2.save(targetFullPath,quality=100,progressive=True)
         progress = 'setup database snap'
         new_snap = original_snap
         new_snap.file_name = targetFilename
@@ -435,7 +441,7 @@ def filterMetadata(imageExif: Image.Exif) -> dict[str,str]:
     for keyid,value in imageExif.items():
         if keyid != 50341 and keyid < 59000 and keyid != 37500 and keyid != 37510:  #printimagematching makernote
             value2 = exif_cast(value)
-            tagName = ExifTags.TAGS.get(keyid,keyid)
+            tagName = str(ExifTags.TAGS.get(keyid,keyid))
             if (not value2 is str) or len(str(value2))<100:
                 # print(f'{tagName} is {type(value2)} was is {type(value)}')
                 result[tagName] = value2
@@ -614,7 +620,7 @@ def get_album(request:Request, id: int) -> Album:
 
 # API route to get some albums
 @app.get("/albums/", response_model=List[Album])
-def get_albums(request:Request, where: str = Query(default='1=0', max_length=50), orderby: str = Query(default='id', max_length=50), limit: int = 1001, offset: int = 0) -> List[Album]:
+def get_albums(request:Request, where: str = '1=0', orderby: str ='id', limit: int = 1001, offset: int = 0) -> List[Album]:
     session: Session = get_session_from_request(request) 
     queryText = f"SELECT * FROM aopalbums where {where} order by {orderby}  LIMIT {limit} OFFSET {offset} "
     try:
@@ -704,7 +710,7 @@ def get_albumItem(request:Request, id: int) -> AlbumItem:
 
 # API route to get some albumItems
 @app.get("/album_items/", response_model=List[AlbumItem])
-def get_albumItems(request:Request, where: str = Query(default='1=0', max_length=50), orderby: str = Query(default='id', max_length=50), limit: int = 1001, offset: int = 0) -> List[AlbumItem]:
+def get_albumItems(request:Request, where: str = '1=0', orderby: str = 'id', limit: int = 1001, offset: int = 0) -> List[AlbumItem]:
     session: Session = get_session_from_request(request) 
     queryText = f"SELECT * FROM aopalbum_items where {where} order by {orderby}  LIMIT {limit} OFFSET {offset} "
     try:
@@ -794,7 +800,7 @@ def get_session(request:Request, id: int) -> Session:
 
 # API route to get some sessions
 @app.get("/sessions/", response_model=List[Session])
-def get_sessions(request:Request, where: str = Query(default='1=0', max_length=50), orderby: str = Query(default='id', max_length=50), limit: int = 1001, offset: int = 0) -> List[Session]:
+def get_sessions(request:Request, where: str ='1=0', orderby: str='id', limit: int = 1001, offset: int = 0) -> List[Session]:
     queryText = f"SELECT * FROM aopsessions where {where} order by {orderby}  LIMIT {limit} OFFSET {offset} "
     try:
         with connection_pool.get_connection() as connection:
@@ -884,7 +890,7 @@ def get_snap(request:Request, id: int) -> Snap:
 
 # API route to get some snaps
 @app.get("/snaps/", response_model=List[Snap])
-def get_snaps(request:Request, where: str = Query(default='1=0', max_length=50), orderby: str = Query(default='id', max_length=50), limit: int = 1001, offset: int = 0) -> List[Snap]:
+def get_snaps(request:Request, where: str = '1=0', orderby: str = 'id', limit: int = 1001, offset: int = 0) -> List[Snap]:
 #    session: Session = get_session_from_request(request) 
     queryText = f"SELECT * FROM aopsnaps where {where} order by {orderby}  LIMIT {limit} OFFSET {offset} "
     try:
@@ -974,7 +980,7 @@ def get_user(request:Request, id: int) -> User:
 
 # API route to get some users
 @app.get("/users/", response_model=List[User])
-def get_users(request:Request, where: str = Query(default='1=0', max_length=50), orderby: str = Query(default='id', max_length=50), limit: int = 1001, offset: int = 0) -> List[User]:
+def get_users(request:Request, where: str = '1=0',  orderby: str = 'id',  limit: int = 1001, offset: int = 0) -> List[User]:
     session: Session = get_session_from_request(request) 
     queryText = f"SELECT * FROM aopusers where {where} order by {orderby}  LIMIT {limit} OFFSET {offset} "
     try:
