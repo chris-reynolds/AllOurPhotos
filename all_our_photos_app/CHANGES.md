@@ -14,3 +14,8 @@
 ## 2.0 21st August 2023
 - attempt to move from native apps to web site
 
+## 18 March 2026
+- Implement progressive image painting for zero rotation
+- remove cache breakers
+- Tidy Cropping with Claudes help
+

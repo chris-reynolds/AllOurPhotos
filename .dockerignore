@@ -1,0 +1,17 @@
+.git/
+pyserver/__pycache__/
+pyserver/**/*.pyc
+pyserver/.venv/
+pyserver/venv/
+pyserver/vue-frontend/
+pyserver/config.json
+pyserver/config.docker.json
+all_our_photos_app/android/
+all_our_photos_app/ios/
+all_our_photos_app/macos/
+all_our_photos_app/linux/
+all_our_photos_app/windows/
+all_our_photos_app/.dart_tool/
+all_our_photos_app/lib/
+all_our_photos_app/test/
+all_our_photos_app/assets/

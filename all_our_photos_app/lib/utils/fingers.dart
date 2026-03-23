@@ -63,14 +63,14 @@ class TwoFingered extends Fingered {
   @override
   void calcMatrix() {
     Matrix4 m3 = OneFingered(focus).matrix;
-    Matrix4 m2 = Matrix4.identity()..scale(scale);
+    Matrix4 m2 = Matrix4.diagonal3Values(scale, scale, scale);
     Matrix4 m1 = OneFingered(-focus).matrix;
     Matrix4 result = m1.multiplied(m2);
     result = result.multiplied(m3);
     _matrix = result;
   }
 
-  void updateScale(scale) {
+  void updateScale(double scale) {
     // used to change zoom without new gesture
     this.scale = scale;
     calcMatrix();

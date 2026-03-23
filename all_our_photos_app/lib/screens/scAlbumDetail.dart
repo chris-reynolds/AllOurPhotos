@@ -222,7 +222,7 @@ class AlbumDetailState extends State<AlbumDetail>
         ), // of checkbox
         title: Text(snap.caption!),
       ),
-      Image.network(snap.thumbnailURL),
+      Image.network(snap.thumbnailURL, headers: {'Preserve': WebFile.preserve}),
     ]);
   } // of snapTileX
 }

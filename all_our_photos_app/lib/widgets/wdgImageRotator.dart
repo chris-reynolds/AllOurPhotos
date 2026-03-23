@@ -3,6 +3,7 @@
 
 import 'package:aopmodel/aop_classes.dart';
 import 'package:flutter/material.dart';
+import 'package:aopcommon/aopcommon.dart';
 // import 'dart:math' as math;
 import '../flutter_common/WidgetSupport.dart';
 
@@ -89,7 +90,7 @@ class _ImageRotatorState extends State<ImageRotator> {
           ],
         ),
         Expanded(
-          child: Image.network(widget.snap.thumbnailURL, fit: BoxFit.contain),
+          child: Image.network(widget.snap.thumbnailURL, fit: BoxFit.contain, headers: {'Preserve': WebFile.preserve}),
         ),
       ],
     );

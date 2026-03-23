@@ -55,7 +55,10 @@ Future<WebFile> loadWebFile(String url, String? defaultValue,
 //  late http.Request request;
   late http.Response response;
   try {
-    response = await httpClient.get(uri).timeout(Duration(seconds: timeOut));
+    Map<String, String> headers = WebFile._preserve.isNotEmpty
+        ? {'Preserve': WebFile._preserve}
+        : {};
+    response = await httpClient.get(uri, headers: headers).timeout(Duration(seconds: timeOut));
     if (response.statusCode > 399) {
       if (defaultValue != null) {
         WebFile result = WebFile._(url);

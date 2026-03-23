@@ -78,6 +78,7 @@ class _PhotoTileState extends State<PhotoTile> {
               child: Image.network(
                 widget.highResolution ? snap.fullSizeURL : snap.thumbnailURL,
                 fit: BoxFit.scaleDown,
+                headers: {'Preserve': WebFile.preserve},
 //                ),
               )),
         ));

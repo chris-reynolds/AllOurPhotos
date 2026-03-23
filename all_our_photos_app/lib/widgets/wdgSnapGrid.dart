@@ -33,6 +33,7 @@ class SsSnapGrid extends StatelessWidget {
                 child: Image.network(
                   snap.thumbnailURL,
                   fit: BoxFit.scaleDown,
+                  headers: {'Preserve': WebFile.preserve},
                 ),
               ))),
       Checkbox(
