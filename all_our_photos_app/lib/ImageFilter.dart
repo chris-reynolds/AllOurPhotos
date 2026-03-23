@@ -70,7 +70,7 @@ class ImageFilter
 
   bool getRank(int rankNo) => _rank[rankNo];
 
-  setRank(int rankNo, bool value) {
+  void setRank(int rankNo, bool value) {
     if (_rank[rankNo] != value) _refreshRequired = true;
     _rank[rankNo] = value;
   } // of setRank

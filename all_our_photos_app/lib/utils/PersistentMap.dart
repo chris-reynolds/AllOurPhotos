@@ -13,7 +13,7 @@ class PersistentMap {
   bool isLoaded = false;
 
   PersistentMap(this._url);
-  load() async {
+  Future<void> load() async {
     _webFile = (await loadWebFile(_url, ''));
     String response = _webFile.contents;
 
@@ -60,4 +60,3 @@ class PersistentMap {
 
   Iterable<int> get keys => _contents.keys;
 } // of PersistentMap
-

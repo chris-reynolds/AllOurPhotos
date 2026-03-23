@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'wdgImageFilter.dart' show filterColors;
 
 typedef BannerTapCallback = void Function(AopSnap snap);
-nullSnapCallBack(AopSnap snap) {} // used for initialising callbacks
+void nullSnapCallBack(AopSnap snap) {} // used for initialising callbacks
 
 const double HEADER_OFFSET = 50;
 

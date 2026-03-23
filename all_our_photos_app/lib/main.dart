@@ -1,5 +1,5 @@
 import 'aopAppMain.dart' as aop;
 
-main() {
+void main() {
   aop.main();
 }
