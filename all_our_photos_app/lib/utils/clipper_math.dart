@@ -45,13 +45,12 @@ class ClipperMath {
 
   /// Whether a gesture should be rejected (undone).
   ///
-  /// Original bug: compared against xOffset/yOffset rather than 0.
-  /// For portrait images on landscape screens xOffset is negative, which caused
-  /// any zoom-in to be immediately undone because the top-left corner naturally
-  /// extends into the letterbox area.  Using 0 (the image boundary) is correct.
+  /// Rejects gestures that would move the visible region's top-left corner
+  /// beyond its initial position (xOffset, yOffset), which prevents the user
+  /// from panning into letterbox area outside the image boundary.
   bool shouldUndo(Rect r, double totalScale) {
     if (totalScale > 16) return true;
-    return r.topLeft.dx < 0 || r.topLeft.dy < 0;
+    return r.topLeft.dx < xOffset || r.topLeft.dy < yOffset;
   }
 
   /// Whether the visible region is a croppable sub-region of the image.

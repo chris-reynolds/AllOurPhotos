@@ -4,7 +4,8 @@
       "Bash(grep -r \"def.*rotate\\\\|app.get.*rotate\\\\|app.get.*photos\" /c/Users/chris/projects/AllOurPhotos/backend/src --include=*.js)",
       "Bash(grep:*)",
       "Bash(flutter test:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(git -C /c/users/chris/projects/AllOurPhotos diff 2dd0a51~1..2dd0a51 -- pyserver/src/aopservermain.py)"
     ]
   }
 }
