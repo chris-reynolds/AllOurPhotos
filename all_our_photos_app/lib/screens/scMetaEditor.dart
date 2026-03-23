@@ -83,8 +83,8 @@ class MetaEditorWidgetState extends State<MetaEditorWidget> {
     //   setState(() {});
   }
 
-  String? _checkCaption(value) {
-    if (value.length > 0 && value.length < 4)
+  String? _checkCaption(String? value) {
+    if ((value ?? '').isNotEmpty && (value ?? '').length < 4)
       return "Caption needs at least 4 characters";
     else {
       values['caption'] = value;

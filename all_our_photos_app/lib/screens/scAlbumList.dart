@@ -70,7 +70,7 @@ class AlbumListState extends State<AlbumList> {
     );
   }
 
-  showAlbum(AopAlbum album) {
+  void showAlbum(AopAlbum album) {
     Provider.of<AlbumProvider>(context, listen: false).setAlbum(album);
     Navigator.pushNamed(context, 'AlbumDetail').then((value) {
       log.message('popping at show album');
@@ -203,35 +203,3 @@ void handleMultiRemoveFromAlbum(BuildContext context, AopAlbum argAlbum,
     showMessage(context, 'Error: $ex');
   }
 } // of handleMultiRemoveFromAlbum*/
-
-// TODO: Try and get album create in correct location
-// Future<AopAlbum?> showAlbumCreate(BuildContext context) async {
-//   var nameController = TextEditingController(text: 'fred');
-//   await showDialog(
-//       context: context,
-//       builder: ((context) {
-//         return AlertDialog(
-//           backgroundColor: Color.fromARGB(255, 183, 195, 207),
-//           title: Text('Enter new album name'),
-//           content: TextField(controller: nameController),
-//           actions: [
-//             ElevatedButton(
-//                 onPressed: () {
-//                   Navigator.pop(context);
-//                   log.message('pressed create');
-//                   return;
-//                 },
-//                 child: Text('Create')),
-//             ElevatedButton(
-//                 onPressed: () {
-//                   Navigator.pop(context);
-//                   log.message('pressed cancel');
-//                   return;
-//                 },
-//                 child: Text('Cancel')),
-//           ],
-//         );
-//       })); // of showDialog
-//   log.message('done show dialog');
-//   return null;
-// } // of showAlbumCreate

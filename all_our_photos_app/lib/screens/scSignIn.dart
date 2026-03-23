@@ -25,7 +25,7 @@ class SignInPage extends StatelessWidget {
   SignInPage(this.loginCallback)
       : _fieldSet = WsFieldSet(_fieldDefs, values: config.values(), spacer: 1);
 
-  signIn2() async {
+  Future<void> signIn2() async {
     var formValueMap = _fieldSet.values;
 //    var formValueMap = wsFormValues(_loginFormKey.currentState); // _loginFormKey.currentState;
     log.message('my form state $formValueMap');
