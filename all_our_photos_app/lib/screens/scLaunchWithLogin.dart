@@ -40,8 +40,8 @@ class LaunchWithLogin extends StatelessWidget {
           'ses/${config['sesuser']}/${config['sespassword']}/${config['sesdevice']}');
       WebFile.setPreserve(jsonEncode(sessionRequest));
       config['sessionid'] = sessionRequest['jam'] ?? '';
-      if (!config['sessionid'].startsWith('2'))
-        throw Exception('Invalid session Id');
+      if ((int.tryParse(config['sessionid']) ?? -1) <= 0)
+        throw Exception('Invalid session Id!');
       modelSessionid = config['sessionid'];
       _streamController.add(AuthenticationState.authenticated());
 
