@@ -94,9 +94,7 @@ async def favicon():
 
 @app.get('/ses/{user}/{password}/{source}')
 async def makeSession(response: Response, user,password,source):
-    source = "''".join(source.split("'"))
-    sqlText = f"select spsessioncreate('{user}','{password}','{source}') as sessionid"
-    rows = raw_sql(sqlText)
+    rows = raw_sql("select spsessioncreate(%s,%s,%s) as sessionid", (user, password, source))
     sessionid = rows[0]['sessionid']  
     response_data = {"jam":f"{sessionid}" }
     if sessionid < 0:
@@ -113,9 +111,11 @@ async def find(request: Request, key:str):
         raise HTTPException(status_code=404,detail='not found in line')
     sql = queryList[key]
     valueMap = dict(request.query_params)
-    for key in valueMap:
-        sql = sql.replace('@'+key,valueMap[key])
-    return raw_sql(sql,asDictionary=False)
+    values = []
+    for k in valueMap:
+        sql = sql.replace('@' + k, '%s')
+        values.append(valueMap[k])
+    return raw_sql(sql, tuple(values), asDictionary=False)
 
 def forceDir(pathname: str):
     if not os.path.isdir(pathname):
@@ -236,8 +236,9 @@ async def rotatePic(request: Request,angle: int, aPath: str):
         raise HTTPException(status_code=500, detail=f'{exmess} \n {calcBadLine()}') from ex
     
 @app.post('/upload2/{modified}/{filename}/{sourceDevice}')
-async def uploader(request: Request, modified: str, filename: str, sourceDevice: str, myfile:UploadFile): #modified: str,filename: str, 
+async def uploader(request: Request, modified: str, filename: str, sourceDevice: str, myfile:UploadFile): #modified: str,filename: str,
     try:
+        filename = os.path.basename(filename)
         progress : str = 'reading image'
         request_object_content = await myfile.read()
         mediaLength = len(request_object_content)
@@ -310,6 +311,7 @@ def flatten_dict(d: dict) -> dict:
 @app.post('/upload_video/{modified}/{filename}/{sourceDevice}')
 async def upload_video(request: Request, modified: str, filename: str, sourceDevice: str, video: UploadFile = File(...)):
     try:
+        filename = os.path.basename(filename)
         progress : str = 'reading video'
         # Read the uploaded video file
         video_content = await video.read()
@@ -533,9 +535,17 @@ def username_and_id(request: Request):
     except Exception as ex:
         raise HTTPException(status_code=403, detail=f"{repr(ex)}")
     
+def safe_photos_path(aPath: str) -> str:
+    base = Path(config['photos']).resolve()
+    full = (base / aPath).resolve()
+    if not str(full).startswith(str(base)):
+        raise HTTPException(status_code=400, detail='Invalid path')
+    return str(full)
+
 @app.get('/photos/{aPath:path}')
 def photos(request: Request,aPath:str):
-    fullFileName = config['photos']+aPath
+    get_session_from_request(request)
+    fullFileName = safe_photos_path(aPath)
     #print(fullFileName)
     cacheHeaders: dict[str,str] = {}
     if aPath.lower().endswith('txt'):
@@ -549,7 +559,8 @@ def photos(request: Request,aPath:str):
 
 @app.put('/photos/{aPath:path}')
 async def photos_put(request: Request,aPath:str):
-    fullFileName = config['photos']+aPath
+    username_and_id(request)
+    fullFileName = safe_photos_path(aPath)
     print('photos_put '+fullFileName)
     if os.path.isfile(fullFileName):
       contents: bytes = await request.body()

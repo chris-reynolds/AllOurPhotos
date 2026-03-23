@@ -1,0 +1,11 @@
+config.json
+vue-frontend/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+deploy.bat
+run.bat
+allourphotos.service
+.git/

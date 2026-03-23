@@ -1,0 +1,18 @@
+{
+    "db": {
+        "host": "host.docker.internal",
+        "user": "photos",
+        "password": "photos00",
+        "database": "allourphotos_asus"
+        },
+    "frontend": "/app/frontend",
+    "photos": "/app/photos/",
+    "find": {
+        "monthgrid": "select * from vwmonthgrid",
+        "locations": "select distinct location from aopsnaps where location is not null",
+        "nameExists": "select count(*),min(id),max(id) from aopsnaps where (original_taken_date between '@start' and '@end') and file_name='@filename'",
+        "cropCount": "select count(*) from aopsnaps where import_source='@source'",
+        "albumSnaps": "SELECT * FROM aopsnaps WHERE id IN (SELECT snap_id FROM aopalbum_items WHERE album_id=@album_id)",
+        "sessionUser": "select u.* from aopusers u join aopsessions s where s.user_id = u.id and s.id=@session_id"
+    }
+}

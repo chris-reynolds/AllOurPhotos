@@ -1,0 +1,20 @@
+# Local development/testing only.
+# Production deployment uses a pre-built image transferred via rdDeployAop.
+#
+# Usage:
+#   1. flutter build web  (in all_our_photos_app/)
+#   2. docker compose up --build  (in pyserver/)
+#
+# Requires config.json in pyserver/ with local DB and photos settings.
+
+services:
+  aop:
+    build:
+      context: ..
+      dockerfile: pyserver/Dockerfile
+    container_name: aop-local
+    ports:
+      - "8003:8000"
+    volumes:
+      - C:/Users/chris/projects/allourphotos/pyserver/config.docker.json:/app/config.json:ro
+      - C:/data/photos:/app/photos
