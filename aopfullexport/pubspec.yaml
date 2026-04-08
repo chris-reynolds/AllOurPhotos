@@ -1,0 +1,11 @@
+name: aopfullexport
+description: Export high-ranked AllOurPhotos photos with captions baked into EXIF metadata.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  http: ^1.1.0
+  args: ^2.4.0
