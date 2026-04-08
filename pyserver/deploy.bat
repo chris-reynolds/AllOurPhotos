@@ -1,15 +1,14 @@
 @echo off
 cls
-rem first check your starting point
-c:
-cd \projects\all*os\pyserver
 
-rem now map the z: drive
-if not exist z:\software net use z: \\rpi4.local\aop
+rem Check Docker is running
+docker info >nul 2>&1
+if errorlevel 1 (
+    echo Docker is not running. Please start Docker and try again.
+    pause
+    exit /b 1
+)
 
-rem now do the copy
-robocopy  src z:\software\server\src *.py /e
-robocopy  . z:\software\server req*.txt 
-rem set /p
-
+rem Deploy
+dart C:\users\chris\projects\rpi_deploy\bin\rdDeployAop.dart
 pause

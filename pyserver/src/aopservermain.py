@@ -102,9 +102,11 @@ async def makeSession(response: Response, user,password,source):
     sessionid = rows[0]['sessionid']  
     response_data = {"jam":f"{sessionid}" }
     if sessionid < 0:
-        response.delete_cookie (key='Preserve')
-    else:   
-        response.set_cookie (key='jam', value=f"{sessionid}")
+        response.delete_cookie(key='Preserve')
+        response.delete_cookie(key='jam')
+    else:
+        response.set_cookie(key='jam', value=f"{sessionid}")
+        response.set_cookie(key='Preserve', value=json.dumps({"jam": f"{sessionid}"}))
     return response_data
 
 @app.get('/find/{key}')
@@ -202,6 +204,65 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         print("Error: in cropPic()", exmess)
         raise HTTPException(status_code=500, detail=f'cropPic()-{progress}-{exmess} \n {calcBadLine()}') from ex
     
+@app.get('/reset_thumbnail/{snap_id}')
+async def resetThumbnail(request: Request, snap_id: int):
+    try:
+        get_session_from_request(request)
+        snap = get_snap(request, snap_id)
+        fullPath = ROOT_DIR + (snap.directory or '') + '/' + (snap.file_name or '')
+        if not os.path.isfile(fullPath):
+            raise HTTPException(status_code=404, detail=f'source image not found: {fullPath}')
+        thumbName = os.path.splitext(snap.file_name)[0] + '.jpg'
+        thumbPath = ROOT_DIR + (snap.directory or '') + '/thumbnails/' + thumbName
+        img = Image.open(fullPath)
+        img_exif = img._getexif()  # pyright: ignore
+        makeThumbnail(img, img_exif, thumbPath)
+        return {'result': 'ok'}
+    except HTTPException: raise
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=f'resetThumbnail: {repr(ex)} \n {calcBadLine()}') from ex
+
+@app.get('/rotate_thumbnail/{snap_id}')
+async def rotateThumbnail(request: Request, snap_id: int):
+    try:
+        get_session_from_request(request)
+        snap = get_snap(request, snap_id)
+        angle = snap.degrees
+        if angle == 0:
+            return {'result': 'no rotation needed'}
+        thumbName = os.path.splitext(snap.file_name)[0] + '.jpg'
+        thumbPath = ROOT_DIR + (snap.directory or '') + '/thumbnails/' + thumbName
+        if not os.path.isfile(thumbPath):
+            raise HTTPException(status_code=404, detail=f'thumbnail not found: {thumbPath}')
+        while angle < 0:
+            angle += 360
+        while angle > 360:
+            angle -= 360
+        subangle = (angle % 90)
+        if subangle > 45:
+            subangle = 90 - subangle
+        img = Image.open(thumbPath)
+        exif_found = False
+        if 'exif' in img.info:
+            img_exif_bytes = piexif.dump(piexif.load(img.info['exif']))
+            exif_found = True
+        border_proportion = abs(math.tan(subangle * math.pi / 180) / 2)
+        if border_proportion > 0.1:
+            border_proportion = 0.1
+        top_border = int(img.width * border_proportion)
+        side_border = int(img.height * border_proportion)
+        img2 = img.rotate(angle)
+        cropRect = (side_border, top_border, img.width - side_border, img.height - top_border)
+        img2 = img2.crop(cropRect)
+        if exif_found:
+            img2.save(thumbPath, exif=img_exif_bytes, quality=50)
+        else:
+            img2.save(thumbPath, quality=50)
+        return {'result': 'ok'}
+    except HTTPException: raise
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=f'rotateThumbnail: {repr(ex)} \n {calcBadLine()}') from ex
+
 @app.get('/rotate/{angle}/{aPath:path}')
 async def rotatePic(request: Request,angle: int, aPath: str):
     if angle==0:
@@ -231,9 +292,10 @@ async def rotatePic(request: Request,angle: int, aPath: str):
         top_border = int(img.width*border_proportion)
         side_border = int(img.height*border_proportion)
         img2 = img.rotate(angle)
-        cropRect = (side_border,top_border,img.width-2*side_border,img.height-2*top_border)
+        cropRect = (side_border, top_border, img.width - side_border, img.height - top_border)
         print(cropRect)
         img = img2.crop(cropRect)
+        forceDir('temp')
         rnd = random.randint(0,999)
         if exif_found:
             img.save(f'temp/fred{rnd}.jpg',exif=img_exif_bytes,quality=100)
@@ -580,6 +642,90 @@ async def photos_put(request: Request,aPath:str):
         binFile.write(contents)
     else:
         raise HTTPException(status_code=404,detail=f"'{aPath}' is not found.")
+
+
+@app.get('/export_summary')
+def export_summary(request: Request, min_ranking: int = 3,
+                   from_date: str = '', to_date: str = ''):
+    get_session_from_request(request)
+    where = f"ranking >= {min_ranking}"
+    if from_date:
+        where += f" AND taken_date >= '{from_date}'"
+    if to_date:
+        where += f" AND taken_date <= '{to_date}'"
+    rows = raw_sql(f"SELECT COUNT(*) as cnt, COALESCE(SUM(media_length),0) as total_bytes FROM aopsnaps WHERE {where}")
+    return rows[0]
+
+
+@app.get('/export_snap/{id}')
+def export_snap(request: Request, id: int):
+    get_session_from_request(request)
+    snap = get_snap(request, id)
+    aPath = f"{snap.directory}/{snap.file_name}"
+    fullFileName = safe_photos_path(aPath)
+    if not os.path.isfile(fullFileName):
+        raise HTTPException(status_code=404, detail=f"File not found: {aPath}")
+    try:
+        # Videos: return as-is, no EXIF manipulation
+        ext = (snap.file_name or '').rsplit('.', 1)[-1].lower()
+        if ext in ('mp4', 'mov'):
+            return FileResponse(fullFileName, filename=snap.file_name)
+        img = Image.open(fullFileName)
+        # Apply stored rotation (same logic as rotatePic)
+        angle = snap.degrees or 0
+        if angle != 0:
+            while angle < 0:
+                angle += 360
+            while angle > 360:
+                angle -= 360
+            subangle = angle % 90
+            if subangle > 45:
+                subangle = 90 - subangle
+            border_proportion = abs(math.tan(subangle * math.pi / 180) / 2)
+            if border_proportion > 0.1:
+                border_proportion = 0.1
+            top_border = int(img.width * border_proportion)
+            side_border = int(img.height * border_proportion)
+            img = img.rotate(angle)
+            img = img.crop((side_border, top_border,
+                            img.width - side_border, img.height - top_border))
+        # Build EXIF with caption — wrapped defensively; malformed EXIF in
+        # the source file can cause piexif to crash, so fall back to no EXIF.
+        caption = snap.caption or ''
+        location = snap.location or ''
+        if not location and caption.startswith('@'):
+            location = caption.split()[0][1:]
+        exif_bytes = None
+        try:
+            if 'exif' in img.info:
+                img_exif = piexif.load(img.info['exif'])
+            else:
+                img_exif = {'0th': {}, 'Exif': {}, 'GPS': {}, '1st': {}}
+            if caption:
+                img_exif['0th'][piexif.ImageIFD.ImageDescription] = caption.encode('utf-8')
+                img_exif['Exif'][piexif.ExifIFD.UserComment] = b'UNICODE\x00' + caption.encode('utf-16-le')
+            if location:
+                img_exif['GPS'][piexif.GPSIFD.GPSAreaInformation] = b'UNICODE\x00' + location.encode('utf-16-le')
+            # piexif enforces a 64 KB limit on the embedded EXIF thumbnail;
+            # strip it to avoid ValueError on large thumbnails.
+            img_exif['1st'] = {}
+            img_exif.pop('thumbnail', None)
+            exif_bytes = piexif.dump(img_exif)
+        except Exception as exif_ex:
+            print(f"export_snap {id}: EXIF write skipped ({repr(exif_ex)})")
+        rnd = random.randint(0, 999999)
+        forceDir('temp')
+        tmp_path = f'temp/export_{rnd}.jpg'
+        if exif_bytes:
+            img.save(tmp_path, exif=exif_bytes, quality=100)
+        else:
+            img.save(tmp_path, quality=100)
+        return FileResponse(tmp_path, media_type='image/jpeg',
+                            filename=snap.file_name)
+    except HTTPException:
+        raise
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=f'{repr(ex)} \n {calcBadLine()}') from ex
 
 
 #                                 '*** End Custom Code
