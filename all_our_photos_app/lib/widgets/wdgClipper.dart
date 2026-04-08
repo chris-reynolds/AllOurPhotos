@@ -106,8 +106,10 @@ class _ClipperState extends State<Clipper> {
     _math = null; // force a recalc
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _dPrint('exec postframecallback');
-      _calcInitialScale();
-      setState(() {});
+      if (_math == null) {
+        _calcInitialScale();
+        setState(() {});
+      }
     });
   }
 

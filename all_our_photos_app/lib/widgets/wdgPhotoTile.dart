@@ -49,11 +49,14 @@ class _PhotoTileState extends State<PhotoTile> {
           if (widget.inSelectMode) {
             widget.onBannerTap(snap);
             setState(() {});
+          } else if (snap.isVideo) {
+            await Navigator.push(context,
+                MaterialPageRoute(builder: (_) => SingleVideoWidget(snap.fullSizeURL)));
+            setState(() {});
           } else {
             await Navigator.pushNamed(context, 'SinglePhoto', arguments: [
               widget.snapList,
               widget.index,
-              //             _fred
             ]); // weakly types params. yuk.
             setState(() {});
           }

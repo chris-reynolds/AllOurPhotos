@@ -21,16 +21,26 @@ class _ImageRotatorState extends State<ImageRotator> {
   double _rotation = 0;
   int _twist = 0;
   int _startingDegrees = 0;
+  bool _resetting = true;
 
   @override
   void initState() {
-    _startingDegrees = widget.snap.degrees;
     super.initState();
+    _startingDegrees = widget.snap.degrees;
+    _resetThumbnail();
+  }
+
+  Future<void> _resetThumbnail() async {
+    try {
+      await AopSnap.resetThumbnail(widget.snap.id!);
+    } catch (_) {}
+    if (mounted) setState(() => _resetting = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    widget.snap.degrees = _startingDegrees + _twist - _rotation.toInt();
+    if (_resetting) return const Center(child: CircularProgressIndicator());
+    widget.snap.degrees = ((_startingDegrees + _twist - _rotation.toInt()) % 360 + 360) % 360;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -78,9 +88,10 @@ class _ImageRotatorState extends State<ImageRotator> {
               Icons.save,
               onPressed: () async {
                 widget.snap.degrees =
-                    _startingDegrees + (-_rotation.round() + _twist);
+                    ((_startingDegrees + _twist - _rotation.round()) % 360 + 360) % 360;
                 try {
                   await widget.snap.save();
+                  await AopSnap.rotateThumbnail(widget.snap.id!);
                 } catch (ex) {
                   showMessage(context, '$ex');
                 }
@@ -90,7 +101,7 @@ class _ImageRotatorState extends State<ImageRotator> {
           ],
         ),
         Expanded(
-          child: Image.network(widget.snap.thumbnailURL, fit: BoxFit.contain, headers: {'Preserve': WebFile.preserve}),
+          child: Image.network(widget.snap.rotatedThumbnailURL, fit: BoxFit.contain, headers: {'Preserve': WebFile.preserve}),
         ),
       ],
     );

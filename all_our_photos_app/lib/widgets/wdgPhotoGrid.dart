@@ -16,6 +16,7 @@ import '../utils/ExportPic.dart';
 import 'wdgPhotoTile.dart';
 import '../flutter_common/WidgetSupport.dart';
 import '../MonthlyStatus.dart';
+import '../screens/scSlideshow.dart';
 
 class PhotoGrid extends StatefulWidget {
   final SelectableListProvider<AopSnap> _initImageFilter;
@@ -200,6 +201,19 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                   handleMultiLocation(context, _imageFilter.selectionList);
                 }),
           ],
+          if (_imageFilter.items.isNotEmpty)
+            IconButton(
+                icon: const Icon(Icons.slideshow),
+                tooltip: 'Slideshow',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          SlideshowScreen(snaps: List.of(_imageFilter.items)),
+                    ),
+                  );
+                }),
           if (widget._album == null) // only for monthly grid
             IconButton(
                 icon: Icon(calcMonthlyStatusIcon()),

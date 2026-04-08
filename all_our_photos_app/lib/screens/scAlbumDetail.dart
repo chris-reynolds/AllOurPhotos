@@ -10,6 +10,7 @@ import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
 import '../widgets/wdgPhotoGrid.dart';
 import 'scSimpleDlg.dart';
+import 'scSlideshow.dart';
 import '../flutter_common/WidgetSupport.dart';
 import 'package:provider/provider.dart';
 import '../providers/albumProvider.dart';
@@ -60,6 +61,19 @@ class AlbumDetailState extends State<AlbumDetail>
         centerTitle: true,
         title: Text(argAlbum.name),
         actions: <Widget>[
+          if (_snapList != null && _snapList!.isNotEmpty)
+            IconButton(
+                icon: Icon(Icons.slideshow),
+                tooltip: 'Slideshow',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          SlideshowScreen(snaps: _snapList!),
+                    ),
+                  );
+                }),
           IconButton(
               icon: Icon(Icons.edit),
               tooltip: 'Rename album',
