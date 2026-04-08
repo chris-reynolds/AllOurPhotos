@@ -70,3 +70,6 @@ pyserver/pyserver/Scripts/pip3.exe
 /pyserver/pyserver/Scripts
 /pyserver/pyserver/Scripts
 pyserver/pyserver/Scripts/dotenv.exe
+aopfullexport/run.bat
+pyserver/fred.py
+aopsync/aopsync.apk

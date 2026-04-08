@@ -1,5 +1,5 @@
 import 'aopSyncMain.dart' as aop;
 
-main() {
+void main() {
   aop.main();
 }

@@ -825,17 +825,33 @@ class AopSnap extends DomainObject {
     if (!thumbName.toLowerCase().endsWith('.jpg')) {
       thumbName = path.setExtension(fileName!, '.jpg');
     }
+    // Thumbnail is pre-baked with rotation at save time; use ?v= to bust cache when degrees changes.
+    return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName?v=$degrees';
+  } // of thumbnailURL
+
+  // Live-rotated thumbnail for the rotation editor preview — always via /rotate/.
+  String get rotatedThumbnailURL {
+    String thumbName = fileName ?? 'noname';
+    if (!thumbName.toLowerCase().endsWith('.jpg')) {
+      thumbName = path.setExtension(fileName!, '.jpg');
+    }
     if (degrees == 0) {
       return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName';
-    } else {
-      return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$thumbName';
     }
-//    return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$thumbName';
-  } // of thumbnailURL
+    return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$thumbName';
+  } // of rotatedThumbnailURL
 
   String get metadataURL {
     return '${WebFile.rootUrl}photos/$directory/metadata/$fileName.json';
   } // of metadataURL
+
+  static Future<void> resetThumbnail(int id) async {
+    await snapProvider.rawRequest('reset_thumbnail/$id');
+  } // of resetThumbnail
+
+  static Future<void> rotateThumbnail(int id) async {
+    await snapProvider.rawRequest('rotate_thumbnail/$id');
+  } // of rotateThumbnail
 
   static Future<AopSnap> snapCropper(int id, int l, int t, int r, int b) async {
     String url = 'crop/$id/$l/$t/$r/$b';

@@ -9,6 +9,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:aopmodel/aop_classes.dart';
 import 'package:aopmodel/domain_object.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -54,12 +55,14 @@ class LaunchWithLogin extends StatelessWidget {
         }
       }
       if (config['sesuser'] == null) throw Exception('No User');
-      if (Uri.base.host.isNotEmpty) {
+      if (kIsWeb && Uri.base.host.isNotEmpty) {
         rootUrl = '${Uri.base}';
         rootUrl = rootUrl.replaceAll('8686',
             '8000'); // allow interactive debugging on port 8686 with affecting server
-      } else
-        rootUrl = 'http://${config['host']}:${config['port']}/';
+      } else {
+        String protocol = (config['port'] == '443') ? 'https' : 'http';
+        rootUrl = '$protocol://${config['host']}:${config['port']}/';
+      }
       WebFile.setRootUrl('${rootUrl}photos/');
       Map<String, dynamic> sessionRequest = await sessionProvider.rawRequest(
           'ses/${config['sesuser']}/${config['sespassword']}/${config['sesdevice']}');
@@ -67,7 +70,7 @@ class LaunchWithLogin extends StatelessWidget {
       if ((int.tryParse(config['sessionid']) ?? -1) <= 0)
         throw Exception('Invalid session Id');
       modelSessionid = config['sessionid'];
-      WebFile.setPreserve('{jam:"$modelSessionid"}');
+      WebFile.setPreserve('{"jam":"$modelSessionid"}');
       _streamController.add(AuthenticationState.authenticated());
 
       await config.save();

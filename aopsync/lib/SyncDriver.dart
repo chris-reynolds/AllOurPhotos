@@ -121,7 +121,6 @@ class SyncDriver {
 
   Future<bool> processFilePhotos() async {
     int errCount = 0, dupCount = 0, upLoadCount = 0;
-    String progressMessage = '';
     try {
       fateList.clear(); // clean history
       messageStream.add('File Processing in progress. Please wait...');
@@ -130,10 +129,9 @@ class SyncDriver {
         logAndDisplay(
             'processing ${latestFileList[i].file.path} len=${latestFileList[i].file.lengthSync()}');
         DateTime thisPicDate = latestFileList[i].date;
-        List<int> fileContents = thisPicFile.readAsBytesSync();
         String imageName = onlyFileName(thisPicFile.path);
-        FileFate fileFate = await uploadImage2(
-            imageName, thisPicDate, thisPicFile.path, fileContents);
+        FileFate fileFate =
+            await uploadImage2(imageName, thisPicDate, thisPicFile.path);
         switch (fileFate.fate) {
           case Fate.Uploaded:
             upLoadCount++;
@@ -144,10 +142,8 @@ class SyncDriver {
           case Fate.Duplicate:
             dupCount++;
             break;
-          // default: // should never happen
-          //   throw Exception('unknown fate for file ${thisPicFile.path}');
         } // of switch
-        progressMessage =
+        String progressMessage =
             'Uploaded $upLoadCount \nErrors $errCount \nDups $dupCount '
             '\nRemaining ${latestFileList.length - i - 1}';
         messageStream.add(progressMessage);
@@ -177,8 +173,8 @@ class SyncDriver {
   //       imageName, thisPicStats.modified, thisPicFile.path, fileContents);
   // }
 
-  Future<FileFate> uploadImage2(String imageName, DateTime modifiedDate,
-      String filename, List<int> fileContents) async {
+  Future<FileFate> uploadImage2(
+      String imageName, DateTime modifiedDate, String filename) async {
     try {
       bool alreadyExists =
           (await AopSnap.nameSameDayExists(modifiedDate, imageName))!;
@@ -186,6 +182,11 @@ class SyncDriver {
         log.debug('sameday exists $imageName  date=$modifiedDate');
         return FileFate(filename, Fate.Duplicate,
             reason: 'same day match for filename');
+      }
+      if (!File(filename).existsSync()) {
+        log.error('File not found (not cached locally?): $filename');
+        return FileFate(imageName, Fate.Error,
+            reason: 'File not found: $filename');
       }
       String thisDevice = config['sesdevice'];
       String fileDateStr =
@@ -200,7 +201,7 @@ class SyncDriver {
       bool isVideo = mediaType.type == 'video';
       String targetRoute = isVideo ? 'upload_video' : 'upload2';
       var postUrl =
-          "http://${config['host']}:${config['port']}/$targetRoute/$fileDateStr/$imageName/$thisDevice";
+          "$rootUrl$targetRoute/$fileDateStr/$imageName/$thisDevice";
       var request = http.MultipartRequest("POST", Uri.parse(postUrl));
       request.headers.addAll({
         'Accept': 'application/json',

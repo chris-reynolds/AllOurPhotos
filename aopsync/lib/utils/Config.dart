@@ -19,7 +19,7 @@ class Config {
 
   dynamic operator [](Object? key) => _map[key];
 
-  operator []=(Object key, dynamic value) {
+  void operator []=(Object key, dynamic value) {
     if (_map[key] == value) return;
     _map[key as String] = value;
     dirty = true;
