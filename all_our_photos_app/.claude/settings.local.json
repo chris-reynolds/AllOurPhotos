@@ -5,7 +5,8 @@
       "Bash(grep:*)",
       "Bash(flutter test:*)",
       "Bash(flutter analyze:*)",
-      "Bash(git -C /c/users/chris/projects/AllOurPhotos diff 2dd0a51~1..2dd0a51 -- pyserver/src/aopservermain.py)"
+      "Bash(git -C /c/users/chris/projects/AllOurPhotos diff 2dd0a51~1..2dd0a51 -- pyserver/src/aopservermain.py)",
+      "Bash(flutter --version)"
     ]
   }
 }

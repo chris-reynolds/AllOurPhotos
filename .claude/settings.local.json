@@ -13,7 +13,13 @@
       "Bash(npm run dev)",
       "Bash(dir:*)",
       "Bash(ls:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(ssh:*)",
+      "WebFetch(domain:www.seniorlinuxadmin.co.uk)",
+      "WebFetch(domain:dns-lexicon.github.io)",
+      "Bash(find C:UserschrisprojectsAllOurPhotosaopsynclib -type f -name *.dart)",
+      "Bash(grep -r \"workmanager\\\\|background\\\\|alarm\\\\|periodic\\\\|schedule\" /c/Users/chris/projects/AllOurPhotos --include=*.dart --include=*.yaml)",
+      "Bash(grep -r nameSameDayExists /c/Users/chris/projects/AllOurPhotos --include=*.dart)"
     ],
     "deny": [],
     "ask": []
