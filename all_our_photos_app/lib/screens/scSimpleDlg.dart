@@ -30,6 +30,10 @@ class DgSimpleState extends State<DgSimple> {
   String localErrorMessage = '';
 
   void handleSavePressed(String value) async {
+    if (value == EXIT_CODE) {
+      Navigator.pop(context, value);
+      return;
+    }
     if (widget.isValid != null)
       localErrorMessage = (await widget.isValid!(_nameController.text)) ?? '';
     if (localErrorMessage.isNotEmpty)
