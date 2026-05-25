@@ -31,7 +31,16 @@
       "PowerShell(gh api *)",
       "PowerShell(pip-audit *)",
       "PowerShell(pip install *)",
-      "PowerShell(head *)"
+      "PowerShell(head *)",
+      "PowerShell(& \"C:\\\\Users\\\\chris\\\\projects\\\\AllOurPhotos\\\\pyserver\\\\pyserver\\\\Scripts\\\\pip.exe\" install \"idna>=3.15\" \"urllib3>=2.7.0\" \"ujson>=5.12.1\" \"starlette>=1.0.1\" 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\chris\\\\projects\\\\AllOurPhotos\\\\pyserver\\\\pyserver\\\\Scripts\\\\pip-audit.exe\" -r pyserver/requirements.txt 2>&1)",
+      "PowerShell(& \"C:\\\\Users\\\\chris\\\\projects\\\\AllOurPhotos\\\\pyserver\\\\pyserver\\\\Scripts\\\\pip.exe\" freeze 2>&1)",
+      "PowerShell(dart pub *)",
+      "Bash(git commit *)",
+      "PowerShell($token = git config --get github.token 2>$null; if \\(-not $token\\) { $token = $env:GITHUB_TOKEN }; if \\($token\\) { \\(Invoke-RestMethod -Uri \"https://api.github.com/repos/chris-reynolds/AllOurPhotos/dependabot/alerts/19\" -Headers @{Authorization=\"token $token\"; Accept=\"application/vnd.github+json\"}\\) | Select-Object -ExpandProperty security_advisory | Select-Object summary, severity } else { \"No token found\" })",
+      "PowerShell(\\(Invoke-RestMethod \"https://pub.dev/api/packages/image/versions/4.9.0\"\\).pubspec.dependencies | ConvertTo-Json)",
+      "PowerShell(\\(Invoke-RestMethod \"https://pub.dev/api/packages/meta/versions/1.18.2\"\\).pubspec.environment | ConvertTo-Json)",
+      "PowerShell(dart *)"
     ],
     "deny": [],
     "ask": []
