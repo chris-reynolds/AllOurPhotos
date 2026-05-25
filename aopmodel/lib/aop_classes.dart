@@ -819,14 +819,17 @@ class AopSnap extends DomainObject {
     }
   } // of fullSizeURL
 
+  // Incremented after a manual server-side thumbnail reset so the URL changes and the browser fetches fresh.
+  int thumbResetVersion = 0;
+
   String get thumbnailURL {
     // thumbnail is always jpeg
     String thumbName = fileName ?? 'noname';
     if (!thumbName.toLowerCase().endsWith('.jpg')) {
       thumbName = path.setExtension(fileName!, '.jpg');
     }
-    // Thumbnail is pre-baked with rotation at save time; use ?v= to bust cache when degrees changes.
-    return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName?v=$degrees';
+    // ?v= busts the browser cache when rotation or a manual reset changes the thumbnail.
+    return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName?v=${degrees}_$thumbResetVersion';
   } // of thumbnailURL
 
   // Live-rotated thumbnail for the rotation editor preview — always via /rotate/.

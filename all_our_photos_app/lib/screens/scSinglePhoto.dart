@@ -149,6 +149,22 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
         MyIconButton(Icons.list, onPressed: () {
           showExif(context, currentSnap!);
         }),
+        PopupMenuButton<String>(
+          onSelected: (value) async {
+            if (value == 'reset_thumb') {
+              try {
+                await AopSnap.resetThumbnail(currentSnap!.id!);
+                currentSnap!.thumbResetVersion++;
+                setState(() {});
+              } catch (ex) {
+                showMessage(context, '$ex');
+              }
+            }
+          },
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'reset_thumb', child: Text('Reset Thumbnail')),
+          ],
+        ),
       ], // of actions
     );
   } // of buildAppbar

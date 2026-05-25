@@ -21,25 +21,15 @@ class _ImageRotatorState extends State<ImageRotator> {
   double _rotation = 0;
   int _twist = 0;
   int _startingDegrees = 0;
-  bool _resetting = true;
 
   @override
   void initState() {
     super.initState();
     _startingDegrees = widget.snap.degrees;
-    _resetThumbnail();
-  }
-
-  Future<void> _resetThumbnail() async {
-    try {
-      await AopSnap.resetThumbnail(widget.snap.id!);
-    } catch (_) {}
-    if (mounted) setState(() => _resetting = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_resetting) return const Center(child: CircularProgressIndicator());
     widget.snap.degrees = ((_startingDegrees + _twist - _rotation.toInt()) % 360 + 360) % 360;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

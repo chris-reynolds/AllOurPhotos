@@ -19,7 +19,19 @@
       "WebFetch(domain:dns-lexicon.github.io)",
       "Bash(find C:UserschrisprojectsAllOurPhotosaopsynclib -type f -name *.dart)",
       "Bash(grep -r \"workmanager\\\\|background\\\\|alarm\\\\|periodic\\\\|schedule\" /c/Users/chris/projects/AllOurPhotos --include=*.dart --include=*.yaml)",
-      "Bash(grep -r nameSameDayExists /c/Users/chris/projects/AllOurPhotos --include=*.dart)"
+      "Bash(grep -r nameSameDayExists /c/Users/chris/projects/AllOurPhotos --include=*.dart)",
+      "Bash(dart run *)",
+      "PowerShell(Start-Process \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\"; Write-Host \"Docker Desktop launching...\")",
+      "PowerShell(docker info *)",
+      "PowerShell(dart run *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh api *)",
+      "PowerShell(gh api *)",
+      "PowerShell(pip-audit *)",
+      "PowerShell(pip install *)",
+      "PowerShell(head *)"
     ],
     "deny": [],
     "ask": []
