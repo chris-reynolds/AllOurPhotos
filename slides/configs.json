@@ -1,0 +1,700 @@
+{
+    "images": {
+        "PICT0001": {
+            "rotate": 90,
+            "profile": "agfachrome",
+            "trim": 8,
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0002": {
+            "rotate": 0,
+            "profile": "slide_warm",
+            "trim": 8,
+            "sharpen": true,
+            "hdr": 1.0
+        },
+        "PICT0003": {
+            "rotate": 0,
+            "profile": "agfachrome",
+            "trim": 8,
+            "sharpen": true,
+            "hdr": 1.0
+        },
+        "PICT0004": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.1,
+            "_description": "Stone cottage with mansard roof, green lawn, parked car",
+            "_notes": "Warm/orange cast typical of aged positive film. Slight blue boost to counteract warmth while preserving natural stone tones. Outdoor daylight scene, no flash. Some minor color shifts visible in sky suggesting moderate emulsion aging but no severe dye loss pattern.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0005": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "_description": "Vintage beach scene with adults and children wading",
+            "_notes": "Warm/orange cast typical of aged Kodachrome or similar positive film stock. Slight blue boost to counteract warm dominance while preserving natural sky tones. Outdoor daylight, even exposure across scene. Minor emulsion spotting visible but not severe.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0006": {
+            "profile": "_original",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "_description": "Child playing with colorful blocks on carpeted floor indoors",
+            "_notes": "Warm orange-brown cast typical of aged positive film with indoor flash lighting. Heavy falloff between bright subject area and dark background indicates 2-stop shadow lift needed. Slight blue boost to counteract warm cast while maintaining natural skin tones. Some emulsion damage visible as blue spots in upper right area.",
+            "sharpen": true
+        },
+        "PICT0007": {
+            "profile": "slide_cool",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.9,
+            "_description": "Outdoor plaza with crowd, historic aqueduct bridge background",
+            "_notes": "Moderate blue/cool cast is dominant throughout the slide. The entire image has a distinctly cool/blue tone typical of colour slide aging or possible Ektachrome processing. Applied gentle red boost (1.15) and slight blue reduction (0.9) to warm and naturalize the overall cast while preserving detail. No shadow lift needed\u2014outdoor daylight exposure is even. No rotation required.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0008": {
+            "profile": "slide_cool",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.9,
+            "_description": "Outdoor public square gathering, historic architecture, blue cast",
+            "_notes": "Moderate blue/cool cast typical of aged positive film, particularly visible in sky and shadows. Slight red boost applied to counteract the cool dominance while maintaining the architectural detail. Outdoor daylight scene with even exposure across crowd and buildings. No significant flash falloff detected.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0009": {
+            "profile": "slide_warm",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 1.0,
+            "_description": "People in snow with winter clothing and trees",
+            "_notes": "Image is inverted (180\u00b0 rotation needed). Warm/pink cast typical of aged Kodachrome with indoor flash. Heavy shadow lift required due to strong flash falloff to background snow. Slight blue boost to counteract warm cast and restore snow detail. Blue emulsion speckling visible but uncorrectable.",
+            "sharpen": true
+        },
+        "PICT0010": {
+            "profile": "ektachrome_faded",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.3,
+            "g": 1.1,
+            "b": 0.9,
+            "_description": "Stone archway with silhouetted figures on distant bridge",
+            "_notes": "Severe blue-cyan cast dominates the image, characteristic of Ektachrome red-dye loss. The cool blue tones pervade shadows and midtones throughout. Red channel boost and slight green lift will restore neutral balance while reducing cyan dominance. Blue reduction prevents over-saturation of already cool cast. No HDR needed\u2014even lighting suggests outdoor/natural light with no flash falloff. Scattered bright blue spots visible in shadows indicate emulsion damage that cannot be corrected.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0011": {
+            "profile": "slide_cool",
+            "rotate": 270,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.95,
+            "hdr": 1.0,
+            "_description": "Person in red jacket with bicycle on street, tilted frame",
+            "_notes": "Moderate blue/cool cast typical of aged slide film; red channel boost to warm flesh tones and restore red jacket saturation; strong HDR needed for indoor flash falloff against building background; image rotated 270\u00b0 clockwise to make upright. Blue emulsion damage visible in sky area\u2014cannot be fully corrected.",
+            "sharpen": true
+        },
+        "PICT0012": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.1,
+            "hdr": 1.0,
+            "_description": "Two people in snow, winter outdoor scene",
+            "_notes": "Image is upside-down (rotated 180\u00b0). Warm orange/pink cast typical of aged slide film combined with indoor flash characteristics showing strong subject/background exposure difference. Applied slight blue boost to counter warm cast and reduce orange tint in midtones.",
+            "sharpen": true
+        },
+        "PICT0013": {
+            "profile": "ektachrome_faded",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.05,
+            "b": 0.9,
+            "_description": "Family group beneath bare tree, mountainous landscape background",
+            "_notes": "Severe blue-cyan cast dominates image, consistent with Ektachrome red-dye loss. Override boosts red and green slightly to restore warm midtones while reducing excess blue. Appears to be outdoor daylight; no flash falloff detected. Image already properly oriented.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0014": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Beachfront scene with people and large wooden steps",
+            "_notes": "Aged positive film with warm/orange cast typical of vintage Kodachrome. Blue emulsion damage spots visible on rocks (cannot be corrected). Slight blue boost applied to counteract warm cast while maintaining natural skin tones. Outdoor natural lighting requires no HDR correction."
+        },
+        "PICT0015": {
+            "profile": "slide_cool",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.95,
+            "_description": "Snow-covered tree branches in winter landscape",
+            "_notes": "Moderate blue-cool cast typical of aged colour slide film. Red channel boosted slightly to warm the cool tones while preserving the natural winter aesthetic. Blue reduced marginally to prevent excessive cyan. Image appears to be rotated 90 degrees clockwise from original orientation but presented as intended composition.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0016": {
+            "profile": "slide_cool",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.95,
+            "_description": "Aerial landscape view of sprawling city and farmland",
+            "_notes": "Moderate blue/cool cast dominates the image, consistent with slide_cool profile. Slight red boost (1.15) and minor blue reduction (0.95) to warm shadows and restore natural landscape colors. Emulsion damage visible as scattered dust spots and scratches on slide surface\u2014cannot be eliminated by color correction alone.",
+            "hdr": 1.0,
+            "sharpen": true
+        },
+        "PICT0017": {
+            "profile": "slide_cool",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "hdr": 1.0,
+            "_description": "Baby crawling on patterned blanket, indoor flash photography",
+            "_notes": "Warm/orange cast typical of aged positive film with indoor flash. Heavy shadow falloff in background requires 2-stop lift. Slight blue boost to counteract warm cast while preserving skin tones. Image is properly oriented.",
+            "sharpen": true
+        },
+        "PICT0018": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 1.0,
+            "_description": "Outdoor garden scene with two people, wooden structures",
+            "_notes": "Warm orange-pink cast typical of aged positive film stock. Slight blue boost to counter warm cast while preserving natural outdoor light. HDR 1.0 for mild shadow recovery in background fence area. Blue emulsion spots visible in sky\u2014inherent damage, not correctable.",
+            "sharpen": true
+        },
+        "PICT0019": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 1.0,
+            "_description": "Family of four sitting on patio, indoor flash photography",
+            "_notes": "Warm orange-pink cast typical of aged Kodachrome with indoor flash. Heavy shadow falloff in blue background indicates strong flash with significant falloff. Shadow lift 2 stops appropriate. Minor blue boost to counter warm cast while preserving skin tones. Red slightly reduced to avoid excessive warmth in faces.",
+            "sharpen": true
+        },
+        "PICT0020": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Indoor workspace with equipment and wiring, vintage photograph",
+            "_notes": "Warm cast typical of aged positive film with indoor flash lighting. Heavy shadow falloff visible in background requires 2-stop lift. Slight blue boost to counteract warm cast after shadow recovery. Image shows motion blur and some emulsion grain consistent with 35mm slide age.",
+            "sharpen": true
+        },
+        "PICT0021": {
+            "profile": "_original",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 1.0,
+            "_description": "Family with two children outdoors on grass, warm vintage cast",
+            "_notes": "Aged positive film with strong warm/orange cast typical of 35mm slides. Indoor flash profile chosen for shadow lift to recover detail in background grass area. Blue boost applied to counteract warm cast while maintaining natural skin tones. Heavy HDR falloff present between bright subjects and dark background. Some emulsion speckles visible but minimal impact on overall restoration.",
+            "sharpen": true
+        },
+        "PICT0022": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Child with reddish hair indoors with bright flash lighting",
+            "_notes": "Image is upside-down (rotate 180\u00b0). Warm cast from aged positive film combined with indoor flash. Heavy shadow falloff visible in background. Applying shadow lift 2-stops profile; slight red reduction and blue boost to counteract orange/warm cast while preserving skin tones. Emulsion shows some age-related colour shifting.",
+            "sharpen": true
+        },
+        "PICT0023": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 1.0,
+            "_description": "Toddler in yellow outfit playing indoors with toy",
+            "_notes": "Strong warm/orange cast typical of aged indoor slide film with flash. Heavy shadow falloff between bright subject and very dark background indicates direct flash. Blue boost counteracts warm cast; slight red reduction prevents oversaturation of yellow clothing. HDR 2.0 needed for significant background underexposure.",
+            "sharpen": true
+        },
+        "PICT0024": {
+            "profile": "agfachrome_indoor",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Man at desk with mug, indoor flash photography, dark background",
+            "_notes": "Warm cast typical of aged positive film with indoor flash. Heavy background falloff suggests 2-stop shadow lift. Blue boost applied to counteract warm orange/pink cast and restore neutral flesh tones. Some possible emulsion damage visible in dark areas.",
+            "sharpen": true
+        },
+        "PICT0025": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 270,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 1.0,
+            "_description": "Adult holding sleeping infant, indoor flash photography",
+            "_notes": "Image is rotated 90\u00b0 clockwise. Warm orange-pink cast typical of aged positive film with indoor flash. Heavy falloff between bright subject and dark background indicates flash exposure. Blue boost applied to counteract warm cast while preserving skin tones. Shadow lift 2 stops recovers detail in dark background.",
+            "sharpen": true
+        },
+        "PICT0026": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.1,
+            "_description": "Ancient ruins cityscape with tall chimney and water",
+            "_notes": "Moderate warm/orange cast typical of aged positive film. Slight blue boost to counteract warmth while preserving detail. Outdoor natural lighting, no flash. Image appears to be from mid-20th century Mediterranean archaeological site.",
+            "sharpen": true
+        },
+        "PICT0027": {
+            "profile": "slide_cool",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.9,
+            "hdr": 1.0,
+            "_description": "Person standing on rooftop with cityscape skyline view",
+            "_notes": "Moderate blue-cool cast typical of aged slide film. Slight red boost to warm midtones and minor blue reduction to counteract cool dominance. Mild HDR applied for flash falloff between bright subject and distant skyline.",
+            "sharpen": true
+        },
+        "PICT0028": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.1,
+            "hdr": 1.0,
+            "_description": "Two toddlers on patterned mat, indoor flash photography",
+            "_notes": "Warm orange-pink cast typical of aged indoor flash slide film. Heavy shadow falloff with bright subjects against dark background indicates strong flash falloff requiring 2-stop shadow lift. Slight blue boost applied to counteract warm cast while maintaining natural skin tones. Image is already upright.",
+            "sharpen": true
+        },
+        "PICT0029": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 1.0,
+            "_description": "Indoor scene with baby and adults, warm flash lighting",
+            "_notes": "Image is upside down (180\u00b0 rotation needed). Heavy warm cast typical of aged indoor flash slide. Shadow lift 2 stops needed for dark background. Blue boost to counter orange-pink cast from aged positive film and indoor flash. Severe falloff between bright subjects and dark background indicates strong 2.0 HDR correction required.",
+            "sharpen": true
+        },
+        "PICT0030": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "hdr": 2.0,
+            "_description": "Adult and child outdoors with blue patterned fabric, vintage slide",
+            "_notes": "Warm cast typical of aged positive film with indoor flash. Heavy shadow falloff between brightly lit subjects and dark background indicates strong flash falloff. Slight blue boost to counteract warm cast while maintaining natural skin tones. Blue/cyan spots visible in foliage suggest minor emulsion damage."
+        },
+        "PICT0031": {
+            "profile": "slide_cool",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.9,
+            "_description": "Tree-lined path with distant figures in misty light",
+            "_notes": "Moderate blue/cool cast dominates the image. Red boost applied to warm shadows and compensate cool cast; slight blue reduction to prevent overcorrection. Blue particle artifacts visible\u2014likely emulsion damage from age/storage, cannot be corrected."
+        },
+        "PICT0032": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "hdr": 2.0,
+            "_description": "Children playing in sand near large pipe, outdoor beach scene",
+            "_notes": "Warm/orange cast typical of aged positive film with indoor flash used in outdoor setting. Heavy shadow falloff in background suggests flash 2-stop lift needed. Slight blue boost to counter warm cast while preserving shadow detail in sand play area."
+        },
+        "PICT0033": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Two young children playing indoors with toys and sand.",
+            "_notes": "Warm cast typical of aged positive film with indoor flash lighting. Strong shadow falloff in background requires 2-stop lift. Blue override applied to counteract warm cast and lift cool tones in shadows. Minor emulsion damage visible as scattered blue-green spots."
+        },
+        "PICT0034": {
+            "profile": "ektachrome_faded",
+            "rotate": 0,
+            "trim": 8,
+            "r": 1.3,
+            "g": 1.05,
+            "b": 0.85,
+            "hdr": 2.0,
+            "_description": "Woman in hoodie standing outside brick house",
+            "_notes": "Severe blue-cyan cast dominates entire image, characteristic of Ektachrome red-dye loss. Override boosts red significantly to counteract blue dominance while moderately reducing blue channel. HDR 2.0 applied due to flash falloff\u2014subject is well-lit but background is very dark. Image appears structurally sound with no obvious emulsion damage."
+        },
+        "PICT0035": {
+            "profile": "slide_cool",
+            "rotate": 270,
+            "trim": 8,
+            "r": 1.15,
+            "g": 1.0,
+            "b": 0.9,
+            "hdr": 2.0,
+            "_description": "Underwater or cave passage with bright light source",
+            "_notes": "Image rotated 270\u00b0 clockwise. Dominant cool blue cast typical of aged slide film. Strong backlight creates extreme HDR condition with bright opening against dark tunnel/cave. Red channel boosted slightly to warm shadows. Blue reduced to counteract cool cast. Scattered bright spots visible\u2014likely emulsion damage, cannot be fully corrected."
+        },
+        "PICT0036": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "hdr": 2.0,
+            "_description": "Family portrait: two adults and child on brown sofa",
+            "_notes": "Warm/orange cast typical of aged Kodachrome indoor flash slide. Heavy vignetting and shadow falloff indicates flash photography with significant background darkness. Applied 2-stop shadow lift for indoor flash. Slight blue boost to counter warm cast while preserving skin tones. Red dye appears stable, not characteristic Ektachrome loss."
+        },
+        "PICT0037": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Man with mustache and young child, indoor flash photograph",
+            "_notes": "Warm/orange cast typical of aged positive film with indoor flash. Heavy shadow lift needed due to pronounced flash falloff in background. Slight red reduction and blue boost to counteract warm cast while preserving skin tones. Some minor emulsion spots visible but not correctable."
+        },
+        "PICT0038": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.05,
+            "b": 1.15,
+            "_description": "River winding through forested valley at sunset or dawn",
+            "_notes": "Warm orange-pink cast typical of aged positive film. Boosting blue and green to counteract warm dominance while slightly reducing red. Natural outdoor lighting, no flash present. Image is level and correctly oriented."
+        },
+        "PICT0039": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Three people indoors, warm vintage indoor flash photo",
+            "_notes": "Aged Kodachrome-type slide with strong warm/orange cast typical of 1960s-70s indoor flash photography. Heavy flash falloff visible in background shelving. Shadow lift 2 stops applied for indoor flash. Slight blue boost to counter excessive warmth while preserving skin tones. Red slightly reduced to avoid magenta cast in highlights."
+        },
+        "PICT0040": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.85,
+            "g": 0.9,
+            "b": 1.15,
+            "_description": "River valley landscape at sunset with forested hills",
+            "_notes": "Dominant warm/orange cast typical of aged positive film. Moderate blue boost needed to counteract excessive red-orange dominance while preserving natural sunset warmth. Slight red and green reduction to balance overall color temperature."
+        },
+        "PICT0041": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "hdr": 2.0,
+            "_description": "Woman holding newborn infant in hospital bed, vintage photo",
+            "_notes": "Warm/orange cast typical of aged positive film with indoor flash. Heavy shadow falloff in background (dark curtains/wall) versus bright subject in foreground suggests 2-stop shadow lift. Slight blue boost to cool the warm cast while maintaining natural skin tones. Image appears upright and properly oriented."
+        },
+        "PICT0042": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Winter landscape with people, snow, trees, distant hills",
+            "_notes": "Warm/orange cast typical of aged positive film with slight purple-blue tint in shadows. Applied mild blue boost to counteract warm cast while preserving natural snow tones. Outdoor daylight scene with even illumination. Image is level and requires no rotation."
+        },
+        "PICT0043": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.05,
+            "hdr": 2.0,
+            "_description": "Two adults bending toward toddler indoors, warm cast.",
+            "_notes": "Warm/pink cast typical of aged positive film with indoor flash. Strong shadow lift needed (2 stops) due to bright foreground subjects against dark background. Slight blue boost to counteract warm cast while maintaining natural skin tones. Red dye loss not severe enough for ektachrome profile."
+        },
+        "PICT0044": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Outdoor rural scene with people harvesting or working on hillside",
+            "_notes": "Moderate warm/orange cast typical of aged positive film stock. Blue boost applied to counteract warm cast while preserving natural earth tones. Outdoor daylight scene with even illumination requires no HDR correction."
+        },
+        "PICT0045": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.95,
+            "g": 1.0,
+            "b": 1.08,
+            "_description": "Winter estate house with snow-covered grounds and bare trees",
+            "_notes": "Typical aged positive film with warm/orange cast common to Kodachrome slides from this era. Slight blue boost applied to counteract the warm cast without overcorrecting. Outdoor scene with even daylight requires no HDR. Image is properly oriented."
+        },
+        "PICT0046": {
+            "profile": "slide_warm",
+            "rotate": 270,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Child in burgundy sweater standing outdoors on straw",
+            "_notes": "Warm/orange aged slide cast typical of Kodachrome. Strong flash falloff with bright subject against very dark background. Slight blue boost to counteract warm cast while preserving skin tone. Image rotated 270\u00b0 clockwise for correct orientation."
+        },
+        "PICT0047": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.85,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Neon signs interior overhead shot with performer",
+            "_notes": "Severe warm/orange cast typical of aged positive film with indoor flash. Heavy shadow lift needed due to extreme falloff between bright neon subjects and dark background. Slight blue boost to counteract warm cast, red reduction to tame excessive orange tones. Image requires 180\u00b0 rotation for correct orientation."
+        },
+        "PICT0048": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.85,
+            "g": 0.9,
+            "b": 1.15,
+            "_description": "Sunset landscape with dramatic orange-red clouds and sky",
+            "_notes": "Warm/orange cast typical of aged positive film. Slight blue boost to counteract the dominant warm cast while preserving natural sunset colors. No rotation needed. Image appears correctly oriented."
+        },
+        "PICT0049": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.85,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Snowy forest landscape with red rock formation",
+            "_notes": "Warm/orange cast typical of aged positive film. Slide_warm base profile appropriate. Applied blue boost to counteract warm cast and reduce orange dominance. Red channel slightly reduced to prevent oversaturation. Image appears to be outdoor scene with even lighting, no flash falloff detected."
+        },
+        "PICT0050": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Woman with red hair upside down, indoor setting with food.",
+            "_notes": "Strong warm/orange cast typical of aged indoor flash slide. Image is inverted (rotate 180). Heavy flash falloff with bright subject against dark background (hdr 2.0). Shadow lift 2 stops needed for background detail. Slight blue boost to counteract warm cast while preserving skin tones."
+        },
+        "PICT0051": {
+            "profile": "slide_warm",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.85,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Child with reddish hair lying on weathered wooden surface",
+            "_notes": "Image is inverted 180\u00b0. Warm/pink cast typical of aged positive film; slight blue boost to counteract excess warmth and restore neutrality. Strong HDR needed for flash falloff\u2014bright subject against very dark background common in vintage flash photography."
+        },
+        "PICT0052": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Vintage indoor portrait with classical bust sculpture",
+            "_notes": "Strong warm/orange cast typical of aged positive film with indoor flash. Heavy shadow falloff between foreground subject and textured background wall. Blue boost applied to counteract orange dominance while maintaining natural skin tones. 2-stop shadow lift addresses significant flash falloff."
+        },
+        "PICT0053": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.85,
+            "g": 0.9,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Indoor room with loft bed and warm orange-red cast",
+            "_notes": "Strong warm/orange cast typical of aged positive film in indoor flash setting. Dark background with bright subject indicates heavy flash falloff requiring 2-stop shadow lift. Red channel reduced slightly to counteract excessive warmth; blue boosted to restore neutral balance in shadows."
+        },
+        "PICT0054": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.05,
+            "b": 1.15,
+            "_description": "Sunset over water with dramatic orange-red sky and clouds",
+            "_notes": "Strong warm/orange cast typical of aged positive film. Gentle blue boost to cool excessive red dominance while preserving sunset warmth. Slight green lift to recover cloud detail in midtones. No rotation needed."
+        },
+        "PICT0055": {
+            "profile": "slide_warm",
+            "rotate": 0,
+            "trim": 8,
+            "r": 0.85,
+            "g": 1.0,
+            "b": 1.15,
+            "_description": "Two-tone abstract composition red upper pink lower horizontal division",
+            "_notes": "Strong warm/red cast typical of aged positive film. Slight blue boost to counteract excessive red dominance. Pink lower section suggests either faded magenta dye or color separation artifact from scanning. No rotation needed; composition appears intentional."
+        },
+        "PICT0056": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 180,
+            "trim": 8,
+            "r": 0.9,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Woman upside-down indoors with warm cast and flash falloff",
+            "_notes": "Strong warm/orange cast typical of aged positive film with indoor flash. Image is inverted 180\u00b0. Heavy flash falloff evident (bright subject, dark background). Applied shadow lift 2-stop profile as baseline. Fine-tuned with slight red reduction and blue boost to counteract warm cast while preserving skin tones."
+        },
+        "PICT0057": {
+            "profile": "slide_warm_indoor2",
+            "rotate": 270,
+            "trim": 8,
+            "r": 0.85,
+            "g": 1.0,
+            "b": 1.15,
+            "hdr": 2.0,
+            "_description": "Child in pink dress against textured orange-red wall",
+            "_notes": "Strong warm/orange cast typical of aged indoor flash slide. Heavy flash falloff with dark background. Moderate blue boost needed to counteract red-dye dominance. Rotate 270\u00b0 to make subject upright. Shadow lift 2-stops appropriate for flash exposure recovery."
+        }
+    },
+    "profiles": {
+        "agfachrome": {
+            "description": "Stable dyes \u00e2\u20ac\u201d levels stretch only",
+            "lift": false,
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+        },
+        "slide_warm": {
+            "description": "Warm/orange/pink cast \u00e2\u20ac\u201d typical aged positive film",
+            "lift": false,
+            "r": 0.8,
+            "g": 1.0,
+            "b": 1.25
+        },
+        "slide_cool": {
+            "description": "Moderate blue/cool cast",
+            "lift": false,
+            "r": 1.4,
+            "g": 1.1,
+            "b": 0.65
+        },
+        "ektachrome_faded": {
+            "description": "Severe blue-cyan cast \u00e2\u20ac\u201d Ektachrome red-dye loss",
+            "lift": true,
+            "r": 3.0,
+            "g": 1.2,
+            "b": 0.45
+        },
+        "dixons_washed": {
+            "description": "Heavily washed-out faded slide with warm cast",
+            "lift": true,
+            "r": 0.85,
+            "g": 1.0,
+            "b": 1.2
+        },
+        "slide_warm_indoor": {
+            "description": "Warm cast + indoor flash: shadow lift 1 stop",
+            "lift": false,
+            "r": 0.8,
+            "g": 1.0,
+            "b": 1.25,
+            "hdr": 1.0
+        },
+        "slide_warm_indoor2": {
+            "description": "Warm cast + indoor flash: shadow lift 2 stops",
+            "lift": false,
+            "r": 0.8,
+            "g": 1.0,
+            "b": 1.25,
+            "hdr": 2.0
+        },
+        "agfachrome_indoor": {
+            "description": "Neutral/cool slide + indoor flash: shadow lift 1 stop",
+            "lift": false,
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0,
+            "hdr": 1.0
+        }
+    },
+    "defaults": {
+        "trim": 8,
+        "rotate": 0,
+        "raw_bright": 1.0,
+        "model": "haiku"
+    },
+    "sharpen": {
+        "radius": 1.5,
+        "percent": 150,
+        "threshold": 3
+    }
+}
