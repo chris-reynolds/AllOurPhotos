@@ -31,6 +31,8 @@ class YearGrid extends StatefulWidget {
 class YearGridState extends State<YearGrid> {
   late Future<List<YearEntry>> yearList = buildYears();
   late Future<int> monthlyStatusIndic = MonthlyStatus.init();
+  late final Future<List<Object>> _loadFuture =
+      Future.wait([monthlyStatusIndic, yearList]);
   int _currentYear = 0;
   int _currentMonth = 0;
   void setCurrent(int year, int month) {
@@ -142,7 +144,7 @@ class YearGridState extends State<YearGrid> {
       )
     ];
     return aFutureBuilder(
-        future: Future.wait([monthlyStatusIndic, yearList]),
+        future: _loadFuture,
         builder: (context, snapshot) {
           var myYearList = (snapshot.data!)[1] as List<YearEntry>;
           return ListView(

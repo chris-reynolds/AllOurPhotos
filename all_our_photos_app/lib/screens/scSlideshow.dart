@@ -6,6 +6,15 @@ import 'package:aopmodel/aop_classes.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../utils/Config.dart';
 
+enum SlideshowZoomMode {
+  showWhole, // always letterbox, never crop
+  alwaysZoom, // always fill the screen, cropping as needed
+  zoomIfMismatched; // only crop when aspect ratio differs a lot from the screen's
+
+  static SlideshowZoomMode fromName(String? name) => SlideshowZoomMode.values
+      .firstWhere((e) => e.name == name, orElse: () => showWhole);
+}
+
 class SlideshowScreen extends StatefulWidget {
   const SlideshowScreen(
       {super.key, required this.snaps, this.startIndex = 0});
@@ -27,7 +36,12 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
   Timer? _hideControlsTimer;
   VideoPlayerController? _videoController;
   int _intervalSeconds = 5;
+  bool _loopEnabled = false;
+  SlideshowZoomMode _zoomMode = SlideshowZoomMode.showWhole;
   Future<void>? _nextImageReady;
+
+  // Aspect-ratio mismatch (image vs screen) beyond which zoomIfMismatched crops.
+  static const double _mismatchThreshold = 1.35;
 
   // ─── lifecycle ─────────────────────────────────────────────────────────────
 
@@ -39,6 +53,8 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     _pageController = PageController(initialPage: _currentIndex);
     _intervalSeconds =
         int.tryParse(config['slideshow_interval'] ?? '5') ?? 5;
+    _loopEnabled = config['slideshow_loop'] == true;
+    _zoomMode = SlideshowZoomMode.fromName(config['slideshow_zoom_mode']);
     _initVideoIfNeeded();
     _startAdvanceTimer();
     _scheduleHideControls();
@@ -119,6 +135,9 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
       _pageController.nextPage(
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeInOut);
+    } else if (_loopEnabled && widget.snaps.length > 1) {
+      if (!mounted) return;
+      _pageController.jumpToPage(0);
     } else {
       if (mounted) setState(() => _isPlaying = false);
     }
@@ -179,23 +198,62 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     _scheduleHideControls();
   }
 
-  Future<void> _showIntervalDialog() async {
+  Future<void> _showSettingsDialog() async {
     double tempInterval = _intervalSeconds.toDouble();
+    bool tempLoop = _loopEnabled;
+    SlideshowZoomMode tempZoomMode = _zoomMode;
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDlg) => AlertDialog(
-          title: const Text('Slide interval'),
+          title: const Text('Slideshow settings'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${tempInterval.round()} seconds'),
+              Text('${tempInterval.round()} seconds per slide'),
               Slider(
                 value: tempInterval,
                 min: 2,
                 max: 30,
                 divisions: 28,
                 onChanged: (v) => setDlg(() => tempInterval = v),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Loop continuously'),
+                value: tempLoop,
+                onChanged: (v) => setDlg(() => tempLoop = v),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 8, bottom: 4),
+                child: Text('Zoom'),
+              ),
+              RadioGroup<SlideshowZoomMode>(
+                groupValue: tempZoomMode,
+                onChanged: (v) => setDlg(() => tempZoomMode = v!),
+                child: const Column(
+                  children: [
+                    RadioListTile<SlideshowZoomMode>(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      title: Text('Show whole picture'),
+                      value: SlideshowZoomMode.showWhole,
+                    ),
+                    RadioListTile<SlideshowZoomMode>(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      title: Text('Zoom to fill screen'),
+                      value: SlideshowZoomMode.alwaysZoom,
+                    ),
+                    RadioListTile<SlideshowZoomMode>(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      title: Text('Zoom only if aspect ratio differs a lot'),
+                      value: SlideshowZoomMode.zoomIfMismatched,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -205,8 +263,14 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
                 child: const Text('Cancel')),
             TextButton(
               onPressed: () {
-                setState(() => _intervalSeconds = tempInterval.round());
+                setState(() {
+                  _intervalSeconds = tempInterval.round();
+                  _loopEnabled = tempLoop;
+                  _zoomMode = tempZoomMode;
+                });
                 config['slideshow_interval'] = '$_intervalSeconds';
+                config['slideshow_loop'] = _loopEnabled;
+                config['slideshow_zoom_mode'] = _zoomMode.name;
                 config.save();
                 Navigator.pop(ctx);
               },
@@ -229,7 +293,7 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
           onTapUp: (details) => _handleTap(details, constraints),
           child: Stack(
             children: [
-              _buildPageView(),
+              _buildPageView(constraints),
               AnimatedOpacity(
                 opacity: _captionVisible ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
@@ -253,7 +317,7 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
     );
   }
 
-  Widget _buildPageView() {
+  Widget _buildPageView(BoxConstraints constraints) {
     return PageView.builder(
       controller: _pageController,
       onPageChanged: _onPageChanged,
@@ -266,10 +330,38 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
         // Show thumbnail for off-screen video pages; full image for photos
         final url = snap.isVideo ? snap.thumbnailURL : snap.fullSizeURL;
         return Image.network(url,
-            fit: BoxFit.contain,
+            fit: _fitFor(snap, constraints),
             headers: {'Preserve': WebFile.preserve});
       },
     );
+  }
+
+  // Effective (post-rotation) width/height aspect ratio of the snap, or null
+  // if dimensions aren't known.
+  double? _aspectRatio(AopSnap snap) {
+    final w = snap.width;
+    final h = snap.height;
+    if (w == null || h == null || w <= 0 || h <= 0) return null;
+    final rotatedSideways = snap.degrees % 180 != 0;
+    return rotatedSideways ? h / w : w / h;
+  }
+
+  BoxFit _fitFor(AopSnap snap, BoxConstraints constraints) {
+    switch (_zoomMode) {
+      case SlideshowZoomMode.showWhole:
+        return BoxFit.contain;
+      case SlideshowZoomMode.alwaysZoom:
+        return BoxFit.cover;
+      case SlideshowZoomMode.zoomIfMismatched:
+        final imageAspect = _aspectRatio(snap);
+        if (imageAspect == null || constraints.maxHeight <= 0) {
+          return BoxFit.contain;
+        }
+        final screenAspect = constraints.maxWidth / constraints.maxHeight;
+        final mismatch = imageAspect / screenAspect;
+        final worstCase = mismatch >= 1 ? mismatch : 1 / mismatch;
+        return worstCase > _mismatchThreshold ? BoxFit.cover : BoxFit.contain;
+    }
   }
 
   Widget _buildVideoPage() {
@@ -337,7 +429,7 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.settings, color: Colors.white),
-                  onPressed: _showIntervalDialog,
+                  onPressed: _showSettingsDialog,
                 ),
               ],
             ),
