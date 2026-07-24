@@ -55,8 +55,14 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
         int.tryParse(config['slideshow_interval'] ?? '5') ?? 5;
     _loopEnabled = config['slideshow_loop'] == true;
     _zoomMode = SlideshowZoomMode.fromName(config['slideshow_zoom_mode']);
+    _captionVisible = config['slideshow_show_caption'] != false;
     _initVideoIfNeeded();
-    _startAdvanceTimer();
+    // Deferred: precacheImage() inside _startAdvanceTimer() resolves
+    // MediaQuery/Directionality via context, which isn't available yet
+    // synchronously inside initState().
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _startAdvanceTimer();
+    });
     _scheduleHideControls();
   }
 
@@ -201,6 +207,7 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
   Future<void> _showSettingsDialog() async {
     double tempInterval = _intervalSeconds.toDouble();
     bool tempLoop = _loopEnabled;
+    bool tempShowCaption = _captionVisible;
     SlideshowZoomMode tempZoomMode = _zoomMode;
     await showDialog(
       context: context,
@@ -224,6 +231,12 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
                 title: const Text('Loop continuously'),
                 value: tempLoop,
                 onChanged: (v) => setDlg(() => tempLoop = v),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Show caption'),
+                value: tempShowCaption,
+                onChanged: (v) => setDlg(() => tempShowCaption = v),
               ),
               const Padding(
                 padding: EdgeInsets.only(top: 8, bottom: 4),
@@ -267,10 +280,12 @@ class _SlideshowScreenState extends State<SlideshowScreen> {
                   _intervalSeconds = tempInterval.round();
                   _loopEnabled = tempLoop;
                   _zoomMode = tempZoomMode;
+                  _captionVisible = tempShowCaption;
                 });
                 config['slideshow_interval'] = '$_intervalSeconds';
                 config['slideshow_loop'] = _loopEnabled;
                 config['slideshow_zoom_mode'] = _zoomMode.name;
+                config['slideshow_show_caption'] = _captionVisible;
                 config.save();
                 Navigator.pop(ctx);
               },
