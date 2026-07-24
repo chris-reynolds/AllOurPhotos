@@ -6,17 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 AllOurPhotos is a photo management application for organizing, captioning, and syncing family photos. It supports uploading photos from multiple devices, syncing with Google Photos, editing metadata, creating albums, and scanning/captioning old photos.
 
-## Architecture
-
-### Flutter/Dart Application (`all_our_photos_app/`)
-- **Platform**: Cross-platform desktop/mobile app
-- **Backend**: FastAPI Python server (`pyserver/`)
-- **Database**: MySQL
-
-### Python FastAPI Backend (`pyserver/`)
-- **Framework**: FastAPI + Pillow + piexif + ffmpeg-python
-- **Config**: `pyserver/config.json` (DB credentials, photo paths, named SQL queries)
-
 ## Database Schema
 
 MySQL database with 5 core tables:
@@ -28,43 +17,10 @@ MySQL database with 5 core tables:
 
 Schema DDL files are in `ddl/` directory.
 
-## Development Commands
-
-### Python FastAPI Backend
-```bash
-cd pyserver
-pip install -r requirements.txt
-# Run with uvicorn (see pyserver/src/aopservermain.py)
-```
-
-### Flutter App Development
-```bash
-cd all_our_photos_app
-flutter pub get
-flutter run
-```
-
 ## Backend API Architecture
 
 ### Authentication
 - `GET /ses/{user}/{password}/{source}` - Creates session, returns session ID in "jam" cookie
-
-### CRUD Resources
-Standard CRUD operations on `/albums`, `/snaps`, `/sessions`, `/users`, `/album_items`:
-- `POST /` - Create with JSON body
-- `GET /:id` - Get by ID
-- `GET /` - List with query params: `where`, `orderby`, `limit`, `offset`
-- `PUT /` - Update with JSON body
-- `DELETE /:id` - Delete by ID
-
-### Custom Endpoints
-- `GET /version` - Server version info
-- `GET /find/:key` - Execute named queries from config.json
-- `GET /crop/:id/:left/:top/:right/:bottom` - Crop image
-- `GET /rotate/:angle/:path` - Rotate image
-- `POST /upload2/:modified/:filename/:sourceDevice` - Upload photo/video
-- `GET /photos/:path` - Serve photo files
-- `PUT /photos/:path` - Update photo files
 
 ### Authentication Pattern
 APIs use cookie/header-based auth with "Preserve" cookie containing JSON:
@@ -118,35 +74,6 @@ Command-line tool for album operations
 - Flutter app requests rotated images via `/rotate/{degrees}/{path}` endpoint
 - Backend rotates and crops images dynamically on request
 
-## Common Development Tasks
-
-### Adding a New API Endpoint
-1. Add route handler in `pyserver/src/aopservermain.py`
-2. Add corresponding method in the Flutter app's service/model layer
-
-### Database Changes
-1. Update schema in `ddl/Aop10_tables.sql`
-2. Update Pydantic models in `pyserver/src/aopmodel.py`
-3. Update Dart models in `aopmodel/` package
-
 ## Git Workflow
 
 - **Main branch**: `master`
-
-## Environment Setup
-
-### Prerequisites
-- Python 3.11+ (for FastAPI backend)
-- MySQL database
-- Flutter SDK (for mobile/desktop app)
-
-### Database Setup
-1. Create MySQL database
-2. Run DDL scripts from `ddl/` directory in order: `Aop10_tables.sql`, `Aop20_session_procs.sql`
-3. Configure database credentials in `pyserver/config.json`
-
-### Backend Setup
-Configure `pyserver/config.json` with database credentials and photo storage path.
-
-### Frontend Setup
-Build Flutter app and configure API URL to point to the Python backend.
