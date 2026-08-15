@@ -38,6 +38,14 @@ class _ClipperState extends State<Clipper> {
   Offset? _tapPosition;
   Size? _targetSize;
 
+  /// Inverse of the accumulated transform as it stood when the current gesture
+  /// began.  Gestures are composed in child (image) space, so every screen
+  /// focal point has to be pushed back through this before use — otherwise the
+  /// zoom pivots about the wrong place, increasingly so the more you zoom and
+  /// pan.  Snapshotted at gesture start so it stays fixed while the gesture is
+  /// in flight.
+  Matrix4 _gestureBaseInverse = Matrix4.identity();
+
   void _calcInitialScale() {
     if (_imageSize == null) return;
     _clipperRb = context.findRenderObject() as RenderBox;
@@ -77,8 +85,40 @@ class _ClipperState extends State<Clipper> {
   void _fingerAdd(Fingered f) {
     _fingerGestureList.add(f);
     setImageRect(_calcImageRect());
-    _checkLastTransform();
+    setState(() {});
   } // of fingerAdd
+
+  /// Converts a point in the gesture detector's local (screen) coordinates
+  /// into the child coordinate space that gestures are composed in.
+  Offset _toChild(Offset localPoint) =>
+      MatrixUtils.transformPoint(_gestureBaseInverse, localPoint);
+
+  void _snapshotGestureBase() {
+    _gestureBaseInverse =
+        Matrix4.inverted(_fingerGestureList.totalTransform());
+  }
+
+  /// The scale recogniser can report a different pointer count than the one the
+  /// gesture was started with — a finger lands a frame late, or lifts early.
+  /// Swap the in-flight gesture for the right kind instead of throwing.
+  void _switchToTwoFingered(Offset localFocalPoint) {
+    if (_fingerGestureList.current is OneFingered) {
+      // Drop the incidental pan from before the second finger landed; the
+      // total transform is then back to what _gestureBaseInverse describes.
+      _fingerGestureList.removeLast();
+    } else {
+      _snapshotGestureBase();
+    }
+    _fingerAdd(TwoFingered(1, _toChild(localFocalPoint)));
+  }
+
+  void _switchToOneFingered(Offset localFocalPoint) {
+    // A finger lifted mid-pinch: keep the zoom achieved so far and start
+    // panning from the transform as it now stands.
+    _snapshotGestureBase();
+    final start = _toChild(localFocalPoint);
+    _fingerAdd(OneFingered(start, endPoint: start));
+  }
 
   void setImageRect(Rect r) {
     final imRect =
@@ -103,6 +143,7 @@ class _ClipperState extends State<Clipper> {
     _dPrint('didChangeDependencies');
     super.didChangeDependencies();
     _fingerGestureList.reset();
+    _gestureBaseInverse = Matrix4.identity();
     _math = null; // force a recalc
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _dPrint('exec postframecallback');
@@ -118,6 +159,7 @@ class _ClipperState extends State<Clipper> {
     _dPrint('didupdatewidget');
     super.didUpdateWidget(oldWidget);
     _fingerGestureList.reset();
+    _gestureBaseInverse = Matrix4.identity();
     _math = null;
     if (oldWidget.imageUrl != widget.imageUrl) {
       _imageSize =
@@ -130,7 +172,6 @@ class _ClipperState extends State<Clipper> {
   Widget build(BuildContext context) {
     // _dPrint('build()');
     if (_math == null) return const Center(child: CircularProgressIndicator());
-    var currentScale = _fingerGestureList.totalScale();
     return LayoutBuilder(builder: (context, boxConstraints) {
       return Container(
         padding: EdgeInsets.all(2),
@@ -142,25 +183,35 @@ class _ClipperState extends State<Clipper> {
         child: ClipRect(
           child: GestureDetector(
             onScaleStart: (ScaleStartDetails details) {
-              if (details.pointerCount == 1) {
+              _snapshotGestureBase();
+              final focus = _toChild(details.localFocalPoint);
+              if (details.pointerCount < 2) {
                 _dPrint('onPanningStart: $details');
-                //_dPrint('panning ${details.focalPoint} ');
-                _fingerAdd(OneFingered(details.focalPoint / currentScale));
+                _fingerAdd(OneFingered(focus, endPoint: focus));
               } else {
                 _dPrint('onScaleStart: $details');
-                _fingerAdd(TwoFingered(1, details.focalPoint));
+                _fingerAdd(TwoFingered(1, focus));
               }
             },
             onScaleUpdate: (ScaleUpdateDetails details) {
-              if (details.pointerCount == 2) {
+              if (details.pointerCount >= 2) {
                 // _dPrint('onScaleUpdate: $details');
+                if (_fingerGestureList.current is! TwoFingered) {
+                  _switchToTwoFingered(details.localFocalPoint);
+                }
+                // _toChild only after any switch — that re-snapshots the base.
                 _fingerGestureList.updateScale(details.scale);
-                setState(() {});
-              } // of pinchzoom
-              if (details.pointerCount == 1) {
-                // _dPrint('onPanningUpdate: $details');
                 _fingerGestureList
-                    .updateEndPoint(details.focalPoint / currentScale);
+                    .updateFocus(_toChild(details.localFocalPoint));
+                setState(() {});
+              } else {
+                // _dPrint('onPanningUpdate: $details');
+                if (_fingerGestureList.current is! OneFingered) {
+                  _switchToOneFingered(details.localFocalPoint);
+                } else {
+                  _fingerGestureList
+                      .updateEndPoint(_toChild(details.localFocalPoint));
+                }
                 // _dPrint('repaint in pan');
                 setState(() {});
               }
@@ -179,11 +230,13 @@ class _ClipperState extends State<Clipper> {
             onDoubleTap: () {
               var mypoint = _tapPosition!;
               _dPrint('doubletap lp=$mypoint');
-              _fingerAdd(TwoFingered(3, mypoint));
-              setState(() {});
+              _snapshotGestureBase();
+              _fingerAdd(TwoFingered(3, _toChild(mypoint)));
+              _checkLastTransform();
             },
             onLongPress: () {
               _fingerGestureList.reset();
+    _gestureBaseInverse = Matrix4.identity();
               setState(() {});
             },
             child: Transform(

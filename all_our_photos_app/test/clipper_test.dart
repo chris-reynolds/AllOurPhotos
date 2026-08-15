@@ -51,11 +51,15 @@ void main() {
       expect(f.matrix.entry(0, 0), closeTo(1.0, eps));
     });
 
-    test('constructor with startPoint only gives T(-startPoint)', () {
-      // OneFingered(p) with default endPoint=zero → dx = 0-p.dx = -p.dx
+    // Regression: the old default endPoint=Offset.zero made a freshly started
+    // pan translate by -startPoint, so merely touching the screen jumped the
+    // image up-left by the touch position for one frame.
+    test('constructor with startPoint only is the identity', () {
       final f = OneFingered(const Offset(40, 60));
       expectOffset(transformPoint(f.matrix, const Offset(100, 100)),
-          const Offset(60, 40));
+          const Offset(100, 100));
+      expect(f.dx, closeTo(0, eps));
+      expect(f.dy, closeTo(0, eps));
     });
   });
 
@@ -112,6 +116,36 @@ void main() {
           transformPoint(f.matrix, Offset.zero),
           const Offset(-400, -300));
     });
+
+    test('updateScale ignores a zero or negative scale', () {
+      // The recogniser reports scale ~0 when the pinch span collapses (a
+      // finger lifting); letting that through makes totalScale() throw.
+      final f = TwoFingered(2, const Offset(400, 300));
+      f.updateScale(0);
+      expect(f.scale, closeTo(2.0, eps));
+      f.updateScale(-1);
+      expect(f.scale, closeTo(2.0, eps));
+    });
+
+    test('updateFocus drags the zoom centre with the fingers', () {
+      const focus = Offset(400, 300);
+      final f = TwoFingered(2, focus);
+      // Fingers drift 50 right, 20 down while still pinching.
+      f.updateFocus(focus + const Offset(50, 20));
+      // The point that was under the fingers follows them.
+      expectOffset(transformPoint(f.matrix, focus), focus + const Offset(50, 20));
+      // Scale is untouched.
+      expect(f.matrix.entry(0, 0), closeTo(2.0, eps));
+    });
+
+    test('updateFocus with no drift is a plain scale-about-point', () {
+      const focus = Offset(400, 300);
+      final f = TwoFingered(2, focus);
+      f.updateFocus(focus);
+      expectOffset(transformPoint(f.matrix, focus), focus);
+      expectOffset(
+          transformPoint(f.matrix, Offset.zero), const Offset(-400, -300));
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -167,6 +201,104 @@ void main() {
       expectOffset(
           transformPoint(g.totalTransform(), const Offset(50, 0)),
           const Offset(200, 0));
+    });
+
+    // -----------------------------------------------------------------
+    // Regression: focal point must be converted to child space.
+    //
+    // totalTransform composes as M1.M2....Mn, so a newly appended gesture is
+    // applied FIRST — it works in untransformed child coordinates.  The widget
+    // therefore has to push the screen-space focal point back through the
+    // inverse of the accumulated transform before building the gesture.
+    // Passing the raw screen point (what wdgClipper used to do) made the zoom
+    // pivot about the wrong place, and progressively worse the more the user
+    // zoomed and panned.
+    // -----------------------------------------------------------------
+
+    /// Mirrors _ClipperState._toChild.
+    Offset toChild(FingerGestureList g, Offset screenPoint) =>
+        MatrixUtils.transformPoint(
+            Matrix4.inverted(g.totalTransform()), screenPoint);
+
+    /// Applies a prior zoom + pan, as if the user had already worked the image.
+    FingerGestureList priorWork() {
+      final g = FingerGestureList();
+      g.add(TwoFingered(3, const Offset(400, 300)));
+      final start = toChild(g, const Offset(400, 300));
+      g.add(OneFingered(start, endPoint: toChild(g, const Offset(250, 420))));
+      return g;
+    }
+
+    // The invariant under test: the bit of the IMAGE that was under the
+    // finger when the pinch started must still be under the finger after it.
+    // totalTransform maps child -> screen, so we track that child point.
+
+    test('zoom about a screen point holds that point fixed — fresh image', () {
+      final g = FingerGestureList();
+      const finger = Offset(220, 480);
+      final underFinger = toChild(g, finger);
+      g.add(TwoFingered(2.5, underFinger));
+      expectOffset(transformPoint(g.totalTransform(), underFinger), finger);
+    });
+
+    test('zoom about a screen point holds that point fixed — after zoom+pan',
+        () {
+      final g = priorWork();
+      const finger = Offset(220, 480);
+      final underFinger = toChild(g, finger);
+      g.add(TwoFingered(2.5, underFinger));
+      expectOffset(transformPoint(g.totalTransform(), underFinger), finger,
+          tolerance: 0.5);
+    });
+
+    test('raw screen focal point does NOT hold the point fixed (the old bug)',
+        () {
+      final g = priorWork();
+      const finger = Offset(220, 480);
+      final underFinger = toChild(g, finger);
+      g.add(TwoFingered(2.5, finger)); // the buggy call — raw screen point
+      final landed = transformPoint(g.totalTransform(), underFinger);
+      expect((landed - finger).distance, greaterThan(50),
+          reason: 'passing the raw screen focal point should visibly drift; '
+              'if this ever fails the composition order has changed');
+    });
+
+    test('repeated zooms each stay centred on the finger', () {
+      final g = FingerGestureList();
+      const fingers = [Offset(300, 200), Offset(150, 450), Offset(500, 120)];
+      for (final finger in fingers) {
+        final underFinger = toChild(g, finger);
+        g.add(TwoFingered(1.8, underFinger));
+        expectOffset(transformPoint(g.totalTransform(), underFinger), finger,
+            tolerance: 0.5);
+      }
+    });
+
+    test('pan moves the image by the screen delta even when zoomed', () {
+      final g = priorWork();
+      const from = Offset(400, 300);
+      const to = Offset(460, 250); // finger drags 60 right, 50 up
+      final before = transformPoint(g.totalTransform(), Offset.zero);
+      g.add(OneFingered(toChild(g, from), endPoint: toChild(g, to)));
+      final after = transformPoint(g.totalTransform(), Offset.zero);
+      expectOffset(after - before, to - from, tolerance: 0.5);
+    });
+
+    test('mid-pinch focal drift keeps the image under the fingers', () {
+      final g = priorWork();
+      const start = Offset(300, 400);
+      const drifted = Offset(340, 370);
+      // The base inverse is snapshotted BEFORE the gesture joins the list —
+      // using the live transform mid-gesture would feed back on itself.
+      final base = Matrix4.inverted(g.totalTransform());
+      final underFinger = MatrixUtils.transformPoint(base, start);
+      final gesture = TwoFingered(1, underFinger);
+      g.add(gesture);
+      // The user pinches to 2x while their fingers slide to `drifted`.
+      gesture.updateScale(2);
+      gesture.updateFocus(MatrixUtils.transformPoint(base, drifted));
+      expectOffset(transformPoint(g.totalTransform(), underFinger), drifted,
+          tolerance: 0.5);
     });
 
     test('reset clears all gestures', () {

@@ -28,8 +28,13 @@ class Fingered {
 class OneFingered extends Fingered {
   Offset startPoint;
   Offset endPoint = Offset.zero;
+
+  /// A pan from [startPoint] to [endPoint].  When [endPoint] is omitted the
+  /// gesture starts as the identity (no movement yet) — it must NOT default to
+  /// the origin, or simply touching the screen would jump the image by the
+  /// touch position before the finger has moved at all.
   OneFingered(this.startPoint, {Offset? endPoint}) {
-    this.endPoint = (endPoint != null) ? endPoint : Offset.zero;
+    this.endPoint = endPoint ?? startPoint;
   }
   double get dx => endPoint.dx - startPoint.dx;
   double get dy => endPoint.dy - startPoint.dy;
@@ -53,26 +58,43 @@ class OneFingered extends Fingered {
 
 class TwoFingered extends Fingered {
   double scale;
+
+  /// The point the zoom pivots about, expressed in the coordinate space this
+  /// gesture operates in (see [FingerGestureList.totalTransform]).
   final Offset focus;
+
+  /// How far the pinch centre has drifted from [focus] since the gesture
+  /// started, so the image follows the fingers while they are still down.
+  Offset pan = Offset.zero;
+
   TwoFingered(this.scale, this.focus);
 
   @override
   String toString() =>
-      '--Scale $scale about ${focus.dx},  ${focus.dy} \n $matrix \n';
+      '--Scale $scale about ${focus.dx},  ${focus.dy} pan $pan \n $matrix \n';
 
   @override
   void calcMatrix() {
-    Matrix4 m3 = OneFingered(focus).matrix;
-    Matrix4 m2 = Matrix4.diagonal3Values(scale, scale, scale);
-    Matrix4 m1 = OneFingered(-focus).matrix;
-    Matrix4 result = m1.multiplied(m2);
-    result = result.multiplied(m3);
-    _matrix = result;
+    // Scale about [focus], then translate by the focal drift [pan]:
+    //   T(focus + pan) . S(scale) . T(-focus)
+    // These post-multiply, so this reads left to right.
+    _matrix = Matrix4.identity()
+      ..translateByDouble(focus.dx + pan.dx, focus.dy + pan.dy, 0, 1)
+      ..scaleByDouble(scale, scale, scale, 1)
+      ..translateByDouble(-focus.dx, -focus.dy, 0, 1);
   }
 
   void updateScale(double scale) {
     // used to change zoom without new gesture
+    if (!scale.isFinite || scale <= 0) return; // e.g. span collapses to zero
     this.scale = scale;
+    calcMatrix();
+  }
+
+  /// Moves the pinch centre to [current] (same coordinate space as [focus])
+  /// without disturbing the zoom factor.
+  void updateFocus(Offset current) {
+    pan = current - focus;
     calcMatrix();
   }
 } // of TwoFingered
@@ -126,8 +148,15 @@ class FingerGestureList {
     return result;
   } // of totalScale
 
+  /// The combined transform, composed as `M1 . M2 . ... . Mn`.
+  ///
+  /// Each gesture is appended on the RIGHT, so the newest one is applied
+  /// FIRST — it operates in the untransformed child (image) space, not in
+  /// screen space.  Callers must therefore convert a screen-space focal point
+  /// into child space (via the inverse of the transform as it stood when the
+  /// gesture began) before handing it to [OneFingered] or [TwoFingered].
   Matrix4 totalTransform() {
-    var result = TwoFingered(1, Offset.zero).matrix;
+    var result = Matrix4.identity();
     for (var item in _list) {
       result = result.multiplied(item.matrix);
     }
@@ -143,9 +172,15 @@ class FingerGestureList {
     }
   } // of updateEndPoint
 
+  void updateFocus(Offset p) {
+    if (current is TwoFingered) {
+      (current as TwoFingered).updateFocus(p);
+    } else {
+      throw Exception('Current gesture is not two fingered');
+    }
+  } // of updateFocus
+
   void updateScale(double scale) {
-    // if (current == null) {
-    //   add(TwoFingered(scale, Offset(0, 0)));
     if (current is TwoFingered) {
       (current as TwoFingered).updateScale(scale);
       //  showStatus();
