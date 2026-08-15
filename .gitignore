@@ -74,3 +74,10 @@ aopfullexport/run.bat
 pyserver/fred.py
 aopsync/aopsync.apk
 /pyserver/pyserver/Scripts
+
+# secrets and virtualenvs - match at any depth
+.env
+.env.*
+!.env.example
+.venv/
+venv/
