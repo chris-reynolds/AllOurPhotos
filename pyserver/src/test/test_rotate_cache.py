@@ -13,9 +13,12 @@ import pytest
 from src.aopservermain import (
     rotate_cache_path,
     prune_rotate_cache,
+    prune_export_files,
     ROOT_DIR,
     ROTATE_CACHE_DIR,
     ROTATE_CACHE_KEEP,
+    EXPORT_DIR,
+    EXPORT_KEEP,
 )
 
 
@@ -133,3 +136,45 @@ class TestPruneRotateCache:
             _make(cache_dir, f'rot_{i:03d}.jpg', age_seconds=i * 60)
         prune_rotate_cache()
         assert len(os.listdir(cache_dir)) == ROTATE_CACHE_KEEP
+
+
+# ---------------------------------------------------------------------------
+# prune_export_files — /export_snap leaked the same way /rotate did
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def export_dir(tmp_path, monkeypatch):
+    d = tmp_path / 'exports'
+    d.mkdir()
+    monkeypatch.setattr('src.aopservermain.EXPORT_DIR', str(d))
+    return str(d)
+
+
+class TestPruneExportFiles:
+
+    def test_export_dir_is_not_on_the_photos_volume(self):
+        # Exports are one-shot and worthless once served, so they must not
+        # land in the photos tree and end up in the photo backups.
+        assert not os.path.isabs(EXPORT_DIR)
+        assert 'photos' not in EXPORT_DIR
+
+    def test_keeps_the_newest_and_drops_the_rest(self, export_dir):
+        for i in range(30):
+            _make(export_dir, f'export_{i:03d}.jpg', age_seconds=i * 60)
+        prune_export_files(keep=5)
+        left = sorted(os.listdir(export_dir))
+        assert left == [f'export_{i:03d}.jpg' for i in range(5)]
+
+    def test_leaves_rotate_and_video_files_alone(self, export_dir):
+        for i in range(5):
+            _make(export_dir, f'export_{i:03d}.jpg', age_seconds=i * 60)
+        _make(export_dir, 'rot_abc.jpg', age_seconds=99999)
+        _make(export_dir, 'holiday.MOV', age_seconds=99999)
+        prune_export_files(keep=1)
+        left = set(os.listdir(export_dir))
+        assert 'rot_abc.jpg' in left
+        assert 'holiday.MOV' in left
+
+    def test_keeps_enough_headroom_for_concurrent_downloads(self):
+        # A file must not be pruned while it is still being streamed.
+        assert EXPORT_KEEP >= 10

@@ -135,6 +135,12 @@ def forceDir(pathname: str):
 ROTATE_CACHE_DIR = os.path.join(ROOT_DIR, 'rotate_temp')
 ROTATE_CACHE_KEEP = 100  # how many rotated images to keep on disk
 
+# One-shot download staging.  Ephemeral by design, so it stays in the
+# container's own filesystem; keep enough that a slow download cannot have
+# its file pruned out from under it.
+EXPORT_DIR = 'temp'
+EXPORT_KEEP = 20
+
 # A given /rotate URL always yields the same picture - re-rotating a photo
 # changes the angle, and so the URL.  'private' because these are personal
 # photos: the user's own browser may cache them, shared proxies may not.
@@ -151,12 +157,17 @@ def rotate_cache_path(aPath: str, angle: int) -> str:
     key = hashlib.sha1(f'{aPath}|{angle}'.encode('utf-8')).hexdigest()[:20]
     return os.path.join(ROTATE_CACHE_DIR, f'rot_{key}.jpg')
 
-def prune_rotate_cache(keep: int = ROTATE_CACHE_KEEP):
-    """Keeps only the [keep] most recently modified rotated images."""
+def prune_generated_files(dirpath: str, prefix: str, keep: int):
+    """Keeps only the [keep] most recently modified prefix_*.jpg in dirpath.
+
+    The prefix guard matters: these directories hold other people's files,
+    and pruning must never reach beyond the ones we generated.  Files still
+    being written carry a .part suffix and so are skipped too.
+    """
     try:
-        entries = [os.path.join(ROTATE_CACHE_DIR, n)
-                   for n in os.listdir(ROTATE_CACHE_DIR)
-                   if n.startswith('rot_') and n.endswith('.jpg')]
+        entries = [os.path.join(dirpath, n)
+                   for n in os.listdir(dirpath)
+                   if n.startswith(prefix) and n.endswith('.jpg')]
         if len(entries) <= keep:
             return
         entries.sort(key=os.path.getmtime, reverse=True)
@@ -164,9 +175,23 @@ def prune_rotate_cache(keep: int = ROTATE_CACHE_KEEP):
             try:
                 os.remove(stale)
             except OSError:
-                pass   # another request may have removed it already
+                pass   # still being served, or already gone
     except OSError as ex:
-        print(f'could not prune {ROTATE_CACHE_DIR}: {ex!r}')
+        print(f'could not prune {dirpath}: {ex!r}')
+
+def prune_rotate_cache(keep: int = ROTATE_CACHE_KEEP):
+    """Keeps only the [keep] most recently used rotated images."""
+    prune_generated_files(ROTATE_CACHE_DIR, 'rot_', keep)
+
+def prune_export_files(keep: int = EXPORT_KEEP):
+    """Keeps only the [keep] most recent export downloads.
+
+    Unlike the rotate cache these are never reused - each is built for one
+    download - so they are pure litter once served.  They stay in the
+    container's own temp/ rather than the photos volume: there is nothing
+    worth persisting, and it keeps them out of the photo backups.
+    """
+    prune_generated_files(EXPORT_DIR, 'export_', keep)
 
 @app.get('/crop/{id:int}/{left:int}/{top:int}/{right:int}/{bottom:int}')
 async def cropPic(request: Request,id:int, left: int,top: int, right: int, bottom: int) -> Snap:
@@ -766,12 +791,14 @@ def export_snap(request: Request, id: int):
         except Exception as exif_ex:
             print(f"export_snap {id}: EXIF write skipped ({repr(exif_ex)})")
         rnd = random.randint(0, 999999)
-        forceDir('temp')
-        tmp_path = f'temp/export_{rnd}.jpg'
+        forceDir(EXPORT_DIR)
+        tmp_path = os.path.join(EXPORT_DIR, f'export_{rnd}.jpg')
         if exif_bytes:
             img.save(tmp_path, exif=exif_bytes, quality=100)
         else:
             img.save(tmp_path, quality=100)
+        # These were never cleaned up, and had accumulated thousands of files.
+        prune_export_files()
         return FileResponse(tmp_path, media_type='image/jpeg',
                             filename=snap.file_name)
     except HTTPException:
