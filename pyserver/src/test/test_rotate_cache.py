@@ -13,6 +13,7 @@ import pytest
 from src.aopservermain import (
     rotate_cache_path,
     prune_rotate_cache,
+    ROOT_DIR,
     ROTATE_CACHE_DIR,
     ROTATE_CACHE_KEEP,
 )
@@ -38,6 +39,14 @@ class TestRotateCachePath:
         a = rotate_cache_path('2019/03/P1010101.JPG', 90)
         b = rotate_cache_path('2019/03/P1010102.JPG', 90)
         assert a != b
+
+    def test_cache_dir_is_under_the_photos_volume(self):
+        # It must sit on the mounted photos volume, not in the container's
+        # own filesystem, so it survives a redeploy and can be inspected
+        # from the host.
+        assert os.path.basename(ROTATE_CACHE_DIR) == 'rotate_temp'
+        assert os.path.dirname(ROTATE_CACHE_DIR.replace('\\', '/')).startswith(
+            ROOT_DIR.replace('\\', '/').rstrip('/'))
 
     def test_name_is_in_the_cache_dir_and_marked(self):
         p = rotate_cache_path('2019/03/P1010101.JPG', 90)
@@ -91,8 +100,9 @@ class TestPruneRotateCache:
         prune_rotate_cache(keep=20)
         assert len(os.listdir(cache_dir)) == 3
 
-    def test_leaves_other_temp_files_alone(self, cache_dir):
-        # temp/ also holds export_*.jpg and video files, which must survive.
+    def test_leaves_other_files_alone(self, cache_dir):
+        # The cache has its own directory now, but the rot_ guard stays as
+        # defence in depth - pruning must never reach beyond its own files.
         for i in range(5):
             _make(cache_dir, f'rot_{i:03d}.jpg', age_seconds=i * 60)
         _make(cache_dir, 'export_1234.jpg', age_seconds=99999)

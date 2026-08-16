@@ -129,8 +129,11 @@ def forceDir(pathname: str):
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
 
-ROTATE_CACHE_DIR = 'temp'
-ROTATE_CACHE_KEEP = 20   # how many rotated images to keep on disk
+# Lives under the photos directory rather than the container's own temp/,
+# because that path is a mounted volume: the cache then survives a redeploy
+# and can be inspected from the host without going into the container.
+ROTATE_CACHE_DIR = os.path.join(ROOT_DIR, 'rotate_temp')
+ROTATE_CACHE_KEEP = 100  # how many rotated images to keep on disk
 
 # A given /rotate URL always yields the same picture - re-rotating a photo
 # changes the angle, and so the URL.  'private' because these are personal
