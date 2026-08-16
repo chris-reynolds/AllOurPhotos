@@ -41,6 +41,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   bool isRotatorVisible = false;
   bool _isClippingInProgress = false;
   Rect? _currentCroppingRect;
+  int _precachedFor = -1;
 
   set isClippingInProgress(bool value) {
     //setState(() {
@@ -169,6 +170,23 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     );
   } // of buildAppbar
 
+  /// Fetches the photos either side of this one into the image cache, so
+  /// swiping to them is instant rather than a several-second download.
+  /// Done once per photo; a failed prefetch is ignored.
+  void _precacheNeighbours() {
+    if (!mounted || snapList == null) return;
+    if (_precachedFor == _snapIndex) return;
+    _precachedFor = _snapIndex;
+    for (final i in [_snapIndex - 1, _snapIndex + 1]) {
+      if (i < 0 || i >= snapList!.length) continue;
+      precacheImage(
+        NetworkImage(snapList![i].fullSizeURL,
+            headers: {'Preserve': WebFile.preserve}),
+        context,
+      ).catchError((Object _) {});
+    }
+  } // of precacheNeighbours
+
   @override
   Widget build(BuildContext context) {
     if (snapList == null)
@@ -176,6 +194,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     currentSnap = snapList![_snapIndex];
     var thisURL = currentSnap!.fullSizeURL;
     log.message('single photo $thisURL');
+    WidgetsBinding.instance.addPostFrameCallback((_) => _precacheNeighbours());
     return Scaffold(
         appBar: buildAppBar(context) as PreferredSizeWidget?,
         body: Column(
@@ -189,6 +208,9 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   imageHeight: currentSnap!.height ?? 0,
                   rectCallback: currentRect,
                   canCropCallBack: canCropCallback,
+                  // Paint the (usually cached) thumbnail while the full-size
+                  // image downloads, instead of a blank several-second wait.
+                  placeholderUrl: currentSnap!.thumbnailURL,
                   // Swipe down/right for previous, up/left for next — only
                   // when nothing is zoomed, so crop panning still works.
                   navigateCallBack: (delta) {
