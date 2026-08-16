@@ -10,6 +10,7 @@ import piexif
 import io
 import math
 import random
+import hashlib
 from datetime import datetime
 from src.aopmodel import *
 from src.geo import dmsToDeg,getLocation,trimLocation
@@ -127,6 +128,42 @@ async def find(request: Request, key:str):
 def forceDir(pathname: str):
     if not os.path.isdir(pathname):
         os.mkdir(pathname)
+
+ROTATE_CACHE_DIR = 'temp'
+ROTATE_CACHE_KEEP = 20   # how many rotated images to keep on disk
+
+# A given /rotate URL always yields the same picture - re-rotating a photo
+# changes the angle, and so the URL.  'private' because these are personal
+# photos: the user's own browser may cache them, shared proxies may not.
+ROTATE_CACHE_HEADERS = {'Cache-Control': 'private, max-age=86400'}
+
+def rotate_cache_path(aPath: str, angle: int) -> str:
+    """Deterministic filename for a rotated image.
+
+    The name must depend only on the source path and angle, so the same
+    request reuses the same file.  The old code used a random name, which
+    meant the rotate was redone on every request and the ETag changed each
+    time, so the browser could never cache it either.
+    """
+    key = hashlib.sha1(f'{aPath}|{angle}'.encode('utf-8')).hexdigest()[:20]
+    return os.path.join(ROTATE_CACHE_DIR, f'rot_{key}.jpg')
+
+def prune_rotate_cache(keep: int = ROTATE_CACHE_KEEP):
+    """Keeps only the [keep] most recently modified rotated images."""
+    try:
+        entries = [os.path.join(ROTATE_CACHE_DIR, n)
+                   for n in os.listdir(ROTATE_CACHE_DIR)
+                   if n.startswith('rot_') and n.endswith('.jpg')]
+        if len(entries) <= keep:
+            return
+        entries.sort(key=os.path.getmtime, reverse=True)
+        for stale in entries[keep:]:
+            try:
+                os.remove(stale)
+            except OSError:
+                pass   # another request may have removed it already
+    except OSError as ex:
+        print(f'could not prune {ROTATE_CACHE_DIR}: {ex!r}')
 
 @app.get('/crop/{id:int}/{left:int}/{top:int}/{right:int}/{bottom:int}')
 async def cropPic(request: Request,id:int, left: int,top: int, right: int, bottom: int) -> Snap:
@@ -273,10 +310,19 @@ async def rotatePic(request: Request,angle: int, aPath: str):
             raise HTTPException(status_code=404,detail=f'{aPath} not found')
         q = f'path is <{aPath}> and angle is {angle}'
         print(q)
-        while angle<0: 
+        while angle<0:
             angle +=360
         while angle>360:
             angle -=360
+        # Serve a previously rotated copy when it is still newer than the
+        # source, so repeat views cost nothing.  A stable filename also keeps
+        # the ETag stable, which lets the browser cache it as well.
+        forceDir(ROTATE_CACHE_DIR)
+        cacheFilename = rotate_cache_path(aPath, angle)
+        if (os.path.isfile(cacheFilename)
+                and os.path.getmtime(cacheFilename) >= os.path.getmtime(targetFilename)):
+            os.utime(cacheFilename, None)   # mark as recently used for pruning
+            return FileResponse(cacheFilename, headers=ROTATE_CACHE_HEADERS)
         subangle = (angle % 90)
         if subangle > 45:
             subangle = 90-subangle
@@ -295,13 +341,16 @@ async def rotatePic(request: Request,angle: int, aPath: str):
         cropRect = (side_border, top_border, img.width - side_border, img.height - top_border)
         print(cropRect)
         img = img2.crop(cropRect)
-        forceDir('temp')
-        rnd = random.randint(0,999)
+        # Write to a private name and rename into place, so a second request
+        # for the same rotation can never be served a half-written file.
+        partName = f'{cacheFilename}.{os.getpid()}.{random.randint(0,999999)}.part'
         if exif_found:
-            img.save(f'temp/fred{rnd}.jpg',exif=img_exif_bytes,quality=100)
+            img.save(partName,exif=img_exif_bytes,quality=100)
         else:
-            img.save(f'temp/fred{rnd}.jpg',quality=100,)
-        return FileResponse(f'temp/fred{rnd}.jpg')
+            img.save(partName,quality=100,)
+        os.replace(partName, cacheFilename)
+        prune_rotate_cache()
+        return FileResponse(cacheFilename, headers=ROTATE_CACHE_HEADERS)
     #except HTTPException: raise
     except Exception as ex:
         exmess: str = repr(ex)
