@@ -20,6 +20,10 @@ class Clipper extends StatefulWidget {
   /// supplied; without it a one-finger drag always pans, as it always has.
   final ValueSetter<int>? navigateCallBack;
 
+  /// A low-resolution stand-in (normally the thumbnail) painted behind the
+  /// full-size photo while that loads, so changing photo is not a blank wait.
+  final String? placeholderUrl;
+
   const Clipper({
     super.key,
     required this.imageUrl,
@@ -29,6 +33,7 @@ class Clipper extends StatefulWidget {
     required this.canCropCallBack,
     this.show,
     this.navigateCallBack,
+    this.placeholderUrl,
   });
 
   @override
@@ -63,8 +68,8 @@ class _ClipperState extends State<Clipper> {
   /// stray drag, in logical pixels.
   static const double _swipeThreshold = 50;
 
-  bool get _isFullImageShowing =>
-      !_math!.isCropable(_math!.calcImageRect(_fingerGestureList.totalTransform()));
+  bool get _isFullImageShowing => !_math!
+      .isCropable(_math!.calcImageRect(_fingerGestureList.totalTransform()));
 
   /// Back to the untouched full-image view, with no gesture in flight.
   void _resetGestures() {
@@ -79,11 +84,15 @@ class _ClipperState extends State<Clipper> {
     _clipperRb = context.findRenderObject() as RenderBox;
     _targetSize = _clipperRb!.size;
     _math ??= ClipperMath(imageSize: _imageSize!, targetSize: _targetSize!);
+    // Tell the parent where we now stand.  Without this the reset done by
+    // didUpdateWidget/didChangeDependencies is invisible to it, so after
+    // swiping to another photo it would still hold the PREVIOUS photo's rect
+    // and a stale canCrop=true — and crop the wrong region.
+    setImageRect(_calcImageRect());
     context.read<MapProvider?>()?.addAll({
       'target size': '$_targetSize',
       'initial scale': _math!.initialScale.toStringAsFixed(3),
-      'init offset':
-          '${_math!.xOffset.toInt()},${_math!.yOffset.toInt()}',
+      'init offset': '${_math!.xOffset.toInt()},${_math!.yOffset.toInt()}',
     });
   }
 
@@ -122,8 +131,7 @@ class _ClipperState extends State<Clipper> {
       MatrixUtils.transformPoint(_gestureBaseInverse, localPoint);
 
   void _snapshotGestureBase() {
-    _gestureBaseInverse =
-        Matrix4.inverted(_fingerGestureList.totalTransform());
+    _gestureBaseInverse = Matrix4.inverted(_fingerGestureList.totalTransform());
   }
 
   /// Resolves a finished swipe. See [ClipperMath.swipeNavigation].
@@ -169,8 +177,7 @@ class _ClipperState extends State<Clipper> {
   }
 
   void setImageRect(Rect r) {
-    final imRect =
-        Rect.fromLTRB(0, 0, _imageSize!.width, _imageSize!.height);
+    final imRect = Rect.fromLTRB(0, 0, _imageSize!.width, _imageSize!.height);
     widget.rectCallback(imRect.intersect(r));
     widget.canCropCallBack(_math!.isCropable(r));
   }
@@ -183,7 +190,8 @@ class _ClipperState extends State<Clipper> {
   void initState() {
     super.initState();
     _fingerGestureList.logger = _dPrint; // for debugging
-    _imageSize = Size(widget.imageWidth.toDouble(), widget.imageHeight.toDouble());
+    _imageSize =
+        Size(widget.imageWidth.toDouble(), widget.imageHeight.toDouble());
   }
 
   @override
@@ -228,6 +236,11 @@ class _ClipperState extends State<Clipper> {
         )),
         child: ClipRect(
           child: GestureDetector(
+            // The child is a RawImage, which does not absorb hits, so with the
+            // default deferToChild only whatever happens to paint under the
+            // finger would catch a gesture — and nothing at all while the image
+            // is still loading.  Claim the whole box instead.
+            behavior: HitTestBehavior.opaque,
             onScaleStart: (ScaleStartDetails details) {
               _snapshotGestureBase();
               final focus = _toChild(details.localFocalPoint);
@@ -305,23 +318,52 @@ class _ClipperState extends State<Clipper> {
             },
             child: Transform(
               transform: _fingerGestureList.totalTransform(),
-              child: Image.network(
-                widget.imageUrl,
+              child: SizedBox(
                 width: boxConstraints.maxWidth,
                 height: boxConstraints.maxHeight,
-                fit: BoxFit.contain,
-                headers: {'Preserve': WebFile.preserve},
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // A full-size photo can take seconds to arrive.  The
+                    // thumbnail is small and usually already cached from the
+                    // grid, so painting it underneath gives something to look
+                    // at immediately; the full image lands on top when ready.
+                    if (widget.placeholderUrl != null)
+                      Image.network(
+                        widget.placeholderUrl!,
+                        fit: BoxFit.contain,
+                        headers: {'Preserve': WebFile.preserve},
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    Image.network(
+                      widget.imageUrl,
+                      fit: BoxFit.contain,
+                      headers: {'Preserve': WebFile.preserve},
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        // Keep the child in the tree so the thumbnail below
+                        // stays visible, and lay the spinner over the top
+                        // rather than replacing everything with it.
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            child,
+                            Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
             ),
           ),
