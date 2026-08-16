@@ -473,6 +473,56 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
+  // ClipperMath — swipeNavigation
+  // ---------------------------------------------------------------------------
+
+  group('ClipperMath — swipeNavigation', () {
+    // -1 = previous photo, +1 = next, 0 = stay put.
+    test('swipe down goes to the previous photo', () {
+      expect(ClipperMath.swipeNavigation(const Offset(0, 120)), -1);
+    });
+
+    test('swipe right goes to the previous photo', () {
+      expect(ClipperMath.swipeNavigation(const Offset(120, 0)), -1);
+    });
+
+    test('swipe up goes to the next photo', () {
+      expect(ClipperMath.swipeNavigation(const Offset(0, -120)), 1);
+    });
+
+    test('swipe left goes to the next photo', () {
+      expect(ClipperMath.swipeNavigation(const Offset(-120, 0)), 1);
+    });
+
+    test('travel below the threshold navigates nowhere', () {
+      expect(ClipperMath.swipeNavigation(const Offset(0, 30)), 0);
+      expect(ClipperMath.swipeNavigation(const Offset(-30, 0)), 0);
+      expect(ClipperMath.swipeNavigation(Offset.zero), 0);
+    });
+
+    test('the dominant axis decides a diagonal swipe', () {
+      // Mostly down, drifting left → down wins → previous.
+      expect(ClipperMath.swipeNavigation(const Offset(-40, 120)), -1);
+      // Mostly left, drifting down → left wins → next.
+      expect(ClipperMath.swipeNavigation(const Offset(-120, 40)), 1);
+    });
+
+    test('a diagonal counts even when neither axis alone would', () {
+      // 40px down and 45px right: the dominant axis is 45, still under 50.
+      expect(ClipperMath.swipeNavigation(const Offset(45, 40)), 0);
+      // Raising the dominant axis past the threshold navigates.
+      expect(ClipperMath.swipeNavigation(const Offset(60, 40)), -1);
+    });
+
+    test('threshold is configurable', () {
+      expect(ClipperMath.swipeNavigation(const Offset(0, 30), threshold: 20),
+          -1);
+      expect(ClipperMath.swipeNavigation(const Offset(0, 30), threshold: 100),
+          0);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // ClipperMath — isCropable
   // ---------------------------------------------------------------------------
 

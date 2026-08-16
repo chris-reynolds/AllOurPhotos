@@ -15,6 +15,11 @@ class Clipper extends StatefulWidget {
   final ValueSetter<Rect> rectCallback;
   final ValueSetter<Map<String, String>>? show;
 
+  /// Called with -1 for previous or +1 for next when the user swipes while the
+  /// whole photo is showing.  Swipe navigation is only enabled when this is
+  /// supplied; without it a one-finger drag always pans, as it always has.
+  final ValueSetter<int>? navigateCallBack;
+
   const Clipper({
     super.key,
     required this.imageUrl,
@@ -23,6 +28,7 @@ class Clipper extends StatefulWidget {
     required this.rectCallback,
     required this.canCropCallBack,
     this.show,
+    this.navigateCallBack,
   });
 
   @override
@@ -45,6 +51,28 @@ class _ClipperState extends State<Clipper> {
   /// pan.  Snapshotted at gesture start so it stays fixed while the gesture is
   /// in flight.
   Matrix4 _gestureBaseInverse = Matrix4.identity();
+
+  /// Where a navigation swipe began, or null when the current one-finger drag
+  /// is a crop pan rather than a swipe.  Non-null means no gesture was pushed
+  /// onto [_fingerGestureList] — the image deliberately stays put while the
+  /// finger moves, so a swipe cannot disturb a crop.
+  Offset? _swipeStart;
+  Offset? _swipeLast;
+
+  /// How far a finger must travel before it counts as a swipe rather than a
+  /// stray drag, in logical pixels.
+  static const double _swipeThreshold = 50;
+
+  bool get _isFullImageShowing =>
+      !_math!.isCropable(_math!.calcImageRect(_fingerGestureList.totalTransform()));
+
+  /// Back to the untouched full-image view, with no gesture in flight.
+  void _resetGestures() {
+    _fingerGestureList.reset();
+    _gestureBaseInverse = Matrix4.identity();
+    _swipeStart = null;
+    _swipeLast = null;
+  }
 
   void _calcInitialScale() {
     if (_imageSize == null) return;
@@ -98,11 +126,31 @@ class _ClipperState extends State<Clipper> {
         Matrix4.inverted(_fingerGestureList.totalTransform());
   }
 
+  /// Resolves a finished swipe. See [ClipperMath.swipeNavigation].
+  void _endSwipe() {
+    final start = _swipeStart;
+    final last = _swipeLast;
+    _swipeStart = null;
+    _swipeLast = null;
+    if (start == null || last == null) return;
+    final travel = last - start;
+    final delta =
+        ClipperMath.swipeNavigation(travel, threshold: _swipeThreshold);
+    _dPrint('swipe $travel -> $delta');
+    if (delta != 0) widget.navigateCallBack!(delta);
+  } // of endSwipe
+
   /// The scale recogniser can report a different pointer count than the one the
   /// gesture was started with — a finger lands a frame late, or lifts early.
   /// Swap the in-flight gesture for the right kind instead of throwing.
   void _switchToTwoFingered(Offset localFocalPoint) {
-    if (_fingerGestureList.current is OneFingered) {
+    if (_swipeStart != null) {
+      // A second finger landed mid-swipe: it's a zoom after all.  Nothing was
+      // added to the list, so the base is simply the transform as it stands.
+      _swipeStart = null;
+      _swipeLast = null;
+      _snapshotGestureBase();
+    } else if (_fingerGestureList.current is OneFingered) {
       // Drop the incidental pan from before the second finger landed; the
       // total transform is then back to what _gestureBaseInverse describes.
       _fingerGestureList.removeLast();
@@ -142,8 +190,7 @@ class _ClipperState extends State<Clipper> {
   void didChangeDependencies() {
     _dPrint('didChangeDependencies');
     super.didChangeDependencies();
-    _fingerGestureList.reset();
-    _gestureBaseInverse = Matrix4.identity();
+    _resetGestures();
     _math = null; // force a recalc
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _dPrint('exec postframecallback');
@@ -158,8 +205,7 @@ class _ClipperState extends State<Clipper> {
   void didUpdateWidget(covariant Clipper oldWidget) {
     _dPrint('didupdatewidget');
     super.didUpdateWidget(oldWidget);
-    _fingerGestureList.reset();
-    _gestureBaseInverse = Matrix4.identity();
+    _resetGestures();
     _math = null;
     if (oldWidget.imageUrl != widget.imageUrl) {
       _imageSize =
@@ -186,6 +232,14 @@ class _ClipperState extends State<Clipper> {
               _snapshotGestureBase();
               final focus = _toChild(details.localFocalPoint);
               if (details.pointerCount < 2) {
+                if (widget.navigateCallBack != null && _isFullImageShowing) {
+                  // Nothing is zoomed, so a one-finger drag navigates rather
+                  // than pans.  No gesture is added — the image holds still.
+                  _dPrint('onSwipeStart: $details');
+                  _swipeStart = details.localFocalPoint;
+                  _swipeLast = _swipeStart;
+                  return;
+                }
                 _dPrint('onPanningStart: $details');
                 _fingerAdd(OneFingered(focus, endPoint: focus));
               } else {
@@ -196,7 +250,10 @@ class _ClipperState extends State<Clipper> {
             onScaleUpdate: (ScaleUpdateDetails details) {
               if (details.pointerCount >= 2) {
                 // _dPrint('onScaleUpdate: $details');
-                if (_fingerGestureList.current is! TwoFingered) {
+                // A swipe must switch even when the last gesture happens to be
+                // a TwoFingered, or updateScale would mutate that finished one.
+                if (_swipeStart != null ||
+                    _fingerGestureList.current is! TwoFingered) {
                   _switchToTwoFingered(details.localFocalPoint);
                 }
                 // _toChild only after any switch — that re-snapshots the base.
@@ -204,6 +261,10 @@ class _ClipperState extends State<Clipper> {
                 _fingerGestureList
                     .updateFocus(_toChild(details.localFocalPoint));
                 setState(() {});
+              } else if (_swipeStart != null) {
+                // Swiping: just remember where the finger got to. onScaleEnd
+                // carries no position, so it cannot work this out for itself.
+                _swipeLast = details.localFocalPoint;
               } else {
                 // _dPrint('onPanningUpdate: $details');
                 if (_fingerGestureList.current is! OneFingered) {
@@ -218,7 +279,11 @@ class _ClipperState extends State<Clipper> {
             },
             onScaleEnd: (ScaleEndDetails details) {
               _dPrint('onScaleEnd: $details');
-              _checkLastTransform();
+              if (_swipeStart != null) {
+                _endSwipe(); // nothing was transformed, so nothing to validate
+              } else {
+                _checkLastTransform();
+              }
             },
             onTapDown: (details) {
               _dPrint(
@@ -235,8 +300,7 @@ class _ClipperState extends State<Clipper> {
               _checkLastTransform();
             },
             onLongPress: () {
-              _fingerGestureList.reset();
-    _gestureBaseInverse = Matrix4.identity();
+              _resetGestures();
               setState(() {});
             },
             child: Transform(

@@ -53,6 +53,19 @@ class ClipperMath {
     return r.topLeft.dx < xOffset || r.topLeft.dy < yOffset;
   }
 
+  /// Which photo a completed swipe should move to, given how far the finger
+  /// travelled: -1 for the previous photo, +1 for the next, 0 for neither.
+  ///
+  /// Down or right goes back, up or left goes forward.  The axis the finger
+  /// travelled furthest along wins, and because both axes map the same way a
+  /// single sign test covers all four directions.  Travel shorter than
+  /// [threshold] logical pixels is a stray drag and navigates nowhere.
+  static int swipeNavigation(Offset travel, {double threshold = 50}) {
+    final delta = travel.dx.abs() > travel.dy.abs() ? travel.dx : travel.dy;
+    if (delta.abs() < threshold) return 0;
+    return delta > 0 ? -1 : 1;
+  }
+
   /// Whether the visible region is a croppable sub-region of the image.
   ///
   /// True only when the user has zoomed in or panned away from the full-image

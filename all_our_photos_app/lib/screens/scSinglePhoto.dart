@@ -171,7 +171,6 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TO-DO:  restore swipes for single photo
     if (snapList == null)
       _initParams(); // can't get params until we have a context!!!!
     currentSnap = snapList![_snapIndex];
@@ -190,9 +189,11 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   imageHeight: currentSnap!.height ?? 0,
                   rectCallback: currentRect,
                   canCropCallBack: canCropCallback,
-                  // verticalSwipeCallBack: (value) {
-                  //   snapIndex = _snapIndex + ((value < 0) ? 1 : -1);
-                  // },
+                  // Swipe down/right for previous, up/left for next — only
+                  // when nothing is zoomed, so crop panning still works.
+                  navigateCallBack: (delta) {
+                    snapIndex = _snapIndex + delta;
+                  },
                   show: (s) => log
                       .message('------------------ $s ---------------------'),
                 ),
