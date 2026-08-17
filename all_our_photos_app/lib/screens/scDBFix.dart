@@ -105,6 +105,62 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     // }
   } // of fixSingleThumbnail
 
+  int rebuiltCount = 0;
+  int failedCount = 0;
+
+  /// Rebuilds the thumbnail of every rotated photo from its original.
+  ///
+  /// Two faults left rotated thumbnails wrong, and neither corrects itself:
+  ///   - rotate_thumbnail used to turn the thumbnail ALREADY on disk, so the
+  ///     angle compounded and going back to 0 left it rotated for good;
+  ///   - right-angle rotations were baked without expanding the canvas, so a
+  ///     landscape photo at 90 or 270 kept a landscape thumbnail with black
+  ///     bars down the sides and the top and bottom cut off.
+  ///
+  /// The server now rebuilds from the original and expands for right angles,
+  /// so re-baking each rotated snap repairs both.  Idempotent — safe to run
+  /// again, and safe to interrupt.
+  void rebuildRotatedThumbnailsDriver() async {
+    runType = 'Rebuild thumbnails for rotated photos';
+    final confirmed = await confirmYesNo(
+        context,
+        '$runType\n\n'
+        'Re-bakes the thumbnail of every photo with degrees <> 0 '
+        '(about 500) from its original.\n\n'
+        'Each one decodes a full-size photo on the server, so this takes a '
+        'while. It can be re-run and it can be interrupted.');
+    if (confirmed != true) return;
+    rebuiltCount = 0;
+    failedCount = 0;
+    // The filter box, if used, narrows it further - e.g. a single directory.
+    fullWhere = 'degrees <> 0';
+    if (inputWhere.isNotEmpty) fullWhere += ' and ($inputWhere)';
+    groupQuery =
+        'select distinct directory from aopsnaps where $fullWhere order by 1';
+    detailQuery = "directory='GROUP'";
+    await processGroups(rebuildSingleRotatedThumbnail);
+    if (mounted) {
+      showMessage(
+          context,
+          'Rebuilt $rebuiltCount thumbnail(s).'
+          '${failedCount > 0 ? '\n$failedCount failed - see the log.' : ''}',
+          title: runType);
+    }
+  } // of rebuildRotatedThumbnailsDriver
+
+  Future<void> rebuildSingleRotatedThumbnail(AopSnap? snap) async {
+    if (snap == null) return;
+    try {
+      await AopSnap.rotateThumbnail(snap.id!);
+      snap.thumbResetVersion++; // the file changed but its path did not
+      rebuiltCount++;
+    } catch (ex) {
+      // One bad photo must not stop a run of several hundred.
+      failedCount++;
+      log.error('could not rebuild thumbnail for ${snap.fileName}: $ex');
+    }
+  } // of rebuildSingleRotatedThumbnail
+
   Future<void> importMacAlbums(BuildContext context) async {
     const PHOTOID_SQL = "select id from aopsnaps where metadata like '%xxxx%'";
     String filename = '';
@@ -234,6 +290,10 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
               icon: Icon(Icons.date_range), onPressed: fixTakenDateDriver),
           IconButton(icon: Icon(Icons.thumb_up), onPressed: fixThumbnailDriver),
           IconButton(
+              icon: Icon(Icons.rotate_90_degrees_ccw),
+              tooltip: 'Rebuild thumbnails for rotated photos',
+              onPressed: inProgress ? null : rebuildRotatedThumbnailsDriver),
+          IconButton(
               icon: Icon(Icons.photo_album),
               onPressed: () {
                 importMacAlbums(context);
@@ -258,6 +318,9 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
             ),
           if (currentSnap != null)
             Text('${currentSnap!.fileName}  - $snapIdx of ${snapList.length}',
+                style: Theme.of(context).textTheme.bodyLarge),
+          if (rebuiltCount > 0 || failedCount > 0)
+            Text('rebuilt $rebuiltCount, failed $failedCount',
                 style: Theme.of(context).textTheme.bodyLarge),
           if (inProgress)
             Center(
