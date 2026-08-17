@@ -91,21 +91,23 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   /// no doubt about what the gestures are doing while a selection is live.
   Widget buildCropAppBar(BuildContext context) {
     return AppBar(
+      // Centred title with Cancel on the left and the tick on the right, so
+      // the tick reads as "save this crop" rather than "crop now".
+      centerTitle: true,
+      title: const Text('Crop'),
       leading: MyIconButton(Icons.close, onPressed: () {
         setState(() => isCropMode = false);
       }),
       actions: [
-        Spacer(),
-        if (!UIPreferences.isSmallScreen)
-          Text(isPhotoScaled
-              ? 'Drag the corners — pinch to zoom in on an edge'
-              : 'Drag a corner in to select a region'),
         MyIconButton(
           Icons.check,
           enabled: isPhotoScaled,
-          onPressed: () async {
+          onPressed: () {
+            // Read the selection BEFORE leaving crop mode - the rebuild that
+            // follows must not be able to affect which region is cropped.
+            final selection = _currentCroppingRect;
             setState(() => isCropMode = false);
-            cropMe(context, currentSnap!);
+            cropMe(context, currentSnap!, selection);
           },
         ),
       ],
@@ -269,16 +271,19 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 //    });
   }
 
-  void cropMe(BuildContext context, AopSnap snap) async {
-    if (!isPhotoScaled)
+  /// [area] is the region to crop, in image pixels.  Apply passes it in
+  /// explicitly rather than letting this read _currentCroppingRect later, so
+  /// no rebuild between the tap and the request can change what gets cropped.
+  void cropMe(BuildContext context, AopSnap snap, [Rect? area]) async {
+    final selection = area ?? _currentCroppingRect;
+    if (!isPhotoScaled || selection == null)
       showMessage(context, 'Nothing to do. \nSelect a smaller region first',
           title: 'The whole picture is selected');
     else {
       Stopwatch stopwatch = Stopwatch()..start();
       try {
         isClippingInProgress = true;
-        // await snapCrop(context, snap, _currentCroppingRect);
-        var cropArea = _currentCroppingRect!;
+        var cropArea = selection;
         var croppedSnap = await AopSnap.snapCropper(
             snap.id!,
             cropArea.left.toInt(),

@@ -208,6 +208,53 @@ void main() {
           reason: 'a drag must never change photo mid-crop');
     });
 
+    testWidgets('leaving crop mode must not overwrite the selection',
+        (tester) async {
+      // Apply flips cropMode off and then crops.  If leaving crop mode
+      // republishes the visible region, the parent's rect is clobbered and
+      // the crop uses the viewport instead of the rectangle.
+      final h = Harness();
+      Widget build(bool cropMode) => MaterialApp(
+            home: Scaffold(
+              body: ChangeNotifierProvider<MapProvider>.value(
+                value: h.log,
+                child: Center(
+                  child: SizedBox(
+                    width: boxSize.width,
+                    height: boxSize.height,
+                    child: Clipper(
+                      imageUrl: 'https://example.invalid/photo.jpg',
+                      imageWidth: imageWidth,
+                      imageHeight: imageHeight,
+                      cropMode: cropMode,
+                      rectCallback: (r) => h.rect = r,
+                      canCropCallBack: (v) => h.canCrop = v,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+
+      await tester.pumpWidget(build(true));
+      tester.takeException();
+      await tester.pump();
+      await tester.pump();
+      tester.takeException();
+
+      // Zoom in first, so the visible region is clearly NOT the selection.
+      await pinch(tester, boxCentre, 3.0);
+      await drag(tester, const Offset(6, 6), const Offset(120, 90));
+      final selection = h.rect!;
+
+      await tester.pumpWidget(build(false));
+      await tester.pump();
+
+      expect(h.rect, equals(selection),
+          reason: 'the selection must survive leaving crop mode, or Apply '
+              'crops the wrong region');
+    });
+
     testWidgets('the selection cannot be dragged outside the image',
         (tester) async {
       final h = await pumpClipper(tester, cropMode: true);

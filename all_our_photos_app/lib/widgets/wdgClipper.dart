@@ -316,8 +316,15 @@ class _ClipperState extends State<Clipper> {
     if (widget.cropMode && !oldWidget.cropMode) {
       _initCropRect(); // entering crop mode: select what is on screen
     } else if (!widget.cropMode && oldWidget.cropMode) {
-      _cropImageRect = null; // leaving: back to reporting the visible region
-      _publish();
+      // Leaving crop mode must NOT republish.  Apply flips the mode off and
+      // then crops, so republishing the visible region here overwrites the
+      // parent's selection and crops the viewport instead — which is exactly
+      // the "tiny bit of the picture, unrelated to the crop area" bug.
+      // The parent keeps the selection until something else replaces it.
+      _cropImageRect = null;
+      _grip = CropGrip.none;
+      _dragStartRect = null;
+      _dragStartImage = null;
     }
   }
 
