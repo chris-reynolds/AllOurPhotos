@@ -31,8 +31,11 @@ class Harness {
 }
 
 Future<Harness> pumpClipper(WidgetTester tester,
-    {bool withSwipe = true, Size? box, int imgW = imageWidth,
-    int imgH = imageHeight}) async {
+    {bool withSwipe = true,
+    Size? box,
+    int imgW = imageWidth,
+    int imgH = imageHeight,
+    bool cropMode = false}) async {
   final size = box ?? boxSize;
   final h = Harness();
   tester.view.physicalSize = size;
@@ -52,6 +55,7 @@ Future<Harness> pumpClipper(WidgetTester tester,
               imageHeight: imgH,
               rectCallback: (r) => h.rect = r,
               canCropCallBack: (v) => h.canCrop = v,
+              cropMode: cropMode,
               navigateCallBack: withSwipe
                   ? (d) {
                       h.navigations++;
@@ -135,6 +139,85 @@ Future<void> drag(WidgetTester tester, Offset from, Offset travel) async {
 }
 
 void main() {
+  // ------------------------------------------------------------------------
+  // Crop mode: a draggable rectangle, held in image coordinates.
+  // ------------------------------------------------------------------------
+
+  group('crop mode', () {
+    testWidgets('starts by selecting the whole unzoomed photo', (tester) async {
+      final h = await pumpClipper(tester, cropMode: true);
+      expect(h.rect, const Rect.fromLTRB(0, 0, 4000, 3000));
+      expect(h.canCrop, isFalse,
+          reason: 'selecting everything is not worth cropping');
+    });
+
+    testWidgets('dragging a corner shrinks the selection and enables Apply',
+        (tester) async {
+      final h = await pumpClipper(tester, cropMode: true);
+      // The box is 800x600 for a 4000x3000 photo, so 1 screen px = 5 image px.
+      // Start just inside: the GestureDetector sits behind 2px padding and a
+      // 1px border, so (0,0) misses it entirely.
+      await drag(tester, const Offset(6, 6), const Offset(100, 60));
+
+      final r = h.rect!;
+      expect(r.left, closeTo(500, 30), reason: '100 screen px = 500 image px');
+      expect(r.top, closeTo(300, 30));
+      expect(r.right, closeTo(4000, 1), reason: 'far corner must not move');
+      expect(r.bottom, closeTo(3000, 1));
+      expect(h.canCrop, isTrue);
+    });
+
+    testWidgets('a wide selection is possible on a tall screen', (tester) async {
+      // The whole point of abandoning viewport cropping: on a 400x800 phone a
+      // 4608x3456 photo could only ever yield a crop between 0.5 and 1.33.
+      const pw = 400.0, ph = 800.0;
+      const iw = 4608, ih = 3456;
+      final h = await pumpClipper(tester,
+          box: const Size(pw, ph), imgW: iw, imgH: ih, cropMode: true);
+
+      // The photo occupies y 250..550 on screen. Pull the top edge down and
+      // the bottom edge up to leave a letterbox-shaped band.
+      await drag(tester, const Offset(6, 250), const Offset(0, 110));
+      await drag(tester, const Offset(pw - 6, 550), const Offset(0, -110));
+
+      final r = h.rect!;
+      expect(r.width / r.height, greaterThan(1.8),
+          reason: 'a 16:9-ish crop is now reachable on a portrait screen');
+      expect(h.canCrop, isTrue);
+    });
+
+    testWidgets('the selection survives a zoom', (tester) async {
+      final h = await pumpClipper(tester, cropMode: true);
+      await drag(tester, const Offset(6, 6), const Offset(100, 60));
+      final before = h.rect!;
+
+      // Zooming is now purely navigation - it must not touch the selection.
+      await pinch(tester, boxCentre, 2.0);
+
+      expect(h.rect!.left, closeTo(before.left, 1));
+      expect(h.rect!.top, closeTo(before.top, 1));
+      expect(h.rect!.right, closeTo(before.right, 1));
+      expect(h.rect!.bottom, closeTo(before.bottom, 1));
+    });
+
+    testWidgets('swipe navigation is suspended while cropping', (tester) async {
+      final h = await pumpClipper(tester, cropMode: true);
+      // A long drag that would navigate in browse mode.
+      await drag(tester, boxCentre, const Offset(0, 150));
+      expect(h.navigations, 0,
+          reason: 'a drag must never change photo mid-crop');
+    });
+
+    testWidgets('the selection cannot be dragged outside the image',
+        (tester) async {
+      final h = await pumpClipper(tester, cropMode: true);
+      await drag(tester, const Offset(6, 6), const Offset(-300, -300));
+      final r = h.rect!;
+      expect(r.left, greaterThanOrEqualTo(0));
+      expect(r.top, greaterThanOrEqualTo(0));
+    });
+  });
+
   // ------------------------------------------------------------------------
   // The crop region IS the viewport, so its shape is not freely selectable.
   //

@@ -27,21 +27,54 @@ class ClipperMath {
     return ws < hs ? ws : hs;
   }
 
+  /// The whole image, in image pixels.
+  Rect get fullImageRect =>
+      Rect.fromLTWH(0, 0, imageSize.width, imageSize.height);
+
+  /// Maps a point in gesture-detector (screen) coordinates to image pixels.
+  Offset screenToImage(Offset screenPoint, Matrix4 transform) {
+    final child =
+        MatrixUtils.transformPoint(Matrix4.inverted(transform), screenPoint);
+    return child / initialScale + Offset(xOffset, yOffset);
+  }
+
+  /// Inverse of [screenToImage]: where an image pixel currently sits onscreen.
+  ///
+  /// This is what lets a crop rectangle be held in image coordinates and drawn
+  /// wherever the view happens to be zoomed or panned to — so the selection
+  /// survives zooming in on one edge and out again to reach another.
+  Offset imageToScreen(Offset imagePoint, Matrix4 transform) {
+    final child = (imagePoint - Offset(xOffset, yOffset)) * initialScale;
+    return MatrixUtils.transformPoint(transform, child);
+  }
+
+  Rect imageRectToScreen(Rect imageRect, Matrix4 transform) => Rect.fromPoints(
+      imageToScreen(imageRect.topLeft, transform),
+      imageToScreen(imageRect.bottomRight, transform));
+
   /// Maps screen corner coordinates back to image pixel coordinates using the
   /// inverse of [transform], producing the rectangle of the image currently
   /// visible on screen.
-  Rect calcImageRect(Matrix4 transform) {
-    final inv = Matrix4.inverted(transform);
-    Offset topLeft =
-        MatrixUtils.transformPoint(inv, Offset.zero) / initialScale;
-    Offset bottomRight =
-        MatrixUtils.transformPoint(
-                inv, Offset(targetSize.width, targetSize.height)) /
-            initialScale;
-    topLeft += Offset(xOffset, yOffset);
-    bottomRight += Offset(xOffset, yOffset);
-    return Rect.fromPoints(topLeft, bottomRight);
+  Rect calcImageRect(Matrix4 transform) => Rect.fromPoints(
+      screenToImage(Offset.zero, transform),
+      screenToImage(Offset(targetSize.width, targetSize.height), transform));
+
+  /// Keeps a crop rectangle inside the image and no smaller than [minSide]
+  /// image pixels in either direction.
+  Rect clampCrop(Rect r, {double minSide = 16}) {
+    final full = fullImageRect;
+    // Guard against an image smaller than the minimum in either direction.
+    final minW = minSide > full.width ? full.width : minSide;
+    final minH = minSide > full.height ? full.height : minSide;
+    final left = _clamp(r.left, full.left, full.right - minW);
+    final top = _clamp(r.top, full.top, full.bottom - minH);
+    final right = _clamp(r.right, left + minW, full.right);
+    final bottom = _clamp(r.bottom, top + minH, full.bottom);
+    return Rect.fromLTRB(left, top, right, bottom);
   }
+
+  static double _clamp(double v, double lo, double hi) =>
+      v < lo ? lo : (v > hi ? hi : v);
 
   /// Whether a gesture should be rejected (undone).
   ///

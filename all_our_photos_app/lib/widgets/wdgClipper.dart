@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:aopcommon/aopcommon.dart';
 import '../utils/fingers.dart';
 import '../utils/clipper_math.dart';
+import '../utils/crop_rect.dart';
 import 'package:provider/provider.dart';
 
 class Clipper extends StatefulWidget {
@@ -24,6 +25,13 @@ class Clipper extends StatefulWidget {
   /// full-size photo while that loads, so changing photo is not a blank wait.
   final String? placeholderUrl;
 
+  /// In crop mode a draggable rectangle selects the region, pinch zooms the
+  /// view without changing the selection, and swipe navigation is suspended
+  /// so no gesture is ambiguous.
+  ///
+  /// Out of crop mode the widget behaves exactly as it always has.
+  final bool cropMode;
+
   const Clipper({
     super.key,
     required this.imageUrl,
@@ -34,6 +42,7 @@ class Clipper extends StatefulWidget {
     this.show,
     this.navigateCallBack,
     this.placeholderUrl,
+    this.cropMode = false,
   });
 
   @override
@@ -71,6 +80,59 @@ class _ClipperState extends State<Clipper> {
   bool get _isFullImageShowing => !_math!
       .isCropable(_math!.calcImageRect(_fingerGestureList.totalTransform()));
 
+  // ---- crop mode ----------------------------------------------------------
+
+  /// The selection, in IMAGE pixels, so it stays on the same pixels however
+  /// the view is zoomed or panned.  Null when not cropping.
+  Rect? _cropImageRect;
+  CropGrip _grip = CropGrip.none;
+  Rect? _dragStartRect;
+  Offset? _dragStartImage;
+
+  /// Where the finger actually touched down, before the recogniser's slop.
+  Offset? _pointerDownLocal;
+
+  /// How near a corner a finger must land to grab it, in logical pixels.
+  static const double _grabScreenRadius = 28;
+
+  bool get _cropping => widget.cropMode && _cropImageRect != null;
+
+  /// The grab radius converted to image pixels, so the target stays the same
+  /// physical size on screen however far the view is zoomed.
+  double get _grabImageRadius =>
+      _grabScreenRadius /
+      (_math!.initialScale * _fingerGestureList.totalScale());
+
+  Offset _toImage(Offset localPoint) =>
+      _math!.screenToImage(localPoint, _fingerGestureList.totalTransform());
+
+  void _beginCropDrag(Offset localPoint) {
+    final model = CropRectModel(_cropImageRect!);
+    final imagePoint = _toImage(localPoint);
+    _grip = model.gripAt(imagePoint, _grabImageRadius);
+    _dragStartRect = _cropImageRect;
+    _dragStartImage = imagePoint;
+    _dPrint('crop grip $_grip at $imagePoint');
+  }
+
+  void _updateCropDrag(Offset localPoint) {
+    if (_grip == CropGrip.none || _dragStartRect == null) return;
+    final delta = _toImage(localPoint) - _dragStartImage!;
+    final moved =
+        CropRectModel(_cropImageRect!).dragged(_grip, _dragStartRect!, delta);
+    setState(() => _cropImageRect = _math!.clampCrop(moved));
+    _publish();
+  }
+
+  /// Starts the selection from whatever is currently on screen, clamped to the
+  /// image — so entering crop mode on an unzoomed photo selects all of it.
+  void _initCropRect() {
+    if (_math == null) return;
+    final visible = _math!.calcImageRect(_fingerGestureList.totalTransform());
+    _cropImageRect = _math!.clampCrop(_math!.fullImageRect.intersect(visible));
+    _publish();
+  }
+
   /// Back to the untouched full-image view, with no gesture in flight.
   void _resetGestures() {
     _fingerGestureList.reset();
@@ -88,7 +150,14 @@ class _ClipperState extends State<Clipper> {
     // didUpdateWidget/didChangeDependencies is invisible to it, so after
     // swiping to another photo it would still hold the PREVIOUS photo's rect
     // and a stale canCrop=true — and crop the wrong region.
-    setImageRect(_calcImageRect());
+    //
+    // Crop mode is seeded here as well as on the false->true transition, so a
+    // Clipper built already in crop mode still gets a selection.
+    if (widget.cropMode && _cropImageRect == null) {
+      _initCropRect();
+    } else {
+      setImageRect(_calcImageRect());
+    }
     context.read<MapProvider?>()?.addAll({
       'target size': '$_targetSize',
       'initial scale': _math!.initialScale.toStringAsFixed(3),
@@ -177,9 +246,27 @@ class _ClipperState extends State<Clipper> {
   }
 
   void setImageRect(Rect r) {
+    // In crop mode the selection is what Crop would use, not the visible
+    // region, so the view can be zoomed about freely without touching it.
+    if (_cropping) {
+      _publish();
+      return;
+    }
     final imRect = Rect.fromLTRB(0, 0, _imageSize!.width, _imageSize!.height);
     widget.rectCallback(imRect.intersect(r));
     widget.canCropCallBack(_math!.isCropable(r));
+  }
+
+  /// Tells the parent which rectangle Crop would apply, and whether applying
+  /// it would achieve anything.
+  void _publish() {
+    if (_cropping) {
+      widget.rectCallback(_cropImageRect!);
+      widget.canCropCallBack(
+          CropRectModel.isWorthCropping(_cropImageRect!, _math!.fullImageRect));
+    } else {
+      setImageRect(_calcImageRect());
+    }
   }
 
 /////////////////////////////
@@ -213,13 +300,25 @@ class _ClipperState extends State<Clipper> {
   void didUpdateWidget(covariant Clipper oldWidget) {
     _dPrint('didupdatewidget');
     super.didUpdateWidget(oldWidget);
-    _resetGestures();
-    _math = null;
-    if (oldWidget.imageUrl != widget.imageUrl) {
+    // Only start over when the photo itself changes.  This used to reset on
+    // EVERY parent rebuild, which would now throw away the zoom the user had
+    // set up mid-crop each time the toolbar rebuilt.
+    if (oldWidget.imageUrl != widget.imageUrl ||
+        oldWidget.imageWidth != widget.imageWidth ||
+        oldWidget.imageHeight != widget.imageHeight) {
+      _resetGestures();
+      _cropImageRect = null;
+      _math = null;
       _imageSize =
           Size(widget.imageWidth.toDouble(), widget.imageHeight.toDouble());
+      _calcInitialScale();
     }
-    _calcInitialScale();
+    if (widget.cropMode && !oldWidget.cropMode) {
+      _initCropRect(); // entering crop mode: select what is on screen
+    } else if (!widget.cropMode && oldWidget.cropMode) {
+      _cropImageRect = null; // leaving: back to reporting the visible region
+      _publish();
+    }
   }
 
   @override
@@ -235,135 +334,182 @@ class _ClipperState extends State<Clipper> {
           width: 1,
         )),
         child: ClipRect(
-          child: GestureDetector(
-            // The child is a RawImage, which does not absorb hits, so with the
-            // default deferToChild only whatever happens to paint under the
-            // finger would catch a gesture — and nothing at all while the image
-            // is still loading.  Claim the whole box instead.
-            behavior: HitTestBehavior.opaque,
-            onScaleStart: (ScaleStartDetails details) {
-              _snapshotGestureBase();
-              final focus = _toChild(details.localFocalPoint);
-              if (details.pointerCount < 2) {
-                if (widget.navigateCallBack != null && _isFullImageShowing) {
-                  // Nothing is zoomed, so a one-finger drag navigates rather
-                  // than pans.  No gesture is added — the image holds still.
-                  _dPrint('onSwipeStart: $details');
-                  _swipeStart = details.localFocalPoint;
-                  _swipeLast = _swipeStart;
+          // The scale recogniser only reports a drag once it has travelled the
+          // touch slop (~18px), by which time the finger has left the corner it
+          // grabbed.  Recording the raw pointer-down gives an exact grip test
+          // and a delta measured from where the finger actually landed, so the
+          // rectangle tracks it with no dead zone.
+          child: Listener(
+            onPointerDown: (event) => _pointerDownLocal = event.localPosition,
+            child: GestureDetector(
+              // The child is a RawImage, which does not absorb hits, so with the
+              // default deferToChild only whatever happens to paint under the
+              // finger would catch a gesture — and nothing at all while the image
+              // is still loading.  Claim the whole box instead.
+              behavior: HitTestBehavior.opaque,
+              onScaleStart: (ScaleStartDetails details) {
+                _snapshotGestureBase();
+                final focus = _toChild(details.localFocalPoint);
+                if (details.pointerCount < 2) {
+                  if (_cropping) {
+                    // Crop mode: the drag serves the rectangle.  If it grabbed
+                    // nothing it falls through to panning the view below.
+                    _beginCropDrag(
+                        _pointerDownLocal ?? details.localFocalPoint);
+                    if (_grip != CropGrip.none) return;
+                  } else if (widget.navigateCallBack != null &&
+                      _isFullImageShowing) {
+                    // Nothing is zoomed, so a one-finger drag navigates rather
+                    // than pans.  No gesture is added — the image holds still.
+                    _dPrint('onSwipeStart: $details');
+                    _swipeStart = details.localFocalPoint;
+                    _swipeLast = _swipeStart;
+                    return;
+                  }
+                  _dPrint('onPanningStart: $details');
+                  _fingerAdd(OneFingered(focus, endPoint: focus));
+                } else {
+                  _dPrint('onScaleStart: $details');
+                  _fingerAdd(TwoFingered(1, focus));
+                }
+              },
+              onScaleUpdate: (ScaleUpdateDetails details) {
+                if (_grip != CropGrip.none) {
+                  // A rectangle drag is in flight. A second finger landing does
+                  // not turn it into a zoom - that would fight the drag.
+                  if (details.pointerCount < 2) {
+                    _updateCropDrag(details.localFocalPoint);
+                  }
                   return;
                 }
-                _dPrint('onPanningStart: $details');
-                _fingerAdd(OneFingered(focus, endPoint: focus));
-              } else {
-                _dPrint('onScaleStart: $details');
-                _fingerAdd(TwoFingered(1, focus));
-              }
-            },
-            onScaleUpdate: (ScaleUpdateDetails details) {
-              if (details.pointerCount >= 2) {
-                // _dPrint('onScaleUpdate: $details');
-                // A swipe must switch even when the last gesture happens to be
-                // a TwoFingered, or updateScale would mutate that finished one.
-                if (_swipeStart != null ||
-                    _fingerGestureList.current is! TwoFingered) {
-                  _switchToTwoFingered(details.localFocalPoint);
-                }
-                // _toChild only after any switch — that re-snapshots the base.
-                _fingerGestureList.updateScale(details.scale);
-                _fingerGestureList
-                    .updateFocus(_toChild(details.localFocalPoint));
-                setState(() {});
-              } else if (_swipeStart != null) {
-                // Swiping: just remember where the finger got to. onScaleEnd
-                // carries no position, so it cannot work this out for itself.
-                _swipeLast = details.localFocalPoint;
-              } else {
-                // _dPrint('onPanningUpdate: $details');
-                if (_fingerGestureList.current is! OneFingered) {
-                  _switchToOneFingered(details.localFocalPoint);
-                } else {
+                if (details.pointerCount >= 2) {
+                  // _dPrint('onScaleUpdate: $details');
+                  // A swipe must switch even when the last gesture happens to be
+                  // a TwoFingered, or updateScale would mutate that finished one.
+                  if (_swipeStart != null ||
+                      _fingerGestureList.current is! TwoFingered) {
+                    _switchToTwoFingered(details.localFocalPoint);
+                  }
+                  // _toChild only after any switch — that re-snapshots the base.
+                  _fingerGestureList.updateScale(details.scale);
                   _fingerGestureList
-                      .updateEndPoint(_toChild(details.localFocalPoint));
+                      .updateFocus(_toChild(details.localFocalPoint));
+                  setState(() {});
+                } else if (_swipeStart != null) {
+                  // Swiping: just remember where the finger got to. onScaleEnd
+                  // carries no position, so it cannot work this out for itself.
+                  _swipeLast = details.localFocalPoint;
+                } else {
+                  // _dPrint('onPanningUpdate: $details');
+                  if (_fingerGestureList.current is! OneFingered) {
+                    _switchToOneFingered(details.localFocalPoint);
+                  } else {
+                    _fingerGestureList
+                        .updateEndPoint(_toChild(details.localFocalPoint));
+                  }
+                  // _dPrint('repaint in pan');
+                  setState(() {});
                 }
-                // _dPrint('repaint in pan');
-                setState(() {});
-              }
-            },
-            onScaleEnd: (ScaleEndDetails details) {
-              _dPrint('onScaleEnd: $details');
-              if (_swipeStart != null) {
-                _endSwipe(); // nothing was transformed, so nothing to validate
-              } else {
+              },
+              onScaleEnd: (ScaleEndDetails details) {
+                _dPrint('onScaleEnd: $details');
+                if (_grip != CropGrip.none) {
+                  _grip = CropGrip.none;
+                  _dragStartRect = null;
+                  _dragStartImage = null;
+                  _publish();
+                } else if (_swipeStart != null) {
+                  _endSwipe(); // nothing was transformed, so nothing to validate
+                } else {
+                  _checkLastTransform();
+                }
+              },
+              onTapDown: (details) {
+                _dPrint(
+                    'tap at ${details.localPosition} global=${details.globalPosition}');
+              },
+              onDoubleTapDown: (details) {
+                _tapPosition = details.localPosition;
+              },
+              onDoubleTap: () {
+                var mypoint = _tapPosition!;
+                _dPrint('doubletap lp=$mypoint');
+                _snapshotGestureBase();
+                _fingerAdd(TwoFingered(3, _toChild(mypoint)));
                 _checkLastTransform();
-              }
-            },
-            onTapDown: (details) {
-              _dPrint(
-                  'tap at ${details.localPosition} global=${details.globalPosition}');
-            },
-            onDoubleTapDown: (details) {
-              _tapPosition = details.localPosition;
-            },
-            onDoubleTap: () {
-              var mypoint = _tapPosition!;
-              _dPrint('doubletap lp=$mypoint');
-              _snapshotGestureBase();
-              _fingerAdd(TwoFingered(3, _toChild(mypoint)));
-              _checkLastTransform();
-            },
-            onLongPress: () {
-              _resetGestures();
-              setState(() {});
-            },
-            child: Transform(
-              transform: _fingerGestureList.totalTransform(),
-              child: SizedBox(
-                width: boxConstraints.maxWidth,
-                height: boxConstraints.maxHeight,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // A full-size photo can take seconds to arrive.  The
-                    // thumbnail is small and usually already cached from the
-                    // grid, so painting it underneath gives something to look
-                    // at immediately; the full image lands on top when ready.
-                    if (widget.placeholderUrl != null)
-                      Image.network(
-                        widget.placeholderUrl!,
-                        fit: BoxFit.contain,
-                        headers: {'Preserve': WebFile.preserve},
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      ),
-                    Image.network(
-                      widget.imageUrl,
-                      fit: BoxFit.contain,
-                      headers: {'Preserve': WebFile.preserve},
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        // Keep the child in the tree so the thumbnail below
-                        // stays visible, and lay the spinner over the top
-                        // rather than replacing everything with it.
-                        return Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            child,
-                            Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
+              },
+              onLongPress: () {
+                _resetGestures();
+                setState(() {});
+              },
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Transform(
+                    transform: _fingerGestureList.totalTransform(),
+                    child: SizedBox(
+                      width: boxConstraints.maxWidth,
+                      height: boxConstraints.maxHeight,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // A full-size photo can take seconds to arrive.  The
+                          // thumbnail is small and usually already cached from the
+                          // grid, so painting it underneath gives something to look
+                          // at immediately; the full image lands on top when ready.
+                          if (widget.placeholderUrl != null)
+                            Image.network(
+                              widget.placeholderUrl!,
+                              fit: BoxFit.contain,
+                              headers: {'Preserve': WebFile.preserve},
+                              errorBuilder: (_, __, ___) =>
+                                  const SizedBox.shrink(),
                             ),
-                          ],
-                        );
-                      },
+                          Image.network(
+                            widget.imageUrl,
+                            fit: BoxFit.contain,
+                            headers: {'Preserve': WebFile.preserve},
+                            errorBuilder: (_, __, ___) =>
+                                const SizedBox.shrink(),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              // Keep the child in the tree so the thumbnail below
+                              // stays visible, and lay the spinner over the top
+                              // rather than replacing everything with it.
+                              return Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  child,
+                                  Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                  // The selection is held in image pixels, so it is converted
+                  // through the LIVE transform each frame - that is what keeps
+                  // it on the same pixels while the view zooms and pans.
+                  if (_cropping)
+                    CustomPaint(
+                      painter: _CropPainter(_math!.imageRectToScreen(
+                          _cropImageRect!,
+                          _fingerGestureList.totalTransform())),
+                    ),
+                ],
               ),
             ),
           ),
@@ -372,6 +518,64 @@ class _ClipperState extends State<Clipper> {
     });
   } // of build
 } // of class _ClipperState
+
+/// Draws the crop selection: everything outside it dimmed, a bright border,
+/// corner grips and thirds guides.  Works entirely in screen coordinates —
+/// the caller converts the image-space selection through the live transform.
+class _CropPainter extends CustomPainter {
+  final Rect screenRect;
+  _CropPainter(this.screenRect);
+
+  static const double gripLength = 22;
+  static const double gripThickness = 4;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final full = Offset.zero & size;
+    // Dim everything outside the selection.
+    canvas.drawPath(
+      Path.combine(PathOperation.difference, Path()..addRect(full),
+          Path()..addRect(screenRect)),
+      Paint()..color = Colors.black.withValues(alpha: 0.55),
+    );
+    // Thirds guides, the usual composition aid.
+    final guide = Paint()
+      ..color = Colors.white.withValues(alpha: 0.35)
+      ..strokeWidth = 1;
+    for (var i = 1; i < 3; i++) {
+      final dx = screenRect.left + screenRect.width * i / 3;
+      final dy = screenRect.top + screenRect.height * i / 3;
+      canvas.drawLine(
+          Offset(dx, screenRect.top), Offset(dx, screenRect.bottom), guide);
+      canvas.drawLine(
+          Offset(screenRect.left, dy), Offset(screenRect.right, dy), guide);
+    }
+    canvas.drawRect(
+        screenRect,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.5
+          ..color = Colors.white);
+    // Corner grips, drawn as an L inside each corner so they do not obscure
+    // the edge the user is trying to line up.
+    final grip = Paint()
+      ..color = Colors.white
+      ..strokeWidth = gripThickness
+      ..strokeCap = StrokeCap.square;
+    void corner(Offset c, double sx, double sy) {
+      canvas.drawLine(c, c + Offset(gripLength * sx, 0), grip);
+      canvas.drawLine(c, c + Offset(0, gripLength * sy), grip);
+    }
+
+    corner(screenRect.topLeft, 1, 1);
+    corner(screenRect.topRight, -1, 1);
+    corner(screenRect.bottomLeft, 1, -1);
+    corner(screenRect.bottomRight, -1, -1);
+  }
+
+  @override
+  bool shouldRepaint(_CropPainter old) => old.screenRect != screenRect;
+}
 
 class CropableProvider extends ValueNotifier<bool> {
   CropableProvider(super.value);

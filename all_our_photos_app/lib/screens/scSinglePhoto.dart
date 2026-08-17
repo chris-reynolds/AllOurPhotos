@@ -39,6 +39,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   final GlobalKey pvKey = GlobalKey();
   bool isPhotoScaled = false;
   bool isRotatorVisible = false;
+  bool isCropMode = false;
   bool _isClippingInProgress = false;
   Rect? _currentCroppingRect;
 
@@ -86,8 +87,34 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
     }
   } // of download
 
+  /// The crop-mode toolbar: nothing but Cancel, a hint, and Apply, so there is
+  /// no doubt about what the gestures are doing while a selection is live.
+  Widget buildCropAppBar(BuildContext context) {
+    return AppBar(
+      leading: MyIconButton(Icons.close, onPressed: () {
+        setState(() => isCropMode = false);
+      }),
+      actions: [
+        Spacer(),
+        if (!UIPreferences.isSmallScreen)
+          Text(isPhotoScaled
+              ? 'Drag the corners — pinch to zoom in on an edge'
+              : 'Drag a corner in to select a region'),
+        MyIconButton(
+          Icons.check,
+          enabled: isPhotoScaled,
+          onPressed: () async {
+            setState(() => isCropMode = false);
+            cropMe(context, currentSnap!);
+          },
+        ),
+      ],
+    );
+  } // of buildCropAppBar
+
   Widget? buildAppBar(BuildContext context) {
     if (isRotatorVisible) return null; // no app bar wile doing rotation
+    if (isCropMode) return buildCropAppBar(context);
     return AppBar(
       leading: MyIconButton(Icons.arrow_back, onPressed: () {
         Navigator.pop(context);
@@ -144,7 +171,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
           },
         ),
         MyIconButton(Icons.crop, onPressed: () {
-          cropMe(context, currentSnap!);
+          setState(() => isCropMode = true);
         }),
         MyIconButton(Icons.list, onPressed: () {
           showExif(context, currentSnap!);
@@ -192,6 +219,7 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
                   // Paint the (usually cached) thumbnail while the full-size
                   // image downloads, instead of a blank several-second wait.
                   placeholderUrl: currentSnap!.thumbnailURL,
+                  cropMode: isCropMode,
                   // Swipe down/right for previous, up/left for next — only
                   // when nothing is zoomed, so crop panning still works.
                   navigateCallBack: (delta) {
@@ -220,7 +248,14 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   } // of build
 
   void canCropCallback(bool value) {
+    if (isPhotoScaled == value) return;
     isPhotoScaled = value;
+    // This can arrive mid-build — the Clipper publishes from didUpdateWidget —
+    // so defer the rebuild instead of calling setState inline.  The Apply
+    // button reads isPhotoScaled, so it does need to repaint.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
   } // of canCropCallback
 
   void currentRect(Rect rect) {
@@ -236,8 +271,8 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
 
   void cropMe(BuildContext context, AopSnap snap) async {
     if (!isPhotoScaled)
-      showMessage(context, 'Nothing to do. \nZoom before clicking',
-          title: 'Picture is all showing');
+      showMessage(context, 'Nothing to do. \nSelect a smaller region first',
+          title: 'The whole picture is selected');
     else {
       Stopwatch stopwatch = Stopwatch()..start();
       try {
