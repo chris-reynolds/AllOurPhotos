@@ -193,6 +193,39 @@ def prune_export_files(keep: int = EXPORT_KEEP):
     """
     prune_generated_files(EXPORT_DIR, 'export_', keep)
 
+def fit_crop_box(box, actual_size, recorded_size):
+    """Maps a client crop box onto the image that is actually on disk.
+
+    The client works in the dimensions recorded in the database.  When the
+    file no longer matches those - the dev photo store holds 640x480
+    downscaled copies of full-size originals - cropping with the client's
+    coordinates runs off the edge, and PIL pads out of bounds with BLACK
+    rather than complaining.  A crop that is silently all black looks like a
+    broken feature instead of mismatched data, so rescale to the real image
+    and then clamp.
+
+    Returns a box guaranteed to be inside the image and at least 1px each way.
+    """
+    (left, top, right, bottom) = box
+    (actual_w, actual_h) = actual_size
+    (rec_w, rec_h) = recorded_size
+    if rec_w and rec_h and (rec_w != actual_w or rec_h != actual_h):
+        sx = actual_w / rec_w
+        sy = actual_h / rec_h
+        print(f'crop: file is {actual_w}x{actual_h} but the database says '
+              f'{rec_w}x{rec_h}; rescaling the crop box by {sx:.3f},{sy:.3f}')
+        left, right = round(left * sx), round(right * sx)
+        top, bottom = round(top * sy), round(bottom * sy)
+    if left > right:
+        (left, right) = (right, left)
+    if top > bottom:
+        (top, bottom) = (bottom, top)
+    left = max(0, min(left, actual_w - 1))
+    top = max(0, min(top, actual_h - 1))
+    right = max(left + 1, min(right, actual_w))
+    bottom = max(top + 1, min(bottom, actual_h))
+    return (left, top, right, bottom)
+
 @app.get('/crop/{id:int}/{left:int}/{top:int}/{right:int}/{bottom:int}')
 async def cropPic(request: Request,id:int, left: int,top: int, right: int, bottom: int) -> Snap:
     try:
@@ -221,6 +254,9 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         img_exif = img._getexif() # pyright: ignore
 
         progress='do crop'
+        (left,top,right,bottom) = fit_crop_box(
+            (left,top,right,bottom), (img.width,img.height),
+            (original_snap.width, original_snap.height))
         img2 = img.crop((left,top,right,bottom))
         progress = 'update exif'
         if 'exif' in img.info:
