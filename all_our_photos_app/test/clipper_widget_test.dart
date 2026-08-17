@@ -144,26 +144,36 @@ void main() {
   // ------------------------------------------------------------------------
 
   group('crop mode', () {
-    testWidgets('starts by selecting the whole unzoomed photo', (tester) async {
+    testWidgets('starts inset so every corner can be grabbed', (tester) async {
+      // Flush against the edge the grips are half off-screen - the bottom
+      // ones especially, where the window edge is.
       final h = await pumpClipper(tester, cropMode: true);
-      expect(h.rect, const Rect.fromLTRB(0, 0, 4000, 3000));
-      expect(h.canCrop, isFalse,
-          reason: 'selecting everything is not worth cropping');
+      final r = h.rect!;
+      expect(r.left, greaterThan(0));
+      expect(r.top, greaterThan(0));
+      expect(r.right, lessThan(4000));
+      expect(r.bottom, lessThan(3000));
+      // ...but still most of the photo.
+      expect(r.width, greaterThan(4000 * 0.7));
+      expect(r.height, greaterThan(3000 * 0.7));
     });
 
     testWidgets('dragging a corner shrinks the selection and enables Apply',
         (tester) async {
       final h = await pumpClipper(tester, cropMode: true);
       // The box is 800x600 for a 4000x3000 photo, so 1 screen px = 5 image px.
-      // Start just inside: the GestureDetector sits behind 2px padding and a
-      // 1px border, so (0,0) misses it entirely.
-      await drag(tester, const Offset(6, 6), const Offset(100, 60));
+      // The selection starts inset by 44 logical px, so that is where the
+      // top-left grip is.
+      final before = h.rect!;
+      await drag(tester, const Offset(47, 47), const Offset(100, 60));
 
       final r = h.rect!;
-      expect(r.left, closeTo(500, 30), reason: '100 screen px = 500 image px');
-      expect(r.top, closeTo(300, 30));
-      expect(r.right, closeTo(4000, 1), reason: 'far corner must not move');
-      expect(r.bottom, closeTo(3000, 1));
+      expect(r.left, closeTo(before.left + 500, 40),
+          reason: '100 screen px = 500 image px');
+      expect(r.top, closeTo(before.top + 300, 40));
+      expect(r.right, closeTo(before.right, 1),
+          reason: 'the far corner must not move');
+      expect(r.bottom, closeTo(before.bottom, 1));
       expect(h.canCrop, isTrue);
     });
 
@@ -175,10 +185,10 @@ void main() {
       final h = await pumpClipper(tester,
           box: const Size(pw, ph), imgW: iw, imgH: ih, cropMode: true);
 
-      // The photo occupies y 250..550 on screen. Pull the top edge down and
-      // the bottom edge up to leave a letterbox-shaped band.
-      await drag(tester, const Offset(6, 250), const Offset(0, 110));
-      await drag(tester, const Offset(pw - 6, 550), const Offset(0, -110));
+      // The photo occupies y 250..550 on screen and the selection starts 44px
+      // inside it, putting the top-left grip at about (44, 294).  Pull it
+      // down to leave a letterbox-shaped band.
+      await drag(tester, const Offset(44, 294), const Offset(0, 110));
 
       final r = h.rect!;
       expect(r.width / r.height, greaterThan(1.8),
@@ -188,7 +198,7 @@ void main() {
 
     testWidgets('the selection survives a zoom', (tester) async {
       final h = await pumpClipper(tester, cropMode: true);
-      await drag(tester, const Offset(6, 6), const Offset(100, 60));
+      await drag(tester, const Offset(47, 47), const Offset(100, 60));
       final before = h.rect!;
 
       // Zooming is now purely navigation - it must not touch the selection.
@@ -244,7 +254,7 @@ void main() {
 
       // Zoom in first, so the visible region is clearly NOT the selection.
       await pinch(tester, boxCentre, 3.0);
-      await drag(tester, const Offset(6, 6), const Offset(120, 90));
+      await drag(tester, const Offset(47, 47), const Offset(120, 90));
       final selection = h.rect!;
 
       await tester.pumpWidget(build(false));
@@ -258,7 +268,7 @@ void main() {
     testWidgets('the selection cannot be dragged outside the image',
         (tester) async {
       final h = await pumpClipper(tester, cropMode: true);
-      await drag(tester, const Offset(6, 6), const Offset(-300, -300));
+      await drag(tester, const Offset(47, 47), const Offset(-300, -300));
       final r = h.rect!;
       expect(r.left, greaterThanOrEqualTo(0));
       expect(r.top, greaterThanOrEqualTo(0));

@@ -92,6 +92,49 @@ class _ClipperState extends State<Clipper> {
   /// Where the finger actually touched down, before the recogniser's slop.
   Offset? _pointerDownLocal;
 
+  ImageStream? _imageStream;
+  ImageStreamListener? _imageListener;
+
+  /// Measures the photo actually being displayed, rather than trusting the
+  /// width/height recorded in the database.
+  ///
+  /// Those two disagree whenever a file has been replaced by a resized copy —
+  /// the dev photo store holds 640x480 stand-ins for full-size originals — and
+  /// a crop rectangle sized from stale metadata selects a region that does not
+  /// exist in the file.  The server pads out of bounds with black, so the crop
+  /// silently comes back blank.  Measuring the real thing keeps the selection
+  /// in the same coordinates the file is in.
+  void _listenForActualSize() {
+    _stopListeningForSize();
+    final provider =
+        NetworkImage(widget.imageUrl, headers: {'Preserve': WebFile.preserve});
+    _imageStream = provider.resolve(createLocalImageConfiguration(context));
+    _imageListener = ImageStreamListener((info, _) {
+      final actual =
+          Size(info.image.width.toDouble(), info.image.height.toDouble());
+      info.dispose();
+      if (!mounted || actual.isEmpty || actual == _imageSize) return;
+      _dPrint('actual image $actual, database said $_imageSize');
+      setState(() {
+        _imageSize = actual;
+        _math = null; // scale and offsets depend on the image size
+        _cropImageRect = null;
+      });
+      _calcInitialScale();
+    }, onError: (_, __) {
+      /* the image just will not load; nothing to measure */
+    });
+    _imageStream!.addListener(_imageListener!);
+  }
+
+  void _stopListeningForSize() {
+    if (_imageStream != null && _imageListener != null) {
+      _imageStream!.removeListener(_imageListener!);
+    }
+    _imageStream = null;
+    _imageListener = null;
+  }
+
   /// How near a corner a finger must land to grab it, in logical pixels.
   static const double _grabScreenRadius = 28;
 
@@ -124,12 +167,25 @@ class _ClipperState extends State<Clipper> {
     _publish();
   }
 
-  /// Starts the selection from whatever is currently on screen, clamped to the
-  /// image — so entering crop mode on an unzoomed photo selects all of it.
+  /// How far inside the visible area the starting selection sits, in logical
+  /// pixels.  Flush against the edge the corner grips are half off-screen and
+  /// cannot be grabbed — the bottom ones especially, where the window edge is.
+  static const double _initialInset = 44;
+
+  /// Starts the selection from whatever is currently on screen, inset far
+  /// enough that every corner can be grabbed.
   void _initCropRect() {
     if (_math == null) return;
     final visible = _math!.calcImageRect(_fingerGestureList.totalTransform());
-    _cropImageRect = _math!.clampCrop(_math!.fullImageRect.intersect(visible));
+    final start = _math!.fullImageRect.intersect(visible);
+    // The inset is a screen distance, so convert it into image pixels at the
+    // current zoom — the grips then sit the same distance in whatever the
+    // view is doing.
+    final inset = _initialInset /
+        (_math!.initialScale * _fingerGestureList.totalScale());
+    final insetRect = start.deflate(inset);
+    _cropImageRect =
+        _math!.clampCrop(insetRect.isEmpty ? start.deflate(1) : insetRect);
     _publish();
   }
 
@@ -287,6 +343,7 @@ class _ClipperState extends State<Clipper> {
     super.didChangeDependencies();
     _resetGestures();
     _math = null; // force a recalc
+    _listenForActualSize();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _dPrint('exec postframecallback');
       if (_math == null) {
@@ -312,6 +369,7 @@ class _ClipperState extends State<Clipper> {
       _imageSize =
           Size(widget.imageWidth.toDouble(), widget.imageHeight.toDouble());
       _calcInitialScale();
+      _listenForActualSize(); // the new photo may not match its metadata either
     }
     if (widget.cropMode && !oldWidget.cropMode) {
       _initCropRect(); // entering crop mode: select what is on screen
@@ -326,6 +384,12 @@ class _ClipperState extends State<Clipper> {
       _dragStartRect = null;
       _dragStartImage = null;
     }
+  }
+
+  @override
+  void dispose() {
+    _stopListeningForSize();
+    super.dispose();
   }
 
   @override
