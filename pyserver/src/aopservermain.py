@@ -179,6 +179,37 @@ def prune_generated_files(dirpath: str, prefix: str, keep: int):
     except OSError as ex:
         print(f'could not prune {dirpath}: {ex!r}')
 
+def normalise_angle(angle: int) -> int:
+    """Brings an angle into 0..359."""
+    return int(angle) % 360
+
+def rotate_with_border_crop(img, angle: int):
+    """Rotates [img] and trims the blank wedges the rotation leaves behind.
+
+    Rotating about the centre leaves empty triangles in the corners.  The
+    horizontal extent of those wedges scales with the image HEIGHT and the
+    vertical extent with its WIDTH, which is why the borders look transposed
+    but are not.  The trim is capped at 10% so a large angle cannot eat the
+    picture.
+
+    Shared by the full-size and thumbnail paths so the two cannot drift apart
+    and show the same photo at visibly different angles.
+    """
+    angle = normalise_angle(angle)
+    if angle == 0:
+        return img
+    subangle = angle % 90
+    if subangle > 45:
+        subangle = 90 - subangle
+    border_proportion = abs(math.tan(subangle * math.pi / 180) / 2)
+    if border_proportion > 0.1:
+        border_proportion = 0.1
+    top_border = int(img.width * border_proportion)
+    side_border = int(img.height * border_proportion)
+    rotated = img.rotate(angle)
+    return rotated.crop((side_border, top_border,
+                         img.width - side_border, img.height - top_border))
+
 def save_jpeg_atomically(img, target: str, exif_bytes=None):
     """Writes a JPEG to [target] via a temporary name, then renames it in.
 
@@ -354,37 +385,34 @@ async def rotateThumbnail(request: Request, snap_id: int):
     try:
         get_session_from_request(request)
         snap = get_snap(request, snap_id)
-        angle = snap.degrees
-        if angle == 0:
-            return {'result': 'no rotation needed'}
         thumbName = os.path.splitext(snap.file_name)[0] + '.jpg'
         thumbPath = ROOT_DIR + (snap.directory or '') + '/thumbnails/' + thumbName
-        if not os.path.isfile(thumbPath):
-            raise HTTPException(status_code=404, detail=f'thumbnail not found: {thumbPath}')
-        while angle < 0:
-            angle += 360
-        while angle > 360:
-            angle -= 360
-        subangle = (angle % 90)
-        if subangle > 45:
-            subangle = 90 - subangle
-        img = Image.open(thumbPath)
-        exif_found = False
-        if 'exif' in img.info:
-            img_exif_bytes = piexif.dump(piexif.load(img.info['exif']))
-            exif_found = True
-        border_proportion = abs(math.tan(subangle * math.pi / 180) / 2)
-        if border_proportion > 0.1:
-            border_proportion = 0.1
-        top_border = int(img.width * border_proportion)
-        side_border = int(img.height * border_proportion)
-        img2 = img.rotate(angle)
-        cropRect = (side_border, top_border, img.width - side_border, img.height - top_border)
-        img2 = img2.crop(cropRect)
-        if exif_found:
-            img2.save(thumbPath, exif=img_exif_bytes, quality=50)
+        fullPath = ROOT_DIR + (snap.directory or '') + '/' + (snap.file_name or '')
+        if not os.path.isfile(fullPath):
+            raise HTTPException(status_code=404, detail=f'source image not found: {fullPath}')
+        # Rebuild the thumbnail from the ORIGINAL before applying the angle.
+        # Rotating the thumbnail already on disk compounds: set 5 degrees then
+        # 10 and the thumbnail ends up at 15 while the full-size photo - always
+        # rotated from the original - shows 10.  Going back to 0 returned early
+        # and left the thumbnail rotated for good.  Rebuilding makes it a pure
+        # function of the original and snap.degrees, so the two always agree.
+        # Only the save path pays this; the editor's live preview still rotates
+        # the small thumbnail via /rotate.
+        source = Image.open(fullPath)
+        makeThumbnail(source, source._getexif(), thumbPath)  # pyright: ignore
+        angle = normalise_angle(snap.degrees)
+        if angle == 0:
+            return {'result': 'ok - thumbnail rebuilt unrotated'}
+        with Image.open(thumbPath) as thumb:
+            thumb.load()
+            exif_bytes = (piexif.dump(piexif.load(thumb.info['exif']))
+                          if 'exif' in thumb.info else None)
+            rotated = rotate_with_border_crop(thumb, angle)
+            rotated.load()   # crop() is lazy - realise it before the file closes
+        if exif_bytes:
+            rotated.save(thumbPath, format='JPEG', exif=exif_bytes, quality=50)
         else:
-            img2.save(thumbPath, quality=50)
+            rotated.save(thumbPath, format='JPEG', quality=50)
         return {'result': 'ok'}
     except HTTPException: raise
     except Exception as ex:
@@ -413,24 +441,15 @@ async def rotatePic(request: Request,angle: int, aPath: str):
                 and os.path.getmtime(cacheFilename) >= os.path.getmtime(targetFilename)):
             os.utime(cacheFilename, None)   # mark as recently used for pruning
             return FileResponse(cacheFilename, headers=ROTATE_CACHE_HEADERS)
-        subangle = (angle % 90)
-        if subangle > 45:
-            subangle = 90-subangle
         img = Image.open(targetFilename)
         exif_found = False  # default to empty dictionary
         if 'exif' in img.info:
             img_exif = piexif.load(img.info['exif'])
             img_exif_bytes = piexif.dump(img_exif)
-            exif_found = True     
-        border_proportion = abs(math.tan(subangle*math.pi/180)/2)  # convert to radians
-        if border_proportion> 0.1:
-            border_proportion = 0.1
-        top_border = int(img.width*border_proportion)
-        side_border = int(img.height*border_proportion)
-        img2 = img.rotate(angle)
-        cropRect = (side_border, top_border, img.width - side_border, img.height - top_border)
-        print(cropRect)
-        img = img2.crop(cropRect)
+            exif_found = True
+        # Shared with the thumbnail path so the two cannot show the same photo
+        # at different angles.
+        img = rotate_with_border_crop(img, angle)
         save_jpeg_atomically(img, cacheFilename,
                              img_exif_bytes if exif_found else None)
         prune_rotate_cache()

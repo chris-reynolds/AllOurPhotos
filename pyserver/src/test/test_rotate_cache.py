@@ -12,6 +12,8 @@ import pytest
 from PIL import Image
 
 from src.aopservermain import (
+    normalise_angle,
+    rotate_with_border_crop,
     save_jpeg_atomically,
     rotate_cache_path,
     prune_rotate_cache,
@@ -87,6 +89,67 @@ def cache_dir(tmp_path, monkeypatch):
     d.mkdir()
     monkeypatch.setattr('src.aopservermain.ROTATE_CACHE_DIR', str(d))
     return str(d)
+
+
+class TestNormaliseAngle:
+
+    @pytest.mark.parametrize('given,expected', [
+        (0, 0), (90, 90), (359, 359), (360, 0), (450, 90),
+        (-90, 270), (-1, 359), (720, 0),
+    ])
+    def test_brings_into_range(self, given, expected):
+        assert normalise_angle(given) == expected
+
+
+class TestRotateWithBorderCrop:
+
+    def test_zero_is_a_no_op(self):
+        im = Image.new('RGB', (100, 60), (10, 20, 30))
+        assert rotate_with_border_crop(im, 0).size == (100, 60)
+        assert rotate_with_border_crop(im, 360).size == (100, 60)
+
+    def test_a_right_angle_keeps_the_canvas(self):
+        # PIL rotate() without expand keeps the same canvas, and a multiple of
+        # 90 leaves no blank wedges to trim.
+        im = Image.new('RGB', (100, 60))
+        assert rotate_with_border_crop(im, 90).size == (100, 60)
+
+    def test_a_small_angle_trims_the_blank_corners(self):
+        im = Image.new('RGB', (200, 100))
+        out = rotate_with_border_crop(im, 10)
+        assert out.width < 200 and out.height < 100
+
+    def test_the_trim_is_capped(self):
+        # 45 degrees hits the 10% cap.  Each side is trimmed by 10% of the
+        # OPPOSITE dimension, so on a wide image the height loses
+        # proportionally more: 200x100 -> 180x60.
+        im = Image.new('RGB', (200, 100))
+        out = rotate_with_border_crop(im, 45)
+        assert out.size == (200 - 2 * 10, 100 - 2 * 20)
+
+    def test_a_square_image_trims_evenly(self):
+        im = Image.new('RGB', (200, 200))
+        out = rotate_with_border_crop(im, 45)
+        assert out.width == out.height, 'a square must stay square'
+
+    def test_is_deterministic(self):
+        im = Image.new('RGB', (200, 100))
+        assert rotate_with_border_crop(im, 7).size == \
+            rotate_with_border_crop(im, 7).size
+
+    def test_applying_twice_is_not_the_same_as_once(self):
+        """Why the thumbnail must be rebuilt from the original.
+
+        Rotating an already-rotated thumbnail compounds - the angle adds up and
+        the picture shrinks each time - so the thumbnail drifted away from the
+        full-size photo, which is always rotated from the original.
+        """
+        im = Image.new('RGB', (400, 300))
+        once = rotate_with_border_crop(im, 5)
+        twice = rotate_with_border_crop(rotate_with_border_crop(im, 5), 5)
+        assert twice.size != once.size, \
+            'compounding must be visible - hence rebuilding from the original'
+        assert twice.width < once.width
 
 
 class TestSaveJpegAtomically:
