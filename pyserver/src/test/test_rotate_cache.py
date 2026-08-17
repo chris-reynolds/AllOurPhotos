@@ -108,11 +108,26 @@ class TestRotateWithBorderCrop:
         assert rotate_with_border_crop(im, 0).size == (100, 60)
         assert rotate_with_border_crop(im, 360).size == (100, 60)
 
-    def test_a_right_angle_keeps_the_canvas(self):
-        # PIL rotate() without expand keeps the same canvas, and a multiple of
-        # 90 leaves no blank wedges to trim.
+    def test_a_right_angle_swaps_the_canvas(self):
+        # Regression: without expand=True the turned picture was squeezed back
+        # into the original frame, giving black bars down the sides and losing
+        # the top and bottom.  353 photos sat at 270 degrees and 57 at 90.
         im = Image.new('RGB', (100, 60))
-        assert rotate_with_border_crop(im, 90).size == (100, 60)
+        assert rotate_with_border_crop(im, 90).size == (60, 100)
+        assert rotate_with_border_crop(im, 270).size == (60, 100)
+
+    def test_a_half_turn_keeps_the_canvas(self):
+        im = Image.new('RGB', (100, 60))
+        assert rotate_with_border_crop(im, 180).size == (100, 60)
+
+    def test_a_right_angle_loses_nothing(self):
+        im = Image.new('RGB', (100, 60), (200, 180, 120))
+        out = rotate_with_border_crop(im, 270).convert('RGB')
+        blank = sum(1 for p in out.get_flattened_data() if p == (0, 0, 0)) \
+            if hasattr(out, 'get_flattened_data') else \
+            sum(1 for p in list(out.getdata()) if p == (0, 0, 0))
+        assert blank == 0, 'a right angle must not introduce blank bars'
+        assert out.width * out.height == 100 * 60, 'nor lose any picture'
 
     def test_a_small_angle_trims_the_blank_corners(self):
         im = Image.new('RGB', (200, 100))

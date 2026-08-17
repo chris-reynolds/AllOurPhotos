@@ -198,6 +198,14 @@ def rotate_with_border_crop(img, angle: int):
     angle = normalise_angle(angle)
     if angle == 0:
         return img
+    if angle % 90 == 0:
+        # A right angle has to change the shape of the canvas.  Without
+        # expand=True the turned picture is squeezed back into the original
+        # frame: a 4608x3456 photo at 270 came out still 4608x3456, with solid
+        # black bars down the sides and the top and bottom of the picture cut
+        # away.  There are no blank wedges to trim at a right angle, so this
+        # returns directly.
+        return img.rotate(angle, expand=True)
     subangle = angle % 90
     if subangle > 45:
         subangle = 90 - subangle
