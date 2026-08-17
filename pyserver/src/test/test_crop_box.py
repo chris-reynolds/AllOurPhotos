@@ -9,8 +9,59 @@ out black (mean RGB 0,0,0) or nearly so.
 """
 
 import pytest
+from PIL import Image
 
-from src.aopservermain import fit_crop_box
+from src.aopservermain import fit_crop_box, rotate_with_border_crop
+
+
+def _marker_box(im):
+    """Bounding box of the red marker, or None."""
+    px = im.convert('RGB').load()
+    xs, ys = [], []
+    for y in range(0, im.height, 2):
+        for x in range(0, im.width, 2):
+            r, g, b = px[x, y]
+            if r > 180 and g < 80 and b < 80:
+                xs.append(x)
+                ys.append(y)
+    return (min(xs), min(ys), max(xs), max(ys)) if xs else None
+
+
+class TestCroppingARotatedPhoto:
+    """A rotated photo is viewed through /rotate, so the crop rectangle is in
+    ROTATED coordinates.  Cropping the unrotated original with them takes a
+    quite different region - the crop has to be applied to the same picture
+    the user was looking at."""
+
+    def _source(self):
+        im = Image.new('RGB', (300, 300), (0, 0, 0))
+        im.paste((255, 0, 0), (230, 20, 280, 70))  # marker near the top right
+        return im
+
+    def test_the_marker_moves_when_the_photo_is_rotated(self):
+        src = self._source()
+        assert _marker_box(src) != _marker_box(rotate_with_border_crop(src, 90))
+
+    def test_rotating_first_takes_the_region_the_user_selected(self):
+        src = self._source()
+        viewed = rotate_with_border_crop(src, 90)  # what the client displays
+        left, top, right, bottom = _marker_box(viewed)
+        box = (left - 6, top - 6, right + 6, bottom + 6)
+
+        # What the server does now: reproduce the view, then crop it.
+        got = rotate_with_border_crop(src, 90).crop(box)
+        assert _marker_box(got) is not None, \
+            'the crop must contain what the user selected'
+
+    def test_cropping_the_unrotated_original_misses_it(self):
+        # The old behaviour, kept as a guard: it must genuinely differ, or the
+        # test above proves nothing.
+        src = self._source()
+        viewed = rotate_with_border_crop(src, 90)
+        left, top, right, bottom = _marker_box(viewed)
+        box = (left - 6, top - 6, right + 6, bottom + 6)
+        assert _marker_box(src.crop(box)) is None, \
+            'cropping the original with rotated coordinates takes the wrong bit'
 
 
 class TestMatchingDimensions:

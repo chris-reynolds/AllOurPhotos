@@ -310,10 +310,21 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         progress = 'compute exif'
         img_exif = img._getexif() # pyright: ignore
 
+        # Crop the picture the user was actually looking at.  A rotated photo
+        # is viewed through /rotate, so the selection is in ROTATED
+        # coordinates; cropping the unrotated original with them would take
+        # the wrong region entirely.  Reproducing the same rotation here puts
+        # the server in the client's coordinate space.
+        rotation = normalise_angle(original_snap.degrees or 0)
+        if rotation != 0:
+            img = rotate_with_border_crop(img, rotation)
+
         progress='do crop'
+        # Sizes match by construction now, so this only clamps: the client
+        # measures the image it is displaying, which is exactly what img is.
         (left,top,right,bottom) = fit_crop_box(
             (left,top,right,bottom), (img.width,img.height),
-            (original_snap.width, original_snap.height))
+            (img.width,img.height))
         img2 = img.crop((left,top,right,bottom))
         progress = 'update exif'
         if 'exif' in img.info:
@@ -335,6 +346,9 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         new_snap.width = img2.width
         new_snap.height = img2.height
         new_snap.media_length = os.path.getsize(targetFullPath)
+        # The rotation is baked into the cropped pixels, so the copy must not
+        # be turned again when it is displayed.
+        new_snap.degrees = 0
         new_snap.session_id = session.id
         new_snap.user_id = current_user.id
         new_snap.id = -1
