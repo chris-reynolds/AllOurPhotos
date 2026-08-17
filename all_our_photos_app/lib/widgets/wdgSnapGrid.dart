@@ -21,17 +21,19 @@ class SsSnapGrid extends StatelessWidget {
     AopSnap snap = snapList[index];
     return Stack(children: [
       GestureDetector(
-          onTap: () {
-            Navigator.of(context).pushNamed('SinglePhoto',
+          onTap: () async {
+            await Navigator.of(context).pushNamed('SinglePhoto',
                 arguments: [snapList, index]); // weakly types params. yuk.
+            // Cropping inserts the new photo into this same list, so rebuild.
+            parentGrid.setState(() {});
           },
           child: Hero(
               key: Key(snap.thumbnailURL),
               tag: snap.fileName!,
               child: Image.network(
-                  snap.thumbnailURL,
-                  fit: BoxFit.scaleDown,
-                  headers: {'Preserve': WebFile.preserve},
+                snap.thumbnailURL,
+                fit: BoxFit.scaleDown,
+                headers: {'Preserve': WebFile.preserve},
               ))),
       Checkbox(
         value: parentGrid.isSelected(snap.id),

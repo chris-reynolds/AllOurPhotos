@@ -255,6 +255,9 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
                     inSelectMode: _inSelectMode,
                     highResolution:
                         (_picsPerRow == 1 && !UIPreferences.isSmallScreen),
+                    // Cropping inserts the new photo into this same list next
+                    // to its original, so the grid has to rebuild to show it.
+                    onReturn: () => setState(() {}),
                     onBannerTap: (AopSnap imageFile) async {
                       if (_inSelectMode) {
                         _imageFilter.setSelected(_imageFilter.items[idx],
@@ -484,9 +487,7 @@ class PhotoGridState extends State<PhotoGrid> with Selection<int> {
         await showMessage(context, message);
         if (widget._refreshNow != null) widget._refreshNow!();
         clearSelected();
-        setState(() async {
-          
-        });
+        setState(() async {});
       }
     } catch (ex) {
       showMessage(context, 'Error: $ex');

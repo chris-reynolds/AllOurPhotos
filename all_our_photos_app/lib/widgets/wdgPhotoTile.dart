@@ -26,7 +26,8 @@ class PhotoTile extends StatefulWidget {
       this.inSelectMode = false,
       this.highResolution = false,
       required this.onBannerTap,
-      required this.onBannerLongPress});
+      required this.onBannerLongPress,
+      this.onReturn});
   final List<AopSnap> snapList;
   final int index;
   final bool isSelected;
@@ -35,6 +36,13 @@ class PhotoTile extends StatefulWidget {
   final BannerTapCallback
       onBannerTap; // User taps on the photo's header or footer.
   final BannerTapCallback onBannerLongPress;
+
+  /// Called after returning from the single-photo screen.
+  ///
+  /// That screen can add to [snapList] — cropping inserts the new photo next
+  /// to its original — and the tile's own setState only rebuilds the tile, so
+  /// the grid needs telling before the new photo appears in it.
+  final VoidCallback? onReturn;
   @override
   State<PhotoTile> createState() => _PhotoTileState();
 }
@@ -50,8 +58,10 @@ class _PhotoTileState extends State<PhotoTile> {
             widget.onBannerTap(snap);
             setState(() {});
           } else if (snap.isVideo) {
-            await Navigator.push(context,
-                MaterialPageRoute(builder: (_) => SingleVideoWidget(snap.fullSizeURL)));
+            await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => SingleVideoWidget(snap.fullSizeURL)));
             setState(() {});
           } else {
             await Navigator.pushNamed(context, 'SinglePhoto', arguments: [
@@ -59,6 +69,8 @@ class _PhotoTileState extends State<PhotoTile> {
               widget.index,
             ]); // weakly types params. yuk.
             setState(() {});
+            widget.onReturn
+                ?.call(); // the list may have grown while we were away
           }
         },
         onDoubleTap: () {
@@ -69,6 +81,7 @@ class _PhotoTileState extends State<PhotoTile> {
             widget.snapList,
             widget.index
           ]); // weakly types params. yuk.
+          widget.onReturn?.call();
         },
         child: Padding(
           padding: const EdgeInsets.only(top: HEADER_OFFSET),
