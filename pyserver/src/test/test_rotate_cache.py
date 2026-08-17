@@ -9,8 +9,10 @@ could not cache it either, and the temp files accumulated forever.
 
 import os
 import pytest
+from PIL import Image
 
 from src.aopservermain import (
+    save_jpeg_atomically,
     rotate_cache_path,
     prune_rotate_cache,
     prune_export_files,
@@ -85,6 +87,47 @@ def cache_dir(tmp_path, monkeypatch):
     d.mkdir()
     monkeypatch.setattr('src.aopservermain.ROTATE_CACHE_DIR', str(d))
     return str(d)
+
+
+class TestSaveJpegAtomically:
+    """Regression: the temporary name ends in .part, and PIL cannot infer a
+    format from that, so every uncached rotation raised
+    'unknown file extension: .part'.  The photo vanished in the rotation
+    editor, which is the only place that asks for a non-zero angle."""
+
+    def test_writes_a_readable_jpeg(self, tmp_path):
+        target = str(tmp_path / 'rot_abc.jpg')
+        save_jpeg_atomically(Image.new('RGB', (40, 30), (120, 60, 30)), target)
+        assert os.path.isfile(target)
+        with Image.open(target) as im:
+            assert im.format == 'JPEG'
+            assert im.size == (40, 30)
+
+    def test_leaves_no_part_file_behind(self, tmp_path):
+        target = str(tmp_path / 'rot_abc.jpg')
+        save_jpeg_atomically(Image.new('RGB', (8, 8)), target)
+        assert [n for n in os.listdir(tmp_path) if n.endswith('.part')] == []
+
+    def test_accepts_exif_bytes(self, tmp_path):
+        import piexif
+        exif = piexif.dump({'0th': {}, 'Exif': {}, 'GPS': {}, '1st': {}})
+        target = str(tmp_path / 'rot_exif.jpg')
+        save_jpeg_atomically(Image.new('RGB', (16, 16)), target, exif)
+        with Image.open(target) as im:
+            assert im.format == 'JPEG'
+
+    def test_overwrites_an_existing_cache_file(self, tmp_path):
+        target = str(tmp_path / 'rot_abc.jpg')
+        save_jpeg_atomically(Image.new('RGB', (40, 30)), target)
+        save_jpeg_atomically(Image.new('RGB', (10, 10)), target)
+        with Image.open(target) as im:
+            assert im.size == (10, 10), 'the rename must replace, not fail'
+
+    def test_a_failed_save_cleans_up_and_raises(self, tmp_path):
+        target = str(tmp_path / 'nope' / 'rot_abc.jpg')  # directory missing
+        with pytest.raises(Exception):
+            save_jpeg_atomically(Image.new('RGB', (8, 8)), target)
+        assert not os.path.isdir(tmp_path / 'nope')
 
 
 class TestPruneRotateCache:

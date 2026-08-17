@@ -179,6 +179,32 @@ def prune_generated_files(dirpath: str, prefix: str, keep: int):
     except OSError as ex:
         print(f'could not prune {dirpath}: {ex!r}')
 
+def save_jpeg_atomically(img, target: str, exif_bytes=None):
+    """Writes a JPEG to [target] via a temporary name, then renames it in.
+
+    The rename means a second request for the same rotation can never be
+    served a half-written file.
+
+    The format MUST be given explicitly: the temporary name ends in .part so
+    that pruning skips files still being written, and PIL cannot infer JPEG
+    from that extension - it raises 'unknown file extension: .part'.  Leaving
+    it out broke every uncached rotation, which surfaced as the photo simply
+    vanishing in the rotation editor.
+    """
+    partName = f'{target}.{os.getpid()}.{random.randint(0,999999)}.part'
+    try:
+        if exif_bytes:
+            img.save(partName, format='JPEG', exif=exif_bytes, quality=100)
+        else:
+            img.save(partName, format='JPEG', quality=100)
+        os.replace(partName, target)
+    except Exception:
+        try:
+            os.remove(partName)
+        except OSError:
+            pass
+        raise
+
 def prune_rotate_cache(keep: int = ROTATE_CACHE_KEEP):
     """Keeps only the [keep] most recently used rotated images."""
     prune_generated_files(ROTATE_CACHE_DIR, 'rot_', keep)
@@ -405,14 +431,8 @@ async def rotatePic(request: Request,angle: int, aPath: str):
         cropRect = (side_border, top_border, img.width - side_border, img.height - top_border)
         print(cropRect)
         img = img2.crop(cropRect)
-        # Write to a private name and rename into place, so a second request
-        # for the same rotation can never be served a half-written file.
-        partName = f'{cacheFilename}.{os.getpid()}.{random.randint(0,999999)}.part'
-        if exif_found:
-            img.save(partName,exif=img_exif_bytes,quality=100)
-        else:
-            img.save(partName,quality=100,)
-        os.replace(partName, cacheFilename)
+        save_jpeg_atomically(img, cacheFilename,
+                             img_exif_bytes if exif_found else None)
         prune_rotate_cache()
         return FileResponse(cacheFilename, headers=ROTATE_CACHE_HEADERS)
     #except HTTPException: raise
