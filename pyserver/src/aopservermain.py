@@ -183,6 +183,32 @@ def normalise_angle(angle: int) -> int:
     """Brings an angle into 0..359."""
     return int(angle) % 360
 
+def largest_inscribed_rect(w: float, h: float, angle_deg: float):
+    """Largest axis-aligned rectangle wholly inside a w x h rectangle turned
+    by angle_deg — i.e. the biggest crop containing no blank corner.
+
+    The standard 'rotated rect with max area' result.  Used where the picture
+    turns onto its side, since the 10% cap that serves small angles would
+    leave a quarter of the frame blank there.
+    """
+    if w <= 0 or h <= 0:
+        return (0.0, 0.0)
+    angle = math.radians(angle_deg)
+    width_is_longer = w >= h
+    side_long, side_short = (w, h) if width_is_longer else (h, w)
+    sin_a = abs(math.sin(angle))
+    cos_a = abs(math.cos(angle))
+    if side_short <= 2 * sin_a * cos_a * side_long or abs(sin_a - cos_a) < 1e-10:
+        # Half-constrained: the crop is limited by the short side alone.
+        x = 0.5 * side_short
+        wr, hr = ((x / sin_a, x / cos_a) if width_is_longer
+                  else (x / cos_a, x / sin_a))
+    else:
+        cos_2a = cos_a * cos_a - sin_a * sin_a
+        wr = (w * cos_a - h * sin_a) / cos_2a
+        hr = (h * cos_a - w * sin_a) / cos_2a
+    return (wr, hr)
+
 def rotate_with_border_crop(img, angle: int):
     """Rotates [img] and trims the blank wedges the rotation leaves behind.
 
@@ -198,14 +224,25 @@ def rotate_with_border_crop(img, angle: int):
     angle = normalise_angle(angle)
     if angle == 0:
         return img
-    if angle % 90 == 0:
-        # A right angle has to change the shape of the canvas.  Without
-        # expand=True the turned picture is squeezed back into the original
-        # frame: a 4608x3456 photo at 270 came out still 4608x3456, with solid
-        # black bars down the sides and the top and bottom of the picture cut
-        # away.  There are no blank wedges to trim at a right angle, so this
-        # returns directly.
-        return img.rotate(angle, expand=True)
+    if 45 <= (angle % 180) <= 135:
+        # The picture turns onto its side, so the canvas has to change shape.
+        # Without expand=True it is squeezed back into the original frame: a
+        # 4608x3456 photo at 270 came out still 4608x3456, with solid black
+        # bars down the sides and the top and bottom cut away.  87 degrees was
+        # worse still - landscape and 22% blank.
+        #
+        # Note the test is whether the rotation FLIPS THE ASPECT, not whether
+        # it is a multiple of 90: 183 degrees keeps the shape and belongs on
+        # the branch below, while 87 does not.
+        rotated = img.rotate(angle, expand=True)
+        wr, hr = largest_inscribed_rect(img.width, img.height, angle)
+        left = int(round((rotated.width - wr) / 2))
+        top = int(round((rotated.height - hr) / 2))
+        right = rotated.width - left
+        bottom = rotated.height - top
+        if right - left < 1 or bottom - top < 1:
+            return rotated  # degenerate; better whole than empty
+        return rotated.crop((left, top, right, bottom))
     subangle = angle % 90
     if subangle > 45:
         subangle = 90 - subangle

@@ -120,6 +120,30 @@ class TestRotateWithBorderCrop:
         im = Image.new('RGB', (100, 60))
         assert rotate_with_border_crop(im, 180).size == (100, 60)
 
+    @pytest.mark.parametrize('angle', [87, 90, 93, 267, 270, 273])
+    def test_turning_onto_its_side_gives_a_portrait_result(self, angle):
+        # Every angle the editor can reach around a right angle: 90n +/- 6,
+        # since it rotates in 90 degree steps and the slider spans -6..6.
+        im = Image.new('RGB', (400, 300))  # landscape
+        out = rotate_with_border_crop(im, angle)
+        assert out.height > out.width, \
+            'a landscape photo turned onto its side must come out portrait'
+
+    @pytest.mark.parametrize('angle', [3, 180, 183, 357, 359])
+    def test_angles_near_0_or_180_keep_their_shape(self, angle):
+        # 183 is the trap: not a multiple of 90, but it does NOT flip.
+        im = Image.new('RGB', (400, 300))
+        out = rotate_with_border_crop(im, angle)
+        assert out.width > out.height
+
+    @pytest.mark.parametrize('angle', [3, 45, 87, 90, 93, 135, 180, 183, 270])
+    def test_no_angle_leaves_a_blank_corner(self, angle):
+        im = Image.new('RGB', (400, 300), (200, 180, 120))
+        out = rotate_with_border_crop(im, angle).convert('RGB')
+        px = list(out.getdata())
+        blank = sum(1 for p in px if sum(p) < 20)
+        assert blank == 0, f'{angle} degrees left {100.0*blank/len(px):.1f}% blank'
+
     def test_a_right_angle_loses_nothing(self):
         im = Image.new('RGB', (100, 60), (200, 180, 120))
         out = rotate_with_border_crop(im, 270).convert('RGB')
@@ -135,11 +159,12 @@ class TestRotateWithBorderCrop:
         assert out.width < 200 and out.height < 100
 
     def test_the_trim_is_capped(self):
-        # 45 degrees hits the 10% cap.  Each side is trimmed by 10% of the
-        # OPPOSITE dimension, so on a wide image the height loses
-        # proportionally more: 200x100 -> 180x60.
+        # 30 degrees is past the cap (tan(30)/2 = 0.29) but still keeps the
+        # photo's shape, so it uses the capped trim rather than the inscribed
+        # rectangle.  Each side is trimmed by 10% of the OPPOSITE dimension,
+        # so on a wide image the height loses proportionally more.
         im = Image.new('RGB', (200, 100))
-        out = rotate_with_border_crop(im, 45)
+        out = rotate_with_border_crop(im, 30)
         assert out.size == (200 - 2 * 10, 100 - 2 * 20)
 
     def test_a_square_image_trims_evenly(self):
