@@ -832,18 +832,6 @@ class AopSnap extends DomainObject {
     return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName?v=${degrees}_$thumbResetVersion';
   } // of thumbnailURL
 
-  // Live-rotated thumbnail for the rotation editor preview — always via /rotate/.
-  String get rotatedThumbnailURL {
-    String thumbName = fileName ?? 'noname';
-    if (!thumbName.toLowerCase().endsWith('.jpg')) {
-      thumbName = path.setExtension(fileName!, '.jpg');
-    }
-    if (degrees == 0) {
-      return '${WebFile.rootUrl}photos/$directory/thumbnails/$thumbName';
-    }
-    return '${WebFile.rootUrl}rotate/$degrees/$directory/thumbnails/$thumbName';
-  } // of rotatedThumbnailURL
-
   String get metadataURL {
     return '${WebFile.rootUrl}photos/$directory/metadata/$fileName.json';
   } // of metadataURL
