@@ -31,20 +31,25 @@ class Harness {
 }
 
 Future<Harness> pumpClipper(WidgetTester tester,
-    {bool withSwipe = true}) async {
+    {bool withSwipe = true, Size? box, int imgW = imageWidth,
+    int imgH = imageHeight}) async {
+  final size = box ?? boxSize;
   final h = Harness();
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
   await tester.pumpWidget(MaterialApp(
     home: Scaffold(
       body: ChangeNotifierProvider<MapProvider>.value(
         value: h.log,
         child: Center(
           child: SizedBox(
-            width: boxSize.width,
-            height: boxSize.height,
+            width: size.width,
+            height: size.height,
             child: Clipper(
               imageUrl: 'https://example.invalid/photo.jpg',
-              imageWidth: imageWidth,
-              imageHeight: imageHeight,
+              imageWidth: imgW,
+              imageHeight: imgH,
               rectCallback: (r) => h.rect = r,
               canCropCallBack: (v) => h.canCrop = v,
               navigateCallBack: withSwipe
@@ -77,22 +82,22 @@ Offset get _boxOrigin {
 
 /// A two-finger pinch that scales about [centre] by [factor].
 Future<void> pinch(WidgetTester tester, Offset centre, double factor,
-    {Offset drift = Offset.zero}) async {
+    {Offset drift = Offset.zero, double reach = 40.0, Size? bound}) async {
   // Keep the fingers well inside the box: they must never leave the widget or
   // the gesture is cancelled and the pinch silently does nothing.
-  const reach = 40.0;
-  final start1 = centre - const Offset(reach, 0);
-  final start2 = centre + const Offset(reach, 0);
+  final limit = bound ?? boxSize;
+  final start1 = centre - Offset(reach, 0);
+  final start2 = centre + Offset(reach, 0);
   final end1 = centre - Offset(reach * factor, 0) + drift;
   final end2 = centre + Offset(reach * factor, 0) + drift;
   for (final p in [start1, start2, end1, end2]) {
     expect(
         p.dx >= 0 &&
-            p.dx <= boxSize.width &&
+            p.dx <= limit.width &&
             p.dy >= 0 &&
-            p.dy <= boxSize.height,
+            p.dy <= limit.height,
         isTrue,
-        reason: 'pinch finger $p leaves the $boxSize box - bad test setup');
+        reason: 'pinch finger $p leaves the $limit box - bad test setup');
   }
 
   final g1 = await tester.startGesture(start1);
@@ -130,6 +135,53 @@ Future<void> drag(WidgetTester tester, Offset from, Offset travel) async {
 }
 
 void main() {
+  // ------------------------------------------------------------------------
+  // The crop region IS the viewport, so its shape is not freely selectable.
+  //
+  // On a portrait phone showing a landscape photo, BoxFit.contain letterboxes
+  // the photo to a fraction of the screen height.  Until the zoom is large
+  // enough for the photo to overflow the viewport vertically, the visible
+  // region spans the FULL image height, so every crop comes out portrait-ish
+  // however the user pinches.  This is not an x/y transposition - the rect
+  // faithfully describes what is on screen - but it does mean a wide crop
+  // cannot be made on a tall screen.
+  // ------------------------------------------------------------------------
+
+  testWidgets('crop height stays pinned to the full image until zoomed past '
+      'the letterbox', (tester) async {
+    const pw = 400.0, ph = 800.0; // portrait phone
+    const iw = 4608, ih = 3456; // landscape photo, as in the database
+
+    // The photo is only 300 of the 800 logical pixels tall, so it takes a
+    // zoom of 800/300 = 2.67 before the height is cropped at all.
+    final h = await pumpClipper(tester,
+        box: const Size(pw, ph), imgW: iw, imgH: ih);
+    await pinch(tester, const Offset(pw / 2, ph / 2), 2.0,
+        reach: 30, bound: const Size(pw, ph));
+
+    expect(h.rect!.height, closeTo(ih.toDouble(), 1),
+        reason: 'below the letterbox zoom the whole image height is visible, '
+            'so the crop cannot be shortened');
+    expect(h.rect!.width, lessThan(iw * 0.9),
+        reason: 'the width does narrow with zoom');
+  });
+
+  testWidgets('a hard zoom converges on the viewport aspect ratio',
+      (tester) async {
+    const pw = 400.0, ph = 800.0;
+    const iw = 4608, ih = 3456;
+
+    final h = await pumpClipper(tester,
+        box: const Size(pw, ph), imgW: iw, imgH: ih);
+    await pinch(tester, const Offset(pw / 2, ph / 2), 4.0,
+        reach: 30, bound: const Size(pw, ph));
+
+    final r = h.rect!;
+    expect(r.width / r.height, closeTo(pw / ph, 0.05),
+        reason: 'once the photo overflows the viewport the crop takes the '
+            'viewport shape - 0.5 here, so no wide crop is reachable');
+  });
+
   testWidgets('changing photo clears the parent\'s crop state', (tester) async {
     // After a swipe (or a crop) the Clipper resets to the full image, but the
     // parent keeps whatever rect/canCrop it was last told.  If the reset is
