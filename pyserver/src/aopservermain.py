@@ -496,7 +496,17 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
         save_path = os.path.join(save_dir, filename)
         with open(save_path, 'wb') as f:
             f.write(video_content)
-            
+        # The temp copy existed only so ffmpeg could probe the video before we
+        # knew which month directory it belonged in.  Drop it now the real file
+        # is written; it was never cleaned up and had grown to 8.6GB.
+        # Deliberately only after save_path succeeds - if we fail before that,
+        # the temp copy may be the only one there is.
+        try:
+            os.remove(temp_path)
+        except OSError as ex:
+            print(f'could not remove {temp_path}: {ex!r}')
+
+
         # Generate and save a thumbnail
         filename_noext = Path(save_path).with_suffix('').name
         thumbnail_path = os.path.join(save_dir, f'thumbnails/{filename_noext}.jpg')
