@@ -400,7 +400,7 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         progress = 'save db snap'
         saved_snap = create_snap(request,new_snap)
         monthDir = new_snap.directory
-        targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+targetFilename
+        targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+thumbnail_name(targetFilename)
         targetMetadata = ROOT_DIR+monthDir+'/metadata/' +targetFilename +'.json'
         progress = 'make thumbnail'
         makeThumbnail(img2,img_exif,targetThumbnail)
@@ -421,6 +421,22 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         print("Error: in cropPic()", exmess)
         raise HTTPException(status_code=500, detail=f'cropPic()-{progress}-{exmess} \n {calcBadLine()}') from ex
     
+def thumbnail_name(fileName: str) -> str:
+    """Name of the thumbnail belonging to fileName.
+
+    Mirrors the client's rule in aop_classes.dart thumbnailURL: a name that is
+    already a .jpg in ANY case is kept exactly as it is, and only a different
+    extension gets swapped for '.jpg'.
+
+    Unconditionally lowercasing the extension here is what broke rotate and
+    reset for every .JPG original - over half the library.  The client asks for
+    DSCN5138.JPG, this wrote DSCN5138.jpg, and on case-sensitive Linux those
+    are two files: the rebuilt thumbnail was never read and the stale one kept
+    being served, so both endpoints returned ok while appearing to do nothing.
+    """
+    return (fileName if fileName.lower().endswith('.jpg')
+            else os.path.splitext(fileName)[0] + '.jpg')
+
 @app.get('/reset_thumbnail/{snap_id}')
 async def resetThumbnail(request: Request, snap_id: int):
     try:
@@ -429,7 +445,7 @@ async def resetThumbnail(request: Request, snap_id: int):
         fullPath = ROOT_DIR + (snap.directory or '') + '/' + (snap.file_name or '')
         if not os.path.isfile(fullPath):
             raise HTTPException(status_code=404, detail=f'source image not found: {fullPath}')
-        thumbName = os.path.splitext(snap.file_name)[0] + '.jpg'
+        thumbName = thumbnail_name(snap.file_name or '')
         thumbPath = ROOT_DIR + (snap.directory or '') + '/thumbnails/' + thumbName
         img = Image.open(fullPath)
         img_exif = img._getexif()  # pyright: ignore
@@ -444,7 +460,7 @@ async def rotateThumbnail(request: Request, snap_id: int):
     try:
         get_session_from_request(request)
         snap = get_snap(request, snap_id)
-        thumbName = os.path.splitext(snap.file_name)[0] + '.jpg'
+        thumbName = thumbnail_name(snap.file_name or '')
         thumbPath = ROOT_DIR + (snap.directory or '') + '/thumbnails/' + thumbName
         fullPath = ROOT_DIR + (snap.directory or '') + '/' + (snap.file_name or '')
         if not os.path.isfile(fullPath):
@@ -542,7 +558,7 @@ async def uploader(request: Request, modified: str, filename: str, sourceDevice:
         modified_ts = datetime.strptime(modified,'%Y:%m:%d %H:%M:%S').timestamp()
         print(f"uploading ({modified})")
         targetFile = ROOT_DIR+monthDir+'/'+filename
-        targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+filename
+        targetThumbnail = ROOT_DIR+monthDir+'/thumbnails/'+thumbnail_name(filename)
         targetMetadata = ROOT_DIR+monthDir+'/metadata/' +filename +'.json'
         progress = 'creating directories as required'
         forceDir(ROOT_DIR+monthDir)
