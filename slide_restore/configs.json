@@ -114,7 +114,8 @@
             "hdr": 1.0,
             "_description": "Person in red jacket with bicycle on street, tilted frame",
             "_notes": "Moderate blue/cool cast typical of aged slide film; red channel boost to warm flesh tones and restore red jacket saturation; strong HDR needed for indoor flash falloff against building background; image rotated 270\u00b0 clockwise to make upright. Blue emulsion damage visible in sky area\u2014cannot be fully corrected.",
-            "sharpen": true
+            "sharpen": true,
+            "anneal": true
         },
         "PICT0012": {
             "profile": "slide_warm_indoor2",
@@ -392,7 +393,7 @@
             "_notes": "Image rotated 270\u00b0 clockwise. Dominant cool blue cast typical of aged slide film. Strong backlight creates extreme HDR condition with bright opening against dark tunnel/cave. Red channel boosted slightly to warm shadows. Blue reduced to counteract cool cast. Scattered bright spots visible\u2014likely emulsion damage, cannot be fully corrected."
         },
         "PICT0036": {
-            "profile": "slide_warm_indoor2",
+            "profile": "agfachrome_indoor",
             "rotate": 0,
             "trim": 8,
             "r": 0.95,
@@ -400,18 +401,21 @@
             "b": 1.05,
             "hdr": 2.0,
             "_description": "Family portrait: two adults and child on brown sofa",
-            "_notes": "Warm/orange cast typical of aged Kodachrome indoor flash slide. Heavy vignetting and shadow falloff indicates flash photography with significant background darkness. Applied 2-stop shadow lift for indoor flash. Slight blue boost to counter warm cast while preserving skin tones. Red dye appears stable, not characteristic Ektachrome loss."
+            "_notes": "Warm/orange cast typical of aged Kodachrome indoor flash slide. Heavy vignetting and shadow falloff indicates flash photography with significant background darkness. Applied 2-stop shadow lift for indoor flash. Slight blue boost to counter warm cast while preserving skin tones. Red dye appears stable, not characteristic Ektachrome loss.",
+            "ev": -0.75,
+            "sharpen": true
         },
         "PICT0037": {
-            "profile": "slide_warm_indoor2",
+            "profile": "slide_warm",
             "rotate": 0,
             "trim": 8,
             "r": 0.9,
             "g": 1.0,
             "b": 1.15,
-            "hdr": 2.0,
             "_description": "Man with mustache and young child, indoor flash photograph",
-            "_notes": "Warm/orange cast typical of aged positive film with indoor flash. Heavy shadow lift needed due to pronounced flash falloff in background. Slight red reduction and blue boost to counteract warm cast while preserving skin tones. Some minor emulsion spots visible but not correctable."
+            "_notes": "Warm/orange cast typical of aged positive film with indoor flash. Heavy shadow lift needed due to pronounced flash falloff in background. Slight red reduction and blue boost to counteract warm cast while preserving skin tones. Some minor emulsion spots visible but not correctable.",
+            "ev": -1.0,
+            "sharpen": true
         },
         "PICT0038": {
             "profile": "slide_warm",
@@ -451,9 +455,10 @@
             "r": 0.95,
             "g": 1.0,
             "b": 1.05,
-            "hdr": 2.0,
+            "hdr": 1.0,
             "_description": "Woman holding newborn infant in hospital bed, vintage photo",
-            "_notes": "Warm/orange cast typical of aged positive film with indoor flash. Heavy shadow falloff in background (dark curtains/wall) versus bright subject in foreground suggests 2-stop shadow lift. Slight blue boost to cool the warm cast while maintaining natural skin tones. Image appears upright and properly oriented."
+            "_notes": "Warm/orange cast typical of aged positive film with indoor flash. Heavy shadow falloff in background (dark curtains/wall) versus bright subject in foreground suggests 2-stop shadow lift. Slight blue boost to cool the warm cast while maintaining natural skin tones. Image appears upright and properly oriented.",
+            "sharpen": true
         },
         "PICT0042": {
             "profile": "slide_warm",
@@ -463,18 +468,20 @@
             "g": 1.0,
             "b": 1.15,
             "_description": "Winter landscape with people, snow, trees, distant hills",
-            "_notes": "Warm/orange cast typical of aged positive film with slight purple-blue tint in shadows. Applied mild blue boost to counteract warm cast while preserving natural snow tones. Outdoor daylight scene with even illumination. Image is level and requires no rotation."
+            "_notes": "Warm/orange cast typical of aged positive film with slight purple-blue tint in shadows. Applied mild blue boost to counteract warm cast while preserving natural snow tones. Outdoor daylight scene with even illumination. Image is level and requires no rotation.",
+            "sharpen": true
         },
         "PICT0043": {
-            "profile": "slide_warm_indoor2",
+            "profile": "dixons_washed",
             "rotate": 0,
             "trim": 8,
             "r": 0.95,
             "g": 1.0,
             "b": 1.05,
-            "hdr": 2.0,
             "_description": "Two adults bending toward toddler indoors, warm cast.",
-            "_notes": "Warm/pink cast typical of aged positive film with indoor flash. Strong shadow lift needed (2 stops) due to bright foreground subjects against dark background. Slight blue boost to counteract warm cast while maintaining natural skin tones. Red dye loss not severe enough for ektachrome profile."
+            "_notes": "Warm/pink cast typical of aged positive film with indoor flash. Strong shadow lift needed (2 stops) due to bright foreground subjects against dark background. Slight blue boost to counteract warm cast while maintaining natural skin tones. Red dye loss not severe enough for ektachrome profile.",
+            "ev": -0.25,
+            "sharpen": true
         },
         "PICT0044": {
             "profile": "slide_warm",
