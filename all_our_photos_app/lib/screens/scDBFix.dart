@@ -38,6 +38,12 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
   int snapIdx = -1;
   int groupIdx = -1;
 
+  /// Progress across the WHOLE run, not just the current directory.
+  /// snapIdx restarts at every group, so on a run spanning 98 directories it
+  /// says nothing about how far through the run actually is.
+  int processedCount = 0;
+  int totalCount = 0;
+
   String? get currentGroupName => (groupIdx >= 0 && groupIdx < groups.length)
       ? groups[groupIdx]
       : 'Current group not ready';
@@ -154,6 +160,10 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
       await AopSnap.rotateThumbnail(snap.id!);
       snap.thumbResetVersion++; // the file changed but its path did not
       rebuiltCount++;
+      // Logged per photo: a successful run is otherwise completely silent,
+      // which makes a slow run indistinguishable from a stalled one.
+      log.message('rebuilt ${processedCount + 1}/$totalCount '
+          '${snap.directory}/${snap.fileName} at ${snap.degrees}deg');
     } catch (ex) {
       // One bad photo must not stop a run of several hundred.
       failedCount++;
@@ -244,6 +254,26 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     }
   }
 
+  /// Rows the run will visit in total, so the screen can show overall
+  /// progress rather than a per-directory count.
+  ///
+  /// Mirrors the where-clause choice in [processNextSnap]: the detail query is
+  /// narrowed per group, but summed over every group it comes to exactly this.
+  Future<int> countMatchingSnaps() async {
+    final where = fullWhere.isNotEmpty
+        ? fullWhere
+        : (inputWhere.isNotEmpty ? inputWhere : '1=1');
+    try {
+      var r = await snapProvider.rawExecute(
+          'select count(*) from aopsnaps where $where');
+      return int.tryParse('${r.first[0]}') ?? 0;
+    } catch (ex) {
+      // A total is a nicety - never let it stop the run.
+      log.error('could not count matching snaps: $ex');
+      return 0;
+    }
+  } // of countMatchingSnaps
+
   Future<void> processGroups(SnapProcessor snapFn) async {
     var r = await snapProvider.rawExecute(groupQuery);
     groups = [];
@@ -251,12 +281,18 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
     snapList = [];
     snapIdx = 0;
     groupIdx = -1; // it is going to be incremented and we want to start at zero
+    processedCount = 0;
+    totalCount = await countMatchingSnaps();
+    log.message('$runType: starting on $totalCount snap(s) '
+        'across ${groups.length} directory(s)');
     inProgress = true;
     while (inProgress = await processNextSnap()) {
       setState(() {});
       await snapFn(currentSnap);
+      processedCount++;
     }
     inProgress = false;
+    log.message('$runType: finished $processedCount of $totalCount snap(s)');
     setState(() {}); // extra setstate cleans up after run is finished
   } //
 
@@ -322,10 +358,20 @@ class DbFixFormWidgetState extends State<DbFixFormWidget> {
           if (rebuiltCount > 0 || failedCount > 0)
             Text('rebuilt $rebuiltCount, failed $failedCount',
                 style: Theme.of(context).textTheme.bodyLarge),
-          if (inProgress)
+          if (inProgress) ...[
+            // Overall position, which snapIdx cannot give: it restarts on
+            // every group, so it reads 3 of 7 no matter how far in you are.
+            Text(
+                'overall $processedCount of $totalCount'
+                '${totalCount > 0 ? ' (${(processedCount * 100 / totalCount).round()}%)' : ''}'
+                '  -  directory ${groupIdx + 1} of ${groups.length}',
+                style: Theme.of(context).textTheme.bodyLarge),
+            LinearProgressIndicator(
+                value: totalCount > 0 ? processedCount / totalCount : null),
             Center(
               child: CircularProgressIndicator(),
-            )
+            ),
+          ]
         ],
       ), //front column
     );
