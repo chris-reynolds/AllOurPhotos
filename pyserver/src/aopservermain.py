@@ -499,7 +499,11 @@ async def resetThumbnail(request: Request, snap_id: int):
         thumbPath = ROOT_DIR + (snap.directory or '') + '/thumbnails/' + thumbName
         img = Image.open(fullPath)
         img_exif = img._getexif()  # pyright: ignore
-        makeThumbnail(img, img_exif, thumbPath)
+        # Rebuild it the way it is displayed, rotation included.  Leaving the
+        # rotation out made 'reset' desynchronise a rotated photo rather than
+        # restore it: the grid showed it upright while the full view showed it
+        # turned.
+        makeThumbnail(img, img_exif, thumbPath, snap.degrees or 0)
         return {'result': 'ok'}
     except HTTPException: raise
     except Exception as ex:
@@ -515,31 +519,19 @@ async def rotateThumbnail(request: Request, snap_id: int):
         fullPath = ROOT_DIR + (snap.directory or '') + '/' + (snap.file_name or '')
         if not os.path.isfile(fullPath):
             raise HTTPException(status_code=404, detail=f'source image not found: {fullPath}')
-        # Rebuild the thumbnail from the ORIGINAL before applying the angle.
-        # Rotating the thumbnail already on disk compounds: set 5 degrees then
-        # 10 and the thumbnail ends up at 15 while the full-size photo - always
-        # rotated from the original - shows 10.  Going back to 0 returned early
-        # and left the thumbnail rotated for good.  Rebuilding makes it a pure
-        # function of the original and snap.degrees, so the two always agree.
-        # Only the save path pays this; the editor's live preview still rotates
-        # the small thumbnail via /rotate.
+        # Always rebuild from the ORIGINAL rather than turning the thumbnail
+        # already on disk, which compounds: set 5 degrees then 10 and the
+        # thumbnail lands at 15 while the full-size photo - always rotated from
+        # the original - shows 10.  Going back to 0 returned early and left it
+        # rotated for good.  makeThumbnail is a pure function of the original
+        # and snap.degrees, so the two always agree.
+        #
+        # Identical to reset_thumbnail now, which is as it should be: "reset
+        # it" and "rebuild it after rotating" want the same picture.  Both
+        # endpoints stay so existing clients keep working.
         source = Image.open(fullPath)
-        makeThumbnail(source, source._getexif(), thumbPath)  # pyright: ignore
-        angle = normalise_angle(snap.degrees)
-        if angle == 0:
-            return {'result': 'ok - thumbnail rebuilt unrotated'}
-        with Image.open(thumbPath) as thumb:
-            thumb.load()
-            exif_bytes = (piexif.dump(piexif.load(thumb.info['exif']))
-                          if 'exif' in thumb.info else None)
-            rotated = rotate_with_border_crop(thumb, angle)
-            rotated.load()   # crop() is lazy - realise it before the file closes
-        # Derived pixels, so the tag must not travel with them.
-        exif_bytes = strip_exif_orientation(exif_bytes)
-        if exif_bytes:
-            rotated.save(thumbPath, format='JPEG', exif=exif_bytes, quality=50)
-        else:
-            rotated.save(thumbPath, format='JPEG', quality=50)
+        makeThumbnail(source, source._getexif(), thumbPath,  # pyright: ignore
+                      snap.degrees or 0)
         return {'result': 'ok'}
     except HTTPException: raise
     except Exception as ex:
@@ -747,25 +739,44 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
         print("Error: in uploader()", progress, exmess)
         raise HTTPException(status_code=500, detail=f"During {progress}:{exmess}") from ex
 
-def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
+def makeThumbnail(image: Image.Image, imageExif: Image.Exif, target: str,
+                  degrees: int = 0):
+    """Writes the thumbnail for [image] turned by [degrees].
+
+    A thumbnail exists only to be fast, so it is a scaled copy of the picture
+    AS DISPLAYED - orientation honoured, rotation applied, no EXIF - and can
+    be served raw with no processing at either end.  That makes it a pure
+    function of the original and the snap's degrees, which is the property
+    that keeps the grid and the single photo view showing the same thing.
+
+    Every caller goes through here so the two cannot drift apart again.
+    reset_thumbnail used to skip the rotation, so 'resetting' the thumbnail of
+    a rotated photo left the grid showing it upright while the full view
+    showed it turned.  Callers whose pixels are already final - an upload, or
+    a crop that baked its rotation in and reset degrees to 0 - simply pass no
+    degrees.
+
+    Orientation is applied BEFORE scaling, so the thumbnail is measured from
+    the shape the viewer actually sees.  This replaced a hand-rolled
+    rotate(270)/rotate(90) that omitted expand=True: orientations 6 and 8 flip
+    the aspect, so portrait content was squeezed back into the landscape frame
+    - black bands down two sides, ends cut off.  exif_transpose expands
+    correctly, clears the tag it just honoured, and covers the mirrored
+    orientations 2, 4, 5 and 7 the old block ignored.
+
+    imageExif is unused now - exif_transpose reads the image's own tag - but
+    the parameter stays so the call sites need not all change.
+    """
     try:
-        # Put the pixels upright BEFORE scaling, so the thumbnail is measured
-        # from the shape the viewer actually sees.
-        #
-        # This replaced a hand-rolled rotate(270)/rotate(90) that omitted
-        # expand=True.  Orientations 6 and 8 flip the aspect, so the portrait
-        # content was squeezed back into the landscape frame: black bands down
-        # two sides and the ends cut off, then baked in and rotated again by
-        # the snap's own degrees.  exif_transpose expands correctly, clears the
-        # tag it just honoured, and covers the mirrored orientations 2, 4, 5
-        # and 7 that the old block ignored completely.
-        #
-        # imageExif is now unused - exif_transpose reads the image's own tag.
-        # The parameter stays so the four call sites need not change.
         image = ImageOps.exif_transpose(image)
         scale = max(image.height,image.width)/640
         newSize = int(image.width/scale),int(image.height/scale)
         image.thumbnail(newSize,Image.Resampling.LANCZOS)
+        angle = normalise_angle(degrees or 0)
+        if angle != 0:
+            image = rotate_with_border_crop(image, angle)
+        # quality=50 and no exif argument: a thumbnail carries no tag, so
+        # nothing downstream can turn it a second time.
         image.save(target,quality=50)
         return True
     except HTTPException: raise

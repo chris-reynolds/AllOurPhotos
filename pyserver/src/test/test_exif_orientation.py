@@ -151,3 +151,63 @@ class TestMakeThumbnailOrientation:
 
         out_exif = Image.open(target)._getexif() or {}
         assert out_exif.get(274) in (None, 1)
+
+
+class TestThumbnailIncludesRotation:
+    """A thumbnail is a scaled copy of the picture AS DISPLAYED, so it carries
+    the snap's rotation too.  Skipping it is what made 'Reset Thumbnail'
+    desynchronise a rotated photo instead of restoring it - the grid showed it
+    upright while the single view showed it turned."""
+
+    def _thumb(self, tmp_path, size, orientation, degrees, name='t.jpg'):
+        src = _write_jpeg(tmp_path / f'src{name}', size, orientation)
+        target = tmp_path / name
+        img = Image.open(src)
+        makeThumbnail(img, img._getexif(), str(target), degrees)
+        return Image.open(target)
+
+    def test_quarter_turn_flips_the_thumbnail(self, tmp_path):
+        # Displays portrait (400x300 tagged 6), turned 90 -> lands landscape.
+        out = self._thumb(tmp_path, (400, 300), 6, 90)
+        assert out.width > out.height, (
+            f'a quarter turn must flip the thumbnail; got {out.size}')
+
+    def test_no_rotation_keeps_the_displayed_shape(self, tmp_path):
+        out = self._thumb(tmp_path, (400, 300), 6, 0)
+        assert out.height > out.width
+
+    def test_rotated_thumbnail_has_no_blank_wedge(self, tmp_path):
+        # rotate_with_border_crop trims the corners the rotation empties.
+        out = self._thumb(tmp_path, (400, 300), 6, 90)
+        assert _solid_black_border(out) == (0, 0, 0, 0)
+
+    def test_small_angle_keeps_its_shape(self, tmp_path):
+        # Levelling a horizon must not flip anything.
+        out = self._thumb(tmp_path, (400, 300), 1, 3)
+        assert out.width > out.height
+
+    def test_rotation_does_not_compound(self, tmp_path):
+        # Always rebuilt from the original, so asking twice gives one answer -
+        # the property that stops 5 degrees then 10 landing at 15.
+        a = self._thumb(tmp_path, (400, 300), 6, 90, name='a.jpg')
+        b = self._thumb(tmp_path, (400, 300), 6, 90, name='b.jpg')
+        assert a.size == b.size
+
+    def test_360_is_the_same_as_none(self, tmp_path):
+        a = self._thumb(tmp_path, (400, 300), 6, 0, name='a.jpg')
+        b = self._thumb(tmp_path, (400, 300), 6, 360, name='b.jpg')
+        assert a.size == b.size
+
+    def test_rotated_thumbnail_still_carries_no_tag(self, tmp_path):
+        out = self._thumb(tmp_path, (400, 300), 6, 90)
+        assert (out._getexif() or {}).get(274) in (None, 1)
+
+    def test_reset_and_rotate_agree(self, tmp_path):
+        # Both endpoints now make the same call, so the same snap must give
+        # byte-identical thumbnails whichever one the client hit.
+        src = _write_jpeg(tmp_path / 'src.jpg', (400, 300), 6)
+        reset_out, rotate_out = tmp_path / 'reset.jpg', tmp_path / 'rotate.jpg'
+        for target in (reset_out, rotate_out):
+            img = Image.open(src)
+            makeThumbnail(img, img._getexif(), str(target), 270)
+        assert reset_out.read_bytes() == rotate_out.read_bytes()
