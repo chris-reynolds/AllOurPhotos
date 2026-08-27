@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Request, Response, File, UploadFile,
 import mysql.connector
 import json
 import shutil
-from PIL import Image,ExifTags,TiffImagePlugin
+from PIL import Image,ExifTags,ImageOps,TiffImagePlugin
 from PIL.ExifTags import TAGS
 import piexif
 import io
@@ -255,6 +255,37 @@ def rotate_with_border_crop(img, angle: int):
     return rotated.crop((side_border, top_border,
                          img.width - side_border, img.height - top_border))
 
+def strip_exif_orientation(exif_bytes):
+    """Removes the Orientation tag from EXIF headed for a DERIVED image.
+
+    Orientation describes the original's pixels.  Once the server has
+    transposed or turned them, the tag describes a state that no longer
+    exists - and the browser applies it faithfully, turning the picture a
+    second time.  That is how a portrait photo came back landscape after a
+    save: 3000x4000 portrait pixels written out still tagged Orientation=6.
+
+    Originals on disk keep their tag and are served untouched; only derived
+    images (rotate cache, thumbnails, crops) pass through here.
+
+    Returns None on any failure - EXIF is decoration on a derived image and
+    must never cost us the render.
+    """
+    if not exif_bytes:
+        return None
+    try:
+        exif = piexif.load(exif_bytes)
+        for ifd in ('0th', '1st'):
+            if ifd in exif and isinstance(exif[ifd], dict):
+                exif[ifd].pop(piexif.ImageIFD.Orientation, None)
+        # The embedded preview is the pre-rotation one, so it would disagree
+        # with the pixels.  Dropping it also dodges piexif's 64 KB limit.
+        exif['thumbnail'] = None
+        exif['1st'] = {}
+        return piexif.dump(exif)
+    except Exception as ex:
+        print(f'could not strip EXIF orientation: {ex!r}')
+        return None
+
 def save_jpeg_atomically(img, target: str, exif_bytes=None):
     """Writes a JPEG to [target] via a temporary name, then renames it in.
 
@@ -266,7 +297,13 @@ def save_jpeg_atomically(img, target: str, exif_bytes=None):
     from that extension - it raises 'unknown file extension: .part'.  Leaving
     it out broke every uncached rotation, which surfaced as the photo simply
     vanishing in the rotation editor.
+
+    Everything written here is derived, so the Orientation tag is dropped -
+    see strip_exif_orientation.  Enforcing it at the write rather than at each
+    call site means a new rotation path cannot quietly reintroduce the
+    double-turn.
     """
+    exif_bytes = strip_exif_orientation(exif_bytes)
     partName = f'{target}.{os.getpid()}.{random.randint(0,999999)}.part'
     try:
         if exif_bytes:
@@ -355,6 +392,15 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
         progress = 'compute exif'
         img_exif = img._getexif() # pyright: ignore
 
+        # Upright first, for the same reason as /rotate: the crop box arrives
+        # in the client's coordinates, and the client is looking at the
+        # tag-corrected picture.  On an Orientation 6 or 8 photo the raw pixels
+        # are a quarter turn away from that, so the box would lift the wrong
+        # region entirely.  It also clears the tag, which keeps it out of the
+        # thumbnail built from img2 further down - exif survives crop() and
+        # rotate() in PIL, so a stale tag there would turn it twice.
+        img = ImageOps.exif_transpose(img)
+
         # Crop the picture the user was actually looking at.  A rotated photo
         # is viewed through /rotate, so the selection is in ROTATED
         # coordinates; cropping the unrotated original with them would take
@@ -379,6 +425,10 @@ async def cropPic(request: Request,id:int, left: int,top: int, right: int, botto
             img_exif2_bytes = piexif.dump(img_exif2)
         else:
             img_exif2_bytes = None
+        # The crop is a new photo whose pixels are already upright, so it must
+        # not inherit the original's Orientation - it would be turned again on
+        # every view from here on.
+        img_exif2_bytes = strip_exif_orientation(img_exif2_bytes)
         progress = 'save cropped image'
         if img_exif2_bytes:
             img2.save(targetFullPath,exif=img_exif2_bytes,quality=100,progressive=True)
@@ -484,6 +534,8 @@ async def rotateThumbnail(request: Request, snap_id: int):
                           if 'exif' in thumb.info else None)
             rotated = rotate_with_border_crop(thumb, angle)
             rotated.load()   # crop() is lazy - realise it before the file closes
+        # Derived pixels, so the tag must not travel with them.
+        exif_bytes = strip_exif_orientation(exif_bytes)
         if exif_bytes:
             rotated.save(thumbPath, format='JPEG', exif=exif_bytes, quality=50)
         else:
@@ -522,6 +574,11 @@ async def rotatePic(request: Request,angle: int, aPath: str):
             img_exif = piexif.load(img.info['exif'])
             img_exif_bytes = piexif.dump(img_exif)
             exif_found = True
+        # Turn the picture upright before applying the user's angle.  PIL does
+        # not honour EXIF orientation, so without this the server rotates the
+        # RAW pixels while the browser shows the tag-corrected ones - the angle
+        # is then measured from an image the user has never seen.
+        img = ImageOps.exif_transpose(img)
         # Shared with the thumbnail path so the two cannot show the same photo
         # at different angles.
         img = rotate_with_border_crop(img, angle)
@@ -692,17 +749,23 @@ async def upload_video(request: Request, modified: str, filename: str, sourceDev
 
 def makeThumbnail(image: Image.Image, imageExif: Image.Exif,target: str):
     try:
+        # Put the pixels upright BEFORE scaling, so the thumbnail is measured
+        # from the shape the viewer actually sees.
+        #
+        # This replaced a hand-rolled rotate(270)/rotate(90) that omitted
+        # expand=True.  Orientations 6 and 8 flip the aspect, so the portrait
+        # content was squeezed back into the landscape frame: black bands down
+        # two sides and the ends cut off, then baked in and rotated again by
+        # the snap's own degrees.  exif_transpose expands correctly, clears the
+        # tag it just honoured, and covers the mirrored orientations 2, 4, 5
+        # and 7 that the old block ignored completely.
+        #
+        # imageExif is now unused - exif_transpose reads the image's own tag.
+        # The parameter stays so the four call sites need not change.
+        image = ImageOps.exif_transpose(image)
         scale = max(image.height,image.width)/640
         newSize = int(image.width/scale),int(image.height/scale)
         image.thumbnail(newSize,Image.Resampling.LANCZOS)
-        if imageExif != None and 274 in imageExif:
-            exif_orientation = imageExif[274]
-            if (exif_orientation == 6): 
-                image = image.rotate(270)
-            if (exif_orientation == 3): 
-                image = image.rotate(180)    
-            if (exif_orientation == 8): 
-                image = image.rotate(90)
         image.save(target,quality=50)
         return True
     except HTTPException: raise
