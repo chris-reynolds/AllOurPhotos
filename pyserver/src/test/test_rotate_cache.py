@@ -11,11 +11,14 @@ import os
 import pytest
 from PIL import Image
 
+from src import aopservermain
 from src.aopservermain import (
     normalise_angle,
     rotate_with_border_crop,
     save_jpeg_atomically,
     rotate_cache_path,
+    rendering_fingerprint,
+    ROTATE_CACHE_VERSION,
     prune_rotate_cache,
     prune_export_files,
     ROOT_DIR,
@@ -27,7 +30,8 @@ from src.aopservermain import (
 
 
 # ---------------------------------------------------------------------------
-# rotate_cache_path — the name must depend only on the source path and angle
+# rotate_cache_path — the name depends on the source path, the angle, and the
+# rendering fingerprint, and on nothing else
 # ---------------------------------------------------------------------------
 
 class TestRotateCachePath:
@@ -61,6 +65,49 @@ class TestRotateCachePath:
         # The rot_ prefix is what keeps pruning away from other temp files.
         assert os.path.basename(p).startswith('rot_')
         assert p.endswith('.jpg')
+
+
+class TestRenderingFingerprint:
+    """The fingerprint is what retires cached images when the rendering code
+    changes.  Without it a cached rotation outlives the code that wrote it
+    permanently: freshness is cache_mtime >= source_mtime, the source photo
+    has not changed since the day it was taken, and each hit calls os.utime to
+    mark the entry recently used - so it keeps refreshing its own timestamp.
+    The EXIF double-turn fix showed no effect at all until the directory was
+    deleted by hand."""
+
+    def test_it_is_stable_within_a_run(self):
+        # Two requests for the same picture must not land on different files.
+        assert rendering_fingerprint() == rendering_fingerprint()
+        assert rendering_fingerprint() == ROTATE_CACHE_VERSION
+
+    def test_it_is_short_and_filename_safe(self):
+        fp = rendering_fingerprint()
+        assert 0 < len(fp) <= 12
+        assert fp.isalnum()
+
+    def test_a_new_fingerprint_retires_the_old_names(self, monkeypatch):
+        before = rotate_cache_path('2019/03/P1010101.JPG', 90)
+        monkeypatch.setattr(aopservermain, 'ROTATE_CACHE_VERSION', 'deadbeef')
+        after = rotate_cache_path('2019/03/P1010101.JPG', 90)
+        assert before != after, (
+            'a rendering change must start a fresh set of cache files')
+
+    def test_retired_names_are_still_prunable(self, monkeypatch):
+        # Orphans are never touched again, so they sink to the bottom of the
+        # by-mtime ordering and prune away on their own - but only while they
+        # still match the rot_*.jpg guard.
+        monkeypatch.setattr(aopservermain, 'ROTATE_CACHE_VERSION', 'deadbeef')
+        p = rotate_cache_path('2019/03/P1010101.JPG', 90)
+        assert os.path.basename(p).startswith('rot_')
+        assert p.endswith('.jpg')
+
+    def test_the_same_fingerprint_reuses_the_cache(self, monkeypatch):
+        # Redeploying identical code must not throw the cache away.
+        monkeypatch.setattr(aopservermain, 'ROTATE_CACHE_VERSION', 'abc123')
+        a = rotate_cache_path('2019/03/P1010101.JPG', 90)
+        b = rotate_cache_path('2019/03/P1010101.JPG', 90)
+        assert a == b
 
     def test_awkward_paths_do_not_escape_the_cache_dir(self):
         # The name is a hash, so separators in the source path cannot turn

@@ -146,15 +146,51 @@ EXPORT_KEEP = 20
 # photos: the user's own browser may cache them, shared proxies may not.
 ROTATE_CACHE_HEADERS = {'Cache-Control': 'private, max-age=86400'}
 
+def rendering_fingerprint() -> str:
+    """Short hash of this module's source, computed once at import.
+
+    Cache entries are keyed on it, so changing how an image is rendered
+    retires every file the old code wrote.  Without it a cached rotation
+    outlives the code that made it, permanently: freshness is judged as
+    cache_mtime >= source_mtime, the source photo has not changed since the
+    day it was taken, and every hit calls os.utime to mark the entry recently
+    used - so a stale entry keeps refreshing its own timestamp and can never
+    age out.  Fixing the EXIF double-turn did nothing visible until the whole
+    directory was deleted by hand.
+
+    Hashing the entire file deliberately over-invalidates: adding a log line
+    retires the cache too.  That costs one re-render each, capped at
+    ROTATE_CACHE_KEEP, on the next view.  Missing a real change costs an
+    afternoon, and this is the second time the wrong side of that trade has
+    been chosen - a hand-maintained version constant would only be right when
+    somebody remembered to bump it.
+
+    Orphaned entries need no purge step: nothing touches them again, so they
+    sink to the bottom of prune_generated_files' by-mtime ordering and are the
+    first to go.
+    """
+    try:
+        with open(__file__, 'rb') as source:
+            return hashlib.sha1(source.read()).hexdigest()[:8]
+    except OSError as ex:
+        # A fixed value still works - it just stops invalidating on deploy.
+        print(f'could not fingerprint {__file__}: {ex!r}')
+        return 'nosource'
+
+ROTATE_CACHE_VERSION = rendering_fingerprint()
+
 def rotate_cache_path(aPath: str, angle: int) -> str:
     """Deterministic filename for a rotated image.
 
-    The name must depend only on the source path and angle, so the same
-    request reuses the same file.  The old code used a random name, which
-    meant the rotate was redone on every request and the ETag changed each
-    time, so the browser could never cache it either.
+    The name depends on the source path, the angle, and the rendering
+    fingerprint, so the same request reuses the same file while a change to
+    the rendering code starts a fresh set.  The original code used a random
+    name, which meant the rotate was redone on every request and the ETag
+    changed each time, so the browser could never cache it either.
     """
-    key = hashlib.sha1(f'{aPath}|{angle}'.encode('utf-8')).hexdigest()[:20]
+    key = hashlib.sha1(
+        f'{aPath}|{angle}|{ROTATE_CACHE_VERSION}'.encode('utf-8')
+    ).hexdigest()[:20]
     return os.path.join(ROTATE_CACHE_DIR, f'rot_{key}.jpg')
 
 def prune_generated_files(dirpath: str, prefix: str, keep: int):
@@ -926,6 +962,28 @@ def safe_photos_path(aPath: str) -> str:
         raise HTTPException(status_code=400, detail='Invalid path')
     return str(full)
 
+def etag_matches(request: Request, etag: str | None) -> bool:
+    """True when the browser already holds this exact version of the file.
+
+    If-None-Match arrives as a comma separated list, possibly weak (W/"..."),
+    or as * meaning 'any version I have'.  Browsers echo back what we sent, so
+    an exact match is the normal case; the rest is for proxies.
+    """
+    if not etag:
+        return False
+    header = request.headers.get('if-none-match')
+    if not header:
+        return False
+    if header.strip() == '*':
+        return True
+    for candidate in header.split(','):
+        candidate = candidate.strip()
+        if candidate.startswith('W/'):
+            candidate = candidate[2:]
+        if candidate == etag or candidate == etag.strip('"'):
+            return True
+    return False
+
 @app.get('/photos/{aPath:path}')
 def photos(request: Request,aPath:str):
     get_session_from_request(request)
@@ -936,8 +994,33 @@ def photos(request: Request,aPath:str):
         cacheHeaders['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         cacheHeaders['Pragma'] = 'no-cache'
         cacheHeaders['Expires'] = '0'
+    else:
+        # Revalidate instead of trusting the browser's guess.  With no
+        # Cache-Control at all a browser invents its own freshness - commonly
+        # a tenth of the file's age - so a thumbnail written in 2019 counts as
+        # fresh for years and a rebuilt one is never fetched.  That is why
+        # correcting the rendering changed nothing on screen until a hard
+        # refresh.
+        #
+        # 'no-cache' keeps the copy and asks first; the 304 below means asking
+        # costs a few hundred bytes rather than the picture.  So a grid whose
+        # thumbnails are unchanged still re-renders from cache, and only the
+        # ones actually rebuilt come down the wire.
+        cacheHeaders['Cache-Control'] = 'private, no-cache'
     if os.path.isfile(fullFileName):
-        return FileResponse(path=fullFileName,headers=cacheHeaders)
+        response = FileResponse(path=fullFileName,headers=cacheHeaders)
+        # FileResponse computes an etag from mtime and size but never answers
+        # 304 itself - that lives in StaticFiles, which this route does not
+        # use.  Ask it for the etag it was going to send rather than
+        # recomputing one, so the two can never disagree.
+        if etag_matches(request, response.headers.get('etag')):
+            notModified = {'Cache-Control': cacheHeaders['Cache-Control']} \
+                if 'Cache-Control' in cacheHeaders else {}
+            for passthrough in ('etag', 'last-modified'):
+                if passthrough in response.headers:
+                    notModified[passthrough] = response.headers[passthrough]
+            return Response(status_code=304, headers=notModified)
+        return response
     else:
         raise HTTPException(status_code=404,detail=f"'{aPath}' is not found.")
 
