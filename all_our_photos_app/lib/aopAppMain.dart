@@ -12,7 +12,7 @@ import '../providers/albumProvider.dart';
 import '../providers/snapProvider.dart';
 import 'package:aopmodel/aop_classes.dart';
 
-const VERSION = 'All Our Photos 27b Aug 2026';
+const VERSION = 'All Our Photos 29 Aug 2026';
 
 void main() {
   MaterialApp application = MaterialApp(
