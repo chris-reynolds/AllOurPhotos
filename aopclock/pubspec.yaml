@@ -1,0 +1,13 @@
+name: aopclock
+description: Read-only report on Olympus camera clock errors (DST and timezone) in AllOurPhotos.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  mysql_client: ^0.0.27
+  timezone: ^0.11.1
+dev_dependencies:
+  test: ^1.32.0
