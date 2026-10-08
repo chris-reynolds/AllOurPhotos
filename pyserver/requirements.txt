@@ -1,6 +1,6 @@
 annotated-doc==0.0.3
 annotated-types==0.7.0
-anyio==3.7.1
+anyio==4.14.2
 certifi==2026.2.25
 charset-normalizer==3.3.2
 click==8.3.3
@@ -53,7 +53,7 @@ typer==0.20.0
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 ujson==5.13.0
-urllib3==2.7.0
+urllib3==2.8.0
 uvicorn==0.41.0
 watchfiles==0.20.0
 websockets==11.0.3
