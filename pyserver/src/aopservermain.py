@@ -984,6 +984,38 @@ def etag_matches(request: Request, etag: str | None) -> bool:
             return True
     return False
 
+# Public scratch area: anything dropped in <photos>/public can be fetched at
+# /public/<name> with a plain GET and no session.  It lives on the photos volume so it can be filled
+# from the host (C:/data/photos/public in dev) without going into the container.
+#
+# Read-only and deliberately unlisted - there is no directory index and no PUT,
+# so a file is reachable only by someone who already knows its name.  Do not
+# put anything in here that should stay private.
+PUBLIC_DIR = os.path.join(ROOT_DIR, 'public')
+
+def safe_public_path(name: str) -> str:
+    """Resolves [name] inside PUBLIC_DIR, refusing anything that escapes it.
+
+    Resolving before comparing also catches a symlink in public/ that points
+    elsewhere, which a textual '..' check would miss.
+    """
+    base = Path(PUBLIC_DIR).resolve()
+    full = (base / name).resolve()
+    if full == base or base not in full.parents:
+        raise HTTPException(status_code=400, detail='Invalid path')
+    return str(full)
+
+# The URL is /public/<name> while the files live in <photos>/public.  Kept
+# apart from /photos so nothing under that prefix can skip the session check.
+@app.get('/public/{name:path}')
+def photos_public(name: str):
+    fullFileName = safe_public_path(name)
+    if not os.path.isfile(fullFileName):
+        raise HTTPException(status_code=404, detail=f"'{name}' is not found.")
+    # Scratch files get overwritten in place, so never let a browser or proxy
+    # hold on to an old copy.
+    return FileResponse(path=fullFileName, headers={'Cache-Control': 'no-store'})
+
 @app.get('/photos/{aPath:path}')
 def photos(request: Request,aPath:str):
     get_session_from_request(request)
