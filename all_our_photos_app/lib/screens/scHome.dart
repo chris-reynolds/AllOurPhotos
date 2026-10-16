@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'scAlbumList.dart';
 import 'scTesting.dart';
 import 'scDBFix.dart';
+import '../utils/AppUpdate.dart';
 import '../widgets/wdgYearGrid.dart';
 import '../flutter_common/WidgetSupport.dart';
 
@@ -62,6 +63,16 @@ class HomeScreenState extends State<HomeScreen> {
                 if ((await confirmYesNo(
                     context, 'Do really want to log out?'))!) {
                   widget.logoutFn!();
+                }
+              },
+            ),
+          if (_debugMode)
+            IconButton(
+              icon: Icon(Icons.system_update),
+              tooltip: 'Check for update (clears cache and reloads)',
+              onPressed: () async {
+                if (!await forceAppUpdate() && context.mounted) {
+                  showMessage(context, 'Update check only works in the web app');
                 }
               },
             ),
