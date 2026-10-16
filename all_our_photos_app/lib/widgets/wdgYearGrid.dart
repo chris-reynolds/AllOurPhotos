@@ -130,12 +130,17 @@ class YearGridState extends State<YearGrid> {
                 .map((monthName) => SizedBox(
                     width: UIPreferences.borderedIcon,
                     height: UIPreferences.borderedIcon,
-                    child: Text(
-                      monthName,
-                      style: TextStyle(
-                          fontSize: UIPreferences.textSize,
-                          fontWeight: FontWeight.bold),
-                    )))
+                    // FittedBox keeps wide names ("May") on one line, not wrapped
+                    child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          monthName,
+                          softWrap: false,
+                          style: TextStyle(
+                              fontSize: UIPreferences.textSize,
+                              fontWeight: FontWeight.bold),
+                        ))))
                 .toList()),
         onTap: () {
           log.message('resetting yearlist');
