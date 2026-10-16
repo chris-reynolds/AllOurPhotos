@@ -102,6 +102,10 @@ class _PhotoTileState extends State<PhotoTile> {
     const IconData icon = Icons.star;
     final IconData iconSelect =
         widget.isSelected ? Icons.check_box : Icons.check_box_outline_blank;
+    // No caption: fall back to the first part of the location (up to a comma)
+    final String subtitleText = (snap.caption?.isNotEmpty ?? false)
+        ? snap.caption!
+        : (snap.location ?? '').split(',').first.trim();
     String descriptor =
         '${formatDate(snap.takenDate!, format: 'd mmm yy')} ${snap.deviceName} ';
     if (!widget.inSelectMode) {
@@ -116,7 +120,7 @@ class _PhotoTileState extends State<PhotoTile> {
                 title: Text(descriptor,
                     style: TextStyle(
                         color: Colors.black, fontFamily: 'Helvetica')),
-                subtitle: Text(snap.caption ?? snap.location ?? '',
+                subtitle: Text(subtitleText,
                     style: TextStyle(
                         color: Colors.black, fontFamily: 'Helvetica')),
                 trailing: Row(children: [
@@ -162,7 +166,7 @@ class _PhotoTileState extends State<PhotoTile> {
           child: GridTileBar(
             title: Text(descriptor,
                 style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
-            subtitle: Text(snap.caption ?? snap.location ?? '',
+            subtitle: Text(subtitleText,
                 style: TextStyle(color: Colors.black, fontFamily: 'Helvetica')),
 //            subtitle: Text(formatDate(snap.takenDate,format:'mmm-yyyy'),style:TextStyle(color:Colors.black)),
             trailing: Icon(iconSelect, color: Colors.black),

@@ -11,6 +11,7 @@ import 'package:aopmodel/aopmodel.dart';
 import '../utils/ExportPic.dart';
 //import '../widgets/PhotoViewWithRectWidget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 // import 'package:image/image.dart' as Im;
 import 'package:aopcommon/aopcommon.dart';
 import 'package:aopmodel/aop_classes.dart';
@@ -395,11 +396,58 @@ class SinglePhotoWidgetState extends State<SinglePhotoWidget> {
   // } // of calcNewFilenameForSnap
 
   void showExif(BuildContext context, AopSnap thisSnap) {
-    Navigator.of(context);
-    Map<String, dynamic> tags = jsonDecode(thisSnap.metadata!);
-    String tagResult = '';
-    tags.forEach((k, v) => tagResult += '$k = $v \n');
-    showMessage(context, tagResult, title: 'Exif for ${thisSnap.fileName}');
+    final Map<String, dynamic> tags = jsonDecode(thisSnap.metadata!);
+    final Set<String> picked = {};
+    showDialog<void>(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+            builder: (_, setDialogState) => AlertDialog(
+                  title: Text('Exif for ${thisSnap.fileName}'),
+                  content: SizedBox(
+                      width: 500,
+                      child: ListView(
+                          shrinkWrap: true,
+                          children: tags.entries
+                              .map((e) => CheckboxListTile(
+                                  dense: true,
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  title: Text('${e.key} = ${e.value}'),
+                                  value: picked.contains(e.key),
+                                  onChanged: (on) => setDialogState(() {
+                                        on == true
+                                            ? picked.add(e.key)
+                                            : picked.remove(e.key);
+                                      })))
+                              .toList())),
+                  actions: [
+                    TextButton(
+                        onPressed: () => setDialogState(() {
+                              picked.length == tags.length
+                                  ? picked.clear()
+                                  : picked.addAll(tags.keys);
+                            }),
+                        child: const Text('All / none')),
+                    TextButton(
+                        onPressed: picked.isEmpty
+                            ? null
+                            : () async {
+                                final text = tags.entries
+                                    .where((e) => picked.contains(e.key))
+                                    .map((e) => '${e.key} = ${e.value}')
+                                    .join('\n');
+                                await Clipboard.setData(
+                                    ClipboardData(text: text));
+                                if (dialogContext.mounted) {
+                                  Navigator.of(dialogContext).pop();
+                                }
+                              },
+                        child: Text('Copy ${picked.length} to clipboard')),
+                    TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const Text('Close')),
+                  ],
+                )));
   } // of showExif
 
   // void showThumbnailExif(BuildContext context, AopSnap thisSnap) async {
