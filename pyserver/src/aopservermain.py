@@ -88,7 +88,10 @@ async def version():
     filename = os.path.basename(__file__)
     modified_ts = os.path.getmtime(__file__)
     modified_dt = datetime.fromtimestamp(modified_ts)
-    return f'AllOurPhotos {filename} @ {modified_dt}'
+    # AOP_BUILD is the image tag rdDeployAop stamps into the compose file, so it
+    # changes on every deploy - the file mtime alone misses dependency-only ones.
+    build = os.environ.get('AOP_BUILD', 'unknown')
+    return f'AllOurPhotos {filename} @ {modified_dt} (deploy {build})'
 
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
