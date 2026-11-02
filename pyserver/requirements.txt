@@ -5,7 +5,7 @@ certifi==2026.10.23
 charset-normalizer==3.3.2
 click==8.3.3
 colorama==0.4.6
-dnspython==2.6.1
+dnspython==2.9.0
 email-validator==2.0.0.post2
 fastapi==0.134.0
 fastapi-cli==0.0.14
